@@ -5,7 +5,7 @@
 <style>
 .panel {
     position: relative;
-    width: 40vw;
+    width: 100%;
     height: 22vw;
 }
 </style>

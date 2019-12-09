@@ -9,6 +9,16 @@ export let options = [];
 export let onChange = () => {};
 
 function handleChange(event) {
-    console.log('handle change');
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].key === event.target.value) {
+            onChange(options[i]);
+        }
+    }
 }
 </script>
+
+<style>
+select {
+    position: relative;
+}
+</style>
