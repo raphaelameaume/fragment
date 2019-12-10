@@ -59,13 +59,15 @@ class Cubes extends Stage {
     }
 
     onChangeSpeed({ value }) {
-        console.log('onChangeCount', value);
+        // console.log('onChangeCount', value);
     }
 
     update() {
-        this.mesh.rotation.x += 0.01 * this.props.speed.value;
-        this.mesh.rotation.y += 0.01 * this.props.speed.value;
-        this.mesh.rotation.z += 0.01 * this.props.speed.value;
+        if (this.props.move.value) {
+            this.mesh.rotation.x += 0.01 * this.props.speed.value;
+            this.mesh.rotation.y += 0.01 * this.props.speed.value;
+            this.mesh.rotation.z += 0.01 * this.props.speed.value;
+        }
     }
 
     render() {
@@ -81,6 +83,9 @@ export default {
             min: 0,
             max: 20,
             value: 1,
+        },
+        move: {
+            value: true,
         }
     }
 };

@@ -1,4 +1,5 @@
 <script>
+import { onMount } from "svelte";
 import Renderer from "./core/Renderer.js";
 import Preview from "./ui/Preview.svelte";
 import Panel from "./ui/Panel.svelte";
@@ -19,6 +20,9 @@ $: current = {
 	stage1: null,
 	stage2: null,
 };
+
+
+
 
 let instanced = {};
 
@@ -51,6 +55,14 @@ $: tab1Active = tabIndex === 1;
 function changeTab(index) {
 	tabIndex = index;
 }
+
+onMount(() => {
+	Object.keys(stages).forEach((name, index) => {
+		if (index < 2) {
+			setStage(`stage${index+1}`, name);
+		}
+	});
+})
 
 </script>
 

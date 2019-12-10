@@ -10,7 +10,15 @@
     <input type="color" class="field__color" value="{prop.value}" on:change={handleChangeColor} />
     {/if}
 
-    <input type="text" class="field__value" value="{prop.value}" on:keyup={handleKeyUp}/>
+    {#if type === 'boolean' } 
+    <div class="field__check">
+        <input type="checkbox" class="check__input" value="{value}" on:change={handleChangeCheck} />
+    </div>
+    {/if}
+
+    {#if type !== 'boolean'}
+        <input type="text" class="field__value" value="{prop.value}" on:keyup={handleKeyUp}/>
+    {/if}
 </div>
 
 <style>
@@ -48,14 +56,16 @@
 }
 
 .field__color {
+    display: flex;
     width: 100%;
     height: 100%;
     padding: 0;
     margin: 0;
 
-    border: 0;
+    border: none;
     background-color: transparent;
     border-radius: 0;
+    outline: 0;
 }
 
 .progress__fill {
@@ -83,6 +93,7 @@ export let name = '';
 export let step = 0.1;
 export let type = prop.type ? prop.type : typeof prop.value;
 
+let value = prop.value;
 let progress, fill;
 
 function handleMouseDown(event) {
@@ -117,12 +128,20 @@ function handleChangeColor(event) {
     setValue(event.currentTarget.value);
 }
 
+function handleChangeCheck(event) {
+    setValue(event.target.checked);
+}
+
 function setValue(v) {
     if (prop.min !== undefined && prop.max !== undefined) {
         prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
     } else {
         prop.value = v;
     }
+
+    // console.log(`Field :: setValue`, prop.value);
+
+    value = prop.value;
 
     if (typeof prop.onChange === 'function') {
         prop.onChange(prop);
