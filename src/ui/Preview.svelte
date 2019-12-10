@@ -43,10 +43,11 @@ onMount(() => {
 
 function update() {
     if (stage) {
-        stage.render();
+        stage.instance.update();
+        stage.instance.render();
 
         context.clearRect(0, 0, width, height);
-        context.drawImage(stage.gl.canvas, 0, 0);
+        context.drawImage(stage.instance.gl.canvas, 0, 0);
     }
     requestAnimationFrame(update);
 }

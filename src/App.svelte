@@ -7,6 +7,7 @@ import Tabs from "./ui/Tabs.svelte";
 import TabList from "./ui/TabList.svelte";
 import Tab from "./ui/Tab.svelte";
 import TabPanel from "./ui/TabPanel.svelte";
+import Field from "./ui/Field.svelte";
 
 import * as stages from "./stages/index.js";
 
@@ -37,7 +38,7 @@ function handleStageChange(stage, key) {
 		instanced[key] = stages[key];
 	}
 
-	current[stage] = instanced[key].instance;
+	current[stage] = instanced[key];
 
 	console.log(current);
 }
@@ -76,10 +77,18 @@ function changeTab(index) {
 				<Tab current={tab1Active} onClick={() => changeTab(1)}>Stage 2</Tab>
 			</TabList>
 			<TabPanel current={tabIndex === 0}>
-				<h2>Controls stage 1</h2>
+				{#if current.stage1 !== null}
+					{#each Object.keys(current.stage1.props) as propKey}
+						<Field prop={current.stage1.props[propKey]} name={propKey} />
+					{/each}
+				{/if}
 			</TabPanel>
 			<TabPanel current={tabIndex === 1}>
-				<h2>Controls stage 2</h2>
+				{#if current.stage2 !== null}
+					{#each Object.keys(current.stage2.props) as propKey}
+						<Field prop={current.stage2.props[propKey]} name={propKey} />
+					{/each}
+				{/if}
 			</TabPanel>
 		</Tabs>
 	</div>
