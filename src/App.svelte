@@ -3,6 +3,10 @@ import Renderer from "./core/Renderer.js";
 import Preview from "./ui/Preview.svelte";
 import Panel from "./ui/Panel.svelte";
 import Select from "./ui/Select.svelte";
+import Tabs from "./ui/Tabs.svelte";
+import TabList from "./ui/TabList.svelte";
+import Tab from "./ui/Tab.svelte";
+import TabPanel from "./ui/TabPanel.svelte";
 
 import * as stages from "./stages/index.js";
 
@@ -38,6 +42,18 @@ function handleStageChange(stage, key) {
 	console.log(current);
 }
 
+
+
+let tabIndex = 0;
+$: tab0Active = tabIndex === 0;
+$: tab1Active = tabIndex === 1;
+
+function changeTab(index) {
+	tabIndex = index;
+
+	console.log({ tabIndex });
+}
+
 </script>
 
 <main>
@@ -52,6 +68,20 @@ function handleStageChange(stage, key) {
 		</Panel>
 	</div>
 	<div class="live">
+	</div>
+	<div class="controls">
+		<Tabs>
+			<TabList>
+				<Tab current={tab0Active} onClick={() => changeTab(0)}>Stage 1</Tab>
+				<Tab current={tab1Active} onClick={() => changeTab(1)}>Stage 2</Tab>
+			</TabList>
+			<TabPanel current={tabIndex === 0}>
+				<h2>Controls stage 1</h2>
+			</TabPanel>
+			<TabPanel current={tabIndex === 1}>
+				<h2>Controls stage 2</h2>
+			</TabPanel>
+		</Tabs>
 	</div>
 </main>
 
@@ -90,5 +120,16 @@ main {
 	height: 50vh;
 
 	background-color: blue;
+}
+
+.controls {
+	position: absolute;
+	top: 50vh;
+	left: 40vw;
+
+	width: 60vw;
+	height: 50vh;
+
+	background: lightblue;
 }
 </style>
