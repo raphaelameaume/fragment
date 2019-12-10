@@ -35,8 +35,6 @@ export let current;
 $: className = current ? 'current' : '';
 
 function handleClick(event) {
-    console.log('handle click');
-    console.log(onClick);
     onClick(event);
 }
 

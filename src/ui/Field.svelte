@@ -1,9 +1,16 @@
 <div class="field">
     <div class="field__name">{name}</div>
+    {#if prop.min !== undefined && prop.max !== undefined} 
     <div class="field__progress" bind:this={progress} on:mousedown={handleMouseDown}>
         <div class="progress__fill" style="transform: scaleX({map(prop.value, prop.min, prop.max, 0, 1)})"></div>
     </div>
-    <div class="field__value">{prop.value}</div>
+    {/if}
+
+    {#if type === 'color' } 
+    <input type="color" class="field__color" value="{prop.value}" on:change={handleChangeColor} />
+    {/if}
+
+    <input type="text" class="field__value" value="{prop.value}" on:keyup={handleKeyUp}/>
 </div>
 
 <style>
@@ -23,9 +30,10 @@
 
 .field__value {
     width: 22%;
+    height: 100%;
+    padding: 0 10px;
     flex-shrink: 0;
     flex-grow: 0;
-    padding: 0 10px;
 }
 
 .field__progress {
@@ -37,6 +45,17 @@
 
     background: lightgray;
     cursor: ew-resize;
+}
+
+.field__color {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+
+    border: 0;
+    background-color: transparent;
+    border-radius: 0;
 }
 
 .progress__fill {
@@ -62,6 +81,7 @@ import { clamp } from "../math/clamp.js";
 export let prop;
 export let name = '';
 export let step = 0.1;
+export let type = prop.type ? prop.type : typeof prop.value;
 
 let progress, fill;
 
@@ -87,10 +107,26 @@ function handleMouseUp() {
     document.removeEventListener('mouseup', handleMouseUp);
 }
 
-function setValue(v) {
-    prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
+function handleKeyUp(event) {
+    if (event.keyCode === 13) {
+        setValue(event.currentTarget.value);
+    }
+}
 
-    // fill.style.transform = `scaleX(${p})`;
+function handleChangeColor(event) {
+    setValue(event.currentTarget.value);
+}
+
+function setValue(v) {
+    if (prop.min !== undefined && prop.max !== undefined) {
+        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
+    } else {
+        prop.value = v;
+    }
+
+    if (typeof prop.onChange === 'function') {
+        prop.onChange(prop);
+    }
 }
 
 </script>

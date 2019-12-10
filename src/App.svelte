@@ -12,8 +12,6 @@ import Field from "./ui/Field.svelte";
 import * as stages from "./stages/index.js";
 
 let list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
-let stage1 = null;
-let stage2 = null;
 
 let { renderer, gl, dimensions } = Renderer();
 
@@ -24,7 +22,11 @@ $: current = {
 
 let instanced = {};
 
-function handleStageChange(stage, key) {
+function handleStageChange(id, key) {
+	setStage(id, key);
+}
+
+function setStage(id, key) {
 	if (!instanced[key]) {
 		const { scene, name, props } = stages[key];
 
@@ -38,11 +40,8 @@ function handleStageChange(stage, key) {
 		instanced[key] = stages[key];
 	}
 
-	current[stage] = instanced[key];
-
-	console.log(current);
+	current[id] = instanced[key];
 }
-
 
 
 let tabIndex = 0;
@@ -51,8 +50,6 @@ $: tab1Active = tabIndex === 1;
 
 function changeTab(index) {
 	tabIndex = index;
-
-	console.log({ tabIndex });
 }
 
 </script>
