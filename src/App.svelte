@@ -1,4 +1,5 @@
 <script>
+import Renderer from "./core/Renderer.js";
 import Preview from "./ui/Preview.svelte";
 import Panel from "./ui/Panel.svelte";
 import Select from "./ui/Select.svelte";
@@ -6,19 +7,48 @@ import Select from "./ui/Select.svelte";
 import * as stages from "./stages/index.js";
 
 let list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
-let scene1 = null;
-let scene2 = null;
+let stage1 = null;
+let stage2 = null;
+
+let { renderer, gl, dimensions } = Renderer();
+
+$: current = {
+	stage1: null,
+	stage2: null,
+};
+
+let instanced = {};
+
+function handleStageChange(stage, key) {
+	if (!instanced[key]) {
+		const { scene, name, props } = stages[key];
+
+		stages[key].instance = new scene({
+			name,
+			gl,
+			renderer,
+			props,
+		});
+
+		instanced[key] = stages[key];
+	}
+
+	current[stage] = instanced[key].instance;
+
+	console.log(current);
+}
+
 </script>
 
 <main>
 	<div class="panels">
 		<Panel>
-			<Preview></Preview>
-			<Select options={list} onChange={({ key }) => scene1 = list[key]}></Select>
+			<Preview width={dimensions.width} height={dimensions.height} stage={current.stage1}></Preview>
+			<Select options={list} onChange={({ key }) => handleStageChange('stage1', key)}></Select>
 		</Panel>
 		<Panel>
-			<Preview></Preview>
-			<Select options={list} onChange={({ key }) => scene2 = list[key]}></Select>
+			<Preview width={dimensions.width} height={dimensions.height} stage={current.stage2}></Preview>
+			<Select options={list} onChange={({ key }) => handleStageChange('stage2', key)}></Select>
 		</Panel>
 	</div>
 	<div class="live">

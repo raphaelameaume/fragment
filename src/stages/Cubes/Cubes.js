@@ -2,8 +2,8 @@ import Stage from "../Stage";
 
 class Cubes extends Stage {
 
-    constructor(props) {
-
+    constructor(options) {
+        super(options);
     }
 
 }
