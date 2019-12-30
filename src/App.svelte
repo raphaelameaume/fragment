@@ -1,6 +1,8 @@
 <script>
 import { onMount } from "svelte";
 import Renderer from "./core/Renderer.js";
+import { Webcam } from "./core/Webcam.js";
+import { Microphone } from "./core/Microphone.js";
 import Preview from "./ui/Preview.svelte";
 import Panel from "./ui/Panel.svelte";
 import Select from "./ui/Select.svelte";
@@ -10,6 +12,7 @@ import Tab from "./ui/Tab.svelte";
 import TabPanel from "./ui/TabPanel.svelte";
 import Field from "./ui/Field.svelte";
 import Dropdown from "./ui/Dropdown.svelte";
+
 
 import * as stages from "./stages/index.js";
 
@@ -56,8 +59,41 @@ onMount(() => {
 let propInputWebcam = {
 	name: "webcam",
 	type: "button",
+	label: "Request",
 	onTrigger: () => {
-		console.log('request webcam access');
+		Webcam.request({ audio: false, onSuccess: () => {
+			console.log('got webcam access!');
+
+			let { video } = Webcam;
+
+			video.style.cssText = 'position: absolute; bottom: 0; left: 0; z-index: 999;';
+
+			document.body.appendChild(Webcam.video);
+		}})
+	}
+};
+
+let propInputMicro = {
+	name: "live",
+	type: "button",
+	label: "Request",
+	onTrigger: () => {
+		Microphone.request({ onSuccess: () => {
+			console.log('micro requested');
+		}})
+	}
+};
+
+let propInputPlaylist = {
+	name: "playlist",
+	type: "list",
+	value: [
+		{ value: "sun-models.mp3"},
+		{ value: "meridian.mp3"},
+		{ value: "the-ciudad.mp3"},
+	],
+	onTrigger: ({ value }) => {
+		console.log(value);
 	}
 };
 
@@ -82,6 +118,12 @@ let propInputWebcam = {
 			</TabList>
 			<TabPanel>
 				<Dropdown title="Audio">
+					<Field prop={propInputMicro} name={propInputMicro.name} />
+					<Field prop={propInputPlaylist} name={propInputPlaylist.name} />
+					<Field prop={{ min: 0, max: 1, value: 0.5 }} name="volume" />
+					<Field prop={{ min: 0, max: 1000, value: 300 }} name="hold" />
+					<Field prop={{ min: 0, max: 1, value: 0.992 }} name="decay" />
+					<Field prop={{ min: 0, max: 1, value: 0.1 }} name="min" />
 				</Dropdown>
 				<Dropdown title="Video">
 					<Field prop={propInputWebcam} name={propInputWebcam.name} />
@@ -120,7 +162,10 @@ let propInputWebcam = {
 main {
 	position: relative;
 
+	display: flex;
 	height: 100%;
+	justify-content: center;
+	align-items: center;
 
 	margin: 0 auto;
 }
@@ -137,8 +182,6 @@ main {
 	width: 40vw;
 	height: 100%;
 	padding: 0 20px;
-
-	background-color: lightgray;
 }
 
 .live {
@@ -150,7 +193,7 @@ main {
 	width: 60vw;
 	height: 50vh;
 
-	background-color: lightgreen;
+	background-color: #242425;
 }
 
 .controls {
@@ -161,6 +204,6 @@ main {
 	width: 60vw;
 	height: 50vh;
 
-	background: lightblue;
+	background: #242425;
 }
 </style>

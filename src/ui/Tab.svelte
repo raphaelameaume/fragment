@@ -4,12 +4,30 @@
 
 <style>
 .tab {
+    position: relative;
+
     padding: 0;
     margin: 0;
 }
 
-.tab.current {
-    border-bottom: 1px solid black;
+.tab:after {
+    content: '';
+    
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 2px;
+    
+    background-color: black;
+    transform: scaleY(0);
+    transform-origin: 50% 100%;
+}
+
+.tab.current:after {
+    transform: scaleY(1);
+    /* border-bottom: 1px solid black; */
 }
 
 .tab__button {
@@ -21,6 +39,7 @@
     border: none;
     padding: 10px;
     margin: 0;
+    color: #f0f0f0;
 }
 
 </style>

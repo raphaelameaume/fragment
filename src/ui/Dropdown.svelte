@@ -1,12 +1,11 @@
 <div class="dropdown">
-    <button class="button">
+    <button class="button" on:click={toggle}>
         <span class="toggle"></span>
         <span class="label">{title}</span>
     </button>
-    <div class="content">
-    
+    <div class="content {classNameVisible}">
+        <slot></slot>
     </div>
-    <slot></slot>
 </div>
 
 <style>
@@ -17,8 +16,11 @@
     width: 100%;
     padding: 4px;
     margin: 0;
+    margin-bottom: 1px;
     border-radius: 4px;
-    border: 1px solid grey;
+    background: #1d1d1e;
+    border: 1px solid black;
+    color: #f0f0f0;
 }
 
 .toggle {
@@ -34,10 +36,25 @@
     text-align: left;
     font-size: 10px;
 }
+
+.content {
+    display: none;
+}
+
+.content.visible {
+    display: block;
+}
+
 </style>
 
 <script>
 export let title = "";
-export let opened = false;
+export let opened = true;
+
+$: classNameVisible = opened ? 'visible' : '';
+
+function toggle() {
+    opened = !opened;
+}
 
 </script>

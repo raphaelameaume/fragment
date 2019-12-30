@@ -17,16 +17,24 @@
     </div>
     {/if}
 
-    {#if type !== 'boolean' && type !== 'button' && type !== 'image'}
+    {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list'}
         <input type="text" class="field__value" value="{prop.value}" on:keyup={handleKeyUp}/>
     {/if}
 
     {#if type === 'button'}
-        <button class="field__value" on:click={handleTrigger}></button>
+        <button class="field__value" on:click={handleTrigger}>{prop.label ? prop.label : 'click' }</button>
     {/if}
 
     {#if type === 'image'}
         <div class="field__image"></div>
+    {/if}
+
+    {#if type === 'list'}
+        <div class="field__value field__value--list">
+            {#each prop.value as option}
+            <button class="field__button" on:click={() => prop.onTrigger(option)}>{option.value}</button>
+            {/each}
+        </div>
     {/if}
 </div>
 
@@ -75,6 +83,14 @@
     padding: 0 10px;
     flex-shrink: 0;
     flex-grow: 0;
+}
+
+.field__value--list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    font-size: 10px;
+    padding: 0;
 }
 
 .field__progress {

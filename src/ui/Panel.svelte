@@ -6,6 +6,8 @@
 .panel {
     position: relative;
     width: 100%;
-    height: 50vh;
+    height: 45vh;
+
+    background-color: #242425;
 }
 </style>
