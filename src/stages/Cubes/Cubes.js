@@ -1,4 +1,4 @@
-import { Camera, Box, Mesh, Sphere, Program } from "ogl";
+import { Camera, Box, Mesh, Program, Texture } from "ogl";
 
 import Stage from "../Stage.js";
 
@@ -56,6 +56,12 @@ class Cubes extends Stage {
 
         this.mesh = new Mesh(this.gl, { geometry, program });
         this.scene.addChild(this.mesh);
+
+        let texture = new Texture(this.gl);
+
+        this.props.texture.onChange = ({ image }) => {
+            texture.image = image;
+        };
     }
 
     onChangeSpeed({ value }) {
@@ -71,7 +77,7 @@ class Cubes extends Stage {
     }
 
     render() {
-        this.renderer.render({ scene: this.scene, camera: this.camera });
+        // this.renderer.render({ scene: this.scene, camera: this.camera });
     }
 }
 
@@ -86,6 +92,10 @@ export default {
         },
         move: {
             value: true,
-        }
+        },
+        texture: {
+            type: "image",
+            value: 'assets/images/test.png',
+        },
     }
 };

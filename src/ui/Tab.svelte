@@ -26,16 +26,37 @@
 </style>
 
 <script>
-import { beforeUpdate } from "svelte";
+import { beforeUpdate, getContext } from "svelte";
 
+let current;
+let context = getContext('tabContext');
+let index;
 
-export let onClick;
-export let current;
+context.update((values) => {
+    const { tabs } = values;
+
+    index = tabs.length;
+
+    return {
+        ...values,
+        tabs: [...tabs, tabs.length],
+    };
+});
 
 $: className = current ? 'current' : '';
 
+context.subscribe(({ tabIndex }) => {
+    current = tabIndex === index;
+});
+
+
 function handleClick(event) {
-    onClick(event);
+    context.update((values) => {
+        return {
+            ...values,
+            tabIndex: index,
+        };
+    })
 }
 
 </script>

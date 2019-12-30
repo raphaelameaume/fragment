@@ -13,9 +13,27 @@
 </style>
 
 <script>
-export let current = false;
+import { getContext } from "svelte";
+
+let current;
+let index;
+
+let context = getContext('tabContext');
+
+context.update((values) => {
+    const { panels } = values;
+
+    index = panels.length;
+
+    return {
+        ...values,
+        panels: [...panels, panels.length]
+    };
+});
+
+context.subscribe(({ tabIndex }) => {
+    current = tabIndex === index;
+});
 
 $: className = current ? 'current' : '';
-
-
 </script>

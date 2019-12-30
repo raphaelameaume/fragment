@@ -1,4 +1,5 @@
 <div class="field">
+    <div class="field__live"></div>
     <div class="field__name">{name}</div>
     {#if prop.min !== undefined && prop.max !== undefined} 
     <div class="field__progress" bind:this={progress} on:mousedown={handleMouseDown}>
@@ -12,12 +13,20 @@
 
     {#if type === 'boolean' } 
     <div class="field__check">
-        <input type="checkbox" class="check__input" value="{value}" on:change={handleChangeCheck} />
+        <input type="checkbox" class="check__input" checked={value} on:change={handleChangeCheck} />
     </div>
     {/if}
 
-    {#if type !== 'boolean'}
+    {#if type !== 'boolean' && type !== 'button' && type !== 'image'}
         <input type="text" class="field__value" value="{prop.value}" on:keyup={handleKeyUp}/>
+    {/if}
+
+    {#if type === 'button'}
+        <button class="field__value" on:click={handleTrigger}></button>
+    {/if}
+
+    {#if type === 'image'}
+        <div class="field__image"></div>
     {/if}
 </div>
 
@@ -29,6 +38,30 @@
     width: 100%;
     height: 30px;
 }
+
+.field__live {
+    position: relative;
+
+    width: 20px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.field__live:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    margin-top: -5px;
+
+    border-radius: 5px;
+    background-color: red;
+}
+
 .field__name {
     width: 40%;
     padding: 0 10px;
@@ -82,6 +115,13 @@
     
 }
 
+.field__image {
+    width: 30px;
+    height: 30px;
+    border: 6px solid white;
+    box-sizing: border-box;
+}
+
 </style>
 
 <script>
@@ -92,6 +132,7 @@ export let prop;
 export let name = '';
 export let step = 0.1;
 export let type = prop.type ? prop.type : typeof prop.value;
+export let live = true;
 
 let value = prop.value;
 let progress, fill;
@@ -130,6 +171,12 @@ function handleChangeColor(event) {
 
 function handleChangeCheck(event) {
     setValue(event.target.checked);
+}
+
+function handleTrigger(event) {
+    if (typeof prop.onTrigger === 'function') {
+        prop.onTrigger();
+    }
 }
 
 function setValue(v) {

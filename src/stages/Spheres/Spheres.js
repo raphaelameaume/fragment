@@ -66,6 +66,10 @@ class Spheres extends Stage {
         this.props.diffuse.onChange = ({ value }) => {
             uniforms.diffuse.value = new Color(value);
         };
+
+        this.props.tick.onTrigger = () => {
+            console.log('trigger tick');
+        };
     }
 
     onChangeCount({ value }) {
@@ -79,7 +83,7 @@ class Spheres extends Stage {
     }
 
     render() {
-        this.renderer.render({ scene: this.scene, camera: this.camera });
+        // this.renderer.render({ scene: this.scene, camera: this.camera });
     }
 }
 
@@ -98,6 +102,9 @@ export default {
         diffuse: {
             value: '#ff0000',
             type: "color",
+        },
+        tick: {
+            type: "button",
         }
     }
 };

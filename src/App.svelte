@@ -9,6 +9,7 @@ import TabList from "./ui/TabList.svelte";
 import Tab from "./ui/Tab.svelte";
 import TabPanel from "./ui/TabPanel.svelte";
 import Field from "./ui/Field.svelte";
+import Dropdown from "./ui/Dropdown.svelte";
 
 import * as stages from "./stages/index.js";
 
@@ -20,9 +21,6 @@ $: current = {
 	stage1: null,
 	stage2: null,
 };
-
-
-
 
 let instanced = {};
 
@@ -47,22 +45,21 @@ function setStage(id, key) {
 	current[id] = instanced[key];
 }
 
-
-let tabIndex = 0;
-$: tab0Active = tabIndex === 0;
-$: tab1Active = tabIndex === 1;
-
-function changeTab(index) {
-	tabIndex = index;
-}
-
 onMount(() => {
 	Object.keys(stages).forEach((name, index) => {
 		if (index < 2) {
 			setStage(`stage${index+1}`, name);
 		}
 	});
-})
+});
+
+let propInputWebcam = {
+	name: "webcam",
+	type: "button",
+	onTrigger: () => {
+		console.log('request webcam access');
+	}
+};
 
 </script>
 
@@ -78,21 +75,37 @@ onMount(() => {
 		</Panel>
 	</div>
 	<div class="live">
+		<Tabs>
+			<TabList>
+				<Tab>Input</Tab>
+				<Tab>Output</Tab>
+			</TabList>
+			<TabPanel>
+				<Dropdown title="Audio">
+				</Dropdown>
+				<Dropdown title="Video">
+					<Field prop={propInputWebcam} name={propInputWebcam.name} />
+				</Dropdown>
+			</TabPanel>
+			<TabPanel>
+				<h2>Output controls</h2>
+			</TabPanel>
+		</Tabs>
 	</div>
 	<div class="controls">
 		<Tabs>
 			<TabList>
-				<Tab current={tab0Active} onClick={() => changeTab(0)}>Stage 1</Tab>
-				<Tab current={tab1Active} onClick={() => changeTab(1)}>Stage 2</Tab>
+				<Tab>Stage 1</Tab>
+				<Tab>Stage 2</Tab>
 			</TabList>
-			<TabPanel current={tabIndex === 0}>
+			<TabPanel>
 				{#if current.stage1 !== null}
 					{#each Object.keys(current.stage1.props) as propKey}
 						<Field prop={current.stage1.props[propKey]} name={propKey} />
 					{/each}
 				{/if}
 			</TabPanel>
-			<TabPanel current={tabIndex === 1}>
+			<TabPanel>
 				{#if current.stage2 !== null}
 					{#each Object.keys(current.stage2.props) as propKey}
 						<Field prop={current.stage2.props[propKey]} name={propKey} />
@@ -137,7 +150,7 @@ main {
 	width: 60vw;
 	height: 50vh;
 
-	background-color: blue;
+	background-color: lightgreen;
 }
 
 .controls {
