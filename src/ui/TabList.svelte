@@ -5,6 +5,7 @@
 <style>
 .tabs__list {
     display: flex;
+    height: 36px;
     padding: 0;
     margin: 0;
     margin-bottom: 1px;
