@@ -11,13 +11,14 @@
 </style>
 
 <script>
+export let tabIndex = 0;
 import { writable } from 'svelte/store';
 import { setContext } from 'svelte';
 
 let tabs = writable({
     tabs: [],
     panels: [],
-    tabIndex: 0,
+    tabIndex: tabIndex,
 });
 
 setContext('tabContext', tabs);

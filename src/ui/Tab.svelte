@@ -40,6 +40,7 @@
     padding: 10px;
     margin: 0;
     color: #f0f0f0;
+    cursor: pointer;
 }
 
 </style>

@@ -14,6 +14,7 @@ import Tab from "./ui/Tab.svelte";
 import TabPanel from "./ui/TabPanel.svelte";
 import Field from "./ui/Field.svelte";
 import Dropdown from "./ui/Dropdown.svelte";
+import Output from "./ui/Output.svelte";
 
 
 import * as stages from "./stages/index.js";
@@ -176,7 +177,7 @@ let propInputPlaylist = {
 		</Panel>
 	</div>
 	<div class="live">
-		<Tabs>
+		<Tabs tabIndex={1}>
 			<TabList>
 				<Tab>Input</Tab>
 				<Tab>Output</Tab>
@@ -203,7 +204,16 @@ let propInputPlaylist = {
 				</Dropdown>
 			</TabPanel>
 			<TabPanel>
-				<h2>Output controls</h2>
+				<Output/>
+				<Dropdown title="Dimensions">
+					<Field prop={{ value: 1920, min: 0, max: Infinity, step: 1 }} name="width" />
+					<Field prop={{ value: 1080, min: 0, max: Infinity, step: 1 }} name="height" />
+				</Dropdown>
+				<Dropdown title="Transition">
+					<Field prop={{ value: 0, min: 0, max: 1, step: 0.01 }} name="treshold" />
+				</Dropdown>
+				<Dropdown title="Post-processing">
+				</Dropdown>
 			</TabPanel>
 		</Tabs>
 	</div>

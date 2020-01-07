@@ -18,7 +18,7 @@
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list'}
-        <input type="text" class="field__value field__value--text" value="{prop.value}" on:keyup={handleKeyUp}/>
+        <input type="text" class="field__value field__value--text" value="{prop.value}" bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
     {/if}
 
     {#if type === 'button'}
@@ -218,6 +218,10 @@ export let prop;
 export let name = '';
 export let type = prop.type ? prop.type : typeof prop.value;
 
+let inputs = {
+    text: null,
+};
+
 let step = prop.step ? prop.step : 0.01;
 let value = prop.value;
 let progress, fill;
@@ -261,6 +265,41 @@ function handleChangeCheck(event) {
 function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
         prop.onTrigger(prop);
+    }
+}
+
+function handleFocus(event) {
+    window.addEventListener('keypress', handleKeypress);
+    window.addEventListener('keydown', handleKeydown);
+}
+
+function handleBlur() {
+    window.removeEventListener('keypress', handleKeypress);
+    window.removeEventListener('keydown', handleKeydown);
+}
+
+function handleKeypress(event) {
+    console.log(event);
+    if (event.keyCode === 13) {
+        inputs.text.blur();
+    }
+}
+
+function handleKeydown(event) {
+    if (event.keyCode === 38) { // ArrowUp
+        if (prop.min !== undefined && prop.max !== undefined) { // @TODO : should check only if number and not range
+            event.preventDefault();
+
+            setValue(value + step);
+        }
+    }
+
+    if (event.keyCode === 40) { // ArrowDown
+        if (prop.min !== undefined && prop.max !== undefined) { // @TODO : should check only if number and not range
+            event.preventDefault();
+
+            setValue(value - step);
+        }
     }
 }
 
