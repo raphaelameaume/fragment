@@ -83,7 +83,7 @@ class Spheres extends Stage {
     }
 
     render() {
-        // this.renderer.render({ scene: this.scene, camera: this.camera });
+        this.renderer.render({ scene: this.scene, camera: this.camera });
     }
 }
 

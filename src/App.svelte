@@ -3,10 +3,12 @@ import { onMount } from "svelte";
 import Renderer from "./core/Renderer.js";
 import { Webcam } from "./core/Webcam.js";
 import { Microphone } from "./core/Microphone.js";
+import { Audio } from "./core/Audio.js";
 import Preview from "./ui/Preview.svelte";
 import Panel from "./ui/Panel.svelte";
 import Select from "./ui/Select.svelte";
 import Tabs from "./ui/Tabs.svelte";
+import Button from "./ui/Button.svelte";
 import TabList from "./ui/TabList.svelte";
 import Tab from "./ui/Tab.svelte";
 import TabPanel from "./ui/TabPanel.svelte";
@@ -59,41 +61,104 @@ onMount(() => {
 let propInputWebcam = {
 	name: "webcam",
 	type: "button",
-	label: "Request",
-	onTrigger: () => {
-		Webcam.request({ audio: false, onSuccess: () => {
-			console.log('got webcam access!');
+	label: "Enable",
+	enabled: false,
+	onTrigger: (prop) => {
+		propInputWebcam.enabled = !propInputWebcam.enabled;
+		propInputWebcam.label = propInputWebcam.enabled ? 'Disable' : 'Enable';
 
-			let { video } = Webcam;
+		if (propInputWebcam.enabled) {
+			Webcam.request({ audio: false, onSuccess: () => {
+				Webcam.video.style.cssText = 'position: absolute; bottom: 0; left: 0; z-index: 999;';
+	
+				document.body.appendChild(Webcam.video);
+			}});
+		} else {
 
-			video.style.cssText = 'position: absolute; bottom: 0; left: 0; z-index: 999;';
-
-			document.body.appendChild(Webcam.video);
-		}})
+		}
 	}
 };
 
 let propInputMicro = {
-	name: "live",
+	name: "microphone",
 	type: "button",
-	label: "Request",
+	label: "Enable",
+	enabled: false,
 	onTrigger: () => {
-		Microphone.request({ onSuccess: () => {
-			console.log('micro requested');
-		}})
+		propInputMicro.enabled = !propInputMicro.enabled;
+		propInputMicro.label = propInputMicro.enabled ? 'Disable' : 'Enable';
+
+		if (propInputMicro.enabled) {
+			Microphone.request({ onSuccess: (stream) => {
+				Audio.attachStream(stream);
+				// console.log('microphone requested!')
+			}});
+		} else {
+			
+		}
 	}
 };
 
 let propInputPlaylist = {
 	name: "playlist",
 	type: "list",
+	current: 0,
 	value: [
-		{ value: "sun-models.mp3"},
-		{ value: "meridian.mp3"},
-		{ value: "the-ciudad.mp3"},
+		{ value: "sun-models.mp3", src: "assets/sounds/sun-models.mp3" },
 	],
+	input: null,
+	playing: false,
+	labelPlay: 'Play',
 	onTrigger: ({ value }) => {
 		console.log(value);
+	},
+	handleClickPrev: () => {
+		let { current, value } = propInputPlaylist;
+		propInputPlaylist.current = current > 0 ? current - 1 : value.length - 1;
+	},
+	handleClickNext: () => {
+		let { current, value, playing } = propInputPlaylist;
+		propInputPlaylist.current = (current + 1) % value.length;
+
+		if (playing) {
+			propInputPlaylist.handleClickPlay();
+		}
+	},
+	handleClickPlay: () => {
+		propInputPlaylist.playing = !propInputPlaylist.playing; 
+		propInputPlaylist.labelPlay = propInputPlaylist.playing ? 'Pause' : 'Play';
+
+		if (propInputPlaylist.playing) {
+			let { value, current } = propInputPlaylist;
+			let filepath = value[current].src;
+	
+			Audio.play(filepath, { onEnd: () => {
+				propInputPlaylist.handleClickNext();
+			}});
+		} else {
+			Audio.pause();
+		}
+	},
+	handleUpload: (event) => {
+		let reader = new FileReader();
+		let file = event.target.files[0];
+		reader.onload = (e) => {
+			propInputPlaylist.value = [
+				...propInputPlaylist.value,
+				{
+					value: file.name,
+					src: e.target.result,
+				}
+			];
+
+			Audio.play(e.target.result, { onEnd: () => {
+				propInputPlaylist.handleClickNext();
+			}});
+		};
+		reader.readAsDataURL(file);
+	},
+	handleClickLoad: () => {
+		propInputPlaylist.input.click();
 	}
 };
 
@@ -119,14 +184,22 @@ let propInputPlaylist = {
 			<TabPanel>
 				<Dropdown title="Audio">
 					<Field prop={propInputMicro} name={propInputMicro.name} />
-					<Field prop={propInputPlaylist} name={propInputPlaylist.name} />
-					<Field prop={{ min: 0, max: 1, value: 0.5 }} name="volume" />
+					<Field prop={propInputPlaylist} name={propInputPlaylist.name}>
+						<Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPrev}>Prev</Button>
+						<Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPlay}>{propInputPlaylist.labelPlay}</Button>
+						<Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickNext}>Next</Button>
+						<Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickLoad}>Load</Button>
+						<input type="file" name="load" style="display: none" bind:this={propInputPlaylist.input} on:change={propInputPlaylist.handleUpload} accept="audio/mp3, audio/wav"/>
+					</Field>
+					<Field prop={{ min: 0, max: 1, value: 0.500, step: 0.001 }} name="volume" />
 					<Field prop={{ min: 0, max: 1000, value: 300 }} name="hold" />
 					<Field prop={{ min: 0, max: 1, value: 0.992 }} name="decay" />
 					<Field prop={{ min: 0, max: 1, value: 0.1 }} name="min" />
 				</Dropdown>
 				<Dropdown title="Video">
 					<Field prop={propInputWebcam} name={propInputWebcam.name} />
+				</Dropdown>
+				<Dropdown title="MIDI">
 				</Dropdown>
 			</TabPanel>
 			<TabPanel>

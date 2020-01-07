@@ -1,6 +1,7 @@
 import { Camera, Box, Mesh, Program, Texture } from "ogl";
 
 import Stage from "../Stage.js";
+import { Audio } from "../../core/Audio.js";
 
 const vertex = /* glsl */ `
     precision highp float;
@@ -11,9 +12,16 @@ const vertex = /* glsl */ `
     uniform mat4 projectionMatrix;
     uniform mat3 normalMatrix;
     varying vec3 vNormal;
+
+    uniform float uScale;
+
+
     void main() {
         vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vec3 transformed = position;
+        transformed *= uScale;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
     }
 `;
 
@@ -43,9 +51,14 @@ class Cubes extends Stage {
         this.camera.perspective({ aspect: this.gl.canvas.width / this.gl.canvas.height });
         this.camera.position.z = 3;
 
+        this.uniforms = {
+            uScale: { value: 1 },
+        };
+
         const program = new Program(this.gl, {
             vertex,
             fragment,
+            uniforms: this.uniforms,
         });
 
         const geometry = new Box(this.gl, {
@@ -69,6 +82,8 @@ class Cubes extends Stage {
     }
 
     update() {
+        this.uniforms.uScale.value = 1 + Audio.volume();
+
         if (this.props.move.value) {
             this.mesh.rotation.x += 0.01 * this.props.speed.value;
             this.mesh.rotation.y += 0.01 * this.props.speed.value;
@@ -77,7 +92,7 @@ class Cubes extends Stage {
     }
 
     render() {
-        // this.renderer.render({ scene: this.scene, camera: this.camera });
+        this.renderer.render({ scene: this.scene, camera: this.camera });
     }
 }
 

@@ -18,11 +18,11 @@
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list'}
-        <input type="text" class="field__value" value="{prop.value}" on:keyup={handleKeyUp}/>
+        <input type="text" class="field__value field__value--text" value="{prop.value}" on:keyup={handleKeyUp}/>
     {/if}
 
     {#if type === 'button'}
-        <button class="field__value" on:click={handleTrigger}>{prop.label ? prop.label : 'click' }</button>
+        <button class="field__value field__value--button" on:click={handleTrigger}>{prop.label ? prop.label : 'Click' }</button>
     {/if}
 
     {#if type === 'image'}
@@ -32,10 +32,11 @@
     {#if type === 'list'}
         <div class="field__value field__value--list">
             {#each prop.value as option}
-            <button class="field__button" on:click={() => prop.onTrigger(option)}>{option.value}</button>
+            <button class="field__value--listitem" on:click={() => prop.onTrigger(option)}>{option.value}</button>
             {/each}
         </div>
     {/if}
+    <slot></slot>
 </div>
 
 <style>
@@ -86,21 +87,88 @@
 }
 
 .field__value--list {
+    display: flex;
+    flex-direction: column;
+
     overflow-y: scroll;
     overflow-x: hidden;
 
     font-size: 10px;
+    height: 40px;
     padding: 0;
+    border-radius: 2px;
+    background: #1d1d1e;
+    border: 1px solid black;
+    padding: 2px 5px;
 }
+
+.field__value--list::-webkit-scrollbar {
+    height: 100%;
+    width: 7px;
+    background: #000;
+}
+
+.field__value--list::-webkit-scrollbar-thumb {
+    height: 4px;
+    background: #448eea;
+    border-radius: 5px;
+}
+
+.field__value--listitem {
+    margin: 0;
+    padding: 0;
+    height: auto;
+    background-color: transparent;
+    border-bottom: #131314;
+    border: none;
+    color: #f0f0f0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.field__value--button {
+    border-radius: 2px;
+    background: #1d1d1e;
+    border: 1px solid black;
+    color: #f0f0f0;
+    font-size: 10px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.field__value--button:hover, .field__value--button:focus {
+    background: #131314;
+}
+
+.field__value--button:active {
+    background-color: #448eea;
+}
+
+.field__value--text {
+    background: #1d1d1e;
+    border: 1px solid black;
+    font-size: 10px;
+    height: 20px;
+    color: #f0f0f0;
+    outline: 0;
+    margin: 0 0 0 1px;
+}
+
+.field__value--text:focus {
+    border: 1px solid #448eea;
+}
+
 
 .field__progress {
     position: relative;
     
     padding: 0 10px;
     width: 100%;
-    height: 100%;
+    height: 20px;
+    border-radius: 2px;
+    border: 1px solid black;
 
-    background: lightgray;
+    background: #1d1d1e;
     cursor: ew-resize;
 }
 
@@ -128,7 +196,9 @@
     background: grey;
     transform: scaleX(0.5);
     transform-origin: 0 50%;
-    
+    border-radius: 2px;
+
+    background-color: #448eea;
 }
 
 .field__image {
@@ -146,10 +216,9 @@ import { clamp } from "../math/clamp.js";
 
 export let prop;
 export let name = '';
-export let step = 0.1;
 export let type = prop.type ? prop.type : typeof prop.value;
-export let live = true;
 
+let step = prop.step ? prop.step : 0.01;
 let value = prop.value;
 let progress, fill;
 
@@ -191,7 +260,7 @@ function handleChangeCheck(event) {
 
 function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
-        prop.onTrigger();
+        prop.onTrigger(prop);
     }
 }
 
@@ -201,8 +270,6 @@ function setValue(v) {
     } else {
         prop.value = v;
     }
-
-    // console.log(`Field :: setValue`, prop.value);
 
     value = prop.value;
 

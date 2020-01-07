@@ -1,6 +1,12 @@
 <div class="dropdown">
-    <button class="button" on:click={toggle}>
-        <span class="toggle"></span>
+    <button class="button" on:click={toggle} bind:this={button}>
+        <span class="toggle">
+            {#if opened}
+            <IconArrowBottom/>
+            {:else}
+            <IconArrowRight/>
+            {/if}
+        </span>
         <span class="label">{title}</span>
     </button>
     <div class="content {classNameVisible}">
@@ -18,17 +24,25 @@
     margin: 0;
     margin-bottom: 1px;
     border-radius: 4px;
-    background: #1d1d1e;
+    background-color: #1d1d1e;
     border: 1px solid black;
     color: #f0f0f0;
+
+    cursor: pointer;
+}
+
+.button:hover, .button:focus {
+    background-color: #131314;
+}
+
+.button:active {
+    background-color: black;
 }
 
 .toggle {
-    width: 20px;
-    height: 4px;
+    width: 10px;
+    height: 10px;
     margin-right: 10px;
-
-    background: red;
 }
 
 .label {
@@ -48,13 +62,19 @@
 </style>
 
 <script>
+import IconArrowRight from "./svg/IconArrowRight.svelte";
+import IconArrowBottom from "./svg/IconArrowBottom.svelte";
+
 export let title = "";
 export let opened = true;
+let button;
 
 $: classNameVisible = opened ? 'visible' : '';
 
 function toggle() {
     opened = !opened;
+
+    button.blur();
 }
 
 </script>
