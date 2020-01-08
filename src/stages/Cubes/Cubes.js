@@ -91,8 +91,9 @@ class Cubes extends Stage {
         }
     }
 
-    render() {
-        this.renderer.render({ scene: this.scene, camera: this.camera });
+    render({ renderer, gl }, target) {
+        gl.clearColor(0.65, 0.53, 0.28, 1);
+        renderer.render({ scene: this.scene, camera: this.camera, target });
     }
 }
 

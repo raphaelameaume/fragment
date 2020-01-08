@@ -1,11 +1,14 @@
 import App from './App.svelte';
 import { emit } from "./events";
+import OGLRenderer from './renderers/OGLRenderer';
+import * as stages from "./stages/index.js";
 
 
 const app = new App({
 	target: document.body,
 	props: {
-		name: 'world'
+		renderer: OGLRenderer(),
+		stages,
 	}
 });
 
@@ -20,7 +23,9 @@ function loop() {
 	time += deltaTime;
 	lastTime = now;
 
+	emit('beforeframe', { time, deltaTime });
 	emit('frame', { time, deltaTime });
+	emit('afterframe', { time, deltaTime });
 
 	requestAnimationFrame(loop);
 }

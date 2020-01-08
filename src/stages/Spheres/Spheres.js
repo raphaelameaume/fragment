@@ -1,4 +1,4 @@
-import { Camera, Mesh, Sphere, Program, Color } from "ogl";
+import { Camera, Mesh, Sphere, Program, Color, Transform } from "ogl";
 
 import Stage from "../Stage.js";
 
@@ -60,8 +60,20 @@ class Spheres extends Stage {
             radius: 1,
         });
 
-        this.mesh = new Mesh(this.gl, { geometry, program });
-        this.scene.addChild(this.mesh);
+        this.meshes = new Transform();
+        this.scene.addChild(this.meshes);
+
+
+        for (let i = 0; i < 10; i++) {
+            let mesh = new Mesh(this.gl, { geometry, program });
+
+            mesh.position.x = (Math.random() * 2 - 1) * 4;
+            mesh.position.y = (Math.random() * 2 - 1) * 4;
+            mesh.position.z = (Math.random() * 2 - 1) * 4;
+
+            this.meshes.addChild(mesh);
+        }
+
 
         this.props.diffuse.onChange = ({ value }) => {
             uniforms.diffuse.value = new Color(value);
@@ -77,13 +89,14 @@ class Spheres extends Stage {
     }
 
     update() {
-        this.mesh.rotation.x += 0.01 * this.props.speed.value;
-        this.mesh.rotation.y += 0.01 * this.props.speed.value;
-        this.mesh.rotation.z += 0.01 * this.props.speed.value;
+        this.meshes.rotation.x += 0.01 * this.props.speed.value;
+        this.meshes.rotation.y += 0.01 * this.props.speed.value;
+        this.meshes.rotation.z += 0.01 * this.props.speed.value;
     }
 
-    render() {
-        this.renderer.render({ scene: this.scene, camera: this.camera });
+    render({ renderer, gl }, target) {
+        gl.clearColor(0.25, 0.25, 0.78, 1);
+        renderer.render({ scene: this.scene, camera: this.camera, target });
     }
 }
 
@@ -98,10 +111,12 @@ export default {
         },
         test: {
             value: "test",
+            folder: "Folder",
         },
         diffuse: {
-            value: '#ff0000',
+            value: '#1256AA',
             type: "color",
+            folder: "Folder",
         },
         tick: {
             type: "button",

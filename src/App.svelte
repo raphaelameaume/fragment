@@ -1,10 +1,12 @@
 <main>
-	<Panel width="100%" height="70vh" direction="row">
+	<Panel width="100%" height="72vh" direction="row">
 		<Panel title="Stage 1" width="33%" direction="column">
+			<div slot="header" style="padding-right: 20px;">
+				<Select options={list} onChange={({ key }) => handleStageChange('stage1', key)} />
+			</div>
 			<Dropdown title="Monitor">
-				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage1}></Preview>
+				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage1} index={0} renderer={renderer}></Preview>
 			</Dropdown>
-			<Field prop={{type: "select", value: list, onChange: ({ key }) => handleStageChange('stage1', key)}} name="stage" />
 			<Dropdown title="Settings">
 				{#if current.stage1 !== null}
 					{#each Object.keys(current.stage1.props) as propKey}
@@ -13,11 +15,14 @@
 				{/if}
 			</Dropdown>
 		</Panel>
+		<Separator />
 		<Panel title="Stage 2" width="33%" direction="column">
+			<div slot="header" style="padding-right: 20px;">
+				<Select options={list} onChange={({ key }) => handleStageChange('stage2', key)} />
+			</div>
 			<Dropdown title="Monitor">
-				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage2}></Preview>
+				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage2} index={1} renderer={renderer}></Preview>
 			</Dropdown>
-			<Field prop={{type: "select", value: list, onChange: ({ key }) => handleStageChange('stage2', key)}} name="stage" />
 			<Dropdown title="Settings">
 				{#if current.stage2 !== null}
 					{#each Object.keys(current.stage2.props) as propKey}
@@ -26,20 +31,22 @@
 				{/if}
 			</Dropdown>
 		</Panel>
+		<Separator />
 		<Panel title="Output" width="33%" direction="column">
 			<Dropdown title="Monitor">
-				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage1}></Preview>
+				<Output renderer={renderer} />
 			</Dropdown>
 			<Dropdown title="Settings">
 				<Dropdown title="Transition">
-					<Field prop={{ value: 0, min: 0, max: 1, step: 0.01 }} name="treshold" />
+					<Field prop={{ value: 0, min: 0, max: 1, step: 0.01, onChange: ({ value }) => renderer.setTreshold(value) }} name="treshold" />
 				</Dropdown>
 				<Dropdown title="Post-processing">
 				</Dropdown>
 			</Dropdown>
 		</Panel>
 	</Panel>
-	<Panel width="100%" height="auto" direction="row">
+	<Separator height="1px" width="100%" />
+	<Panel width="100%" height="calc(28vh - 1px)" direction="row">
 		<Panel width="50%" title="Input Settings" direction="column">
 			<Dropdown title="Audio">
 				<Field prop={propInputMicro} name={propInputMicro.name} />
@@ -61,6 +68,7 @@
 			<Dropdown title="MIDI">
 			</Dropdown>
 		</Panel>
+		<Separator />
 		<Panel width="50%" title="Output settings" direction="column">
 			<Dropdown title="Dimensions">
 				<Field prop={{ value: 1920, type: "number", step: 1 }} name="width" />
@@ -86,7 +94,7 @@ main {
 
 <script>
 import { onMount } from "svelte";
-import Renderer from "./core/Renderer.js";
+import OGLRenderer from "./renderers/OGLRenderer.js";
 import { Webcam } from "./core/Webcam.js";
 import { Microphone } from "./core/Microphone.js";
 import { Audio } from "./core/Audio.js";
@@ -101,13 +109,16 @@ import TabPanel from "./ui/TabPanel.svelte";
 import Field from "./ui/Field.svelte";
 import Dropdown from "./ui/Dropdown.svelte";
 import Output from "./ui/Output.svelte";
+import Separator from "./ui/Separator.svelte";
 
 
-import * as stages from "./stages/index.js";
+export let renderer = {};
 
+console.log(renderer);
+export let stages = {};
+
+let { dimensions, gl } = renderer;
 let list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
-
-let { renderer, gl, dimensions } = Renderer();
 
 $: current = {
 	stage1: null,
@@ -126,8 +137,7 @@ function setStage(id, key) {
 
 		stages[key].instance = new scene({
 			name,
-			gl,
-			renderer,
+			...renderer,
 			props,
 		});
 
@@ -178,7 +188,6 @@ let propInputMicro = {
 		if (propInputMicro.enabled) {
 			Microphone.request({ onSuccess: (stream) => {
 				Audio.attachStream(stream);
-				// console.log('microphone requested!')
 			}});
 		} else {
 			

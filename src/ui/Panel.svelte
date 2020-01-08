@@ -1,6 +1,9 @@
 <div class="panel" style={`width: ${width}; height: ${height};`}>
     {#if title !== ''}
+    <header class="header">
         <h3 class="title">{title}</h3>
+        <slot name="header"></slot>
+    </header>
     {/if}
     <div class="content" style={`flex-direction: ${direction}`}>
         <slot></slot>
@@ -16,6 +19,15 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    margin-bottom: 1px;
 }
 
 .content {

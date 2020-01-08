@@ -30,11 +30,7 @@
     {/if}
 
     {#if type === 'select'}
-        <select on:change={handleChangeSelect}>
-            {#each value as option}
-            <option value={option.key}>{option.value}</option>
-            {/each}
-        </select>
+        <Select onChange={handleChangeSelect} options={value}/>
     {/if}
 
     {#if type === 'list'}
@@ -45,15 +41,21 @@
         </div>
     {/if}
     <slot></slot>
+    <button class="field__settings" on:click={handleClickSettings}>
+        <IconSettings/>
+    </button>
 </div>
 
 <style>
 .field {
+    position: relative;
+
     align-items: center;
 
     display: flex;
     width: 100%;
     height: 30px;
+    padding-right: 20px;
 }
 
 .field__live {
@@ -76,7 +78,7 @@
     margin-top: -5px;
 
     border-radius: 5px;
-    background-color: red;
+    background-color: #aa1e29;
 }
 
 .field__name {
@@ -216,17 +218,32 @@
     box-sizing: border-box;
 }
 
+.field__settings {
+    position: absolute;
+    top: 0;
+    right: 1px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 100%;
+
+    background-color: transparent;
+    border: 0;
+}
+
 </style>
 
 <script>
 import { map } from "../math/map.js";
 import { clamp } from "../math/clamp.js";
+import Select from "./Select.svelte";
+import IconSettings from "./svg/IconSettings.svelte";
 
 export let prop;
 export let name = '';
 export let type = prop.type ? prop.type : typeof prop.value;
-
-console.log({ prop, type });
 
 let inputs = {
     text: null,
@@ -272,13 +289,9 @@ function handleChangeCheck(event) {
     setValue(event.target.checked);
 }
 
-function handleChangeSelect(event) {
+function handleChangeSelect(activeValue, event) {
     if (prop.onChange) {
-        for (let i = 0; i < value.length; i++) {
-            if (value[i].key === event.target.value) {
-                prop.onChange(value[i], event);
-            }
-        }
+        prop.onChange(activeValue, event);
     }
 }
 
@@ -286,6 +299,10 @@ function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
         prop.onTrigger(prop);
     }
+}
+
+function handleClickSettings(event) {
+    console.log('settings clicked');
 }
 
 function handleFocus(event) {

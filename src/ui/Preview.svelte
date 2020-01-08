@@ -21,13 +21,19 @@ canvas {
 
 <script>
 import { onMount } from "svelte";
+import { on } from "../events.js";
 
 export let width;
 export let height;
 export let stage;
+export let index;
+export let renderer;
 
 let canvas, preview;
 let context;
+
+console.log(renderer);
+let renderTarget = renderer.renderTargets[index];
 
 onMount(() => {
     canvas.width = width;
@@ -35,18 +41,20 @@ onMount(() => {
 
     context = canvas.getContext('2d');
 
-    update();
+    on('frame', update);
+    on(`renderStage${index}`, render);
 });
 
 function update() {
     if (stage) {
         stage.instance.update();
-        stage.instance.render();
-
-        context.clearRect(0, 0, width, height);
-        context.drawImage(stage.instance.gl.canvas, 0, 0);
+        stage.instance.render({...renderer}, renderTarget);
     }
-    requestAnimationFrame(update);
+}
+
+function render() {
+    context.clearRect(0, 0, width, height);
+    context.drawImage(stage.instance.gl.canvas, 0, 0);
 }
 
 </script>
