@@ -17,7 +17,7 @@
     </div>
     {/if}
 
-    {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list'}
+    {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
         <input type="text" class="field__value field__value--text" value="{prop.value}" bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
     {/if}
 
@@ -27,6 +27,14 @@
 
     {#if type === 'image'}
         <div class="field__image"></div>
+    {/if}
+
+    {#if type === 'select'}
+        <select on:change={handleChangeSelect}>
+            {#each value as option}
+            <option value={option.key}>{option.value}</option>
+            {/each}
+        </select>
     {/if}
 
     {#if type === 'list'}
@@ -218,6 +226,8 @@ export let prop;
 export let name = '';
 export let type = prop.type ? prop.type : typeof prop.value;
 
+console.log({ prop, type });
+
 let inputs = {
     text: null,
 };
@@ -262,6 +272,16 @@ function handleChangeCheck(event) {
     setValue(event.target.checked);
 }
 
+function handleChangeSelect(event) {
+    if (prop.onChange) {
+        for (let i = 0; i < value.length; i++) {
+            if (value[i].key === event.target.value) {
+                prop.onChange(value[i], event);
+            }
+        }
+    }
+}
+
 function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
         prop.onTrigger(prop);
@@ -269,25 +289,24 @@ function handleTrigger(event) {
 }
 
 function handleFocus(event) {
-    window.addEventListener('keypress', handleKeypress);
-    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('keypress', handleKeypressWindow);
+    window.addEventListener('keydown', handleKeydownWindow);
 }
 
 function handleBlur() {
-    window.removeEventListener('keypress', handleKeypress);
-    window.removeEventListener('keydown', handleKeydown);
+    window.removeEventListener('keypress', handleKeypressWindow);
+    window.removeEventListener('keydown', handleKeydownWindow);
 }
 
-function handleKeypress(event) {
-    console.log(event);
+function handleKeypressWindow(event) {
     if (event.keyCode === 13) {
         inputs.text.blur();
     }
 }
 
-function handleKeydown(event) {
+function handleKeydownWindow(event) {
     if (event.keyCode === 38) { // ArrowUp
-        if (prop.min !== undefined && prop.max !== undefined) { // @TODO : should check only if number and not range
+        if (prop.type === 'number') {
             event.preventDefault();
 
             setValue(value + step);
@@ -295,7 +314,7 @@ function handleKeydown(event) {
     }
 
     if (event.keyCode === 40) { // ArrowDown
-        if (prop.min !== undefined && prop.max !== undefined) { // @TODO : should check only if number and not range
+        if (prop.type === 'number') {
             event.preventDefault();
 
             setValue(value - step);

@@ -16,7 +16,7 @@
 }
 
 .tab__panel::-webkit-scrollbar-thumb {
-    height: 4px;
+    /* height: 4px; */
     background: #448eea;
     border-radius: 5px;
 }
