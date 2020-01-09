@@ -82,6 +82,32 @@ class Spheres extends Stage {
         this.props.tick.onTrigger = () => {
             console.log('trigger tick');
         };
+
+        // emitter.on('paddown', ({ id }) => {
+        //     if (id == 7) {
+        //         this.layersScene.visible = !this.layersScene.visible;
+        //     } else if (id == 8) {
+        //         this.maskScene.visible = !this.maskScene.visible;
+        //     }
+        // });
+
+        // emitter.on('knobchange', ({ id, value }) => {
+        //     if (id == 5) {
+        //         this.bloomEffect.blendMode.opacity.value = value * 2;
+        //     }
+        // });
+
+        // MIDI.pad(1).onTrigger(() => {
+
+        // });
+
+        // MIDI.knob(1).onTrigger(({ value }) => {
+
+        // });
+
+        // Keyboard.key('h').onTrigger(() => {
+
+        // });
     }
 
     onChangeCount({ value }) {
@@ -108,6 +134,9 @@ export default {
             min: 0,
             max: 10,
             value: 1,
+            controls: [
+                // Midi.knob('1')
+            ]
         },
         test: {
             value: "test",
@@ -120,6 +149,10 @@ export default {
         },
         tick: {
             type: "button",
+            controls: [
+                // Keyboard.key('h'),
+                // Midi.pad(1),
+            ]
         }
     }
 };

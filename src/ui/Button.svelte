@@ -9,6 +9,7 @@
     font-size: 10px;
     height: 20px;
     cursor: pointer;
+    line-height: 10px;
 }
 
 .field__value--button:hover, .field__value--button:focus {

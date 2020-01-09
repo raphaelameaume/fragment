@@ -31,8 +31,6 @@ export let renderer;
 
 let canvas, preview;
 let context;
-
-console.log(renderer);
 let renderTarget = renderer.renderTargets[index];
 
 onMount(() => {

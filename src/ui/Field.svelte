@@ -8,17 +8,17 @@
     {/if}
 
     {#if type === 'color' } 
-    <input type="color" class="field__color" value="{prop.value}" on:change={handleChangeColor} />
+    <input type="color" class="field__color" value={prop.value} on:change={handleChangeColor} />
     {/if}
 
     {#if type === 'boolean' } 
     <div class="field__check">
-        <input type="checkbox" class="check__input" checked={value} on:change={handleChangeCheck} />
+        <input type="checkbox" class="check__input" checked={prop.value} on:change={handleChangeCheck} />
     </div>
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
-        <input type="text" class="field__value field__value--text" value="{prop.value}" bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
+        <input type="text" class="field__value field__value--text" value={prop.value} bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
     {/if}
 
     {#if type === 'button'}
@@ -30,7 +30,7 @@
     {/if}
 
     {#if type === 'select'}
-        <Select onChange={handleChangeSelect} options={value}/>
+        <Select onChange={handleChangeSelect} options={prop.value}/>
     {/if}
 
     {#if type === 'list'}
@@ -250,7 +250,6 @@ let inputs = {
 };
 
 let step = prop.step ? prop.step : 0.01;
-let value = prop.value;
 let progress, fill;
 
 function handleMouseDown(event) {
@@ -318,6 +317,7 @@ function handleBlur() {
 function handleKeypressWindow(event) {
     if (event.keyCode === 13) {
         inputs.text.blur();
+        setValue(inputs.text.value);
     }
 }
 
@@ -326,7 +326,7 @@ function handleKeydownWindow(event) {
         if (prop.type === 'number') {
             event.preventDefault();
 
-            setValue(value + step);
+            setValue(prop.value + step);
         }
     }
 
@@ -334,7 +334,7 @@ function handleKeydownWindow(event) {
         if (prop.type === 'number') {
             event.preventDefault();
 
-            setValue(value - step);
+            setValue(prop.value - step);
         }
     }
 }
@@ -345,8 +345,6 @@ function setValue(v) {
     } else {
         prop.value = v;
     }
-
-    value = prop.value;
 
     if (typeof prop.onChange === 'function') {
         prop.onChange(prop);

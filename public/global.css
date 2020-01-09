@@ -53,6 +53,10 @@ input, button, select, textarea {
 	border-radius: 2px;
 }
 
+.button, select {
+	cursor: pointer;
+}
+
 input:disabled {
 	color: #ccc;
 }

@@ -76,6 +76,16 @@
 			</Dropdown>
 		</Panel>
 	</Panel>
+	<Window title="Parameters">
+		<Dropdown title="Informations">
+		</Dropdown>
+		<Dropdown title="Triggers">
+			<Trigger />
+			<Trigger />
+			<Trigger />
+			<Button style="width: 50%">Add</Button>
+		</Dropdown>
+	</Window>
 </main>
 
 <style>
@@ -110,11 +120,12 @@ import Field from "./ui/Field.svelte";
 import Dropdown from "./ui/Dropdown.svelte";
 import Output from "./ui/Output.svelte";
 import Separator from "./ui/Separator.svelte";
+import Window from "./ui/Window.svelte";
+import Trigger from "./ui/Trigger.svelte";
 
 
 export let renderer = {};
 
-console.log(renderer);
 export let stages = {};
 
 let { dimensions, gl } = renderer;
