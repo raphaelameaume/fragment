@@ -13,7 +13,7 @@
 
     {#if type === 'boolean' } 
     <div class="field__check">
-        <input type="checkbox" class="check__input" checked={prop.value} on:change={handleChangeCheck} />
+        <input type="checkbox" class="check__input" bind:checked={prop.value} />
     </div>
     {/if}
 
@@ -44,6 +44,20 @@
     <button class="field__settings" on:click={handleClickSettings}>
         <IconSettings/>
     </button>
+    {#if parametersVisible}
+    <Window title="Parameters" visible={parametersVisible} onClose={(visibility) => parametersVisible = visibility}>
+        <Dropdown title="Informations">
+        </Dropdown>
+        <Dropdown title="Triggers">
+            {#if (prop.triggers && prop.triggers.length > 0)}
+                {#each prop.triggers as trigger}
+                <Trigger trigger={trigger} />
+                {/each }
+            {/if}
+            <Button style="width: 50%">Add</Button>
+        </Dropdown>
+    </Window>
+    {/if}
 </div>
 
 <style>
@@ -236,6 +250,10 @@
 </style>
 
 <script>
+import Window from "./Window.svelte";
+import Trigger from "./Trigger.svelte";
+import Dropdown from "./Dropdown.svelte";
+import Button from "./Button.svelte";
 import { map } from "../math/map.js";
 import { clamp } from "../math/clamp.js";
 import Select from "./Select.svelte";
@@ -251,6 +269,18 @@ let inputs = {
 
 let step = prop.step ? prop.step : 0.01;
 let progress, fill;
+let parametersVisible = false;
+
+$: checked = prop.value ? true: false;
+
+//@TODO should be here
+if (prop.triggers && prop.triggers.length > 0) {
+    for (let i = 0; i < prop.triggers.length; i++) {
+        prop.triggers[i].onTrigger(() => {
+            prop.onTrigger();
+        });
+    }
+}
 
 function handleMouseDown(event) {
     document.addEventListener('mousemove', handleMouseMove);
@@ -302,6 +332,7 @@ function handleTrigger(event) {
 
 function handleClickSettings(event) {
     console.log('settings clicked');
+    parametersVisible = true;
 }
 
 function handleFocus(event) {

@@ -1,8 +1,8 @@
-<div class="window" style="transform: translate3d({offsetX}px, {offsetY}px, 0); display: {display}">
+<div class="window" bind:this={container} style="transform: translate3d({offsetX}px, {offsetY}px, 0); display: {display}">
     <header class="header" on:mousedown={handleMouseDownHeader}>
         <button class="close" on:click={handleClickClose}>
         </button>
-        <h1 class="title">Parameters</h1>
+        <h1 class="title">{title}</h1>
     </header>
     <div class="content">
         <slot></slot>
@@ -11,9 +11,10 @@
 
 <style>
 .window {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
+    z-index: 999;
 
     width: 250px;
     height: 400px;
@@ -50,19 +51,28 @@
 </style>
 
 <script>
+import { onMount } from 'svelte';
 import IconClose from "./svg/IconClose.svelte";
 
 export let visible = true;
+export let title = '';
+export let onClose = () => {};
 
+let container;
 let offsetX = 0;
 let offsetY = 0;
 let startX = 0;
 let startY = 0;
 $: display = visible ? 'block' : 'none';
 
+onMount(() => {
+    document.body.appendChild(container);
+})
+
 function handleClickClose() {
-    console.log('clicked close');
     visible = false;
+
+    onClose(visible);
 }
 
 function handleMouseDownHeader(event) {

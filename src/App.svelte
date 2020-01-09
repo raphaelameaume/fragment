@@ -76,16 +76,7 @@
 			</Dropdown>
 		</Panel>
 	</Panel>
-	<Window title="Parameters">
-		<Dropdown title="Informations">
-		</Dropdown>
-		<Dropdown title="Triggers">
-			<Trigger />
-			<Trigger />
-			<Trigger />
-			<Button style="width: 50%">Add</Button>
-		</Dropdown>
-	</Window>
+	<slot name="end"></slot>
 </main>
 
 <style>

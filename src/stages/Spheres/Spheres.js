@@ -1,4 +1,5 @@
 import { Camera, Mesh, Sphere, Program, Color, Transform } from "ogl";
+import { Keyboard } from "../../core/Keyboard";
 
 import Stage from "../Stage.js";
 
@@ -82,32 +83,6 @@ class Spheres extends Stage {
         this.props.tick.onTrigger = () => {
             console.log('trigger tick');
         };
-
-        // emitter.on('paddown', ({ id }) => {
-        //     if (id == 7) {
-        //         this.layersScene.visible = !this.layersScene.visible;
-        //     } else if (id == 8) {
-        //         this.maskScene.visible = !this.maskScene.visible;
-        //     }
-        // });
-
-        // emitter.on('knobchange', ({ id, value }) => {
-        //     if (id == 5) {
-        //         this.bloomEffect.blendMode.opacity.value = value * 2;
-        //     }
-        // });
-
-        // MIDI.pad(1).onTrigger(() => {
-
-        // });
-
-        // MIDI.knob(1).onTrigger(({ value }) => {
-
-        // });
-
-        // Keyboard.key('h').onTrigger(() => {
-
-        // });
     }
 
     onChangeCount({ value }) {
@@ -149,9 +124,8 @@ export default {
         },
         tick: {
             type: "button",
-            controls: [
-                // Keyboard.key('h'),
-                // Midi.pad(1),
+            triggers: [
+                Keyboard.key('h'),
             ]
         }
     }

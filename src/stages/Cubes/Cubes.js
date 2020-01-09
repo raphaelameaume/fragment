@@ -1,4 +1,5 @@
 import { Camera, Box, Mesh, Program, Texture } from "ogl";
+import { Keyboard } from "../../core/Keyboard";
 
 import Stage from "../Stage.js";
 import { Audio } from "../../core/Audio.js";
@@ -70,6 +71,11 @@ class Cubes extends Stage {
         this.mesh = new Mesh(this.gl, { geometry, program });
         this.scene.addChild(this.mesh);
 
+        this.props.move.onTrigger = () => {
+            this.props.move = {...this.props.move, value: !this.props.move.value };
+
+        };
+
         let texture = new Texture(this.gl);
 
         this.props.texture.onChange = ({ image }) => {
@@ -108,6 +114,9 @@ export default {
         },
         move: {
             value: true,
+            triggers: [
+                Keyboard.key('m')
+            ]
         },
         texture: {
             type: "image",

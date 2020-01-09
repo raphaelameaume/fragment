@@ -24,9 +24,8 @@ function handleChange(event) {
 <style>
 select {
     position: relative;
-    
-    margin: 1px auto;
 
+    margin: 0;
     color: #f0f0f0;
     font-size: 10px;
     

@@ -1,7 +1,7 @@
 <div class="trigger">
-    <span class="type">{trigger.type}</span>
+    <Select options={options} />
     <TextInput width="40px" value={inputValue} onSubmit={handleSubmit} />
-    <Button style="width: 70px; line-height: 10px; margin: 0;" onClick={handleClickToggle}>{label}</Button>
+    <Button style="width: 60px; line-height: 10px; margin: 0;" onClick={handleClickToggle}>{label}</Button>
 </div>
 
 <style>
@@ -17,25 +17,39 @@
 
 <script>
 import Button from "./Button.svelte";
+import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 
 export let trigger = {
-    type: "Keyboard",
+    type: "keyboard",
     value: ['h', 'H'],
     enabled: true,
-}
+};
+export let onDelete = () => {};
+
+let options = [
+    { value: "Keyboard", key: "keyboard" },
+    { value: "MIDI-Pad", key: "midi-pad" },
+    { value: "MIDI-Knob", key: "midi-knob" },
+];
 
 $: label = trigger.enabled ? 'Disable' : 'Enable';
-$: inputValue = trigger.value.join(',');
+$: inputValue = Array.isArray(trigger)? trigger.value.join(',') : trigger.value;
 
 function handleSubmit(newValue) {
     let values = newValue.split(',');
 
-    console.log(values);
+    console.log({ values });
+
     trigger.value = values;
 }
 
 function handleClickToggle() {
     trigger.enabled = !trigger.enabled;
 }
+
+function handleClickDelete() {
+    onDelete();
+}
+
 </script>
