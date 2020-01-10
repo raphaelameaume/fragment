@@ -1,5 +1,6 @@
 import { Camera, Mesh, Sphere, Program, Color, Transform } from "ogl";
 import { Keyboard } from "../../core/Keyboard";
+import { Midi } from "../../core/Midi";
 
 import Stage from "../Stage.js";
 
@@ -85,6 +86,8 @@ class Spheres extends Stage {
             uniforms.diffuse.value.g = Math.random();
             uniforms.diffuse.value.b = Math.random();
         };
+
+        Midi.pad(1);
     }
 
     onChangeCount({ value }) {

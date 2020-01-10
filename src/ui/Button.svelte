@@ -2,6 +2,7 @@
 
 <style>
 .field__value--button {
+    display: flex;
     border-radius: 2px;
     background: #1d1d1e;
     border: 1px solid black;

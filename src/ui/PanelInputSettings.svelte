@@ -1,6 +1,8 @@
 <Panel width={width} title="Input Settings" direction="column">
 	<Dropdown title="MIDI">
-		<Field prop={propMIDI} name={propMIDI.name} />
+		<Field prop={propMidi} name={propMidi.name}>
+			<Button onClick={handleClickRefresh}>Refresh<IconRefresh/></Button>
+		</Field>
     </Dropdown>
     <Dropdown title="Audio">
         <Field prop={propInputMicro} name={propInputMicro.name} />
@@ -27,9 +29,11 @@ import Panel from "./Panel.svelte";
 import Button from "./Button.svelte";
 import Field from "./Field.svelte";
 import Dropdown from "./Dropdown.svelte";
+import IconRefresh from "./svg/IconRefresh.svelte";
 import { Audio } from "../core/Audio.js";
 import { Webcam } from "../core/Webcam.js";
 import { Microphone } from "../core/Microphone.js";
+import { Midi } from "../core/Midi.js";
 
 // props
 export let width;
@@ -140,12 +144,26 @@ let propInputWebcam = {
 	}
 };
 
-let propMIDI = {
+let propMidi = {
 	name: "device",
 	type: "select",
-	value: [
-		{ key: 'none', value: 'No device selected' }
-	]
+	value: createInputList()
+}
+
+function createInputList() {
+	if (Midi.inputs.length === 0) {
+		return [
+			{ key: 'none', value: 'No device detected.' }
+		]
+	} else {
+		return Midi.inputs.map( input => ({ key: input.name, value: input.name }));
+	}
+}
+
+function handleClickRefresh() {
+	Midi.refresh();
+
+	propMidi.value = createInputList();
 }
 
 </script>

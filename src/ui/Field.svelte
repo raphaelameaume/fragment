@@ -410,6 +410,7 @@ function setValue(v) {
 .field__content {
     display: flex;
     padding-top: 5px;
+    padding-bottom: 5px;
     width: 100%;
     justify-content: space-between;
 }
