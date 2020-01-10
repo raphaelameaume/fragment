@@ -52,10 +52,12 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         }
     `;
 
+    let treshold = { value: 0.5 };
+
     let uniforms = {
         tInput0: { value: renderTarget0.texture },
         tInput1: { value: renderTarget1.texture },
-        uTreshold: { value: 0.5 },
+        uTreshold: treshold,
     };
 
     let program = new Program(gl, {
@@ -87,7 +89,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
     }
 
     function render() {
-        let treshold = uniforms.uTreshold.value;
+        let tempTreshold = uniforms.uTreshold.value;
 
         uniforms.uTreshold.value = 0;
         renderer.render({ scene: mesh });
@@ -97,7 +99,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         renderer.render({ scene: mesh });
         emit('renderStage1');
 
-        uniforms.uTreshold.value = treshold;
+        uniforms.uTreshold.value = tempTreshold;
         gl.clearColor(1, 0, 1, 1);
         renderer.render({ scene: mesh });
     }
@@ -112,6 +114,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         resize,
         dimensions,
         render,
-        setTreshold: (value) => uniforms.uTreshold.value = value
+        setTreshold: (value) => uniforms.uTreshold.value = value,
+        treshold,
     };
 };

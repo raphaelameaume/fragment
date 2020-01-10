@@ -1,7 +1,8 @@
 <main>
 	<Panel width="100%" height="72vh" direction="row">
 		<Panel title="Stage 1" width="33%" direction="column">
-			<div slot="header" style="padding-right: 20px;">
+			<div slot="header" class="stage__header" style="">
+				<div class="stage__live" style="opacity: {treshold < 1 ? 1 : 0}"></div>
 				<Select options={list} value={current.stage1 ? current.stage1.name : ''} onChange={({ key }) => handleStageChange('stage1', key)} />
 			</div>
 			<Dropdown title="Monitor">
@@ -17,7 +18,8 @@
 		</Panel>
 		<Separator />
 		<Panel title="Stage 2" width="33%" direction="column">
-			<div slot="header" style="padding-right: 20px;">
+			<div slot="header" class="stage__header" style="padding-right: 20px;">
+				<div class="stage__live" style="opacity: {treshold > 0 ? 1 : 0}"></div>
 				<Select options={list} value={current.stage2 ? current.stage2.name : ''} onChange={({ key }) => handleStageChange('stage2', key)} />
 			</div>
 			<Dropdown title="Monitor">
@@ -38,7 +40,7 @@
 			</Dropdown>
 			<Dropdown title="Settings">
 				<Dropdown title="Transition">
-					<Field prop={{ value: 0, min: 0, max: 1, step: 0.01, onChange: ({ value }) => renderer.setTreshold(value) }} name="treshold" />
+					<Field prop={{ value: renderer.treshold.value, min: 0, max: 1, step: 0.01, onChange: ({ value }) => renderer.treshold.value = value }} name="treshold" />
 				</Dropdown>
 				<Dropdown title="Post-processing">
 				</Dropdown>
@@ -79,20 +81,6 @@
 	<slot name="end"></slot>
 </main>
 
-<style>
-main {
-	position: relative;
-
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	margin: 0 auto;
-
-	overflow: hidden;
-}
-
-</style>
-
 <script>
 import { onMount } from "svelte";
 import OGLRenderer from "./renderers/OGLRenderer.js";
@@ -126,6 +114,8 @@ $: current = {
 	stage1: null,
 	stage2: null,
 };
+
+$: treshold = renderer.treshold.value;
 
 let instanced = {};
 
@@ -261,3 +251,33 @@ let propInputPlaylist = {
 };
 
 </script>
+
+<style>
+main {
+	position: relative;
+
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	margin: 0 auto;
+
+	overflow: hidden;
+}
+
+.stage__live {
+	width: 10px;
+	height: 10px;
+	
+	background-color: red;
+	border-radius: 50%;
+}
+
+.stage__header {
+	padding-right: 20px;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+</style>

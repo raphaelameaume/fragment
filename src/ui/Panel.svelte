@@ -52,6 +52,8 @@
 
 .title {
     padding-left: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
 }
 </style>
 
