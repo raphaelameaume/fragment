@@ -1,5 +1,5 @@
 <div class="trigger">
-    <Select options={options} />
+    <Select options={options} value={trigger.type} />
     <TextInput width="40px" prop={{value:inputValue}} onSubmit={handleSubmit} />
     <Button style="width: 60px; line-height: 10px; margin: 0;" onClick={handleClickToggle}>{label}</Button>
 </div>

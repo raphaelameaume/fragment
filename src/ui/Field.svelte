@@ -170,7 +170,6 @@ if (prop.type === 'image') {
 
 function getFilename(filepath) {
     let parts = filepath.split('/');
-    console.log(parts);
 
     return parts[parts.length - 1];
 }

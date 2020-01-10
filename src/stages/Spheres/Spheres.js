@@ -80,8 +80,10 @@ class Spheres extends Stage {
             uniforms.diffuse.value = new Color(value);
         };
 
-        this.props.tick.onTrigger = () => {
-            console.log('trigger tick');
+        this.props.color.onTrigger = () => {
+            uniforms.diffuse.value.r = Math.random();
+            uniforms.diffuse.value.g = Math.random();
+            uniforms.diffuse.value.b = Math.random();
         };
     }
 
@@ -122,8 +124,9 @@ export default {
             type: "color",
             folder: "Folder",
         },
-        tick: {
+        color: {
             type: "button",
+            label: "Random",
             triggers: [
                 Keyboard.key('h'),
             ]

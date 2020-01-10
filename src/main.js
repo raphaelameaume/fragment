@@ -8,6 +8,7 @@ const app = new App({
 	target: document.body,
 	props: {
 		renderer: OGLRenderer(),
+		output: window.location.href.includes('output'),
 		stages,
 	}
 });

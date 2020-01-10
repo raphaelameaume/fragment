@@ -35,6 +35,10 @@
 		</Panel>
 		<Separator />
 		<Panel title="Output" width="33%" direction="column">
+			<div slot="header">
+				<div></div>
+				<Button onClick={handleClickOpenOutput}>Open</Button>
+			</div>
 			<Dropdown title="Monitor">
 				<Output renderer={renderer} />
 			</Dropdown>
@@ -83,7 +87,6 @@
 
 <script>
 import { onMount } from "svelte";
-import OGLRenderer from "./renderers/OGLRenderer.js";
 import { Webcam } from "./core/Webcam.js";
 import { Microphone } from "./core/Microphone.js";
 import { Audio } from "./core/Audio.js";
@@ -101,23 +104,21 @@ import Output from "./ui/Output.svelte";
 import Separator from "./ui/Separator.svelte";
 import Window from "./ui/Window.svelte";
 import Trigger from "./ui/Trigger.svelte";
-
+import { OutputWindow } from "./core/OutputWindow";
 
 export let renderer = {};
-
 export let stages = {};
+export let output = false;
 
 let { dimensions, gl } = renderer;
-$: list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
+let instanced = {};
 
+$: list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
 $: current = {
 	stage1: null,
 	stage2: null,
 };
-
 $: treshold = renderer.treshold.value;
-
-let instanced = {};
 
 function handleStageChange(id, key) {
 	setStage(id, key);
@@ -146,6 +147,10 @@ onMount(() => {
 		}
 	});
 });
+
+function handleClickOpenOutput() {
+	OutputWindow.open();
+}
 
 let propInputWebcam = {
 	name: "webcam",
@@ -265,9 +270,26 @@ main {
 }
 
 .stage__live {
-	width: 10px;
-	height: 10px;
+	position: relative;
+	width: 18px;
+	height: 18px;
 	
+	
+	border: 1px solid black;
+	border-radius: 2px;
+}
+
+.stage__live:before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+
+	width: 6px;
+	height: 6px;
+	margin-left: -3px;
+	margin-top: -3px;
+
 	background-color: red;
 	border-radius: 50%;
 }
