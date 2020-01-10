@@ -1,5 +1,9 @@
 <div class="field">
-    <div class="field__live"></div>
+    <div class="field__trigger">
+        {#if isTriggerable}
+        <IconTrigger opacity={prop.triggers && prop.triggers.length > 0 ? 0.9 : 0.3}/>
+        {/if}
+    </div>
     <div class="field__name">{name}</div>
 
     <div class="field__content">
@@ -107,6 +111,7 @@ import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 import Checkbox from "./Checkbox.svelte";
 import IconSettings from "./svg/IconSettings.svelte";
+import IconTrigger from "./svg/IconTrigger.svelte";
 
 export let prop;
 export let name = '';
@@ -293,27 +298,14 @@ function setValue(v) {
     padding-right: 20px;
 }
 
-.field__live {
+.field__trigger {
     position: relative;
 
     width: 20px;
     flex-shrink: 0;
     flex-grow: 0;
-}
-
-.field__live:before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-
-    width: 10px;
-    height: 10px;
-    margin-left: -5px;
-    margin-top: -5px;
-
-    border-radius: 5px;
-    background-color: #aa1e29;
+    padding: 0 4px;
+    margin-left: 5px;
 }
 
 .field__name {
