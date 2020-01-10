@@ -1,4 +1,4 @@
-<select on:change={handleChange} bind:this={select}>
+<select on:change={handleChange} bind:this={select} bind:value={value}>
 {#each options as option}
 <option value={option.key}>{option.value}</option>
 {/each}
@@ -6,6 +6,7 @@
 
 <script>
 export let options = [];
+export let value;
 export let onChange = () => {};
 
 let select;

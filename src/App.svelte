@@ -2,7 +2,7 @@
 	<Panel width="100%" height="72vh" direction="row">
 		<Panel title="Stage 1" width="33%" direction="column">
 			<div slot="header" style="padding-right: 20px;">
-				<Select options={list} onChange={({ key }) => handleStageChange('stage1', key)} />
+				<Select options={list} value={current.stage1 ? current.stage1.name : ''} onChange={({ key }) => handleStageChange('stage1', key)} />
 			</div>
 			<Dropdown title="Monitor">
 				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage1} index={0} renderer={renderer}></Preview>
@@ -18,7 +18,7 @@
 		<Separator />
 		<Panel title="Stage 2" width="33%" direction="column">
 			<div slot="header" style="padding-right: 20px;">
-				<Select options={list} onChange={({ key }) => handleStageChange('stage2', key)} />
+				<Select options={list} value={current.stage2 ? current.stage2.name : ''} onChange={({ key }) => handleStageChange('stage2', key)} />
 			</div>
 			<Dropdown title="Monitor">
 				<Preview width={dimensions.width} height={dimensions.height} stage={current.stage2} index={1} renderer={renderer}></Preview>
@@ -120,7 +120,7 @@ export let renderer = {};
 export let stages = {};
 
 let { dimensions, gl } = renderer;
-let list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
+$: list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
 
 $: current = {
 	stage1: null,

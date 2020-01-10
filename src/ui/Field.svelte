@@ -12,9 +12,7 @@
     {/if}
 
     {#if type === 'boolean' } 
-    <div class="field__check">
-        <input type="checkbox" class="check__input" bind:checked={prop.value} />
-    </div>
+        <Checkbox prop={prop} />
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
@@ -45,7 +43,7 @@
         <IconSettings/>
     </button>
     {#if parametersVisible}
-    <Window title="Parameters" visible={parametersVisible} onClose={(visibility) => parametersVisible = visibility}>
+    <Window title={name} visible={parametersVisible} onClose={(visibility) => parametersVisible = visibility}>
         <Dropdown title="Informations">
         </Dropdown>
         <Dropdown title="Triggers">
@@ -257,21 +255,22 @@ import Button from "./Button.svelte";
 import { map } from "../math/map.js";
 import { clamp } from "../math/clamp.js";
 import Select from "./Select.svelte";
+import Checkbox from "./Checkbox.svelte";
 import IconSettings from "./svg/IconSettings.svelte";
 
 export let prop;
 export let name = '';
-export let type = prop.type ? prop.type : typeof prop.value;
 
 let inputs = {
     text: null,
 };
 
-let step = prop.step ? prop.step : 0.01;
 let progress, fill;
 let parametersVisible = false;
 
-$: checked = prop.value ? true: false;
+$: step = prop.step ? prop.step : 0.01;
+$: checked = prop.value ? true : false;
+$: type = prop.type ? prop.type : typeof prop.value;
 
 //@TODO should be here
 if (prop.triggers && prop.triggers.length > 0) {
@@ -354,7 +353,7 @@ function handleKeypressWindow(event) {
 
 function handleKeydownWindow(event) {
     if (event.keyCode === 38) { // ArrowUp
-        if (prop.type === 'number') {
+        if (type === 'number') {
             event.preventDefault();
 
             setValue(prop.value + step);
@@ -362,7 +361,7 @@ function handleKeydownWindow(event) {
     }
 
     if (event.keyCode === 40) { // ArrowDown
-        if (prop.type === 'number') {
+        if (type === 'number') {
             event.preventDefault();
 
             setValue(prop.value - step);
