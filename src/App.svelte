@@ -1,12 +1,20 @@
 <main>
+	{#if !output}
 	<Controller
 		renderer={renderer}
 		stages={stages}
 	/>
+	{:else}
+	<Output
+		renderer={renderer}
+		stages={stages}
+	/>
+	{/if}
 </main>
 
 <script>
 import Controller from "./Controller.svelte";
+import Output from "./Output.svelte";
 
 // props
 export let renderer = {};

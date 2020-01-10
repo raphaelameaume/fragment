@@ -1,15 +1,28 @@
 <Panel width={width} title="Output settings" direction="column">
     <Dropdown title="Dimensions">
-        <Field prop={{ value: 1920, type: "number", step: 1 }} name="width" triggerable={false} />
-        <Field prop={{ value: 1080, type: "number", step: 1 }} name="height" triggerable={false} />
+        <Field prop={propWidth} name="width" triggerable={false} />
+        <Field prop={propHeight} name="height" triggerable={false} />
     </Dropdown>
 </Panel>
 
 <script>
+import { onMount, afterUpdate } from "svelte";
 import Panel from "./Panel.svelte";
 import Field from "./Field.svelte";
 import Dropdown from "./Dropdown.svelte";
+import { OutputWindow } from "../core/OutputWindow.js";
 
 // props
 export let width;
+
+let dimensions = { ...OutputWindow.dimensions };
+
+$: propWidth = { value: dimensions.width, type: "number", step: 1 };
+$: propHeight = { value: dimensions.height, type: "number", step: 1 };
+
+OutputWindow.onResize(() => {
+    dimensions.width = OutputWindow.dimensions.width;
+    dimensions.height = OutputWindow.dimensions.height;
+});
+
 </script>
