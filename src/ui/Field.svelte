@@ -1,6 +1,9 @@
 <div class="field">
     <div class="field__live"></div>
     <div class="field__name">{name}</div>
+
+    <div class="field__content">
+    
     {#if prop.min !== undefined && prop.max !== undefined} 
     <div class="field__progress" bind:this={progress} on:mousedown={handleMouseDown}>
         <div class="progress__fill" style="transform: scaleX({map(prop.value, prop.min, prop.max, 0, 1)})"></div>
@@ -8,11 +11,14 @@
     {/if}
 
     {#if type === 'color' } 
-    <input type="color" class="field__color" value={prop.value} on:change={handleChangeColor} />
+    <div class="field__color" style="background-color: {prop.value}">
+        <input type="color" class="color__input" value={prop.value} on:change={handleChangeColor} />
+    </div>
     {/if}
 
     {#if type === 'boolean' } 
         <Checkbox prop={prop} />
+        <TextInput style="width: 70px; margin-left: 1px;" value={prop.value} disabled={true} />
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
@@ -24,10 +30,10 @@
     {/if}
 
     {#if type === 'image'}
-        <TextInput value={getFilename(prop.value)} disabled={true} />
         <div class="field__image" bind:this={inputs.image} on:click={handleClickImage}>
             <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
         </div>
+        <TextInput width="70px" value={getFilename(prop.value)} disabled={true} />
     {/if}
 
     {#if type === 'select'}
@@ -42,13 +48,41 @@
         </div>
     {/if}
     <slot></slot>
+    </div>
     <button class="field__settings" on:click={handleClickSettings}>
         <IconSettings/>
     </button>
     {#if parametersVisible}
     <Window title={name} visible={parametersVisible} onClose={(visibility) => parametersVisible = visibility}>
         <Dropdown title="Informations">
+            <div class="field__info">
+                <span class="info__name">Name:</span>
+                <TextInput width="100%;" style="max-width: 120px;" value={name} disabled={true} />
+            </div>
+            <div class="field__info">
+                <span class="info__name">Type:</span>
+                <TextInput width="100%;" style="max-width: 120px;" value={type} disabled={true} />
+            </div>
+            {#if type !== 'button' }
+            <div class="field__info">
+                <span class="info__name">Value:</span>
+                <TextInput width="100%;" style="max-width: 120px;" value={prop.value} disabled={true} />
+            </div>
+            {/if}
+            {#if typeof prop.min !== 'undefined' }
+            <div class="field__info">
+                <span class="info__name">Value min:</span>
+                <TextInput width="100%;" style="max-width: 120px;" value={prop.min} disabled={true} />
+            </div>
+            {/if}
+            {#if typeof prop.max !== 'undefined' }
+            <div class="field__info">
+                <span class="info__name">Value max:</span>
+                <TextInput width="100%;" style="max-width: 120px;" value={prop.max} disabled={true} />
+            </div>
+            {/if}
         </Dropdown>
+        {#if isTriggerable }
         <Dropdown title="Triggers">
             {#if (prop.triggers && prop.triggers.length > 0)}
                 {#each prop.triggers as trigger}
@@ -57,6 +91,7 @@
             {/if}
             <Button style="width: 50%">Add</Button>
         </Dropdown>
+        {/if}
     </Window>
     {/if}
 </div>
@@ -75,6 +110,7 @@ import IconSettings from "./svg/IconSettings.svelte";
 
 export let prop;
 export let name = '';
+export let triggerable = true;
 
 let inputs = {
     text: null,
@@ -83,11 +119,13 @@ let inputs = {
 };
 
 let progress, fill;
+
 let parametersVisible = false;
 
 $: step = prop.step ? prop.step : 0.01;
 $: checked = prop.value ? true : false;
 $: type = prop.type ? prop.type : typeof prop.value;
+$: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
 
 //@TODO should be here
 if (prop.triggers && prop.triggers.length > 0) {
@@ -250,11 +288,8 @@ function setValue(v) {
 .field {
     position: relative;
 
-    align-items: center;
-
     display: flex;
     width: 100%;
-    height: 30px;
     padding-right: 20px;
 }
 
@@ -282,14 +317,18 @@ function setValue(v) {
 }
 
 .field__name {
+    display: flex;
     width: 40%;
+    height: 30px;
     padding: 0 10px;
+    align-items: center;
     flex-shrink: 0;
     flex-grow: 0;
 }
 
 .field__value {
-    width: 22%;
+    /* width: 22%; */
+    width: 70px;
     height: 100%;
     padding: 0 10px;
     flex-shrink: 0;
@@ -368,6 +407,12 @@ function setValue(v) {
     border: 1px solid #448eea;
 }
 
+.field__content {
+    display: flex;
+    padding-top: 5px;
+    width: 100%;
+    justify-content: space-between;
+}
 
 .field__progress {
     position: relative;
@@ -385,7 +430,7 @@ function setValue(v) {
 .field__color {
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 20px;
     padding: 0;
     margin: 0;
 
@@ -393,6 +438,15 @@ function setValue(v) {
     background-color: transparent;
     border-radius: 0;
     outline: 0;
+    border-radius: 2px;
+    border: 1px solid black;
+}
+
+.color__input {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
 }
 
 .progress__fill {
@@ -412,12 +466,12 @@ function setValue(v) {
 }
 
 .field__image {
-    width: 30px;
-    height: 30px;
-    margin: 0 0 0 1px;
+    width: 70px;
+    height: 70px;
+    margin: 0 1px 0 0;
 
     background-position: center;
-    background-size: cover;
+    background-size: 100%;
     background-repeat: no-repeat;
     border-radius: 2px;
     background-color: #1d1d1e;
@@ -428,18 +482,31 @@ function setValue(v) {
 
 .field__settings {
     position: absolute;
-    top: 0;
+    top: 5px;
     right: 1px;
 
     display: flex;
     justify-content: center;
     align-items: center;
     width: 18px;
-    height: 100%;
+    height: 20px;
 
     background-color: transparent;
     border: 0;
     cursor: pointer;
+}
+
+.field__info {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    height: 30px;
+    margin-top: 1px;
+    padding: 0 10px;
+    align-items: center;
+}
+
+.info__name {
 }
 
 </style>
