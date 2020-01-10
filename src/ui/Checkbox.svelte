@@ -1,5 +1,5 @@
 <div class="checkbox">
-    <input class="input" type="checkbox" bind:checked={prop.value} />
+    <input class="input" type="checkbox" bind:checked={prop.value} on:change={handleChange} />
     <div class="checked"></div>
 </div>
 
@@ -53,5 +53,9 @@
 
 <script>
 export let prop = {};
-export let checked = false;
+export let onChange = () => {};
+
+function handleChange(event) {
+    onChange(event.target.checked);
+}
 </script>

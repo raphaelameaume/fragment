@@ -21,8 +21,8 @@
     {/if}
 
     {#if type === 'boolean' } 
-        <Checkbox prop={prop} />
-        <TextInput style="width: 70px; margin-left: 1px;" value={prop.value} disabled={true} />
+        <Checkbox prop={prop} onChange={(value) => prop.value = value} />
+        <TextInput style="width: 70px; margin-left: 1px;" prop={prop} disabled={true} />
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
@@ -37,7 +37,7 @@
         <div class="field__image" bind:this={inputs.image} on:click={handleClickImage}>
             <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
         </div>
-        <TextInput width="70px" value={getFilename(prop.value)} disabled={true} />
+        <TextInput width="70px" prop={{value:getFilename(prop.value)}} disabled={true} />
     {/if}
 
     {#if type === 'select'}
@@ -61,28 +61,28 @@
         <Dropdown title="Informations">
             <div class="field__info">
                 <span class="info__name">Name:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={name} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: name}} disabled={true} />
             </div>
             <div class="field__info">
                 <span class="info__name">Type:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={type} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: type}} disabled={true} />
             </div>
             {#if type !== 'button' }
             <div class="field__info">
                 <span class="info__name">Value:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={prop.value} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: prop.value}} disabled={true} />
             </div>
             {/if}
             {#if typeof prop.min !== 'undefined' }
             <div class="field__info">
                 <span class="info__name">Value min:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={prop.min} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: prop.min}} disabled={true} />
             </div>
             {/if}
             {#if typeof prop.max !== 'undefined' }
             <div class="field__info">
                 <span class="info__name">Value max:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={prop.max} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: prop.max}} disabled={true} />
             </div>
             {/if}
         </Dropdown>
@@ -136,7 +136,11 @@ $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type)
 if (prop.triggers && prop.triggers.length > 0) {
     for (let i = 0; i < prop.triggers.length; i++) {
         prop.triggers[i].onTrigger(() => {
-            prop.onTrigger();
+            if (type === 'boolean') {
+                prop.value = !prop.value;
+            } else {
+                prop.onTrigger();
+            }
         });
     }
 }

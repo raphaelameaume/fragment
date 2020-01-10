@@ -84,11 +84,6 @@ class Cubes extends Stage {
         this.mesh = new Mesh(this.gl, { geometry, program });
         this.scene.addChild(this.mesh);
 
-        this.props.move.onTrigger = () => {
-            this.props.move = {...this.props.move, value: !this.props.move.value };
-
-        };
-
         this.props.texture.onChange = ({ image }) => {
             this.uniforms.uMap.value.image = image;
         };

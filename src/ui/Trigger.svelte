@@ -1,19 +1,8 @@
 <div class="trigger">
     <Select options={options} />
-    <TextInput width="40px" value={inputValue} onSubmit={handleSubmit} />
+    <TextInput width="40px" prop={{value:inputValue}} onSubmit={handleSubmit} />
     <Button style="width: 60px; line-height: 10px; margin: 0;" onClick={handleClickToggle}>{label}</Button>
 </div>
-
-<style>
-.trigger {
-    display: flex;
-    width: 100%;
-    height: 30px;
-    justify-content: space-around;
-    align-items: center;
-}
-
-</style>
 
 <script>
 import Button from "./Button.svelte";
@@ -53,3 +42,14 @@ function handleClickDelete() {
 }
 
 </script>
+
+<style>
+.trigger {
+    display: flex;
+    width: 100%;
+    height: 30px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+</style>
