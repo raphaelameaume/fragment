@@ -1,4 +1,7 @@
 <Panel width={width} title="Input Settings" direction="column">
+	<Dropdown title="MIDI">
+		<Field prop={propMIDI} name={propMIDI.name} />
+    </Dropdown>
     <Dropdown title="Audio">
         <Field prop={propInputMicro} name={propInputMicro.name} />
         <Field prop={propInputPlaylist} name={propInputPlaylist.name}>
@@ -16,8 +19,7 @@
     <Dropdown title="Video">
         <Field prop={propInputWebcam} name={propInputWebcam.name} />
     </Dropdown>
-    <Dropdown title="MIDI">
-    </Dropdown>
+    
 </Panel>
 
 <script>
@@ -137,6 +139,14 @@ let propInputWebcam = {
 		}
 	}
 };
+
+let propMIDI = {
+	name: "device",
+	type: "select",
+	value: [
+		{ key: 'none', value: 'No device selected' }
+	]
+}
 
 </script>
 

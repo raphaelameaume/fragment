@@ -1,5 +1,6 @@
 const OutputWindow = function() {
     let object;
+    let opened = false;
 
     let dimensions = {
         width: window.innerWidth,
@@ -7,8 +8,15 @@ const OutputWindow = function() {
     }
     let resizeFn;
 
-    async function open() {
+    async function open(renderer) {
         object = window.open(`${window.location.href}?output=true`, 'Output', `width=${dimensions.width},height=${dimensions.height}`);
+
+        object.renderer = renderer;
+        object.renderer.fromSource = true;
+
+        object.treshold = renderer.treshold;
+
+        opened = true;
 
         object.addEventListener('load', () => {
             console.log('output loaded');
@@ -28,10 +36,24 @@ const OutputWindow = function() {
         resizeFn = fn;
     }
 
+    function setSize(width, height) {
+        dimensions.width = width;
+        dimensions.height = height;
+
+        if (opened) {
+            object.resizeTo(width, height);
+        }
+
+        if (resizeFn) {
+            resizeFn({ width: dimensions.width, height: dimensions.height });
+        }
+    }
+
     return {
         open,
         dimensions,
         onResize,
+        setSize,
     }
 }();
 

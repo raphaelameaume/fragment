@@ -28,7 +28,7 @@ export let renderer;
 export let width;
 
 function handleClickOpenOutput() {
-	OutputWindow.open();
+	OutputWindow.open(renderer);
 }
 </script>
 

@@ -7,7 +7,7 @@ import * as stages from "./stages/index.js";
 const app = new App({
 	target: document.body,
 	props: {
-		renderer: OGLRenderer(),
+		renderer: window.renderer ? window.renderer : OGLRenderer(),
 		output: window.location.href.includes('output'),
 		stages,
 	}

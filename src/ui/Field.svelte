@@ -116,6 +116,7 @@ import IconTrigger from "./svg/IconTrigger.svelte";
 export let prop;
 export let name = '';
 export let triggerable = true;
+export let onSubmit = () => {};
 
 let inputs = {
     text: null,
@@ -259,6 +260,8 @@ function handleKeypressWindow(event) {
     if (event.keyCode === 13) {
         inputs.text.blur();
         setValue(inputs.text.value);
+
+        onSubmit(prop.value);
     }
 }
 

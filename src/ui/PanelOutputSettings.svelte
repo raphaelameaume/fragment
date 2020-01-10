@@ -1,7 +1,7 @@
 <Panel width={width} title="Output settings" direction="column">
     <Dropdown title="Dimensions">
-        <Field prop={propWidth} name="width" triggerable={false} />
-        <Field prop={propHeight} name="height" triggerable={false} />
+        <Field prop={propWidth} name="width" triggerable={false} onSubmit={handleSubmitWidth}/>
+        <Field prop={propHeight} name="height" triggerable={false} onSubmit={handleSubmitHeight} />
     </Dropdown>
 </Panel>
 
@@ -24,5 +24,13 @@ OutputWindow.onResize(() => {
     dimensions.width = OutputWindow.dimensions.width;
     dimensions.height = OutputWindow.dimensions.height;
 });
+
+function handleSubmitWidth(value) {
+    OutputWindow.setSize(value, OutputWindow.dimensions.height);
+}
+
+function handleSubmitHeight(value) {
+    OutputWindow.setSize(OutputWindow.dimensions.width, value);
+}
 
 </script>
