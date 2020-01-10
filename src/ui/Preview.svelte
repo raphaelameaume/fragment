@@ -23,12 +23,14 @@ canvas {
 import { onMount } from "svelte";
 import { on } from "../events.js";
 
+// props
 export let width;
 export let height;
 export let stage;
 export let index;
 export let renderer;
 
+// variables
 let canvas, preview;
 let context;
 let renderTarget = renderer.renderTargets[index];

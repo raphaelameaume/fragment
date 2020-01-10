@@ -163,9 +163,11 @@ async function loadImage(src) {
 }
 
 if (prop.type === 'image') {
-    
-
-    loadImage(prop.value);
+    if (!prop.image) {
+        loadImage(prop.value);
+    } else {
+        inputs.image.style = `background-image: url(${prop.image.src})`;
+    }
 }
 
 function getFilename(filepath) {
