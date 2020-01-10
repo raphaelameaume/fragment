@@ -9,15 +9,19 @@ const vertex = /* glsl */ `
     precision highp int;
     attribute vec3 position;
     attribute vec3 normal;
+    attribute vec2 uv;
+
     uniform mat4 modelViewMatrix;
     uniform mat4 projectionMatrix;
     uniform mat3 normalMatrix;
     varying vec3 vNormal;
+    varying vec2 vUv;
 
     uniform float uScale;
 
 
     void main() {
+        vUv = uv;
         vNormal = normalize(normalMatrix * normal);
         vec3 transformed = position;
         transformed *= uScale;
@@ -29,11 +33,19 @@ const vertex = /* glsl */ `
 const fragment = /* glsl */ `
     precision highp float;
     precision highp int;
+
+    uniform sampler2D uMap;
     varying vec3 vNormal;
+    varying vec2 vUv;
+
     void main() {
         vec3 normal = normalize(vNormal);
         float lighting = dot(normal, normalize(vec3(-0.3, 0.8, 0.6)));
         vec3 color = vec3(0.2, 0.8, 1.0);
+
+        vec4 texel = texture2D(uMap, vUv);
+        color.rgb *= texel.rgb;
+
         gl_FragColor.rgb = color + lighting * 0.1;
         gl_FragColor.a = 1.0;
     }
@@ -54,6 +66,7 @@ class Cubes extends Stage {
 
         this.uniforms = {
             uScale: { value: 1 },
+            uMap: { value: new Texture(this.gl) },
         };
 
         const program = new Program(this.gl, {
@@ -76,10 +89,8 @@ class Cubes extends Stage {
 
         };
 
-        let texture = new Texture(this.gl);
-
         this.props.texture.onChange = ({ image }) => {
-            texture.image = image;
+            this.uniforms.uMap.value.image = image;
         };
     }
 
@@ -120,7 +131,7 @@ export default {
         },
         texture: {
             type: "image",
-            value: 'assets/images/test.png',
+            value: 'assets/images/render.png',
         },
     }
 };

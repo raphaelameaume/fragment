@@ -24,7 +24,10 @@
     {/if}
 
     {#if type === 'image'}
-        <div class="field__image"></div>
+        <TextInput value={getFilename(prop.value)} disabled={true} />
+        <div class="field__image" bind:this={inputs.image} on:click={handleClickImage}>
+            <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
+        </div>
     {/if}
 
     {#if type === 'select'}
@@ -57,6 +60,191 @@
     </Window>
     {/if}
 </div>
+
+<script>
+import Window from "./Window.svelte";
+import Trigger from "./Trigger.svelte";
+import Dropdown from "./Dropdown.svelte";
+import Button from "./Button.svelte";
+import { map } from "../math/map.js";
+import { clamp } from "../math/clamp.js";
+import Select from "./Select.svelte";
+import TextInput from "./TextInput.svelte";
+import Checkbox from "./Checkbox.svelte";
+import IconSettings from "./svg/IconSettings.svelte";
+
+export let prop;
+export let name = '';
+
+let inputs = {
+    text: null,
+    image: null,
+    upload: null,
+};
+
+let progress, fill;
+let parametersVisible = false;
+
+$: step = prop.step ? prop.step : 0.01;
+$: checked = prop.value ? true : false;
+$: type = prop.type ? prop.type : typeof prop.value;
+
+//@TODO should be here
+if (prop.triggers && prop.triggers.length > 0) {
+    for (let i = 0; i < prop.triggers.length; i++) {
+        prop.triggers[i].onTrigger(() => {
+            prop.onTrigger();
+        });
+    }
+}
+
+async function loadImage(src) {
+    let response = await fetch(src);
+    let blob = await response.blob();
+    let dataURL = URL.createObjectURL(blob);
+
+    inputs.image.style = `background-image: url(${dataURL})`;
+
+    let image = new Image();
+    prop.image = image;
+    image.addEventListener('load', () => {
+        if (prop.onChange) {
+            prop.onChange(prop);
+        }
+    });
+    image.src = dataURL;
+}
+
+if (prop.type === 'image') {
+    
+
+    loadImage(prop.value);
+}
+
+function getFilename(filepath) {
+    let parts = filepath.split('/');
+    console.log(parts);
+
+    return parts[parts.length - 1];
+}
+
+function handleMouseDown(event) {
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    onDrag(event);
+}
+
+function handleMouseMove(event) {
+    onDrag(event);
+}
+
+function onDrag(event) {
+    let rect = progress.getBoundingClientRect();
+    
+    setValue(map(event.clientX, rect.left, rect.right, prop.min, prop.max));
+}
+
+function handleMouseUp() {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+}
+
+function handleKeyUp(event) {
+    if (event.keyCode === 13) {
+        setValue(event.currentTarget.value);
+    }
+}
+
+function handleChangeColor(event) {
+    setValue(event.currentTarget.value);
+}
+
+function handleChangeCheck(event) {
+    setValue(event.target.checked);
+}
+
+function handleChangeSelect(activeValue, event) {
+    if (prop.onChange) {
+        prop.onChange(activeValue, event);
+    }
+}
+
+function handleTrigger(event) {
+    if (typeof prop.onTrigger === 'function') {
+        prop.onTrigger(prop);
+    }
+}
+
+function handleClickSettings(event) {
+    console.log('settings clicked');
+    parametersVisible = true;
+}
+
+function handleFocus(event) {
+    window.addEventListener('keypress', handleKeypressWindow);
+    window.addEventListener('keydown', handleKeydownWindow);
+}
+
+function handleBlur() {
+    window.removeEventListener('keypress', handleKeypressWindow);
+    window.removeEventListener('keydown', handleKeydownWindow);
+}
+
+function handleClickImage() {
+    inputs.upload.click();
+}
+
+function handleUploadImage(event) {
+    let file = event.target.files[0];
+    let reader = new FileReader();
+    reader.onload = (e) => {
+        prop.value = file.name;
+        loadImage(e.target.result);
+    };
+
+    console.log({ file });
+	reader.readAsDataURL(file);
+}
+
+function handleKeypressWindow(event) {
+    if (event.keyCode === 13) {
+        inputs.text.blur();
+        setValue(inputs.text.value);
+    }
+}
+
+function handleKeydownWindow(event) {
+    if (event.keyCode === 38) { // ArrowUp
+        if (type === 'number') {
+            event.preventDefault();
+
+            setValue(prop.value + step);
+        }
+    }
+
+    if (event.keyCode === 40) { // ArrowDown
+        if (type === 'number') {
+            event.preventDefault();
+
+            setValue(prop.value - step);
+        }
+    }
+}
+
+function setValue(v) {
+    if (prop.min !== undefined && prop.max !== undefined) {
+        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
+    } else {
+        prop.value = v;
+    }
+
+    if (typeof prop.onChange === 'function') {
+        prop.onChange(prop);
+    }
+}
+
+</script>
 
 <style>
 .field {
@@ -226,8 +414,16 @@
 .field__image {
     width: 30px;
     height: 30px;
-    border: 6px solid white;
-    box-sizing: border-box;
+    margin: 0 0 0 1px;
+
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 2px;
+    background-color: #1d1d1e;
+    border: 1px solid black;
+
+    cursor: pointer;
 }
 
 .field__settings {
@@ -243,142 +439,7 @@
 
     background-color: transparent;
     border: 0;
+    cursor: pointer;
 }
 
 </style>
-
-<script>
-import Window from "./Window.svelte";
-import Trigger from "./Trigger.svelte";
-import Dropdown from "./Dropdown.svelte";
-import Button from "./Button.svelte";
-import { map } from "../math/map.js";
-import { clamp } from "../math/clamp.js";
-import Select from "./Select.svelte";
-import Checkbox from "./Checkbox.svelte";
-import IconSettings from "./svg/IconSettings.svelte";
-
-export let prop;
-export let name = '';
-
-let inputs = {
-    text: null,
-};
-
-let progress, fill;
-let parametersVisible = false;
-
-$: step = prop.step ? prop.step : 0.01;
-$: checked = prop.value ? true : false;
-$: type = prop.type ? prop.type : typeof prop.value;
-
-//@TODO should be here
-if (prop.triggers && prop.triggers.length > 0) {
-    for (let i = 0; i < prop.triggers.length; i++) {
-        prop.triggers[i].onTrigger(() => {
-            prop.onTrigger();
-        });
-    }
-}
-
-function handleMouseDown(event) {
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-
-    onDrag(event);
-}
-
-function handleMouseMove(event) {
-    onDrag(event);
-}
-
-function onDrag(event) {
-    let rect = progress.getBoundingClientRect();
-    
-    setValue(map(event.clientX, rect.left, rect.right, prop.min, prop.max));
-}
-
-function handleMouseUp() {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-}
-
-function handleKeyUp(event) {
-    if (event.keyCode === 13) {
-        setValue(event.currentTarget.value);
-    }
-}
-
-function handleChangeColor(event) {
-    setValue(event.currentTarget.value);
-}
-
-function handleChangeCheck(event) {
-    setValue(event.target.checked);
-}
-
-function handleChangeSelect(activeValue, event) {
-    if (prop.onChange) {
-        prop.onChange(activeValue, event);
-    }
-}
-
-function handleTrigger(event) {
-    if (typeof prop.onTrigger === 'function') {
-        prop.onTrigger(prop);
-    }
-}
-
-function handleClickSettings(event) {
-    console.log('settings clicked');
-    parametersVisible = true;
-}
-
-function handleFocus(event) {
-    window.addEventListener('keypress', handleKeypressWindow);
-    window.addEventListener('keydown', handleKeydownWindow);
-}
-
-function handleBlur() {
-    window.removeEventListener('keypress', handleKeypressWindow);
-    window.removeEventListener('keydown', handleKeydownWindow);
-}
-
-function handleKeypressWindow(event) {
-    if (event.keyCode === 13) {
-        inputs.text.blur();
-        setValue(inputs.text.value);
-    }
-}
-
-function handleKeydownWindow(event) {
-    if (event.keyCode === 38) { // ArrowUp
-        if (type === 'number') {
-            event.preventDefault();
-
-            setValue(prop.value + step);
-        }
-    }
-
-    if (event.keyCode === 40) { // ArrowDown
-        if (type === 'number') {
-            event.preventDefault();
-
-            setValue(prop.value - step);
-        }
-    }
-}
-
-function setValue(v) {
-    if (prop.min !== undefined && prop.max !== undefined) {
-        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
-    } else {
-        prop.value = v;
-    }
-
-    if (typeof prop.onChange === 'function') {
-        prop.onChange(prop);
-    }
-}
-
-</script>

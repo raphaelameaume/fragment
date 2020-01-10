@@ -1,4 +1,4 @@
-<input type="text" class="input" value={value} style={`width: ${width}`} on:change={onChange} bind:this={input} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
+<input type="text" class="input" value={value} disabled={disabled} style={`width: ${width}`} on:change={onChange} bind:this={input} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
 
 <style>
 .input {
@@ -10,6 +10,10 @@
     outline: 0;
     margin: 0;
 }
+
+.input:disabled {
+    color: rgba(240, 240, 240, 0.3);
+}
 </style>
 
 <script>
@@ -17,6 +21,7 @@ export let onSubmit = () => {};
 export let onChange = () => {};
 export let value = '';
 export let width = 'auto';
+export let disabled = false;
 
 let input;
 
