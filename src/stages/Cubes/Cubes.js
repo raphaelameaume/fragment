@@ -1,5 +1,6 @@
 import { Camera, Box, Mesh, Program, Texture } from "ogl";
 import { Keyboard } from "../../core/Keyboard";
+import { Midi } from "../../core/Midi";
 
 import Stage from "../Stage.js";
 import { Audio } from "../../core/Audio.js";
@@ -117,11 +118,15 @@ export default {
             min: 0,
             max: 20,
             value: 1,
+            triggers: [
+                Midi.knob(1),
+            ]
         },
         move: {
             value: true,
             triggers: [
-                Keyboard.key('m')
+                Keyboard.key('m'),
+                Midi.keydown(32),
             ]
         },
         texture: {

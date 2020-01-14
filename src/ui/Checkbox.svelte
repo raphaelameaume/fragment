@@ -1,5 +1,5 @@
 <div class="checkbox">
-    <input class="input" type="checkbox" bind:checked={prop.value} on:change={handleChange} />
+    <input class="input" type="checkbox" bind:checked={prop.value} on:change={handleChange} disabled={disabled} />
     <div class="checked"></div>
 </div>
 
@@ -32,6 +32,10 @@
     cursor: pointer;
 }
 
+.input:disabled {
+    cursor: initial;
+}
+
 .checked {
     position: absolute;
     top: 3px;
@@ -53,6 +57,7 @@
 
 <script>
 export let prop = {};
+export let disabled = false;
 export let onChange = () => {};
 
 function handleChange(event) {

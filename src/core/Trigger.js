@@ -1,5 +1,6 @@
 class Trigger {
     constructor(type, value, enabled = true) {
+        this.type = type;
         this.enabled = enabled;
         this.value = [value];
         this.onTriggerFn = () => {};
@@ -11,8 +12,8 @@ class Trigger {
         return this;
     }
     
-    trigger() {
-        this.onTriggerFn();
+    trigger(params) {
+        this.onTriggerFn(params);
     }
 
     onTrigger(fn) {

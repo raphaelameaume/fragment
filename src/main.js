@@ -10,6 +10,9 @@ const app = new App({
 		renderer: window.renderer ? window.renderer : OGLRenderer(),
 		output: window.location.href.includes('output'),
 		stages,
+		midi: [
+			'assets/MPK2Mini2.json',
+		]
 	}
 });
 

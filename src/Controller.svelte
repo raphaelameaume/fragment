@@ -27,7 +27,8 @@
 <Separator height="1px" width="100%" />
 <Panel width="100%" height="calc(28vh - 1px)" direction="row">
     <PanelInputSettings
-        width="50%"
+        width="50%",
+        midi={midi},
     />
     <Separator />
     <PanelOutputSettings
@@ -47,6 +48,7 @@ import Separator from "./ui/Separator.svelte";
 // props
 export let renderer = {};
 export let stages = {};
+export let midi = {};
 
 let instanced = {};
 

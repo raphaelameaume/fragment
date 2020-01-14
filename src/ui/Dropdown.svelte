@@ -1,4 +1,4 @@
-<div class="dropdown">
+<div class="dropdown" style={style}>
     <button class="button" on:click={toggle} bind:this={button}>
         <span class="toggle">
             {#if opened}
@@ -13,6 +13,25 @@
         <slot></slot>
     </div>
 </div>
+
+<script>
+import IconArrowRight from "./svg/IconArrowRight.svelte";
+import IconArrowBottom from "./svg/IconArrowBottom.svelte";
+
+export let title = "";
+export let opened = true;
+export let style = "";
+let button;
+
+$: classNameVisible = opened ? 'visible' : '';
+
+function toggle() {
+    opened = !opened;
+
+    button.blur();
+}
+
+</script>
 
 <style>
 .button {
@@ -60,21 +79,3 @@
 }
 
 </style>
-
-<script>
-import IconArrowRight from "./svg/IconArrowRight.svelte";
-import IconArrowBottom from "./svg/IconArrowBottom.svelte";
-
-export let title = "";
-export let opened = true;
-let button;
-
-$: classNameVisible = opened ? 'visible' : '';
-
-function toggle() {
-    opened = !opened;
-
-    button.blur();
-}
-
-</script>

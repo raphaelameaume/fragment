@@ -8,6 +8,7 @@
 import Button from "./Button.svelte";
 import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
+import { MIDI_KEY_DOWN, MIDI_KNOB, MIDI_KEY_UP } from "../core/Midi.js";
 
 export let trigger = {
     type: "keyboard",
@@ -16,10 +17,13 @@ export let trigger = {
 };
 export let onDelete = () => {};
 
+console.log({ trigger });
+
 let options = [
     { value: "Keyboard", key: "keyboard" },
-    { value: "MIDI-Pad", key: "midi-pad" },
-    { value: "MIDI-Knob", key: "midi-knob" },
+    { value: "MIDI-KeyDown", key: MIDI_KEY_DOWN },
+    { value: "MIDI-KeyUp", key: MIDI_KEY_UP },
+    { value: "MIDI-Knob", key: MIDI_KNOB },
 ];
 
 $: label = trigger.enabled ? 'Disable' : 'Enable';
@@ -27,8 +31,13 @@ $: inputValue = Array.isArray(trigger)? trigger.value.join(',') : trigger.value;
 
 function handleSubmit(newValue) {
     let values = newValue.split(',');
+    values = values.map( v => {
+        if (Number(v) == v) {
+            return Number(v);
+        }
 
-    console.log({ values });
+        return v;
+    });
 
     trigger.value = values;
 }

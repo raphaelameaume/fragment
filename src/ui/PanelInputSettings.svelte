@@ -28,6 +28,7 @@
 import Panel from "./Panel.svelte";
 import Button from "./Button.svelte";
 import Field from "./Field.svelte";
+import Checkbox from "./Checkbox.svelte";
 import Dropdown from "./Dropdown.svelte";
 import IconRefresh from "./svg/IconRefresh.svelte";
 import { Audio } from "../core/Audio.js";
@@ -37,8 +38,14 @@ import { Midi } from "../core/Midi.js";
 
 // props
 export let width;
+export let midi;
+
+
+let config = { pads: {}, knobs: {} };
 
 // reactive
+$: pads = Object.keys(config.pads).map(key => ({ name: `pad ${key}`, value: config.pads[key] }));
+$: knobs = config.knobs;
 
 // propes
 let propInputMicro = {
@@ -147,16 +154,44 @@ let propInputWebcam = {
 let propMidi = {
 	name: "device",
 	type: "select",
-	value: createInputList()
-}
+	input: null,
+	value: createInputList(),
+	onChange: ({ key }) => {
+		let deviceName = key;
+
+		for (let i = 0; i < Midi.configs.length; i++) {
+			console.log(Midi.configs[i].name, deviceName);
+			if (Midi.configs[i].name === deviceName) {
+				config = Midi.configs[i];
+				
+				break;
+			}
+		}
+	},
+	handleClickLoad: () => {
+		propMidi.input.click();
+	},
+	handleConfigUpload: (event) => {
+		let reader = new FileReader();
+		let file = event.target.files[0];
+		reader.onload = (e) => {
+			let conf = JSON.parse(e.target.result); 
+
+			Midi.addConfig(conf);
+		};
+		reader.readAsText(file);
+	}
+};
 
 function createInputList() {
 	if (Midi.inputs.length === 0) {
 		return [
-			{ key: 'none', value: 'No device detected.' }
+			{ key: 'none', value: 'No device detected' }
 		]
 	} else {
-		return Midi.inputs.map( input => ({ key: input.name, value: input.name }));
+		return [
+			...Midi.inputs.map( input => ({ key: input.name, value: input.name })),
+		];
 	}
 }
 
@@ -165,6 +200,14 @@ function handleClickRefresh() {
 
 	propMidi.value = createInputList();
 }
+
+Midi.loadDevices(() => {
+	propMidi.value = createInputList();
+
+	if (Midi.inputs.length > 0) {
+		Midi.setInput(Midi.inputs[0]);
+	}
+});
 
 </script>
 

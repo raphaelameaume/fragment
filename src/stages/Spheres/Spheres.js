@@ -86,8 +86,6 @@ class Spheres extends Stage {
             uniforms.diffuse.value.g = Math.random();
             uniforms.diffuse.value.b = Math.random();
         };
-
-        Midi.pad(1);
     }
 
     onChangeCount({ value }) {

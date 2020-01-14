@@ -26,7 +26,7 @@
     {/if}
 
     {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
-        <input type="text" class="field__value field__value--text" value={prop.value} bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
+        <input type="text" class="field__value field__value--text" value={prop.value} bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur} disabled={disabled}/>
     {/if}
 
     {#if type === 'button'}
@@ -116,6 +116,7 @@ import IconTrigger from "./svg/IconTrigger.svelte";
 export let prop;
 export let name = '';
 export let triggerable = true;
+export let disabled = false;
 export let onSubmit = () => {};
 
 let inputs = {
@@ -136,10 +137,18 @@ $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type)
 //@TODO should be here
 if (prop.triggers && prop.triggers.length > 0) {
     for (let i = 0; i < prop.triggers.length; i++) {
-        prop.triggers[i].onTrigger(() => {
+        prop.triggers[i].onTrigger((params) => {
             if (type === 'boolean') {
                 prop.value = !prop.value;
-            } else {
+            } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
+                let v = map(params.value, 0, 1, prop.min, prop.max);
+                console.log('remap trigger', v);
+                setValue(v);
+
+                if (prop.onTrigger) {
+                    prop.onTrigger(params);
+                }
+            } else if (prop.onTrigger) {
                 prop.onTrigger();
             }
         });
@@ -403,8 +412,13 @@ function setValue(v) {
     margin: 0 0 0 1px;
 }
 
+
 .field__value--text:focus {
     border: 1px solid #448eea;
+}
+
+.field__value--text:disabled {
+    color: rgba(240, 240, 240, 0.3);
 }
 
 .field__content {
