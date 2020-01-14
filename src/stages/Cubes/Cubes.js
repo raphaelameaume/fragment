@@ -119,7 +119,7 @@ export default {
             max: 20,
             value: 1,
             triggers: [
-                Midi.knob(1),
+                Midi.knob(5),
             ]
         },
         move: {

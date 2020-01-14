@@ -130,6 +130,7 @@ export default {
             label: "Random",
             triggers: [
                 Keyboard.key('h'),
+                Midi.keydown(38),
             ]
         }
     }

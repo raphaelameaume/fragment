@@ -13,10 +13,10 @@
             <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickLoad}>Load</Button>
             <input type="file" name="load" style="display: none" bind:this={propInputPlaylist.input} on:change={propInputPlaylist.handleUpload} accept="audio/mp3, audio/wav"/>
         </Field>
-        <Field prop={{ min: 0, max: 1, value: 0.500, step: 0.001, onChange: ({ value }) => { Audio.setGlobalVolume(value)} }} name="volume" />
-        <Field prop={{ min: 0, max: 1000, value: 300 }} name="hold" />
-        <Field prop={{ min: 0, max: 1, value: 0.992 }} name="decay" />
-        <Field prop={{ min: 0, max: 1, value: 0.1 }} name="min" />
+        <Field prop={{ min: 0, max: 1, value: 0.500, step: 0.001, triggers: [Midi.knob(1)], onChange: ({ value }) => { Audio.setGlobalVolume(value)} }} name="volume" />
+        <Field prop={{ min: 0, max: 1000, value: 300, triggers: [Midi.knob(2)] }} name="hold" />
+        <Field prop={{ min: 0, max: 1, value: 0.992, triggers: [Midi.knob(3)] }} name="decay" />
+        <Field prop={{ min: 0, max: 1, value: 0.1, triggers: [Midi.knob(4)] }} name="min" />
     </Dropdown>
     <Dropdown title="Video">
         <Field prop={propInputWebcam} name={propInputWebcam.name} />

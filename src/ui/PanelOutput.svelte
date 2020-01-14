@@ -8,7 +8,7 @@
     </Dropdown>
     <Dropdown title="Settings">
         <Dropdown title="Transition">
-            <Field prop={{ value: renderer.treshold.value, min: 0, max: 1, step: 0.01, onChange: ({ value }) => renderer.treshold.value = value }} name="treshold" />
+            <Field prop={{ value: renderer.treshold.value, min: 0, max: 1, step: 0.01, triggers: [Midi.knob(8)], onChange: ({ value }) => renderer.treshold.value = value }} name="treshold" />
         </Dropdown>
         <Dropdown title="Post-processing">
         </Dropdown>
@@ -22,6 +22,7 @@ import Field from "./Field.svelte";
 import Dropdown from "./Dropdown.svelte";
 import PreviewOutput from "./PreviewOutput.svelte";
 import { OutputWindow } from "../core/OutputWindow";
+import { Midi } from "../core/Midi";
 
 // props
 export let renderer;
