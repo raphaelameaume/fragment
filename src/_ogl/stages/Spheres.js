@@ -2,8 +2,6 @@ import { Camera, Mesh, Sphere, Program, Color, Transform } from "ogl";
 import { Keyboard } from "../../core/Keyboard";
 import { Midi } from "../../core/Midi";
 
-import Stage from "../Stage.js";
-
 const vertex = /* glsl */ `
     precision highp float;
     precision highp int;
@@ -13,6 +11,7 @@ const vertex = /* glsl */ `
     uniform mat4 projectionMatrix;
     uniform mat3 normalMatrix;
     varying vec3 vNormal;
+    
     void main() {
         vNormal = normalize(normalMatrix * normal);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -73,7 +72,6 @@ function Spheres({ props, renderer }) {
             meshes.addChild(mesh);
         }
 
-
         props.diffuse.onChange = ({ value }) => {
             uniforms.diffuse.value = new Color(value);
         };
@@ -96,12 +94,18 @@ function Spheres({ props, renderer }) {
         renderer.render({ scene, camera, target });
     }
 
+    function preview({ context, width, height }) {
+        context.clearRect(0, 0, width, height);
+        context.drawImage(renderer.canvas, 0, 0);
+    }
+
     init();
 
     return {
         canvas: renderer.canvas,
         update,
         render,
+        preview,
     };
 }
 

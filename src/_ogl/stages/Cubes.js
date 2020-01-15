@@ -102,12 +102,18 @@ function Cubes({ props, renderer }) {
         renderer.render({ scene, camera, target });
     }
 
+    function preview({ context, width, height }) {
+        context.clearRect(0, 0, width, height);
+        context.drawImage(renderer.canvas, 0, 0);
+    }
+
     init();
 
     return {
         canvas: renderer.canvas,
         update,
         render,
+        preview,
     };
 }
 

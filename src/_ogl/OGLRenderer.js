@@ -157,8 +157,6 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
     resize({ width, height });
 
-    
-
     return {
         renderer,
         renderTargets: [renderTarget0, renderTarget1],

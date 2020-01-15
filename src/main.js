@@ -1,7 +1,7 @@
 import App from './App.svelte';
 import { emit } from "./events";
-import OGLRenderer from './renderers/OGLRenderer';
-import * as stages from "./stages/index.js";
+import OGLRenderer from './_ogl/OGLRenderer';
+import * as OGLstages from "./_ogl/stages/index.js";
 
 
 const app = new App({
@@ -9,10 +9,9 @@ const app = new App({
 	props: {
 		renderer: window.renderer ? window.renderer : OGLRenderer(),
 		output: window.location.href.includes('output'),
-		stages,
+		stages: OGLstages,
 	}
 });
-
 
 let time = 0;
 let lastTime = performance.now();

@@ -53,8 +53,9 @@ function update() {
 }
 
 function render() {
-    context.clearRect(0, 0, width, height);
-    context.drawImage(stage.instance.canvas, 0, 0);
+    if (stage) {
+        stage.instance.preview({ context, width, height });
+    }
 }
 
 </script>
