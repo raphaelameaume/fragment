@@ -16,13 +16,24 @@ const Keyboard = function() {
     function key(value) {
         let trigger = new Trigger('keyboard', value);
 
-        triggers.push(trigger);
-
+        addTrigger(trigger);
+        
         return trigger;
+    }
+
+    function addTrigger(trigger) {
+        console.log('Keyboard :: addTrigger', trigger.type, trigger.value);
+
+        let index = triggers.length;
+        triggers.push(trigger);
+        trigger.destroy = () => {
+            triggers.splice(index, 1);
+        };
     }
 
     return {
         key,
+        addTrigger,
     };
 }();
 

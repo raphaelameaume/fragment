@@ -5,6 +5,8 @@ import { map } from "../math/map.js";
 export const MIDI_KNOB = 'Midi-Knob';
 export const MIDI_KEY_DOWN = 'Midi-KeyDown';
 export const MIDI_KEY_UP = 'Midi-KeyUp';
+export const MIDI_NOTE_ON = 'Midi-NoteOn';
+export const MIDI_NOTE_OFF = 'Midi-NoteOff';
 
 const Midi = function() {
     let inputs = [];
@@ -103,7 +105,11 @@ const Midi = function() {
     function knob(knobNumber) {
         let trigger = new Trigger(MIDI_KNOB, knobNumber);
 
+        let index = triggersKnob.length;
         triggersKnob.push(trigger);
+        trigger.destroy = () => {
+            triggersKnob.splice(index, 1);
+        };
 
         return trigger;
     }
@@ -111,33 +117,80 @@ const Midi = function() {
     function keydown(keyNumber) {
         let trigger = new Trigger(MIDI_KEY_DOWN, keyNumber);
 
-        triggersKeyDown.push(trigger);
+        addTriggerKeyDown(trigger);
 
         return trigger;
+    }
+
+    function addTriggerKeyDown(trigger) {
+        let index = triggersKeyDown.length;
+        triggersKeyDown.push(trigger);
+        trigger.destroy = () => {
+            triggersKeyDown.splice(index, 1);
+        };
     }
 
     function keyup(keyNumber) {
         let trigger = new Trigger(MIDI_KEY_UP, keyNumber);
 
-        triggersKeyUp.push(trigger);
+        addTriggerKeyUp(trigger);
 
         return trigger;
+    }
+
+    function addTriggerKeyUp(trigger) {
+        let index = triggersKeyUp.length;
+        triggersKeyUp.push(trigger);
+        trigger.destroy = () => {
+            triggersKeyUp.splice(index, 1);
+        };
     }
 
     function noteon(note) {
-        let trigger = new Trigger(MIDI_KEY_DOWN, note);
+        let trigger = new Trigger(MIDI_NOTE_ON, note);
 
-        triggersNoteOn.push(trigger);
+        addTriggerNoteOn(trigger);
 
         return trigger;
     }
 
-    function noteoff() {
-        let trigger = new Trigger(MIDI_KEY_UP, note);
+    function addTriggerNoteOn(trigger) {
+        let index = triggersNoteOn.length;
+        triggersNoteOn.push(trigger);
+        trigger.destroy = () => {
+            triggersNoteOn.splice(index, 1);
+        };
+    }
 
-        triggersNoteOff.push(trigger);
+    function noteoff() {
+        let trigger = new Trigger(MIDI_NOTE_OFF, note);
+        addTriggerNoteOff(trigger);
 
         return trigger;
+    }
+
+    function addTriggerNoteOff() {
+        let index = triggersNoteOff.length;
+        triggersNoteOff.push(trigger);
+        trigger.destroy = () => {
+            triggersNoteOff.splice(index, 1);
+        };
+    }
+
+    function addTrigger(trigger) {
+        let triggerTypes = {
+            [`${MIDI_KEY_DOWN}`]: addTriggerKeyDown,
+            [`${MIDI_KEY_UP}`]: addTriggerKeyUp,
+            [`${MIDI_NOTE_ON}`]: addTriggerNoteOn,
+            [`${MIDI_NOTE_OFF}`]: addTriggerNoteOff,
+        };
+
+        if (triggerTypes[trigger.type]) {
+            console.log('Midi->addTrigger :: trigger added.', trigger);
+            triggerTypes[trigger.type](trigger);
+        } else {
+            console.warn('Midi->addTrigger :: type not found.', trigger.type);
+        }
     }
 
     return {
@@ -150,6 +203,12 @@ const Midi = function() {
         refresh,
         loadDevices,
         setInput,
+        addTrigger,
+        KEY_DOWN: MIDI_KEY_DOWN,
+        KEY_UP: MIDI_KEY_UP,
+        NOTE_ON: MIDI_NOTE_ON,
+        NOTE_OFF: MIDI_NOTE_OFF,
+        KNOB: MIDI_KNOB,
     };
 }();
 

@@ -98,7 +98,7 @@
                 <Trigger trigger={trigger} />
                 {/each }
             {/if}
-            <Button style="width: 50%">Add</Button>
+            <Button style="width: 50%" onClick={handleClickAddTrigger}>Add</Button>
         </Dropdown>
         {/if}
     </Window>
@@ -115,6 +115,7 @@ import { clamp } from "../math/clamp.js";
 import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 import Checkbox from "./Checkbox.svelte";
+import { Keyboard } from "../core/Keyboard.js";
 import IconSettings from "./svg/IconSettings.svelte";
 import IconTrigger from "./svg/IconTrigger.svelte";
 
@@ -134,31 +135,55 @@ let progress, fill;
 
 let parametersVisible = false;
 
-$: step = prop.step ? prop.step : 0.01;
-$: checked = prop.value ? true : false;
+$: {
+    //@TODO should be here
+    if (prop.triggers && prop.triggers.length > 0) {
+        for (let i = 0; i < prop.triggers.length; i++) {
+            prop.triggers[i].onTrigger((params) => {
+                if (type === 'boolean') {
+                    setValue(!prop.value);
+                } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
+                    let v = map(params.value, 0, 1, prop.min, prop.max);
+                    console.log('remap trigger', v);
+                    setValue(v);
+
+                    if (prop.onTrigger) {
+                        prop.onTrigger(params);
+                    }
+                } else if (prop.onTrigger) {
+                    prop.onTrigger();
+                }
+            });
+        }
+    }
+}
 $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
 
-//@TODO should be here
-if (prop.triggers && prop.triggers.length > 0) {
-    for (let i = 0; i < prop.triggers.length; i++) {
-        prop.triggers[i].onTrigger((params) => {
-            if (type === 'boolean') {
-                prop.value = !prop.value;
-            } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
-                let v = map(params.value, 0, 1, prop.min, prop.max);
-                console.log('remap trigger', v);
-                setValue(v);
+$: checked = prop.value ? true : false;
 
-                if (prop.onTrigger) {
-                    prop.onTrigger(params);
-                }
-            } else if (prop.onTrigger) {
-                prop.onTrigger();
+        if (prop.triggers && prop.triggers.length > 0) {
+            for (let i = 0; i < prop.triggers.length; i++) {
+                prop.triggers[i].onTrigger((params) => {
+                    if (type === 'boolean') {
+                        prop.value = !prop.value;
+                    } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
+                        let v = map(params.value, 0, 1, prop.min, prop.max);
+                        console.log('remap trigger', v);
+                        setValue(v);
+    
+                        if (prop.onTrigger) {
+                            prop.onTrigger(params);
+                        }
+                    } else if (prop.onTrigger) {
+                        prop.onTrigger();
+                    }
+                });
             }
-        });
-    }
-}
+        }
+
+
+
 
 async function loadImage(src) {
     let response = await fetch(src);
@@ -284,7 +309,7 @@ function handleKeydownWindow(event) {
         if (type === 'number') {
             event.preventDefault();
 
-            setValue(prop.value + step);
+            setValue(prop.value + prop.step);
         }
     }
 
@@ -292,14 +317,14 @@ function handleKeydownWindow(event) {
         if (type === 'number') {
             event.preventDefault();
 
-            setValue(prop.value - step);
+            setValue(prop.value - prop.step);
         }
     }
 }
 
 function setValue(v) {
     if (prop.min !== undefined && prop.max !== undefined) {
-        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
+        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / prop.step)) / (1 / prop.step);
     } else {
         prop.value = v;
     }
@@ -307,6 +332,13 @@ function setValue(v) {
     if (typeof prop.onChange === 'function') {
         prop.onChange(prop);
     }
+}
+
+function handleClickAddTrigger() {
+    prop.triggers = [
+        ...prop.triggers,
+        Keyboard.key(''),
+    ];
 }
 
 </script>

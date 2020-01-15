@@ -1,5 +1,5 @@
 <div class="trigger">
-    <Select options={options} value={trigger.type} />
+    <Select options={options} value={trigger.type} onChange={handleChangeType} />
     <TextInput width="40px" prop={{value:inputValue}} onSubmit={handleSubmit} />
     <Button style="width: 60px; line-height: 10px; margin: 0;" onClick={handleClickToggle}>{label}</Button>
 </div>
@@ -8,7 +8,8 @@
 import Button from "./Button.svelte";
 import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
-import { MIDI_KEY_DOWN, MIDI_KNOB, MIDI_KEY_UP } from "../core/Midi.js";
+import { Midi } from "../core/Midi.js";
+import { Keyboard } from "../core/Keyboard.js";
 
 export let trigger = {
     type: "keyboard",
@@ -17,17 +18,19 @@ export let trigger = {
 };
 export let onDelete = () => {};
 
-console.log({ trigger });
-
 let options = [
     { value: "Keyboard", key: "keyboard" },
-    { value: "MIDI-KeyDown", key: MIDI_KEY_DOWN },
-    { value: "MIDI-KeyUp", key: MIDI_KEY_UP },
-    { value: "MIDI-Knob", key: MIDI_KNOB },
+    { value: Midi.KEY_DOWN, key: Midi.KEY_DOWN },
+    { value: Midi.KEY_UP, key: Midi.KEY_UP },
+    { value: Midi.KNOB, key: Midi.KNOB },
+    { value: Midi.NOTE_ON, key: Midi.NOTE_ON },
+    { value: Midi.NOTE_OFF, key: Midi.NOTE_OFF },
 ];
 
 $: label = trigger.enabled ? 'Disable' : 'Enable';
 $: inputValue = Array.isArray(trigger)? trigger.value.join(',') : trigger.value;
+
+let type = trigger.type;
 
 function handleSubmit(newValue) {
     let values = newValue.split(',');
@@ -40,6 +43,8 @@ function handleSubmit(newValue) {
     });
 
     trigger.value = values;
+
+    onTriggerTypeChange();
 }
 
 function handleClickToggle() {
@@ -48,6 +53,25 @@ function handleClickToggle() {
 
 function handleClickDelete() {
     onDelete();
+}
+
+function handleChangeType({ key }) {
+    console.log('Trigger :: handleChangeType');
+
+    trigger.type = key;
+    onTriggerTypeChange();
+}
+
+function onTriggerTypeChange() {
+    trigger.destroy();
+
+    type = trigger.type;
+
+    if (trigger.type === 'keyboard') {
+        Keyboard.addTrigger(trigger);
+    } else {
+        Midi.addTrigger(trigger);
+    }
 }
 
 </script>
