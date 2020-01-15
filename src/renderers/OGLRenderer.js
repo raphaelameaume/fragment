@@ -106,6 +106,18 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
     resize({ width, height });
 
+    let props = {
+        treshold: {
+            min: 0,
+            max: 1,
+            step: 0.001,
+            value: 0,
+            onChange: () => {
+                uniforms.uTreshold.value = props.treshold.value;
+            }
+        }
+    };
+
     return {
         renderer,
         renderTargets: [renderTarget0, renderTarget1],
@@ -114,7 +126,6 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         resize,
         dimensions,
         render,
-        setTreshold: (value) => uniforms.uTreshold.value = value,
-        treshold,
+        props,
     };
 };

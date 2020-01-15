@@ -1,6 +1,6 @@
 <Panel title={title} width={width} direction="column">
     <div slot="header" class="stage__header" style="">
-        <div class="stage__live" style="opacity: {renderer.treshold < 1 ? 1 : 0}"></div>
+        <div class="stage__live" style="opacity: {treshold < 1 ? 1 : 0}"></div>
         <Select options={list} value={stage ? stage.name : ''} onChange={handleStageChange} />
     </div>
     <Dropdown title="Monitor">
@@ -29,6 +29,11 @@ export let index;
 export let width;
 export let title;
 export let list;
+
+$: treshold = renderer.props.treshold.value;
+$: {
+	console.log(treshold);
+}
 
 function handleStageChange({ key }) {
     console.log({ key });
