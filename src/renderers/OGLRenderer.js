@@ -34,7 +34,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         }
     `;
 
-    let fragment = /* glsl */`
+    let fragmentFade = /* glsl */`
         precision highp float;
 
         uniform sampler2D tInput0;
@@ -52,17 +52,68 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         }
     `;
 
-    let treshold = { value: 0.5 };
+    let fragmentSplit = /* glsl */`
+        precision highp float;
+
+        uniform sampler2D tInput0;
+        uniform sampler2D tInput1;
+        uniform float uTreshold;
+
+        varying vec2 vUv;
+
+        void main() {
+            vec4 texel0 = texture2D(tInput0, vUv);
+            vec4 texel1 = texture2D(tInput1, vUv);
+            
+            gl_FragColor = mix(texel0, texel1, step(vUv.x, uTreshold));
+            // gl_FragColor = vec4(0.0, 1., 1., 1.);
+        }
+    `;
+
+
+    let transitions = [
+        { name: 'Fade', key: 'fade', fragment: fragmentFade },
+        { name: 'Split V', key: 'split', fragment: fragmentSplit },
+    ]
+
+    let props = {
+        treshold: {
+            min: 0,
+            max: 1,
+            step: 0.001,
+            value: 0,
+            onChange: () => {
+                uniforms.uTreshold.value = props.treshold.value;
+            }
+        },
+        transition: {
+            type: 'select',
+            value: transitions.map(({ name, key }) => ({ key, value: name })),
+            onChange: ({ key }) => {
+                for (let i = 0; i < transitions.length; i++) {
+                    if (transitions[i].key === key) {
+                        const { fragment } = transitions[i];
+
+                        mesh.program = new Program(gl, {
+                            vertex,
+                            fragment,
+                            uniforms
+                        });
+                    }
+                }
+            }
+        }
+    };
 
     let uniforms = {
         tInput0: { value: renderTarget0.texture },
         tInput1: { value: renderTarget1.texture },
-        uTreshold: treshold,
+        uTreshold: { value: props.treshold.value },
     };
 
     let program = new Program(gl, {
         vertex,
-        fragment,
+        fragment: fragmentFade,
         uniforms,
     });
 
@@ -106,17 +157,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
     resize({ width, height });
 
-    let props = {
-        treshold: {
-            min: 0,
-            max: 1,
-            step: 0.001,
-            value: 0,
-            onChange: () => {
-                uniforms.uTreshold.value = props.treshold.value;
-            }
-        }
-    };
+    
 
     return {
         renderer,
