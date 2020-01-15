@@ -1,8 +1,9 @@
 <Panel width={width} title="Input Settings" direction="column">
 	<Dropdown title="MIDI">
-		<Field prop={propMidi} name={propMidi.name}>
+		<Field prop={propMidiDevice} name={propMidiDevice.name}>
 			<Button onClick={handleClickRefresh}>Refresh<IconRefresh/></Button>
 		</Field>
+		<Field prop={propMidiMessages} name={propMidiMessages.name} disabled={true}></Field>
     </Dropdown>
     <Dropdown title="Audio">
         <Field prop={propInputMicro} name={propInputMicro.name} />
@@ -38,16 +39,10 @@ import { Midi } from "../core/Midi.js";
 
 // props
 export let width;
-export let midi;
-
 
 let config = { pads: {}, knobs: {} };
 
-// reactive
-$: pads = Object.keys(config.pads).map(key => ({ name: `pad ${key}`, value: config.pads[key] }));
-$: knobs = config.knobs;
-
-// propes
+// prop
 let propInputMicro = {
 	name: "microphone",
 	type: "button",
@@ -69,7 +64,7 @@ let propInputMicro = {
 
 let propInputPlaylist = {
 	name: "playlist",
-	type: "list",
+	type: "action-list",
 	current: 0,
 	value: [
 		{ value: "sun-models.mp3", src: "assets/sounds/sun-models.mp3" },
@@ -151,11 +146,11 @@ let propInputWebcam = {
 	}
 };
 
-let propMidi = {
+let propMidiDevice = {
 	name: "device",
 	type: "select",
 	input: null,
-	value: createInputList(),
+	value: createDevicesList(),
 	onChange: ({ key }) => {
 		let deviceName = key;
 
@@ -168,29 +163,22 @@ let propMidi = {
 			}
 		}
 	},
-	handleClickLoad: () => {
-		propMidi.input.click();
-	},
-	handleConfigUpload: (event) => {
-		let reader = new FileReader();
-		let file = event.target.files[0];
-		reader.onload = (e) => {
-			let conf = JSON.parse(e.target.result); 
-
-			Midi.addConfig(conf);
-		};
-		reader.readAsText(file);
-	}
 };
 
-function createInputList() {
+let propMidiMessages = {
+	name: 'messages',
+	type: 'list',
+	value: [],
+};
+
+function createDevicesList() {
 	if (Midi.inputs.length === 0) {
 		return [
 			{ key: 'none', value: 'No device detected' }
 		]
 	} else {
 		return [
-			...Midi.inputs.map( input => ({ key: input.name, value: input.name })),
+			...Midi.inputs.map( input => ({ key: input.name, value: `${input.name}`})),
 		];
 	}
 }
@@ -198,15 +186,35 @@ function createInputList() {
 function handleClickRefresh() {
 	Midi.refresh();
 
-	propMidi.value = createInputList();
+	propMidiDevice.value = createDevicesList();
 }
 
 Midi.loadDevices(() => {
-	propMidi.value = createInputList();
+	propMidiDevice.value = createDevicesList();
 
 	if (Midi.inputs.length > 0) {
 		Midi.setInput(Midi.inputs[0]);
 	}
+});
+
+Midi.noteon('*').onTrigger(e => {
+	let device = e.target.name;
+	let note = e.note.name;
+	let number = e.note.number;
+	let octave = e.note.octave;
+	let channel = e.channel;
+
+	let event = `k(${number}) n(${note}) o(${octave}) c(${channel}) from ${device}`;
+
+	let messages = [...propMidiMessages.value];
+
+	if (messages.length >= 4) {
+		messages.splice(0, 1);
+	}
+
+	messages.push({ value: event });
+
+	propMidiMessages.value = messages;
 });
 
 </script>

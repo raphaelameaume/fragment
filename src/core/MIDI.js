@@ -10,6 +10,9 @@ const Midi = function() {
     let inputs = [];
     let triggersKeyDown = [];
     let triggersKeyUp = [];
+    let triggersNoteOn = [];
+    let triggersNoteOff = [];
+    
     let triggersKnob = [];
 
     let input;
@@ -53,13 +56,19 @@ const Midi = function() {
     function onNoteOn(e) {
         const { number } = e.note;
 
-        console.log(number, triggersKeyDown);
-
         for (let i = 0; i < triggersKeyDown.length; i++) {
             let trigger = triggersKeyDown[i];
 
             if (trigger.value.includes(number) && trigger.enabled) {
-                trigger.trigger();
+                trigger.trigger(e);
+            }
+        }
+
+        for (let i = 0; i < triggersNoteOn.length; i++) {
+            let trigger = triggersNoteOn[i];
+
+            if ((trigger.value.includes(e.note.name) || trigger.value.includes('*')) && trigger.enabled) {
+                trigger.trigger(e);
             }
         }
     }
@@ -71,7 +80,7 @@ const Midi = function() {
             let trigger = triggersKeyUp[i];
 
             if (trigger.value.includes(number) && trigger.enabled) {
-                trigger.trigger();
+                trigger.trigger(e);
             }
         }
     }
@@ -115,11 +124,29 @@ const Midi = function() {
         return trigger;
     }
 
+    function noteon(note) {
+        let trigger = new Trigger(MIDI_KEY_DOWN, note);
+
+        triggersNoteOn.push(trigger);
+
+        return trigger;
+    }
+
+    function noteoff() {
+        let trigger = new Trigger(MIDI_KEY_UP, note);
+
+        triggersNoteOff.push(trigger);
+
+        return trigger;
+    }
+
     return {
         inputs,
         knob,
         keydown,
         keyup,
+        noteon,
+        noteoff,
         refresh,
         loadDevices,
         setInput,

@@ -3,7 +3,6 @@
 	<Controller
 		renderer={renderer}
 		stages={stages}
-		midi={midi}
 	/>
 	{:else}
 	<Output
@@ -20,7 +19,6 @@ import Output from "./Output.svelte";
 // props
 export let renderer = {};
 export let stages = {};
-export let midi = {};
 export let output = false;
 
 </script>

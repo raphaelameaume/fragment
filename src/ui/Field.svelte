@@ -25,7 +25,7 @@
         <TextInput style="width: 70px; margin-left: 1px;" prop={prop} disabled={true} />
     {/if}
 
-    {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select"}
+    {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select" && type !== 'action-list'}
         <input type="text" class="field__value field__value--text" value={prop.value} bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur} disabled={disabled}/>
     {/if}
 
@@ -44,10 +44,15 @@
         <Select onChange={handleChangeSelect} options={prop.value}/>
     {/if}
 
-    {#if type === 'list'}
-        <div class="field__value field__value--list">
+    {#if type === 'list' || type === 'action-list'}
+        <div class="field__value field__value--list {disabled ? 'field__value--disabled' : ''}">
             {#each prop.value as option}
-            <button class="field__value--listitem" on:click={() => prop.onTrigger(option)}>{option.value}</button>
+                {#if type === 'action-list'}
+                <button class="field__value--listitem" on:click={() => prop.onTrigger(option)}>{option.value}</button>
+                {/if}
+                {#if type === 'list'}
+                <span class="field__value--listitem">{option.value}</span>
+                {/if}
             {/each}
         </div>
     {/if}
@@ -345,19 +350,19 @@ function setValue(v) {
 }
 
 .field__value--list {
-    display: flex;
     flex-direction: column;
-
-    overflow-y: scroll;
-    overflow-x: hidden;
+    display: flex;
+    width: 60%;
+    height: 60px;
+    padding: 2px 5px;
 
     font-size: 10px;
-    height: 40px;
-    padding: 0;
+
+    border: 1px solid black;
     border-radius: 2px;
     background: #1d1d1e;
-    border: 1px solid black;
-    padding: 2px 5px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .field__value--list::-webkit-scrollbar {
@@ -382,6 +387,10 @@ function setValue(v) {
     color: #f0f0f0;
     text-align: left;
     white-space: nowrap;
+}
+
+.field__value--disabled .field__value--listitem {
+    color: rgba(240, 240, 240, 0.3);
 }
 
 .field__value--button {
