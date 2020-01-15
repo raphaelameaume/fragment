@@ -16,6 +16,7 @@
     "svelte": "^3.16.4"
   },
   "dependencies": {
+    "clone-deep": "^4.0.1",
     "ogl": "0.0.33",
     "sirv-cli": "^0.4.4",
     "webmidi": "^2.5.1"

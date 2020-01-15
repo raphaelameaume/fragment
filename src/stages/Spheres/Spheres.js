@@ -86,12 +86,6 @@ class Spheres extends Stage {
             uniforms.diffuse.value.r = Math.random();
             uniforms.diffuse.value.g = Math.random();
             uniforms.diffuse.value.b = Math.random();
-
-            const hex = Colors.rgbToHex(uniforms.diffuse.value.r * 255, uniforms.diffuse.value.g * 255, uniforms.diffuse.value.b * 255);
-            this.props.color = {
-                ...this.props.color,
-                value: hex,
-            };
         };
     }
 

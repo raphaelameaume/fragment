@@ -37,6 +37,7 @@
 
 <script>
 import { onMount } from "svelte";
+import cloneDeep from "clone-deep";
 import Panel from "./ui/Panel.svelte";
 import PanelStage from "./ui/PanelStage.svelte";
 import PanelOutput from "./ui/PanelOutput.svelte";
@@ -49,29 +50,42 @@ export let renderer = {};
 export let stages = {};
 
 let instanced = {};
+let stageList = Object.keys(stages).reduce((all, key) => {
+    all[key] = stages[key];
 
-$: list = Object.keys(stages).map(key => ({ key: stages[key].name, value: stages[key].name }));
+    let cloneKey = `${key}-clone`; 
+
+    all[cloneKey] = cloneDeep(stages[key], true);
+    all[cloneKey].name = `${stages[key].name} (Clone)`;
+
+    return all;
+}, {});
+
+$: list = Object.keys(stageList).map(key => ({
+    key: key,
+    value: stageList[key].name,
+}));
 $: current = {
 	stage1: null,
 	stage2: null,
 };
 
 function handleStageChange(id, key) {
-	console.log(id, key);
 	setStage(id, key);
 }
 
 function setStage(id, key) {
 	if (!instanced[key]) {
-		const { scene, name, props } = stages[key];
+        console.log('setStage', key);
+		const { scene, name, props } = stageList[key];
 
-		stages[key].instance = new scene({
+		stageList[key].instance = new scene({
 			name,
 			...renderer,
 			props,
 		});
 
-		instanced[key] = stages[key];
+		instanced[key] = stageList[key];
 	}
 
 	current[id] = instanced[key];

@@ -34,7 +34,7 @@
     {/if}
 
     {#if type === 'image'}
-        <div class="field__image" bind:this={inputs.image} on:click={handleClickImage}>
+        <div class="field__image" style="{prop.image ? `background-image: url(${prop.image.src})`: ''}" on:click={handleClickImage}>
             <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
         </div>
         <TextInput width="70px" prop={{value:getFilename(prop.value)}} disabled={true} />
@@ -181,45 +181,30 @@ $: {
         }
     }
 }
+$: {
+    if (prop.type === 'image') {
+        if (prop.image && prop.onChange) {
+            prop.onChange(prop);
+        } else {
+            loadImage(prop.value);
+        }
+    }
+}
+
 $: step = prop.step ? prop.step : 0.1;
 $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
-
 $: checked = prop.value ? true : false;
-
-        if (prop.triggers && prop.triggers.length > 0) {
-            for (let i = 0; i < prop.triggers.length; i++) {
-                prop.triggers[i].onTrigger((params) => {
-                    if (type === 'boolean') {
-                        prop.value = !prop.value;
-                    } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
-                        let v = map(params.value, 0, 1, prop.min, prop.max);
-                        console.log('remap trigger', v);
-                        setValue(v);
-    
-                        if (prop.onTrigger) {
-                            prop.onTrigger(params);
-                        }
-                    } else if (prop.onTrigger) {
-                        prop.onTrigger();
-                    }
-                });
-            }
-        }
-
-
-
 
 async function loadImage(src) {
     let response = await fetch(src);
     let blob = await response.blob();
     let dataURL = URL.createObjectURL(blob);
 
-    inputs.image.style = `background-image: url(${dataURL})`;
-
     let image = new Image();
-    prop.image = image;
     image.addEventListener('load', () => {
+        prop.image = image;
+        
         if (prop.onChange) {
             prop.onChange(prop);
         }
@@ -227,13 +212,7 @@ async function loadImage(src) {
     image.src = dataURL;
 }
 
-if (prop.type === 'image') {
-    if (!prop.image) {
-        loadImage(prop.value);
-    } else {
-        inputs.image.style = `background-image: url(${prop.image.src})`;
-    }
-}
+
 
 function getFilename(filepath) {
     let parts = filepath.split('/');
