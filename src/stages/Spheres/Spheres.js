@@ -1,7 +1,6 @@
 import { Camera, Mesh, Sphere, Program, Color, Transform } from "ogl";
 import { Keyboard } from "../../core/Keyboard";
 import { Midi } from "../../core/Midi";
-import { Color as Colors } from "../../core/Color";
 
 import Stage from "../Stage.js";
 
@@ -36,73 +35,74 @@ const fragment = /* glsl */ `
     }
 `;
 
-class Spheres extends Stage {
+function Spheres({ props, renderer }) {
+    let gl = renderer.gl;
+    let scene, camera, meshes;
 
-    constructor(options) {
-        super(options);
+    let uniforms = {
+        diffuse: { value: new Color(props.diffuse.value) }
+    };
 
-        this.onChangeCount = this.onChangeCount.bind(this);
+    function init() {
+        scene = new Transform();
 
-        // this.props.count.onChange = this.onChangeCount;
+        camera = new Camera(gl);
+        camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
+        camera.position.z = 3;
 
-        this.camera = new Camera(this.gl);
-        this.camera.perspective({ aspect: this.gl.canvas.width / this.gl.canvas.height });
-        this.camera.position.z = 3;
-
-        const uniforms = {
-            diffuse: { value: new Color(this.props.diffuse.value) }
-        };
-
-        const program = new Program(this.gl, {
+        let program = new Program(gl, {
             vertex,
             fragment,
             uniforms,
         });
-        
-        const geometry = new Sphere(this.gl, {
+
+        let geometry = new Sphere(gl, {
             radius: 1,
         });
 
-        this.meshes = new Transform();
-        this.scene.addChild(this.meshes);
-
+        meshes = new Transform();
+        scene.addChild(meshes);
 
         for (let i = 0; i < 10; i++) {
-            let mesh = new Mesh(this.gl, { geometry, program });
+            let mesh = new Mesh(gl, { geometry, program });
 
             mesh.position.x = (Math.random() * 2 - 1) * 4;
             mesh.position.y = (Math.random() * 2 - 1) * 4;
             mesh.position.z = (Math.random() * 2 - 1) * 4;
 
-            this.meshes.addChild(mesh);
+            meshes.addChild(mesh);
         }
 
 
-        this.props.diffuse.onChange = ({ value }) => {
+        props.diffuse.onChange = ({ value }) => {
             uniforms.diffuse.value = new Color(value);
         };
 
-        this.props.color.onTrigger = () => {
+        props.color.onTrigger = () => {
             uniforms.diffuse.value.r = Math.random();
             uniforms.diffuse.value.g = Math.random();
             uniforms.diffuse.value.b = Math.random();
         };
     }
 
-    onChangeCount({ value }) {
-        console.log('onChangeCount', value);
+    function update() {
+        meshes.rotation.x += 0.01 * props.speed.value;
+        meshes.rotation.y += 0.01 * props.speed.value;
+        meshes.rotation.z += 0.01 * props.speed.value;
     }
 
-    update() {
-        this.meshes.rotation.x += 0.01 * this.props.speed.value;
-        this.meshes.rotation.y += 0.01 * this.props.speed.value;
-        this.meshes.rotation.z += 0.01 * this.props.speed.value;
-    }
-
-    render({ renderer, gl }, target) {
+    function render({ renderer, gl }, target) {
         gl.clearColor(0.25, 0.25, 0.78, 1);
-        renderer.render({ scene: this.scene, camera: this.camera, target });
+        renderer.render({ scene, camera, target });
     }
+
+    init();
+
+    return {
+        canvas: renderer.canvas,
+        update,
+        render,
+    };
 }
 
 export default {

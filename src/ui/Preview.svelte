@@ -54,7 +54,7 @@ function update() {
 
 function render() {
     context.clearRect(0, 0, width, height);
-    context.drawImage(stage.instance.gl.canvas, 0, 0);
+    context.drawImage(stage.instance.canvas, 0, 0);
 }
 
 </script>

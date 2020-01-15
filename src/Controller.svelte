@@ -79,9 +79,9 @@ function setStage(id, key) {
         console.log('setStage', key);
 		const { scene, name, props } = stageList[key];
 
-		stageList[key].instance = new scene({
+		stageList[key].instance = scene({
 			name,
-			...renderer,
+			renderer,
 			props,
 		});
 

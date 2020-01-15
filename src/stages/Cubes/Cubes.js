@@ -1,8 +1,7 @@
-import { Camera, Box, Mesh, Program, Texture } from "ogl";
+import { Camera, Box, Mesh, Program, Texture, Transform } from "ogl";
 import { Keyboard } from "../../core/Keyboard";
 import { Midi } from "../../core/Midi";
 
-import Stage from "../Stage.js";
 import { Audio } from "../../core/Audio.js";
 
 const vertex = /* glsl */ `
@@ -52,62 +51,64 @@ const fragment = /* glsl */ `
     }
 `;
 
-class Cubes extends Stage {
+function Cubes({ props, renderer }) {
+    let { gl } = renderer;
+    let uniforms = {
+        uScale: { value: 1 },
+        uMap: { value: new Texture(gl) },
+    };
 
-    constructor(options) {
-        super(options);
+    let scene, camera, mesh;
 
-        this.onChangeSpeed = this.onChangeSpeed.bind(this);
+    function init() {
+        camera = new Camera(gl);
+        camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
+        camera.position.z = 3;
 
-        this.props.speed.onChange = this.onChangeSpeed;
+        scene = new Transform();
 
-        this.camera = new Camera(this.gl);
-        this.camera.perspective({ aspect: this.gl.canvas.width / this.gl.canvas.height });
-        this.camera.position.z = 3;
-
-        this.uniforms = {
-            uScale: { value: 1 },
-            uMap: { value: new Texture(this.gl) },
-        };
-
-        const program = new Program(this.gl, {
+        let program = new Program(gl, {
             vertex,
             fragment,
-            uniforms: this.uniforms,
+            uniforms: uniforms,
         });
 
-        const geometry = new Box(this.gl, {
+        const geometry = new Box(gl, {
             width: 1,
             height: 1,
             depth: 1
         });
 
-        this.mesh = new Mesh(this.gl, { geometry, program });
-        this.scene.addChild(this.mesh);
+        mesh = new Mesh(gl, { geometry, program });
+        scene.addChild(mesh);
 
-        this.props.texture.onChange = ({ image }) => {
-            this.uniforms.uMap.value.image = image;
+        props.texture.onChange = ({ image }) => {
+            uniforms.uMap.value.image = image;
         };
     }
 
-    onChangeSpeed({ value }) {
-        // console.log('onChangeCount', value);
-    }
+    function update() {
+        uniforms.uScale.value = 1 + Audio.volume();
 
-    update() {
-        this.uniforms.uScale.value = 1 + Audio.volume();
-
-        if (this.props.move.value) {
-            this.mesh.rotation.x += 0.01 * this.props.speed.value;
-            this.mesh.rotation.y += 0.01 * this.props.speed.value;
-            this.mesh.rotation.z += 0.01 * this.props.speed.value;
+        if (props.move.value) {
+            mesh.rotation.x += 0.01 * props.speed.value;
+            mesh.rotation.y += 0.01 * props.speed.value;
+            mesh.rotation.z += 0.01 * props.speed.value;
         }
     }
 
-    render({ renderer, gl }, target) {
+    function render({ renderer, gl }, target) {
         gl.clearColor(0.65, 0.53, 0.28, 1);
-        renderer.render({ scene: this.scene, camera: this.camera, target });
+        renderer.render({ scene, camera, target });
     }
+
+    init();
+
+    return {
+        canvas: renderer.canvas,
+        update,
+        render,
+    };
 }
 
 export default {
