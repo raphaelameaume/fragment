@@ -8,7 +8,7 @@
     </Dropdown>
     <Dropdown title="Settings">
         <Dropdown title="Transition">
-            <Field prop={{ value: renderer.treshold.value, min: 0, max: 1, step: 0.01, triggers: [Midi.knob(8)], onChange: ({ value }) => renderer.treshold.value = value }} name="treshold" />
+            <Field prop={{ value: renderer.treshold.value, min: 0, max: 1, step: 0.01, triggers: [Midi.knob(8)], onChange: ({ value }) => renderer.treshold.value = value }} name="treshold" url="Output/transition" />
         </Dropdown>
         <Dropdown title="Post-processing">
         </Dropdown>

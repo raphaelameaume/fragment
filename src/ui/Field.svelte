@@ -116,6 +116,7 @@ import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 import Checkbox from "./Checkbox.svelte";
 import { Keyboard } from "../core/Keyboard.js";
+import { Storage } from "../core/Storage.js";
 import IconSettings from "./svg/IconSettings.svelte";
 import IconTrigger from "./svg/IconTrigger.svelte";
 
@@ -124,6 +125,29 @@ export let name = '';
 export let triggerable = true;
 export let disabled = false;
 export let onSubmit = () => {};
+export let url;
+
+if (Storage.get(url)) {
+    let parsed = JSON.parse(Storage.get(url));
+
+    prop.initialValue = prop.value;
+    prop.value = parsed.value;
+
+    if (prop.onChange) {
+        prop.onChange(prop);
+    }
+}
+
+$: {
+    let serialized = {
+        value: prop.value,
+    };
+
+    if (url) {
+        Storage.set(url, JSON.stringify(serialized));
+    }
+
+} 
 
 let inputs = {
     text: null,
@@ -157,6 +181,7 @@ $: {
         }
     }
 }
+$: step = prop.step ? prop.step : 0.1;
 $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
 
@@ -309,7 +334,7 @@ function handleKeydownWindow(event) {
         if (type === 'number') {
             event.preventDefault();
 
-            setValue(prop.value + prop.step);
+            setValue(prop.value + step);
         }
     }
 
@@ -317,14 +342,14 @@ function handleKeydownWindow(event) {
         if (type === 'number') {
             event.preventDefault();
 
-            setValue(prop.value - prop.step);
+            setValue(prop.value - step);
         }
     }
 }
 
 function setValue(v) {
     if (prop.min !== undefined && prop.max !== undefined) {
-        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / prop.step)) / (1 / prop.step);
+        prop.value = Math.floor(clamp(v, prop.min, prop.max) * (1 / step)) / (1 / step);
     } else {
         prop.value = v;
     }

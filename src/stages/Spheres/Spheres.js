@@ -1,6 +1,7 @@
 import { Camera, Mesh, Sphere, Program, Color, Transform } from "ogl";
 import { Keyboard } from "../../core/Keyboard";
 import { Midi } from "../../core/Midi";
+import { Color as Colors } from "../../core/Color";
 
 import Stage from "../Stage.js";
 
@@ -85,6 +86,12 @@ class Spheres extends Stage {
             uniforms.diffuse.value.r = Math.random();
             uniforms.diffuse.value.g = Math.random();
             uniforms.diffuse.value.b = Math.random();
+
+            const hex = Colors.rgbToHex(uniforms.diffuse.value.r * 255, uniforms.diffuse.value.g * 255, uniforms.diffuse.value.b * 255);
+            this.props.color = {
+                ...this.props.color,
+                value: hex,
+            };
         };
     }
 

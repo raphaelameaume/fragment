@@ -58,6 +58,7 @@
 <script>
 export let prop = {};
 export let disabled = false;
+export let value;
 export let onChange = () => {};
 
 function handleChange(event) {

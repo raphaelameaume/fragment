@@ -22,8 +22,6 @@ const Keyboard = function() {
     }
 
     function addTrigger(trigger) {
-        console.log('Keyboard :: addTrigger', trigger.type, trigger.value);
-
         let index = triggers.length;
         triggers.push(trigger);
         trigger.destroy = () => {

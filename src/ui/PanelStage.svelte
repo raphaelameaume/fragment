@@ -9,7 +9,7 @@
     <Dropdown title="Settings">
         {#if stage !== null}
             {#each Object.keys(stage.props) as propKey}
-                <Field prop={stage.props[propKey]} name={propKey} />
+                <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} />
             {/each}
         {/if}
     </Dropdown>
