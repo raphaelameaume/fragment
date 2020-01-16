@@ -1,7 +1,7 @@
-<button class="field__value--button" style={style} on:click={onClick}><slot></slot></button>
+<button class="button" style={style} on:click={onClick}><slot></slot></button>
 
 <style>
-.field__value--button {
+.button {
     display: flex;
     border-radius: 2px;
     background: #1d1d1e;
@@ -13,11 +13,11 @@
     line-height: 10px;
 }
 
-.field__value--button:hover, .field__value--button:focus {
+.button:hover, .button:focus {
     background: #131314;
 }
 
-.field__value--button:active {
+.button:active {
     background-color: #448eea;
 }
 </style>

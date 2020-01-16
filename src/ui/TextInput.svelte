@@ -1,4 +1,81 @@
-<input type="text" class="input" value={value} disabled={disabled} style={`width: ${width}; ${style}`} on:change={handleChange} bind:this={input} on:keyup={handleKeyUp} on:keydown={onKeyDown} on:focus={handleFocus} on:blur={handleBlur}/>
+<input type="text" class="input" value={value} disabled={disabled} style={`width: ${width}; ${style}`} on:change={handleChange} bind:this={input} on:keyup={handleKeyUp} on:keydown={handleKeyDown} on:focus={handleFocus} on:blur={handleBlur}/>
+
+<script>
+import { clamp } from "../math/clamp.js";
+import noop from "../utils/noop.js";
+
+export let onSubmit = noop;
+export let onChange = noop;
+export let onBlur = noop;
+export let onFocus = noop;
+export let onKeyDown = noop;
+export let onKeyUp = noop;
+export let width = 'auto';
+export let value;
+export let type = typeof value;
+export let step = 0.1;
+export let min = null;
+export let max = null;
+export let style = '';
+export let disabled = false;
+
+let input;
+
+function handleKeyDown(event) {
+    console.log('keydown', event);
+
+    if (event.keyCode === 38) { // ArrowUp
+        if (type === 'number') {
+            event.preventDefault();
+
+            value += step;
+
+
+            value = Math.round(value * (1 / step)) / (1 / step);
+            
+
+            if (min !== undefined && max !== undefined) {
+                value = clamp(value, min, max);
+            }
+        }
+    }
+
+    if (event.keyCode === 40) { // ArrowDown
+        if (type === 'number') {
+            event.preventDefault();
+
+            value -= step;
+            value = Math.round(value * (1 / step)) / (1 / step);
+
+            if (min !== undefined && max !== undefined) {
+                value = clamp(value, min, max);
+            }
+        }
+    }
+
+    onKeyDown(event);
+}
+
+function handleChange(event) {
+    onChange(event.target.value);
+}
+
+function handleFocus() {
+
+}
+
+function handleBlur() {
+
+}
+
+function handleKeyUp() {
+    if (event.keyCode === 13) {
+        input.blur();
+        onSubmit(value);
+    }
+}
+
+</script>
 
 <style>
 .input {
@@ -19,45 +96,4 @@
     border: 1px solid #448eea;
 }
 </style>
-
-<script>
-import noop from "../utils/noop.js";
-
-export let onSubmit = noop;
-export let onChange = noop;
-export let onBlur = noop;
-export let onFocus = noop;
-export let onKeyDown = noop;
-export let onKeyUp = noop;
-export let width = 'auto';
-export let value;
-export let style = '';
-export let disabled = false;
-
-let input;
-
-function handleKeyDown(event) {
-    onKeyDown(event);
-}
-
-function handleChange(event) {
-    onChange(event.target.value);
-}
-
-function handleFocus() {
-
-}
-
-function handleBlur() {
-
-}
-
-function handleKeyUp() {
-    if (event.keyCode === 13) {
-        input.blur();
-        onSubmit(input.value);
-    }
-}
-
-</script>
 

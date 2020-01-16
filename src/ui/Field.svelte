@@ -27,6 +27,10 @@
                 value={prop.value}
                 onSubmit={(value) => prop.value = value}
                 disabled={type === 'boolean' ? true : disabled}
+                step={step}
+                type={type}
+                min={prop.min}
+                max={prop.max}
                 style="width: 70px; margin-left: 1px;"
             />
         {/if}
@@ -79,13 +83,13 @@
             {#if typeof prop.min !== 'undefined' }
             <div class="field__info">
                 <span class="info__name">Value min:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={min} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={prop.min} disabled={true} />
             </div>
             {/if}
             {#if typeof prop.max !== 'undefined' }
             <div class="field__info">
                 <span class="info__name">Value max:</span>
-                <TextInput width="100%;" style="max-width: 120px;" value={max} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={prop.max} disabled={true} />
             </div>
             {/if}
         </Dropdown>
@@ -108,10 +112,6 @@ import Window from "./Window.svelte";
 import Trigger from "./Trigger.svelte";
 import Dropdown from "./Dropdown.svelte";
 import Button from "./Button.svelte";
-import { map } from "../math/map.js";
-import { clamp } from "../math/clamp.js";
-import loadImage from "../utils/loadImage.js";
-import getFilename from "../utils/getFilename.js";
 import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 import ColorInput from "./ColorInput.svelte";
@@ -119,19 +119,21 @@ import ProgressInput from "./ProgressInput.svelte";
 import Checkbox from "./Checkbox.svelte";
 import { Keyboard } from "../core/Keyboard.js";
 import { Storage } from "../core/Storage.js";
+import { map } from "../math/map.js";
+import { clamp } from "../math/clamp.js";
 import IconSettings from "./svg/IconSettings.svelte";
 import IconTrigger from "./svg/IconTrigger.svelte";
+import loadImage from "../utils/loadImage.js";
+import getFilename from "../utils/getFilename.js";
 import { Socket } from "../Socket.js";
 
 export let prop;
 export let name = '';
 export let triggerable = true;
 export let disabled = false;
-export let output;
+export let output = false;
 export let onSubmit = () => {};
 export let url = '';
-
-
 
 if (url.length > 0 && Storage.get(url)) {
     let parsed = JSON.parse(Storage.get(url));
@@ -166,8 +168,6 @@ $: {
 
 if (output) {
     Socket.on('PROP_CHANGE', (data) => {
-        console.log('receive prop change');
-
         if (data.url === url) {
             prop.value = data.value;
             
@@ -229,12 +229,6 @@ $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type)
 $: checked = prop.value ? true : false;
 
 
-function handleKeyUp(event) {
-    if (event.keyCode === 13) {
-        setValue(event.currentTarget.value);
-    }
-}
-
 function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
         prop.onTrigger(prop);
@@ -243,16 +237,6 @@ function handleTrigger(event) {
 
 function handleClickSettings(event) {
     parametersVisible = true;
-}
-
-function handleFocus(event) {
-    window.addEventListener('keypress', handleKeypressWindow);
-    window.addEventListener('keydown', handleKeydownWindow);
-}
-
-function handleBlur() {
-    window.removeEventListener('keypress', handleKeypressWindow);
-    window.removeEventListener('keydown', handleKeydownWindow);
 }
 
 function handleClickImage() {
@@ -267,17 +251,7 @@ function handleUploadImage(event) {
         loadImage(e.target.result);
     };
 
-    console.log({ file });
 	reader.readAsDataURL(file);
-}
-
-function handleKeypressWindow(event) {
-    if (event.keyCode === 13) {
-        inputs.text.blur();
-        setValue(inputs.text.value);
-
-        onSubmit(prop.value);
-    }
 }
 
 function handleKeydownWindow(event) {
