@@ -1,4 +1,4 @@
-<input type="text" class="input" bind:value={prop.value} disabled={disabled} style={`width: ${width}; ${style}`} on:change={onChange} bind:this={input} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur}/>
+<input type="text" class="input" value={value} disabled={disabled} style={`width: ${width}; ${style}`} on:change={handleChange} bind:this={input} on:keyup={handleKeyUp} on:keydown={onKeyDown} on:focus={handleFocus} on:blur={handleBlur}/>
 
 <style>
 .input {
@@ -14,18 +14,35 @@
 .input:disabled {
     color: rgba(240, 240, 240, 0.3);
 }
+
+.input:focus {
+    border: 1px solid #448eea;
+}
 </style>
 
 <script>
-export let onSubmit = () => {};
-export let onChange = () => {};
-export let prop = {};
+import noop from "../utils/noop.js";
+
+export let onSubmit = noop;
+export let onChange = noop;
+export let onBlur = noop;
+export let onFocus = noop;
+export let onKeyDown = noop;
+export let onKeyUp = noop;
 export let width = 'auto';
+export let value;
 export let style = '';
 export let disabled = false;
 
 let input;
 
+function handleKeyDown(event) {
+    onKeyDown(event);
+}
+
+function handleChange(event) {
+    onChange(event.target.value);
+}
 
 function handleFocus() {
 

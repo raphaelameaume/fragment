@@ -16,49 +16,45 @@
                 onChange={(value) => prop.value = value}
             />
         {/if}
-
-    {#if type === 'color' } 
-        <ColorInput value={prop.value} onChange={(value) => prop.value = value} />
-    {/if}
-
-    {#if type === 'boolean' } 
-        <Checkbox prop={prop} onChange={(value) => prop.value = value} />
-        <TextInput style="width: 70px; margin-left: 1px;" prop={prop} disabled={true} />
-    {/if}
-
-    {#if type !== 'boolean' && type !== 'button' && type !== 'image' && type !== 'list' && type !== "select" && type !== 'action-list'}
-        <input type="text" class="field__value field__value--text" value={prop.value} bind:this={inputs.text} on:keyup={handleKeyUp} on:focus={handleFocus} on:blur={handleBlur} disabled={disabled}/>
-    {/if}
-
-    {#if type === 'button'}
-        <Button onClick={handleTrigger}>{prop.label ? prop.label : 'Click' }</Button>
-        <!-- <button class="field__value field__value--button" on:click={handleTrigger}></button> -->
-    {/if}
-
-    {#if type === 'image'}
-        <div class="field__image" style="{prop.image ? `background-image: url(${prop.image.src})`: ''}" on:click={handleClickImage}>
-            <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
-        </div>
-        <TextInput width="70px" prop={{value:getFilename(prop.value)}} disabled={true} />
-    {/if}
-
-    {#if type === 'select'}
-        <Select onChange={(value) => prop.value = value} options={prop.options} value={prop.value} />
-    {/if}
-
-    {#if type === 'list' || type === 'action-list'}
-        <div class="field__value field__value--list {disabled ? 'field__value--disabled' : ''}">
-            {#each prop.value as option}
-                {#if type === 'action-list'}
-                <button class="field__value--listitem" on:click={() => prop.onTrigger(option)}>{option.value}</button>
-                {/if}
-                {#if type === 'list'}
-                <span class="field__value--listitem">{option.value}</span>
-                {/if}
-            {/each}
-        </div>
-    {/if}
-    <slot></slot>
+        {#if type === 'color' } 
+            <ColorInput value={prop.value} onChange={(value) => prop.value = value} />
+        {/if}
+        {#if type === 'boolean' } 
+            <Checkbox prop={prop} onChange={(value) => prop.value = value} />
+        {/if}
+        {#if type !== 'button' && type !== 'image' && type !== 'list' && type !== "select" && type !== 'action-list'}
+            <TextInput
+                value={prop.value}
+                onSubmit={(value) => prop.value = value}
+                disabled={type === 'boolean' ? true : disabled}
+                style="width: 70px; margin-left: 1px;"
+            />
+        {/if}
+        {#if type === 'button'}
+            <Button onClick={handleTrigger}>{prop.label ? prop.label : 'Click' }</Button>
+        {/if}
+        {#if type === 'select'}
+            <Select onChange={(value) => prop.value = value} options={prop.options} value={prop.value} />
+        {/if}
+        {#if type === 'image'}
+            <div class="field__image" style="{prop.image ? `background-image: url(${prop.image.src})`: ''}" on:click={handleClickImage}>
+                <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
+            </div>
+            <TextInput width="70px" prop={{value:getFilename(prop.value)}} disabled={true} />
+        {/if}
+        {#if type === 'list' || type === 'action-list'}
+            <div class="field__value field__value--list {disabled ? 'field__value--disabled' : ''}">
+                {#each prop.value as option}
+                    {#if type === 'action-list'}
+                    <button class="field__value--listitem" on:click={() => prop.onTrigger(option)}>{option.value}</button>
+                    {/if}
+                    {#if type === 'list'}
+                    <span class="field__value--listitem">{option.value}</span>
+                    {/if}
+                {/each}
+            </div>
+        {/if}
+        <slot></slot>
     </div>
     <button class="field__settings" on:click={handleClickSettings}>
         <IconSettings/>
@@ -239,12 +235,6 @@ function handleKeyUp(event) {
     }
 }
 
-function handleChangeSelect(activeValue, event) {
-    if (prop.onChange) {
-        prop.onChange(activeValue, event);
-    }
-}
-
 function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
         prop.onTrigger(prop);
@@ -408,25 +398,6 @@ function handleClickAddTrigger() {
 }
 
 .field__value--disabled .field__value--listitem {
-    color: rgba(240, 240, 240, 0.3);
-}
-
-.field__value--text {
-    background: #1d1d1e;
-    border: 1px solid black;
-    font-size: 10px;
-    height: 20px;
-    color: #f0f0f0;
-    outline: 0;
-    margin: 0 0 0 1px;
-}
-
-
-.field__value--text:focus {
-    border: 1px solid #448eea;
-}
-
-.field__value--text:disabled {
     color: rgba(240, 240, 240, 0.3);
 }
 
