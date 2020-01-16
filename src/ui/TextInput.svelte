@@ -58,19 +58,21 @@ function handleChange(event) {
     onChange(event.target.value);
 }
 
-function handleFocus() {
-
+function handleFocus(event) {
+    onFocus(event)
 }
 
 function handleBlur() {
-
+    onBlur(event);
 }
 
-function handleKeyUp() {
+function handleKeyUp(event) {
     if (event.keyCode === 13) {
         input.blur();
         onSubmit(value);
     }
+
+    onKeyUp(event);
 }
 
 </script>
