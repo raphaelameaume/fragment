@@ -1,4 +1,4 @@
-<div class="container" style="{value ? `background-image: url(${value.src})`: ''}" on:click={handleClick}>
+<div class="container" style="{value && value.src ? `background-image: url(${value.src})`: ''}" on:click={handleClick}>
     <input type="file" class="input" on:change={handleUpload} bind:this={input}/>
 </div>
 
@@ -10,6 +10,15 @@ export let value;
 export let onChange = noop;
 
 let input;
+
+if (value && !value.src) {
+    loadImage(value, (image) => {
+        onChange({ image, name: value });
+    });
+}
+
+function load(src) {
+}
 
 function handleClick() {
     input.click();

@@ -30,7 +30,7 @@
         {/if}
         {#if type === 'image'}
             <ImageInput
-                value={prop.image}
+                value={prop.image ? prop.image : prop.value}
                 onChange={({ image, name }) => {
                     prop.image = image;
                     prop.value = name;
@@ -207,22 +207,6 @@ if (prop.triggers && prop.triggers.length > 0) {
     }
 }
 
-$: {
-    if (prop.type === 'image') {
-        if (prop.image && prop.onChange) {
-            prop.onChange(prop);
-        } else {
-            loadImage(prop.value, (image) => {
-                prop.image = image;
-
-                if (prop.onChange) {
-                    prop.onChange(prop);
-                }
-            });
-        }
-    }
-}
-
 $: step = prop.step ? prop.step : 0.1;
 $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
@@ -237,21 +221,6 @@ function handleTrigger(event) {
 
 function handleClickSettings(event) {
     parametersVisible = true;
-}
-
-function handleClickImage() {
-    inputs.upload.click();
-}
-
-function handleUploadImage(event) {
-    let file = event.target.files[0];
-    let reader = new FileReader();
-    reader.onload = (e) => {
-        prop.value = file.name;
-        loadImage(e.target.result);
-    };
-
-	reader.readAsDataURL(file);
 }
 
 function setValue(v) {
