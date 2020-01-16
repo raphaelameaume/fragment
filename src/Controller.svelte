@@ -65,7 +65,7 @@ let stageList = Object.keys(stages).reduce((all, key) => {
 
 $: list = Object.keys(stageList).map(key => ({
     key: key,
-    value: stageList[key].name,
+    label: stageList[key].name,
 }));
 $: current = {
 	stage1: null,

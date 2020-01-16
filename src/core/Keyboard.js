@@ -8,7 +8,7 @@ const Keyboard = function() {
     function onKeyPress(event) {
         for (let i = 0; i < triggers.length; i++) {
             if (triggers[i].value.includes(event.key) && triggers[i].enabled) {
-                triggers[i].trigger();
+                triggers[i].trigger(event);
             }
         }
     }

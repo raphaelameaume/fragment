@@ -126,7 +126,7 @@ export default {
         move: {
             value: true,
             triggers: [
-                // Keyboard.key('m'),
+                Keyboard.key('m'),
                 Midi.keydown(32),
             ]
         },

@@ -88,8 +88,9 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         },
         transition: {
             type: 'select',
-            value: transitions.map(({ name, key }) => ({ key, value: name })),
-            onChange: ({ key }) => {
+            options: transitions.map(({ name, key }) => ({ key, label: name })),
+            onChange: ({ value }) => {
+                let { key } = value;
                 for (let i = 0; i < transitions.length; i++) {
                     if (transitions[i].key === key) {
                         const { fragment } = transitions[i];

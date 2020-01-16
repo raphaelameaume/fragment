@@ -7,17 +7,18 @@
     <div class="field__name">{name}</div>
 
     <div class="field__content">
-    
-    {#if prop.min !== undefined && prop.max !== undefined} 
-    <div class="field__progress" bind:this={progress} on:mousedown={handleMouseDown}>
-        <div class="progress__fill" style="transform: scaleX({map(prop.value, prop.min, prop.max, 0, 1)})"></div>
-    </div>
-    {/if}
+        {#if prop.min !== undefined && prop.max !== undefined} 
+            <ProgressInput
+                value={prop.value}
+                min={prop.min}
+                max={prop.max}
+                step={step}
+                onChange={(value) => prop.value = value}
+            />
+        {/if}
 
     {#if type === 'color' } 
-    <div class="field__color" style="background-color: {prop.value}">
-        <input type="color" class="color__input" value={prop.value} on:change={handleChangeColor} />
-    </div>
+        <ColorInput value={prop.value} onChange={(value) => prop.value = value} />
     {/if}
 
     {#if type === 'boolean' } 
@@ -30,7 +31,8 @@
     {/if}
 
     {#if type === 'button'}
-        <button class="field__value field__value--button" on:click={handleTrigger}>{prop.label ? prop.label : 'Click' }</button>
+        <Button onClick={handleTrigger}>{prop.label ? prop.label : 'Click' }</Button>
+        <!-- <button class="field__value field__value--button" on:click={handleTrigger}></button> -->
     {/if}
 
     {#if type === 'image'}
@@ -41,7 +43,7 @@
     {/if}
 
     {#if type === 'select'}
-        <Select onChange={handleChangeSelect} options={prop.value}/>
+        <Select onChange={(value) => prop.value = value} options={prop.options} value={prop.value} />
     {/if}
 
     {#if type === 'list' || type === 'action-list'}
@@ -112,8 +114,12 @@ import Dropdown from "./Dropdown.svelte";
 import Button from "./Button.svelte";
 import { map } from "../math/map.js";
 import { clamp } from "../math/clamp.js";
+import loadImage from "../utils/loadImage.js";
+import getFilename from "../utils/getFilename.js";
 import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
+import ColorInput from "./ColorInput.svelte";
+import ProgressInput from "./ProgressInput.svelte";
 import Checkbox from "./Checkbox.svelte";
 import { Keyboard } from "../core/Keyboard.js";
 import { Storage } from "../core/Storage.js";
@@ -134,12 +140,12 @@ export let url = '';
 if (url.length > 0 && Storage.get(url)) {
     let parsed = JSON.parse(Storage.get(url));
 
-    prop.initialValue = prop.value;
-    prop.value = parsed.value;
+    // prop.initialValue = prop.value;
+    // prop.value = parsed.value;
 
-    if (prop.onChange) {
-        prop.onChange(prop);
-    }
+    // if (prop.onChange) {
+    //     prop.onChange(prop);
+    // }
 }
 
 $: {
@@ -155,6 +161,12 @@ $: {
         Socket.emit('PROP_CHANGE', { url, ...serialized });
     }
 } 
+
+$: {
+    if (typeof prop.onChange === 'function' && prop.value) {
+        prop.onChange(prop);
+    }
+}
 
 if (output) {
     Socket.on('PROP_CHANGE', (data) => {
@@ -180,34 +192,37 @@ let progress, fill;
 
 let parametersVisible = false;
 
-$: {
-    //@TODO should be here
-    if (prop.triggers && prop.triggers.length > 0) {
-        for (let i = 0; i < prop.triggers.length; i++) {
-            prop.triggers[i].onTrigger((params) => {
-                if (type === 'boolean') {
-                    setValue(!prop.value);
-                } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
-                    let v = map(params.value, 0, 1, prop.min, prop.max);
-                    console.log('remap trigger', v);
-                    setValue(v);
+if (prop.triggers && prop.triggers.length > 0) {
+    for (let i = 0; i < prop.triggers.length; i++) {
+        prop.triggers[i].onTrigger((params) => {
+            if (type === 'boolean') {
+                setValue(!prop.value);
+            } else if (prop.min !== undefined && prop.max !== undefined && params.value !== undefined) {
+                let v = map(params.value, 0, 1, prop.min, prop.max);
+                setValue(v);
 
-                    if (prop.onTrigger) {
-                        prop.onTrigger(params);
-                    }
-                } else if (prop.onTrigger) {
-                    prop.onTrigger();
+                if (prop.onTrigger) {
+                    prop.onTrigger(params);
                 }
-            });
-        }
+            } else if (prop.onTrigger) {
+                prop.onTrigger();
+            }
+        });
     }
 }
+
 $: {
     if (prop.type === 'image') {
         if (prop.image && prop.onChange) {
             prop.onChange(prop);
         } else {
-            loadImage(prop.value);
+            loadImage(prop.value, (image) => {
+                prop.image = image;
+
+                if (prop.onChange) {
+                    prop.onChange(prop);
+                }
+            });
         }
     }
 }
@@ -217,64 +232,11 @@ $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
 $: checked = prop.value ? true : false;
 
-async function loadImage(src) {
-    let response = await fetch(src);
-    let blob = await response.blob();
-    let dataURL = URL.createObjectURL(blob);
-
-    let image = new Image();
-    image.addEventListener('load', () => {
-        prop.image = image;
-        
-        if (prop.onChange) {
-            prop.onChange(prop);
-        }
-    });
-    image.src = dataURL;
-}
-
-
-
-function getFilename(filepath) {
-    let parts = filepath.split('/');
-
-    return parts[parts.length - 1];
-}
-
-function handleMouseDown(event) {
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-
-    onDrag(event);
-}
-
-function handleMouseMove(event) {
-    onDrag(event);
-}
-
-function onDrag(event) {
-    let rect = progress.getBoundingClientRect();
-    
-    setValue(map(event.clientX, rect.left, rect.right, prop.min, prop.max));
-}
-
-function handleMouseUp() {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-}
 
 function handleKeyUp(event) {
     if (event.keyCode === 13) {
         setValue(event.currentTarget.value);
     }
-}
-
-function handleChangeColor(event) {
-    setValue(event.currentTarget.value);
-}
-
-function handleChangeCheck(event) {
-    setValue(event.target.checked);
 }
 
 function handleChangeSelect(activeValue, event) {
@@ -290,7 +252,6 @@ function handleTrigger(event) {
 }
 
 function handleClickSettings(event) {
-    console.log('settings clicked');
     parametersVisible = true;
 }
 
@@ -450,24 +411,6 @@ function handleClickAddTrigger() {
     color: rgba(240, 240, 240, 0.3);
 }
 
-.field__value--button {
-    border-radius: 2px;
-    background: #1d1d1e;
-    border: 1px solid black;
-    color: #f0f0f0;
-    font-size: 10px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.field__value--button:hover, .field__value--button:focus {
-    background: #131314;
-}
-
-.field__value--button:active {
-    background-color: #448eea;
-}
-
 .field__value--text {
     background: #1d1d1e;
     border: 1px solid black;
@@ -493,57 +436,6 @@ function handleClickAddTrigger() {
     padding-bottom: 5px;
     width: 100%;
     justify-content: space-between;
-}
-
-.field__progress {
-    position: relative;
-    
-    padding: 0 10px;
-    width: 100%;
-    height: 20px;
-    border-radius: 2px;
-    border: 1px solid black;
-
-    background: #1d1d1e;
-    cursor: ew-resize;
-}
-
-.field__color {
-    display: flex;
-    width: 100%;
-    height: 20px;
-    padding: 0;
-    margin: 0;
-
-    border: none;
-    background-color: transparent;
-    border-radius: 0;
-    outline: 0;
-    border-radius: 2px;
-    border: 1px solid black;
-}
-
-.color__input {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.progress__fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background: grey;
-    transform: scaleX(0.5);
-    transform-origin: 0 50%;
-    border-radius: 2px;
-
-    background-color: #448eea;
 }
 
 .field__image {
@@ -586,8 +478,4 @@ function handleClickAddTrigger() {
     padding: 0 10px;
     align-items: center;
 }
-
-.info__name {
-}
-
 </style>

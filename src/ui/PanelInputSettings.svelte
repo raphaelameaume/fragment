@@ -150,18 +150,18 @@ let propMidiDevice = {
 	name: "device",
 	type: "select",
 	input: null,
-	value: createDevicesList(),
+	options: createDevicesList(),
 	onChange: ({ key }) => {
-		let deviceName = key;
+		// let deviceName = key;
 
-		for (let i = 0; i < Midi.configs.length; i++) {
-			console.log(Midi.configs[i].name, deviceName);
-			if (Midi.configs[i].name === deviceName) {
-				config = Midi.configs[i];
+		// for (let i = 0; i < Midi.configs.length; i++) {
+		// 	console.log(Midi.configs[i].name, deviceName);
+		// 	if (Midi.configs[i].name === deviceName) {
+		// 		config = Midi.configs[i];
 				
-				break;
-			}
-		}
+		// 		break;
+		// 	}
+		// }
 	},
 };
 
@@ -174,11 +174,11 @@ let propMidiMessages = {
 function createDevicesList() {
 	if (Midi.inputs.length === 0) {
 		return [
-			{ key: 'none', value: 'No device detected' }
+			{ key: 'none', label: 'No device detected' }
 		]
 	} else {
 		return [
-			...Midi.inputs.map( input => ({ key: input.name, value: `${input.name}`})),
+			...Midi.inputs.map( input => ({ key: input.name, label: `${input.name}`})),
 		];
 	}
 }

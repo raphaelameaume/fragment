@@ -1,19 +1,24 @@
-<select on:change={handleChange} bind:this={select} bind:value={value}>
+<select on:change={handleChange} bind:this={select} value={current}>
 {#each options as option}
-<option value={option.key}>{option.value}</option>
+<option value={option.key}>{option.label}</option>
 {/each}
 </select>
 
 <script>
 export let options = [];
-export let value;
+export let value = options[0];
+
+$: current = value.key;
+
 export let onChange = () => {};
 
 let select;
 
 function handleChange(event) {
+    current = event.target.value;
+
     for (let i = 0; i < options.length; i++) {
-        if (options[i].key === event.target.value) {
+        if (options[i].key === current) {
             onChange(options[i]);
         }
     }

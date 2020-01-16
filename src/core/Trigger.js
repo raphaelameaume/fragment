@@ -3,7 +3,8 @@ class Trigger {
         this.type = type;
         this.enabled = enabled;
         this.value = [value];
-        this.onTriggerFn = () => {};
+
+        this.triggersFn = [];
     }
 
     enable(value) {
@@ -13,11 +14,15 @@ class Trigger {
     }
     
     trigger(params) {
-        this.onTriggerFn(params);
+        console.log('trigger', this);
+
+        for (let i = 0; i < this.triggersFn.length; i++) {
+            this.triggersFn[i](params);
+        }
     }
 
     onTrigger(fn) {
-        this.onTriggerFn = fn;
+        this.triggersFn.push(fn);
 
         return this;
     }
