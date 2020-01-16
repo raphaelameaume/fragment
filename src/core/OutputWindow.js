@@ -11,10 +11,10 @@ const OutputWindow = function() {
     async function open(renderer) {
         object = window.open(`${window.location.href}?output=true`, 'Output', `width=${dimensions.width},height=${dimensions.height}`);
 
-        object.renderer = renderer;
-        object.renderer.fromSource = true;
+        // object.renderer = renderer;
+        // object.renderer.fromSource = true;
 
-        object.treshold = renderer.treshold;
+        // object.treshold = renderer.treshold;
 
         opened = true;
 

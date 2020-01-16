@@ -13,7 +13,7 @@
     <Dropdown title="Settings">
         {#if stage !== null}
             {#each Object.keys(stage.props) as propKey}
-                <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} />
+                <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={output} />
             {/each}
         {/if}
     </Dropdown>
@@ -32,6 +32,7 @@ export let renderer;
 export let width;
 export let title;
 export let list;
+export let output;
 
 $: treshold = renderer.props.treshold.value;
 $: {

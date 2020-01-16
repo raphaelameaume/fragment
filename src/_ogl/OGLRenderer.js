@@ -139,13 +139,13 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         renderer.setSize(width, height);
     }
 
-    function render(stage1, stage2) {
+    function render(stage1, stage2, { deltaTime }) {
         // render both scenes to target
-        stage1.instance.update();
-        stage1.instance.render({ renderer, gl, target: renderTarget0 });
+        stage1.instance.update({ deltaTime });
+        stage1.instance.render({ renderer, gl, target: renderTarget0, deltaTime });
 
-        stage2.instance.update();
-        stage2.instance.render({ renderer, gl, target: renderTarget1 });
+        stage2.instance.update({ deltaTime });
+        stage2.instance.render({ renderer, gl, target: renderTarget1, deltaTime });
 
         // save current treshold
         let tempTreshold = uniforms.uTreshold.value;

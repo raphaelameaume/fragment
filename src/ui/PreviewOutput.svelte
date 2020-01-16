@@ -38,8 +38,8 @@ onMount(() => {
     on('afterframe', update);
 });
 
-function update() {
-    renderer.render(current.stage1, current.stage2);
+function update({ deltaTime, time }) {
+    renderer.render(current.stage1, current.stage2, { deltaTime, time });
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(renderer.canvas, 0, 0);

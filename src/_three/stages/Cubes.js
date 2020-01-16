@@ -35,6 +35,9 @@ function Cubes({ props, renderer }) {
             mesh.rotation.y += 0.01 * props.speed.value;
             mesh.rotation.z += 0.01 * props.speed.value;
         }
+
+        let s = 1 + Audio.volume();
+        mesh.scale.set(s, s, s);
     }
 
     function render({ renderer }) {

@@ -7,9 +7,6 @@ import { onMount } from "svelte";
 export let renderer;
 export let stages;
 
-// reactive variables
-$: treshold = window.treshold.value;
-
 // variables
 let element;
 

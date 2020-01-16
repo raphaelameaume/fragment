@@ -6,6 +6,7 @@
         stage={current.stage1}
         renderer={renderer}
         onChangeStage={({ key }) => handleStageChange('stage1', key)}
+        output={output}
     />
     <Separator />
     <PanelStage
@@ -15,6 +16,7 @@
         stage={current.stage2}
         renderer={renderer}
         onChangeStage={({ key }) => handleStageChange('stage2', key)}
+        output={output}
     />
     <Separator />
     <PanelOutput
@@ -47,6 +49,7 @@ import Separator from "./ui/Separator.svelte";
 // props
 export let renderer = {};
 export let stages = {};
+export let output;
 
 let instanced = {};
 let stageList = Object.keys(stages).reduce((all, key) => {
@@ -96,7 +99,7 @@ onMount(() => {
     if (Object.keys(stages).length < 2) {
         list = stageList;
     }
-    
+
 	Object.keys(list).forEach((name, index) => {
 		if (index < 2) {
 			setStage(`stage${index+1}`, name);

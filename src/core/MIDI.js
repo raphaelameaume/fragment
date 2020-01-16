@@ -20,16 +20,18 @@ const Midi = function() {
     let input;
 
     function loadDevices(fn) {
-        WebMidi.enable((error) => {
-            if (error) {
-                console.error(error);
-            }
-
-            // WebMidi.inputs.forEach( input => console.log(input.name));
-            inputs.push(...WebMidi.inputs);
-
-            fn(WebMidi);
-        });
+        // if (!window.location.href.includes('output')) {
+        //     WebMidi.enable((error) => {
+        //         if (error) {
+        //             console.error(error);
+        //         }
+    
+        //         // WebMidi.inputs.forEach( input => console.log(input.name));
+        //         inputs.push(...WebMidi.inputs);
+    
+        //         fn(WebMidi);
+        //     });
+        // }
     }
 
     function addConfig(config) {

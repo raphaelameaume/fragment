@@ -87,13 +87,13 @@ function Cubes({ props, renderer }) {
         };
     }
 
-    function update() {
+    function update({ deltaTime }) {
         uniforms.uScale.value = 1 + Audio.volume();
 
         if (props.move.value) {
-            mesh.rotation.x += 0.01 * props.speed.value;
-            mesh.rotation.y += 0.01 * props.speed.value;
-            mesh.rotation.z += 0.01 * props.speed.value;
+            mesh.rotation.x += 0.001 * props.speed.value * deltaTime;
+            mesh.rotation.y += 0.001 * props.speed.value * deltaTime;
+            mesh.rotation.z += 0.001 * props.speed.value * deltaTime;
         }
     }
 
@@ -117,8 +117,8 @@ export default {
     props: {
         speed: {
             min: 0,
-            max: 20,
-            value: 1,
+            max: 1,
+            value: 0.1,
             triggers: [
                 Midi.knob(5),
             ]

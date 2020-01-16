@@ -4,7 +4,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public"
+    "start": "sirv public --cors --dev --host 0.0.0.0"
   },
   "devDependencies": {
     "rollup": "^1.27.11",
@@ -19,6 +19,8 @@
     "clone-deep": "^4.0.1",
     "ogl": "0.0.33",
     "sirv-cli": "^0.4.4",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
     "three": "^0.112.1",
     "webmidi": "^2.5.1"
   }

@@ -34,7 +34,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
     let geometry = new BufferGeometry();
     geometry.setAttribute('position', new BufferAttribute(vertices, 2));
-    geometry.setAttribute('uv', new BufferAttribute(vertices, 2));
+    geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
 
     let vertexShader = /* glsl */ `
         precision highp float;
@@ -69,7 +69,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
     let fragmentSplit = /* glsl */`
         precision highp float;
-        
+
         uniform sampler2D tInput0;
         uniform sampler2D tInput1;
         uniform float uTreshold;

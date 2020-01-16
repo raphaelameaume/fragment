@@ -119,13 +119,17 @@ import { Keyboard } from "../core/Keyboard.js";
 import { Storage } from "../core/Storage.js";
 import IconSettings from "./svg/IconSettings.svelte";
 import IconTrigger from "./svg/IconTrigger.svelte";
+import { Socket } from "../Socket.js";
 
 export let prop;
 export let name = '';
 export let triggerable = true;
 export let disabled = false;
+export let output;
 export let onSubmit = () => {};
 export let url = '';
+
+
 
 if (url.length > 0 && Storage.get(url)) {
     let parsed = JSON.parse(Storage.get(url));
@@ -143,11 +147,28 @@ $: {
         value: prop.value,
     };
 
-    if (url.length > 0) {
+    if (url.length > 0 && !output) {
         Storage.set(url, JSON.stringify(serialized));
     }
 
+    if (!output) {
+        Socket.emit('PROP_CHANGE', { url, ...serialized });
+    }
 } 
+
+if (output) {
+    Socket.on('PROP_CHANGE', (data) => {
+        console.log('receive prop change');
+
+        if (data.url === url) {
+            prop.value = data.value;
+            
+            if (prop.onChange) {
+                prop.onChange(prop);
+            }
+        }
+    })
+}
 
 let inputs = {
     text: null,

@@ -83,10 +83,10 @@ function Spheres({ props, renderer }) {
         };
     }
 
-    function update() {
-        meshes.rotation.x += 0.01 * props.speed.value;
-        meshes.rotation.y += 0.01 * props.speed.value;
-        meshes.rotation.z += 0.01 * props.speed.value;
+    function update({ deltaTime }) {
+        meshes.rotation.x += 0.001 * props.speed.value * deltaTime;
+        meshes.rotation.y += 0.001 * props.speed.value * deltaTime;
+        meshes.rotation.z += 0.001 * props.speed.value * deltaTime;
     }
 
     function render({ renderer, gl, target }) {
