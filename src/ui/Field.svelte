@@ -131,6 +131,7 @@ import loadImage from "../utils/loadImage.js";
 import getFilename from "../utils/getFilename.js";
 import { Socket } from "../Socket.js";
 
+// props
 export let prop;
 export let name = '';
 export let triggerable = true;
@@ -138,24 +139,23 @@ export let disabled = false;
 export let output = false;
 export let url = '';
 
-if (url.length > 0 && Storage.get(url)) {
-    let parsed = JSON.parse(Storage.get(url));
-
-    // prop.initialValue = prop.value;
-    // prop.value = parsed.value;
-
-    // if (prop.onChange) {
-    //     prop.onChange(prop);
-    // }
+// reactive
+$: step = prop.step ? prop.step : 0.1;
+$: type = prop.type ? prop.type : typeof prop.value;
+$: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
+$: checked = prop.value ? true : false;
+$: {
+    if (typeof prop.onChange === 'function' && prop.value) {
+        prop.onChange(prop);
+    }
 }
-
 $: {
     let serialized = {
         value: prop.value,
     };
 
-    if (url.length > 0 && !output) {
-        Storage.set(url, JSON.stringify(serialized));
+    if (!output) {
+        save(url, serialized);
     }
 
     if (!output) {
@@ -163,9 +163,20 @@ $: {
     }
 } 
 
-$: {
-    if (typeof prop.onChange === 'function' && prop.value) {
-        prop.onChange(prop);
+redhydrate(url);
+
+function redhydrate(key) {
+    if (key.length > 0 && Storage.get(key)) {
+        let parsed = JSON.parse(Storage.get(key));
+    
+        prop.initialValue = prop.value;
+        prop.value = parsed.value;
+    }
+}
+
+function save(key, value) {
+    if (key.length > 0) {
+        Storage.set(url, JSON.stringify(value));
     }
 }
 
@@ -173,18 +184,9 @@ if (output) {
     Socket.on('PROP_CHANGE', (data) => {
         if (data.url === url) {
             prop.value = data.value;
-            
-            if (prop.onChange) {
-                prop.onChange(prop);
-            }
         }
     })
 }
-
-let inputs = {
-    image: null,
-    upload: null,
-};
 
 let parametersVisible = false;
 
@@ -206,12 +208,6 @@ if (prop.triggers && prop.triggers.length > 0) {
         });
     }
 }
-
-$: step = prop.step ? prop.step : 0.1;
-$: type = prop.type ? prop.type : typeof prop.value;
-$: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
-$: checked = prop.value ? true : false;
-
 
 function handleTrigger(event) {
     if (typeof prop.onTrigger === 'function') {
@@ -332,21 +328,6 @@ function handleClickAddTrigger() {
     padding-bottom: 5px;
     width: 100%;
     justify-content: space-between;
-}
-
-.field__image {
-    width: 70px;
-    height: 70px;
-    margin: 0 1px 0 0;
-
-    background-position: center;
-    background-size: 100%;
-    background-repeat: no-repeat;
-    border-radius: 2px;
-    background-color: #1d1d1e;
-    border: 1px solid black;
-
-    cursor: pointer;
 }
 
 .field__settings {
