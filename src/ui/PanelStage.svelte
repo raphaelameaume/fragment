@@ -40,7 +40,6 @@ $: {
 }
 
 function handleStageChange({ key }) {
-    console.log({ key });
     onChangeStage({ key });
 }
 
