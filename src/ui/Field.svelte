@@ -136,7 +136,6 @@ export let name = '';
 export let triggerable = true;
 export let disabled = false;
 export let output = false;
-export let onSubmit = () => {};
 export let url = '';
 
 if (url.length > 0 && Storage.get(url)) {
