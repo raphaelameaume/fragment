@@ -139,18 +139,37 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         renderer.setSize(width, height);
     }
 
-    function render() {
+    function render(stage1, stage2) {
+        // render both scenes to target
+        stage1.instance.update();
+        stage1.instance.render({ renderer, gl, target: renderTarget0 });
+
+        stage2.instance.update();
+        stage2.instance.render({ renderer, gl, target: renderTarget1 });
+
+        // save current treshold
         let tempTreshold = uniforms.uTreshold.value;
 
+        // render with only stage 1 visible 
         uniforms.uTreshold.value = 0;
         renderer.render({ scene: mesh });
-        emit('renderStage0');
 
+        // draw gl context in 2d context
+        stage1.context.clearRect(0, 0, width, height);
+        stage1.context.drawImage(gl.canvas, 0, 0);
+
+        // render with only stage2 visible
         uniforms.uTreshold.value = 1;
         renderer.render({ scene: mesh });
-        emit('renderStage1');
 
+        // draw gl context in 2d context
+        stage2.context.clearRect(0, 0, width, height);
+        stage2.context.drawImage(gl.canvas, 0, 0);
+
+        // restore treshold value
         uniforms.uTreshold.value = tempTreshold;
+
+        // render output
         gl.clearColor(1, 0, 1, 1);
         renderer.render({ scene: mesh });
     }

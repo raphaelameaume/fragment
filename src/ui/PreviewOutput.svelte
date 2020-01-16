@@ -24,6 +24,7 @@ import { onMount } from "svelte";
 import { on } from "../events.js";
 
 export let renderer;
+export let current;
 
 let canvas;
 let context;
@@ -38,11 +39,10 @@ onMount(() => {
 });
 
 function update() {
-    renderer.render();
+    renderer.render(current.stage1, current.stage2);
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    // context.fillStyle = '#0000ff';
-    context.drawImage(renderer.gl.canvas, 0, 0);
+    context.drawImage(renderer.canvas, 0, 0);
 }
 
 </script>

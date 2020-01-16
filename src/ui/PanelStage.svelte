@@ -4,7 +4,11 @@
         <Select options={list} value={stage ? stage.name : ''} onChange={handleStageChange} />
     </div>
     <Dropdown title="Monitor">
-        <Preview width={renderer.dimensions.width} height={renderer.dimensions.height} stage={stage} index={index} renderer={renderer}></Preview>
+        <Preview
+			width={renderer.dimensions.width}
+			height={renderer.dimensions.height}
+			stage={stage}
+		/>
     </Dropdown>
     <Dropdown title="Settings">
         {#if stage !== null}
@@ -25,7 +29,6 @@ import Select from "./Select.svelte";
 export let stage = {};
 export let onChangeStage = () => {};
 export let renderer;
-export let index;
 export let width;
 export let title;
 export let list;

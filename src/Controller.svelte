@@ -1,7 +1,6 @@
 <Panel width="100%" height="72vh" direction="row">
     <PanelStage
         title="Stage 1"
-        index={0}
         list={list}
         width="33%"
         stage={current.stage1}
@@ -11,7 +10,6 @@
     <Separator />
     <PanelStage
         title="Stage 2"
-        index={1}
         list={list}
         width="33%"
         stage={current.stage2}
@@ -22,6 +20,7 @@
     <PanelOutput
         width="33%"
         renderer={renderer}
+        current={current}
     />
 </Panel>
 <Separator height="1px" width="100%" />
@@ -76,7 +75,7 @@ function handleStageChange(id, key) {
 
 function setStage(id, key) {
 	if (!instanced[key]) {
-        console.log('setStage', key);
+        
 		const { scene, name, props } = stageList[key];
 
 		stageList[key].instance = scene({
@@ -88,7 +87,7 @@ function setStage(id, key) {
 		instanced[key] = stageList[key];
 	}
 
-	current[id] = instanced[key];
+    current[id] = instanced[key];
 }
 
 onMount(() => {

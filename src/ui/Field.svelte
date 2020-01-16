@@ -125,9 +125,9 @@ export let name = '';
 export let triggerable = true;
 export let disabled = false;
 export let onSubmit = () => {};
-export let url;
+export let url = '';
 
-if (Storage.get(url)) {
+if (url.length > 0 && Storage.get(url)) {
     let parsed = JSON.parse(Storage.get(url));
 
     prop.initialValue = prop.value;
@@ -143,7 +143,7 @@ $: {
         value: prop.value,
     };
 
-    if (url) {
+    if (url.length > 0) {
         Storage.set(url, JSON.stringify(serialized));
     }
 

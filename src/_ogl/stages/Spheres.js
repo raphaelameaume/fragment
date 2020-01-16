@@ -89,14 +89,9 @@ function Spheres({ props, renderer }) {
         meshes.rotation.z += 0.01 * props.speed.value;
     }
 
-    function render({ renderer, gl }, target) {
+    function render({ renderer, gl, target }) {
         gl.clearColor(0.25, 0.25, 0.78, 1);
         renderer.render({ scene, camera, target });
-    }
-
-    function preview({ context, width, height }) {
-        context.clearRect(0, 0, width, height);
-        context.drawImage(renderer.canvas, 0, 0);
     }
 
     init();
@@ -105,7 +100,6 @@ function Spheres({ props, renderer }) {
         canvas: renderer.canvas,
         update,
         render,
-        preview,
     };
 }
 

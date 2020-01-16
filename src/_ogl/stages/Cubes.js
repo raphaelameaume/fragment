@@ -97,14 +97,9 @@ function Cubes({ props, renderer }) {
         }
     }
 
-    function render({ renderer, gl }, target) {
+    function render({ renderer, gl, target }) {
         gl.clearColor(0.65, 0.53, 0.28, 1);
         renderer.render({ scene, camera, target });
-    }
-
-    function preview({ context, width, height }) {
-        context.clearRect(0, 0, width, height);
-        context.drawImage(renderer.canvas, 0, 0);
     }
 
     init();
@@ -113,7 +108,6 @@ function Cubes({ props, renderer }) {
         canvas: renderer.canvas,
         update,
         render,
-        preview,
     };
 }
 
