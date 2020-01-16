@@ -22,8 +22,6 @@ export let disabled = false;
 let input;
 
 function handleKeyDown(event) {
-    console.log('keydown', event);
-
     if (event.keyCode === 38) { // ArrowUp
         if (type === 'number') {
             event.preventDefault();
