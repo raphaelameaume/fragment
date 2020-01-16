@@ -64,28 +64,28 @@
         <Dropdown title="Informations">
             <div class="field__info">
                 <span class="info__name">Name:</span>
-                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: name}} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={name} disabled={true} />
             </div>
             <div class="field__info">
                 <span class="info__name">Type:</span>
-                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: type}} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={type} disabled={true} />
             </div>
             {#if type !== 'button' }
             <div class="field__info">
                 <span class="info__name">Value:</span>
-                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: prop.value}} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={prop.value} disabled={true} />
             </div>
             {/if}
             {#if typeof prop.min !== 'undefined' }
             <div class="field__info">
                 <span class="info__name">Value min:</span>
-                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: prop.min}} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={min} disabled={true} />
             </div>
             {/if}
             {#if typeof prop.max !== 'undefined' }
             <div class="field__info">
                 <span class="info__name">Value max:</span>
-                <TextInput width="100%;" style="max-width: 120px;" prop={{ value: prop.max}} disabled={true} />
+                <TextInput width="100%;" style="max-width: 120px;" value={max} disabled={true} />
             </div>
             {/if}
         </Dropdown>

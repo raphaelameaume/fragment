@@ -1,6 +1,6 @@
 <div class="trigger">
     <Select options={options} value={trigger.type} onChange={handleChangeType} />
-    <TextInput width="40px" prop={{value:inputValue}} onSubmit={handleSubmit} />
+    <TextInput width="40px" value={inputValue} onSubmit={handleSubmit} />
     <Button style="width: 60px; line-height: 10px; margin: 0;" onClick={handleClickToggle}>{label}</Button>
 </div>
 
@@ -19,12 +19,12 @@ export let trigger = {
 export let onDelete = () => {};
 
 let options = [
-    { value: "Keyboard", key: "keyboard" },
-    { value: Midi.KEY_DOWN, key: Midi.KEY_DOWN },
-    { value: Midi.KEY_UP, key: Midi.KEY_UP },
-    { value: Midi.KNOB, key: Midi.KNOB },
-    { value: Midi.NOTE_ON, key: Midi.NOTE_ON },
-    { value: Midi.NOTE_OFF, key: Midi.NOTE_OFF },
+    { label: "Keyboard", key: "keyboard" },
+    { label: Midi.KEY_DOWN, key: Midi.KEY_DOWN },
+    { label: Midi.KEY_UP, key: Midi.KEY_UP },
+    { label: Midi.KNOB, key: Midi.KNOB },
+    { label: Midi.NOTE_ON, key: Midi.NOTE_ON },
+    { label: Midi.NOTE_OFF, key: Midi.NOTE_OFF },
 ];
 
 $: label = trigger.enabled ? 'Disable' : 'Enable';
