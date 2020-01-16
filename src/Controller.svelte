@@ -91,7 +91,13 @@ function setStage(id, key) {
 }
 
 onMount(() => {
-	Object.keys(stages).forEach((name, index) => {
+    let list = stages;
+
+    if (Object.keys(stages).length < 2) {
+        list = stageList;
+    }
+    
+	Object.keys(list).forEach((name, index) => {
 		if (index < 2) {
 			setStage(`stage${index+1}`, name);
 		}
