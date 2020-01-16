@@ -5,7 +5,6 @@
         {/if}
     </div>
     <div class="field__name">{name}</div>
-
     <div class="field__content">
         {#if prop.min !== undefined && prop.max !== undefined} 
             <ProgressInput
@@ -22,18 +21,7 @@
         {#if type === 'boolean' } 
             <Checkbox prop={prop} onChange={(value) => prop.value = value} />
         {/if}
-        {#if type !== 'button' && type !== 'image' && type !== 'list' && type !== "select" && type !== 'action-list'}
-            <TextInput
-                value={prop.value}
-                onSubmit={(value) => prop.value = value}
-                disabled={type === 'boolean' ? true : disabled}
-                step={step}
-                type={type}
-                min={prop.min}
-                max={prop.max}
-                style="width: 70px; margin-left: 1px;"
-            />
-        {/if}
+        
         {#if type === 'button'}
             <Button onClick={handleTrigger}>{prop.label ? prop.label : 'Click' }</Button>
         {/if}
@@ -41,10 +29,25 @@
             <Select onChange={(value) => prop.value = value} options={prop.options} value={prop.value} />
         {/if}
         {#if type === 'image'}
-            <div class="field__image" style="{prop.image ? `background-image: url(${prop.image.src})`: ''}" on:click={handleClickImage}>
-                <input type="file" style="display: none" on:change={handleUploadImage} bind:this={inputs.upload}/>
-            </div>
-            <TextInput width="70px" prop={{value:getFilename(prop.value)}} disabled={true} />
+            <ImageInput
+                value={prop.image}
+                onChange={({ image, name }) => {
+                    prop.image = image;
+                    prop.value = name;
+                }}
+            />
+        {/if}
+        {#if type !== 'button' && type !== 'list' && type !== "select" && type !== 'action-list'}
+            <TextInput
+                value={type === 'image' ? getFilename(prop.value) : prop.value}
+                onSubmit={(value) => prop.value = value}
+                disabled={(type === 'boolean' || type === 'image') ? true : disabled}
+                step={step}
+                type={type}
+                min={prop.min}
+                max={prop.max}
+                style="width: 70px; margin-left: 1px;"
+            />
         {/if}
         {#if type === 'list' || type === 'action-list'}
             <div class="field__value field__value--list {disabled ? 'field__value--disabled' : ''}">
@@ -116,6 +119,7 @@ import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 import ColorInput from "./ColorInput.svelte";
 import ProgressInput from "./ProgressInput.svelte";
+import ImageInput from "./ImageInput.svelte";
 import Checkbox from "./Checkbox.svelte";
 import { Keyboard } from "../core/Keyboard.js";
 import { Storage } from "../core/Storage.js";
@@ -179,12 +183,9 @@ if (output) {
 }
 
 let inputs = {
-    text: null,
     image: null,
     upload: null,
 };
-
-let progress, fill;
 
 let parametersVisible = false;
 
@@ -252,24 +253,6 @@ function handleUploadImage(event) {
     };
 
 	reader.readAsDataURL(file);
-}
-
-function handleKeydownWindow(event) {
-    if (event.keyCode === 38) { // ArrowUp
-        if (type === 'number') {
-            event.preventDefault();
-
-            setValue(prop.value + step);
-        }
-    }
-
-    if (event.keyCode === 40) { // ArrowDown
-        if (type === 'number') {
-            event.preventDefault();
-
-            setValue(prop.value - step);
-        }
-    }
 }
 
 function setValue(v) {
