@@ -161,21 +161,25 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         // save current treshold
         let tempTreshold = uniforms.uTreshold.value;
 
-        // render with only stage 1 visible 
-        uniforms.uTreshold.value = 0;
-        renderer.render({ scene: mesh });
-
-        // draw gl context in 2d context
-        stage1.context.clearRect(0, 0, width, height);
-        stage1.context.drawImage(gl.canvas, 0, 0, stage1.context.canvas.width, stage1.context.canvas.height);
-
-        // render with only stage2 visible
-        uniforms.uTreshold.value = 1;
-        renderer.render({ scene: mesh });
-
-        // draw gl context in 2d context
-        stage2.context.clearRect(0, 0, width, height);
-        stage2.context.drawImage(gl.canvas, 0, 0, stage2.context.canvas.width, stage2.context.canvas.height);
+        if (stage1.context) {
+            // render with only stage 1 visible 
+            uniforms.uTreshold.value = 0;
+            renderer.render({ scene: mesh });
+    
+            // draw gl context in 2d context
+            stage1.context.clearRect(0, 0, width, height);
+            stage1.context.drawImage(gl.canvas, 0, 0, stage1.context.canvas.width, stage1.context.canvas.height);
+        }
+        
+        if (stage2.context) {
+            // render with only stage2 visible
+            uniforms.uTreshold.value = 1;
+            renderer.render({ scene: mesh });
+    
+            // draw gl context in 2d context
+            stage2.context.clearRect(0, 0, width, height);
+            stage2.context.drawImage(gl.canvas, 0, 0, stage2.context.canvas.width, stage2.context.canvas.height);
+        }
 
         // restore treshold value
         uniforms.uTreshold.value = tempTreshold;

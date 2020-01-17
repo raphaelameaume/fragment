@@ -44,6 +44,7 @@ import PanelOutput from "./ui/PanelOutput.svelte";
 import PanelInputSettings from "./ui/PanelInputSettings.svelte";
 import PanelOutputSettings from "./ui/PanelOutputSettings.svelte";
 import Separator from "./ui/Separator.svelte";
+import { Storage } from "./core/Storage.js";
 
 // props
 export let renderer = {};
@@ -79,5 +80,15 @@ dimensions.subscribe((value) => {
 
 let current = writable({ stage1: null, stage2: null });
 setContext('currentStages', current);
+
+current.subscribe((value) => {
+    let names = Object.keys(value).map( key => {
+        if (value[key]) return value[key].name;
+        
+        return null;
+    });
+
+    Storage.set('current', JSON.stringify(names));
+})
 
 </script>

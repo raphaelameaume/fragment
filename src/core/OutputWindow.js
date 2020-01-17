@@ -9,7 +9,7 @@ const OutputWindow = function() {
     let resizeFn;
 
     async function open(renderer) {
-        object = window.open(`${window.location.href}?output=true`, 'Output', `width=${dimensions.width},height=${dimensions.height}`);
+        object = window.open(`${window.location.href}?mode=output`, 'Output', `width=${dimensions.width},height=${dimensions.height}`);
 
         // object.renderer = renderer;
         // object.renderer.fromSource = true;

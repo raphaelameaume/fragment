@@ -12,7 +12,8 @@ const app = new App({
 	target: document.body,
 	props: {
 		output: params.mode && params.mode === 'output',
-		renderer: OGLRenderer({ width: 1280 * 0.5, height: 720 * 0.5, dpr: 1 }),
+		renderer: OGLRenderer({ width: 1280 * 1, height: 720 * 1, dpr: 1 }),
+		// renderer: OGLRenderer({ dpr: 2 }),
 		stages: OGLstages,
 		// renderer: THREERenderer(),
 		// stages: THREEstages,
