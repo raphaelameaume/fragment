@@ -44,6 +44,9 @@ function Cubes({ props, renderer }) {
         renderer.render(scene, camera);
     }
 
+    function resize({ width, height }) {
+    }
+
     init();
 
     return {

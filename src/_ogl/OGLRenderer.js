@@ -1,20 +1,13 @@
 import { Renderer, RenderTarget, Geometry, Program, Mesh } from "ogl";
 import { emit } from "../events";
 
-export default function ({ width = window.innerWidth * 0.5, height = window.innerHeight * 0.5 } = {}) {
+export default function ({ width = window.innerWidth, height = window.innerHeight, dpr = window.devicePixelRatio } = {}) {
     let dimensions = { width, height };
-    let renderer = new Renderer({ dpr: 1 });
+    let renderer = new Renderer({ dpr });
     let gl = renderer.gl;
 
-    let renderTarget0 = new RenderTarget(gl, {
-        width: 512,
-        height: 512,
-    });
-
-    let renderTarget1 = new RenderTarget(gl, {
-        width: 512,
-        height: 512,
-    });
+    let renderTarget0 = createRenderTarget();
+    let renderTarget1 = createRenderTarget();
 
     let geometry = new Geometry(gl, {
         position: { size: 2, data: new Float32Array([-1, -1, 3, -1, -1, 3]) },
@@ -123,6 +116,18 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         program,
     });
 
+    function createRenderTarget(w = dimensions.width, h = dimensions.height) {
+        let target = new RenderTarget(gl, {
+            width: w,
+            height: h,
+            wrapS: gl.CLAMP_TO_EDGE,
+            wrapT: gl.CLAMP_TO_EDGE,
+            minFilter: gl.LINEAR,
+            magFilter: gl.LINEAR,
+        });
+        return target;
+    }
+
     function debug() {
         let canvas = gl.canvas;
         canvas.style.position = 'absolute';
@@ -133,11 +138,16 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         document.body.appendChild(canvas);
     }
 
-    function resize({ width = w, height = h } = {}) {
-        dimensions.width = width;
-        dimensions.height = height;
+    function resize(w = dimensions.width, h = dimensions.height) {
+        dimensions.width = w;
+        dimensions.height = h;
 
-        renderer.setSize(width, height);
+        renderer.setSize(w, h);
+        renderTarget0 = createRenderTarget();
+        renderTarget1 = createRenderTarget();
+
+        uniforms.tInput0.value = renderTarget0.texture;
+        uniforms.tInput1.value = renderTarget1.texture;
     }
 
     function render(stage1, stage2, { deltaTime }) {
@@ -157,7 +167,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
         // draw gl context in 2d context
         stage1.context.clearRect(0, 0, width, height);
-        stage1.context.drawImage(gl.canvas, 0, 0);
+        stage1.context.drawImage(gl.canvas, 0, 0, stage1.context.canvas.width, stage1.context.canvas.height);
 
         // render with only stage2 visible
         uniforms.uTreshold.value = 1;
@@ -165,7 +175,7 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
         // draw gl context in 2d context
         stage2.context.clearRect(0, 0, width, height);
-        stage2.context.drawImage(gl.canvas, 0, 0);
+        stage2.context.drawImage(gl.canvas, 0, 0, stage2.context.canvas.width, stage2.context.canvas.height);
 
         // restore treshold value
         uniforms.uTreshold.value = tempTreshold;
@@ -175,13 +185,13 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         renderer.render({ scene: mesh });
     }
 
-    resize({ width, height });
+    resize(width, height);
 
     return {
         renderer,
-        renderTargets: [renderTarget0, renderTarget1],
         canvas: gl.canvas,
         gl,
+        dpr,
         resize,
         dimensions,
         render,

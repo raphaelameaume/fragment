@@ -23,6 +23,9 @@ export let renderer = {};
 export let stages = {};
 export let output = false;
 
+$: dimensions = renderer.dimensions;
+$: console.log(dimensions);
+
 </script>
 
 <style>

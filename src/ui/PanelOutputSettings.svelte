@@ -1,12 +1,12 @@
 <Panel width={width} title="Output settings" direction="column">
     <Dropdown title="Dimensions">
-        <Field prop={propWidth} name="width" triggerable={false} />
-        <Field prop={propHeight} name="height" triggerable={false} />
+        <Field prop={propWidth} name="width" triggerable={false} url="output/props/width" />
+        <Field prop={propHeight} name="height" triggerable={false} url="output/props/height" />
     </Dropdown>
 </Panel>
 
 <script>
-import { onMount, afterUpdate } from "svelte";
+import { onMount, afterUpdate, getContext } from "svelte";
 import Panel from "./Panel.svelte";
 import Field from "./Field.svelte";
 import Dropdown from "./Dropdown.svelte";
@@ -14,31 +14,27 @@ import { OutputWindow } from "../core/OutputWindow.js";
 
 // props
 export let width;
+export let renderer;
 
-let dimensions = { ...OutputWindow.dimensions };
+let dimensions = getContext('rendererDimensions');
 
-$: propWidth = {
-    value: OutputWindow.dimensions.width,
-    type: "number",
+let propWidth = {
+    value: renderer.dimensions.width,
     step: 1,
-    onChange: (value) => {
-        // /!\ Cause an infinite loop
-        // OutputWindow.setSize(value, OutputWindow.dimensions.height);
+    onChange: ({ value }) => {
+        renderer.resize(value, renderer.dimensions.height);
+
+        dimensions.update(() => renderer.dimensions);
     }
 };
-$: propHeight = {
-    value: dimensions.height,
-    type: "number",
+let propHeight = {
+    value: renderer.dimensions.height,
     step: 1,
-    onChange: (value) => {
-        // /!\ Cause an infinite loop
-        // OutputWindow.setSize(OutputWindow.dimensions.width, value);
+    onChange: ({ value }) => {
+        renderer.resize(renderer.dimensions.width, value);
+
+        dimensions.update(() => renderer.dimensions);
+        // renderer.resize({ height: value });
     }
 };
-
-OutputWindow.onResize(() => {
-    dimensions.width = OutputWindow.dimensions.width;
-    dimensions.height = OutputWindow.dimensions.height;
-});
-
 </script>

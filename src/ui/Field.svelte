@@ -145,7 +145,7 @@ $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
 $: checked = prop.value ? true : false;
 $: {
-    if (typeof prop.onChange === 'function' && prop.value) {
+    if (typeof prop.onChange === 'function' && prop.value !== undefined) {
         prop.onChange(prop);
     }
 }

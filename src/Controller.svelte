@@ -33,11 +33,13 @@
     <Separator />
     <PanelOutputSettings
         width="50%"
+        renderer={renderer}
     />
 </Panel>
 
 <script>
-import { onMount } from "svelte";
+import { onMount, setContext } from "svelte";
+import { writable } from "svelte/store";
 import cloneDeep from "clone-deep";
 import Panel from "./ui/Panel.svelte";
 import PanelStage from "./ui/PanelStage.svelte";
@@ -51,6 +53,7 @@ export let renderer = {};
 export let stages = {};
 export let output;
 
+
 let instanced = {};
 let stageList = Object.keys(stages).reduce((all, key) => {
     all[key] = stages[key];
@@ -62,6 +65,15 @@ let stageList = Object.keys(stages).reduce((all, key) => {
 
     return all;
 }, {});
+
+let dimensions = writable(renderer.dimensions);
+setContext('rendererDimensions', dimensions);
+
+dimensions.subscribe((value) => {
+    Object.keys(instanced).forEach( key => {
+        instanced[key].instance.resize({ width: value.width, height: value.height });
+    })
+})
 
 $: list = Object.keys(stageList).map(key => ({
     key: key,

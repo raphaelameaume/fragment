@@ -5,8 +5,7 @@
     </div>
     <Dropdown title="Monitor">
         <Preview
-			width={renderer.dimensions.width}
-			height={renderer.dimensions.height}
+			renderer={renderer}
 			stage={stage}
 		/>
     </Dropdown>
@@ -35,9 +34,6 @@ export let list;
 export let output;
 
 $: treshold = renderer.props.treshold.value;
-$: {
-	console.log(treshold);
-}
 
 function handleStageChange({ key }) {
     onChangeStage({ key });

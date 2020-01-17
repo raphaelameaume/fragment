@@ -10,7 +10,7 @@ const app = new App({
 	target: document.body,
 	props: {
 		output: window.location.href.includes('output'),
-		renderer: OGLRenderer(),
+		renderer: OGLRenderer({ width: 400, height: 800, dpr: 1 }),
 		stages: OGLstages,
 		// renderer: THREERenderer(),
 		// stages: THREEstages,

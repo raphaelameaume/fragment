@@ -102,12 +102,17 @@ function Cubes({ props, renderer }) {
         renderer.render({ scene, camera, target });
     }
 
+    function resize({ width, height }) {
+        camera.perspective({ aspect: width / height });
+    }
+
     init();
 
     return {
         canvas: renderer.canvas,
         update,
         render,
+        resize,
     };
 }
 
