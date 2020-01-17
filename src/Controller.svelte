@@ -55,10 +55,10 @@ let instanced = {};
 let allStages = Object.keys(stages).reduce((all, key) => {
     all[key] = stages[key];
 
-    let cloneKey = `${key}-clone`; 
+    let cloneKey = `${stages[key].name} (Clone)`; 
 
     all[cloneKey] = cloneDeep(stages[key], true);
-    all[cloneKey].name = `${stages[key].name} (Clone)`;
+    all[cloneKey].name = cloneKey;
 
     return all;
 }, {});

@@ -31,11 +31,20 @@ const Storage = function Storage() {
         }
     }
 
-    return Object.assign({}, {
+    function rehydrate(key, fn) {
+        if (key.length > 0 && get(key)) {
+            let parsed = JSON.parse(get(key));
+
+            fn(parsed);
+        }
+    }
+
+    return {
         set,
         get,
         unset,
-    });
+        rehydrate,
+    };
 }();
 
 export { Storage };

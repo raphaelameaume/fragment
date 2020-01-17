@@ -38,15 +38,16 @@ export let stages;
 let url = `PanelStage/${index}`;
 let stageNames = Object.keys(stages);
 let list = stageNames.map(key => ({
-	key: key,
+	key: stages[key].name,
     label: stages[key].name,
 }));
 let count = list.length;
-let stage = count < 2 ? stages[stageNames[index]] : stages[stageNames[index * 2]];
 let treshold = renderer.props.treshold.value;
 
 let currentStages = getContext('currentStages');
 let stageList = list.map( item => item);
+
+let stage = count < 2 ? stages[stageNames[index]] : stages[stageNames[index * 2]];
 
 $: {
 	if (!stage.instance) {
@@ -66,7 +67,18 @@ $: {
 			[`${key}`]: stage,
 		};
 	});
+
+	Storage.set(url, JSON.stringify({ name: stage.name }));
 }
+
+Storage.rehydrate(url, ({ name }) => {
+	for (let i = 0; i < list.length; i++) {
+		if (list[i].label === name) {
+			stage = stages[list[i].key];
+			break;
+		}
+	}
+});
 
 function handleStageChange({ key }) {
 	stage = stages[key];
