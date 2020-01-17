@@ -27,22 +27,31 @@ import { onMount, getContext } from "svelte";
 import { on } from "../events.js";
 
 export let renderer;
-export let current;
 export let dpr = renderer.dpr;
 
 let canvas;
 let context;
+let offsetWidth;
 
 let rendererWidth = renderer.dimensions.width;
 let rendererHeight = renderer.dimensions.height;
-let dimensions = getContext('rendererDimensions');
 
+let dimensions = getContext('rendererDimensions');
 dimensions.subscribe( (value) => {
     rendererWidth = value.width;
     rendererHeight = value.height;
 }); 
 
-let offsetWidth;
+let stage1;
+let stage2;
+let currentStages = getContext('currentStages');
+currentStages.subscribe((value) => {
+    stage1 = value.stage1;
+    stage2 = value.stage2;
+
+    console.log('Preview output ::', stage1, stage2);
+});
+
 $: height = window.innerHeight * offsetWidth / window.innerWidth;
 $: canvasWidth = offsetWidth * dpr;
 $: canvasHeight = (rendererHeight * offsetWidth / rendererWidth) * dpr;
@@ -63,7 +72,9 @@ onMount(() => {
 });
 
 function update({ deltaTime, time }) {
-    renderer.render(current.stage1, current.stage2, { deltaTime, time });
+    if (stage1 && stage2) {
+        renderer.render(stage1, stage2, { deltaTime, time });
+    }
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(renderer.canvas, 0, 0, canvas.width, canvas.height);

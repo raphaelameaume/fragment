@@ -1,7 +1,7 @@
 <Panel title={title} width={width} direction="column">
     <div slot="header" class="stage__header" style="">
         <div class="stage__live" style="opacity: {treshold < 1 ? 1 : 0}"></div>
-        <Select options={list} value={stage ? stage.name : ''} onChange={handleStageChange} />
+        <Select options={list} value={stage.name} onChange={handleStageChange} />
     </div>
     <Dropdown title="Monitor">
         <Preview
@@ -19,24 +19,57 @@
 </Panel>
 
 <script>
+import { getContext } from "svelte";
 import Panel from "./Panel.svelte";
 import Dropdown from "./Dropdown.svelte";
 import Field from "./Field.svelte";
 import Preview from "./Preview.svelte";
 import Select from "./Select.svelte";
+import { Storage } from "../core/Storage.js";
 
-export let stage = {};
-export let onChangeStage = () => {};
+// props
 export let renderer;
 export let width;
 export let title;
-export let list;
 export let output;
+export let index;
+export let stages;
 
-$: treshold = renderer.props.treshold.value;
+let url = `PanelStage/${index}`;
+let stageNames = Object.keys(stages);
+let list = stageNames.map(key => ({
+	key: key,
+    label: stages[key].name,
+}));
+let count = list.length;
+let stage = count < 2 ? stages[stageNames[index]] : stages[stageNames[index * 2]];
+let treshold = renderer.props.treshold.value;
+
+let currentStages = getContext('currentStages');
+let stageList = list.map( item => item);
+
+$: {
+	if (!stage.instance) {
+		let { name, props, scene } = stage;
+		stage.instance = new scene({
+			name,
+			props,
+			renderer,
+		});
+	}
+
+	currentStages.update((value) => {
+		let key = `stage${index+1}`;
+
+		return {
+			...value,
+			[`${key}`]: stage,
+		};
+	});
+}
 
 function handleStageChange({ key }) {
-    onChangeStage({ key });
+	stage = stages[key];
 }
 
 </script>

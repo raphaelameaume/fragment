@@ -1,5 +1,4 @@
-<div class="output" bind:this={element}>
-</div>
+<div class="output" bind:this={element}></div>
 
 <script>
 import { onMount } from "svelte";
@@ -12,7 +11,7 @@ let element;
 
 onMount(() => {
     element.appendChild(renderer.canvas);
-})
+});
 
 </script>
 
@@ -22,7 +21,12 @@ onMount(() => {
     top: 0;
     left: 0;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
+
+    background-color: black;
 }
 </style>

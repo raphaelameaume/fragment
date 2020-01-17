@@ -4,13 +4,15 @@ import OGLRenderer from './_ogl/OGLRenderer';
 import * as OGLstages from "./_ogl/stages/index.js";
 // import THREERenderer from './_three/THREERenderer';
 // import * as THREEstages from "./_three/stages/index.js";
+import parseParams from "./utils/parseParams.js";
 
+let params = parseParams(window.location.search.substring(1));
 
 const app = new App({
 	target: document.body,
 	props: {
-		output: window.location.href.includes('output'),
-		renderer: OGLRenderer({ width: 400, height: 800, dpr: 1 }),
+		output: params.mode && params.mode === 'output',
+		renderer: OGLRenderer({ width: 1280 * 0.5, height: 720 * 0.5, dpr: 1 }),
 		stages: OGLstages,
 		// renderer: THREERenderer(),
 		// stages: THREEstages,

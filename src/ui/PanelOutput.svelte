@@ -4,11 +4,11 @@
         <Button onClick={handleClickOpenOutput}>Open</Button>
     </div>
     <Dropdown title="Monitor">
-        <PreviewOutput renderer={renderer} current={current}/>
+        <PreviewOutput renderer={renderer} />
     </Dropdown>
     <Dropdown title="Settings">
         {#each Object.keys(renderer.props) as propKey}
-            <Field prop={renderer.props[propKey]} name={propKey} url={`Renderer/props/${propKey}`} />
+            <Field prop={renderer.props[propKey]} name={propKey} url={`Output/props/${propKey}`} />
         {/each}
         <Dropdown title="Post-processing">
         </Dropdown>
@@ -26,7 +26,6 @@ import { Midi } from "../core/Midi";
 
 // props
 export let renderer;
-export let current;
 export let width;
 
 function handleClickOpenOutput() {

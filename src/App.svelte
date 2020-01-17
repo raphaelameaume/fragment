@@ -1,16 +1,16 @@
 <main>
-	<!-- {#if !output} -->
+	{#if !output}
 	<Controller
 		renderer={renderer}
 		stages={stages}
 		output={output}
 	/>
-	<!-- {:else}
+	{:else}
 	<Output
 		renderer={renderer}
 		stages={stages}
 	/>
-	{/if} -->
+	{/if}
 </main>
 
 <script>
