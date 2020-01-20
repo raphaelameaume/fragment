@@ -1,6 +1,6 @@
 <Panel title={title} width={width} direction="column">
     <div slot="header" class="stage__header" style="">
-        <div class="stage__live" style="opacity: {treshold < 1 ? 1 : 0}"></div>
+        <div class="stage__live" style="opacity: {renderer.props.treshold.value < 1 ? 0 : 0}"></div>
         <Select options={list} value={stage.name} onChange={handleStageChange} />
     </div>
     <Dropdown title="Monitor">
@@ -42,7 +42,6 @@ let list = stageNames.map(key => ({
     label: stages[key].name,
 }));
 let count = list.length;
-let treshold = renderer.props.treshold.value;
 
 let currentStages = getContext('currentStages');
 let stageList = list.map( item => item);

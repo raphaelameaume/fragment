@@ -10,8 +10,6 @@
         {#each Object.keys(renderer.props) as propKey}
             <Field prop={renderer.props[propKey]} name={propKey} url={`Output/props/${propKey}`} />
         {/each}
-        <Dropdown title="Post-processing">
-        </Dropdown>
     </Dropdown>
 </Panel>
 

@@ -1,27 +1,35 @@
-<Field prop={propInputWebcam} name={propInputWebcam.name} />
+<Field prop={propInputWebcam} name={propInputWebcam.name} url="Webcam" />
 
 <script>
 import Field from "../Field.svelte";
 import { Webcam } from "../../core/Webcam.js";
 
+function enable() {
+	Webcam.request({ audio: false, onSuccess: () => {
+		// Webcam.canvas.style.cssText = 'position: absolute; top: 0; left: 0; z-index: 999; max-width: 300px;';
+		// document.body.appendChild(Webcam.canvas);
+	}});
+}
+
+function disable() {
+	Webcam.stop();
+}
+
 let propInputWebcam = {
 	name: "webcam",
 	type: "button",
+	value: false,
 	label: "Enable",
-	enabled: false,
-	onTrigger: (prop) => {
-		propInputWebcam.enabled = !propInputWebcam.enabled;
-		propInputWebcam.label = propInputWebcam.enabled ? 'Disable' : 'Enable';
-
-		if (propInputWebcam.enabled) {
-			Webcam.request({ audio: false, onSuccess: () => {
-				Webcam.video.style.cssText = 'position: absolute; top: 0; left: 0; z-index: 999; max-width: 300px;';
-	
-				document.body.appendChild(Webcam.video);
-			}});
+	onChange: (prop) => {
+		if (propInputWebcam.value) {
+			enable();
 		} else {
-			Webcam.stop();
+			disable();
 		}
+	},
+	onTrigger: (prop) => {
+		propInputWebcam.value = !propInputWebcam.value;
+		propInputWebcam.label = propInputWebcam.value ? 'Disable' : 'Enable';
 	}
 };
 </script>

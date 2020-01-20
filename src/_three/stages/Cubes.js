@@ -23,9 +23,14 @@ function Cubes({ props, renderer }) {
         mesh = new Mesh(geometry, material);
         scene.add(mesh);
 
+
+        console.log('no listener');
         props.texture.onChange = ({ image }) => {
-            material.map.image = image;
-            material.map.needsUpdate = true;
+            console.log('props texture changed');
+            // material.map.image = image;
+            // material.map.needsUpdate = true;
+
+            console.log(props.texture);
         };
     }
 
@@ -34,6 +39,11 @@ function Cubes({ props, renderer }) {
             mesh.rotation.x += 0.01 * props.speed.value;
             mesh.rotation.y += 0.01 * props.speed.value;
             mesh.rotation.z += 0.01 * props.speed.value;
+        }
+
+        if (props.texture.needsUpdate) {
+            console.log('Cubes :: texture needsUpdate');
+            material.map.needsUpdate = true;
         }
 
         let s = 1 + Audio.volume();
@@ -78,6 +88,7 @@ export default {
         texture: {
             type: "image",
             value: 'assets/images/render.png',
+            
         },
     }
 };

@@ -3,13 +3,12 @@ let noop = () => {};
 const Webcam = function() {
     let video = document.createElement('video');
     let canvas = document.createElement('canvas');
-    let stream;
+    let stream, context;
 
     async function request({ video = true, audio = true, onSuccess = noop, onError = noop } = {}) {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video, audio });
 
-            console.log(stream);
             handleSuccess(stream);
             onSuccess(stream);
         } catch(error) {
@@ -30,9 +29,21 @@ const Webcam = function() {
     }
 
     function handleSuccess(stream) {
+        video.addEventListener('canplay', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+    
+            context = canvas.getContext('2d');
+            draw();
+        })
         video.srcObject = stream;
-        // video.src = window.URL.createObjectURL(stream);
         video.play();
+    }
+    
+    function draw() {
+        requestAnimationFrame(draw);
+        
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
 
     function handleError(error) {

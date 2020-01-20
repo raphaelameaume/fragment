@@ -74,8 +74,9 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
             min: 0,
             max: 1,
             step: 0.001,
-            value: 0,
+            value: 0.5,
             onChange: () => {
+                console.log('treshold has changed', props.treshold);
                 uniforms.uTreshold.value = props.treshold.value;
             }
         },

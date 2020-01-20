@@ -95,6 +95,10 @@ function Cubes({ props, renderer }) {
             mesh.rotation.y += 0.001 * props.speed.value * deltaTime;
             mesh.rotation.z += 0.001 * props.speed.value * deltaTime;
         }
+
+        if (props.texture.needsUpdate) {
+            uniforms.uMap.value.needsUpdate = true;
+        }
     }
 
     function render({ renderer, gl, target }) {

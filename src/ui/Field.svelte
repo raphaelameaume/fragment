@@ -103,7 +103,14 @@
                 <Trigger trigger={trigger} />
                 {/each }
             {/if}
-            <Button style="width: 50%" onClick={handleClickAddTrigger}>Add</Button>
+            <div style="display: flex; justify-content: center;">
+                <Button style="width: 50%; text-align: center;" onClick={handleClickAddTrigger}>Add</Button>
+            </div>
+        </Dropdown>
+        {/if}
+        {#if isStreamable}
+        <Dropdown title="Actions">
+            <Button onClick={handleClickSetWebcam}>Set webcam feed</Button>
         </Dropdown>
         {/if}
     </Window>
@@ -122,6 +129,7 @@ import ProgressInput from "./ProgressInput.svelte";
 import ImageInput from "./ImageInput.svelte";
 import Checkbox from "./Checkbox.svelte";
 import { Keyboard } from "../core/Keyboard.js";
+import { Webcam } from "../core/Webcam.js";
 import { Storage } from "../core/Storage.js";
 import { map } from "../math/map.js";
 import { clamp } from "../math/clamp.js";
@@ -143,6 +151,7 @@ export let url = '';
 $: step = prop.step ? prop.step : 0.1;
 $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
+$: isStreamable = type === 'image';
 $: checked = prop.value ? true : false;
 $: {
     if (typeof prop.onChange === 'function' && prop.value !== undefined) {
@@ -171,6 +180,11 @@ function redhydrate(key) {
     
         prop.initialValue = prop.value;
         prop.value = parsed.value;
+
+        if (prop.value === 'WEBCAM_0') {
+            prop.image = Webcam.canvas;
+            prop.needsUpdate = true;
+        }
     }
 }
 
@@ -236,6 +250,12 @@ function handleClickAddTrigger() {
         ...prop.triggers,
         Keyboard.key(''),
     ];
+}
+
+function handleClickSetWebcam() {
+    prop.image = Webcam.canvas;
+    prop.value = 'WEBCAM_0';
+    prop.needsUpdate = true;
 }
 
 </script>

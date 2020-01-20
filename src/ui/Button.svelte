@@ -3,6 +3,8 @@
 <style>
 .button {
     display: flex;
+    justify-content: center;
+    align-items: center;
     border-radius: 2px;
     background: #1d1d1e;
     border: 1px solid black;

@@ -56,6 +56,8 @@ function instanciate(stage) {
 }
 
 onMount(() => {
+    renderer.canvas.style.width = '100%';
+    renderer.canvas.style.height = 'auto';
     element.appendChild(renderer.canvas);
 
     on('frame', update);
