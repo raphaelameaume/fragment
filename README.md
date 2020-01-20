@@ -10,46 +10,17 @@ npm install fragment
 
 ### Usage
 
-*stage1.js*
-```
-import { Transform, Camera, Texture, Box, Program, Mesh } from "ogl";
-
-function Cubes({ props, renderer }) {
-    let { gl } = renderer;
-    let uniforms = {
-        uMap: { value: new Texture(renderer.gl)}
-    }
-    let scene, camera, mesh;
-
-    function init() {
-        //...init camera, scene and mesh;
-
-        // set listener for prop
-        props.texture.onChange = ({ image }) => {
-            uniforms.uMap.value.image = image;
-        };
-    }
-
+**stage1.js**
+```js
+function Stage1({ props, renderer }) {
     function update({ deltaTime }) {
-        uniforms.uScale.value = 1 + Audio.volume();
-
-        if (props.move.value) {
-            mesh.rotation.x += 0.001 * props.speed.value * deltaTime;
-            mesh.rotation.y += 0.002 * props.speed.value * deltaTime;
-            mesh.rotation.z += 0.003 * props.speed.value * deltaTime;
-        }
     }
 
-    function render({ renderer, gl, target }) {
-        gl.clearColor(0.65, 0.53, 0.28, 1);
-        renderer.render({ scene, camera, target });
+    function render({ renderer, target }) {
     }
 
     function resize({ width, height }) {
-        camera.perspective({ aspect: width / height });
     }
-
-    init();
 
     return {
         canvas: renderer.canvas,
@@ -60,36 +31,52 @@ function Cubes({ props, renderer }) {
 }
 
 export default {
-    name: 'Cubes',
-    scene: Cubes,
-    props: {
-        speed: {
-            min: 0,
-            max: 1,
-            value: 0.1,
-        },
-        move: {
-            value: true,
-        },
-        texture: {
-            type: "image",
-            value: 'assets/images/render.png',
-        },
+    name: 'Stage1',
+    scene: Stage1,
+};
+```
+**renderer.js**
+```js
+let renderer = function() {
+    let canvas = document.createElement('canvas');
+    let dimensions = {
+        width: 1280,
+        height: 720,
+    };
+
+    let dpr = 1;
+    let props = {};
+
+    function resize() {
+
     }
+
+    function render() {
+
+    }
+
+    return {
+        canvas,
+        dimensions,
+        dpr,
+        resize,
+        render,
+    };
 };
 ```
 
-
-*main.js*
-```
+**main.js**
+```js
 import { App } from "fragment";
-import { OGLRenderer } from "fragment/examples/ogl/renderer.js";
+import Renderer from "./renderer.js";
+import Stage1 from "./Stage1.js";
 
 new App({
-    renderer: OGLRenderer(),
-    stages,
+    renderer: Renderer(),
+    stages: {
+        Stage1,
+    }
 });
-
 ```
 
 ### Motivation
