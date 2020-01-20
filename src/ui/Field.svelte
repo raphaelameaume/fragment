@@ -23,7 +23,7 @@
         {/if}
         
         {#if type === 'button'}
-            <Button onClick={handleTrigger}>{prop.label ? prop.label : 'Click' }</Button>
+            <Button onClick={handleTrigger}>{prop.label ? (typeof prop.label === 'function' ? prop.label(prop) : prop.label) : 'Click' }</Button>
         {/if}
         {#if type === 'select'}
             <Select onChange={(value) => prop.value = value.key} options={prop.options} value={prop.value} />
@@ -184,6 +184,8 @@ function redhydrate(key) {
         if (prop.value === 'WEBCAM_0') {
             prop.image = Webcam.canvas;
             prop.needsUpdate = true;
+        } else {
+            prop.needsUpdate = false;
         }
     }
 }

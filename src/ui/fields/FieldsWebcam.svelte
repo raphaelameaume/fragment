@@ -19,7 +19,7 @@ let propInputWebcam = {
 	name: "webcam",
 	type: "button",
 	value: false,
-	label: "Enable",
+	label: () => propInputWebcam.value ? 'Disable' : 'Enable',
 	onChange: (prop) => {
 		if (propInputWebcam.value) {
 			enable();

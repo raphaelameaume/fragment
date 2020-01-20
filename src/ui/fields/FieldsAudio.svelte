@@ -1,4 +1,4 @@
-<Field prop={propInputMicro} name={propInputMicro.name} />
+<Field prop={propInputMicro} name={propInputMicro.name} url="Microphone" />
 <Field prop={propInputPlaylist} name={propInputPlaylist.name}>
     <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPrev}>Prev</Button>
     <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPlay}>{propInputPlaylist.labelPlay}</Button>
@@ -22,13 +22,10 @@ import { Microphone } from "../../core/Microphone.js";
 let propInputMicro = {
 	name: "microphone",
 	type: "button",
-	label: "Enable",
-	enabled: false,
-	onTrigger: () => {
-		propInputMicro.enabled = !propInputMicro.enabled;
-		propInputMicro.label = propInputMicro.enabled ? 'Disable' : 'Enable';
-
-		if (propInputMicro.enabled) {
+	label: () => propInputMicro.value ? 'Disable' : 'Enable',
+	value: false,
+	onChange: () => {
+		if (propInputMicro.value) {
 			Microphone.request({ onSuccess: (stream) => {
 				Audio.attachStream(stream);
 			}});
@@ -36,6 +33,9 @@ let propInputMicro = {
 			Microphone.stop();
 			Audio.detachStream();
 		}
+	},
+	onTrigger: () => {
+		propInputMicro.value = !propInputMicro.value;
 	}
 };
 

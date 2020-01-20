@@ -165,8 +165,10 @@ const Audio = function() {
     }
 
     function disconnectSource() {
-        audioSource.disconnect(masterGain);
-        audioSource = null;
+        if (audioSource) {
+            audioSource.disconnect(masterGain);
+            audioSource = null;
+        }
     }
 
     init();
