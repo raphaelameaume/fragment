@@ -1,93 +1,105 @@
-*Psst — looking for a shareable component template? Go here --> [sveltejs/component-template](https://github.com/sveltejs/component-template)*
+# Fragment
 
----
+`fragment` is a web-based environment to create reactive A/V experiments with a built-in set of inputs, controls and GUI.
 
-# svelte app
+### Installation
 
-This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
-
-To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
-
-```bash
-npx degit sveltejs/template svelte-app
-cd svelte-app
+```
+npm install fragment
 ```
 
-*Note that you will need to have [Node.js](https://nodejs.org) installed.*
+### Usage
 
+*stage1.js*
+```
+import { Transform, Camera, Texture, Box, Program, Mesh } from "ogl";
 
-## Get started
+function Cubes({ props, renderer }) {
+    let { gl } = renderer;
+    let uniforms = {
+        uMap: { value: new Texture(renderer.gl)}
+    }
+    let scene, camera, mesh;
 
-Install the dependencies...
+    function init() {
+        //...init camera, scene and mesh;
 
-```bash
-cd svelte-app
-npm install
+        // set listener for prop
+        props.texture.onChange = ({ image }) => {
+            uniforms.uMap.value.image = image;
+        };
+    }
+
+    function update({ deltaTime }) {
+        uniforms.uScale.value = 1 + Audio.volume();
+
+        if (props.move.value) {
+            mesh.rotation.x += 0.001 * props.speed.value * deltaTime;
+            mesh.rotation.y += 0.002 * props.speed.value * deltaTime;
+            mesh.rotation.z += 0.003 * props.speed.value * deltaTime;
+        }
+    }
+
+    function render({ renderer, gl, target }) {
+        gl.clearColor(0.65, 0.53, 0.28, 1);
+        renderer.render({ scene, camera, target });
+    }
+
+    function resize({ width, height }) {
+        camera.perspective({ aspect: width / height });
+    }
+
+    init();
+
+    return {
+        canvas: renderer.canvas,
+        update,
+        render,
+        resize,
+    };
+}
+
+export default {
+    name: 'Cubes',
+    scene: Cubes,
+    props: {
+        speed: {
+            min: 0,
+            max: 1,
+            value: 0.1,
+        },
+        move: {
+            value: true,
+        },
+        texture: {
+            type: "image",
+            value: 'assets/images/render.png',
+        },
+    }
+};
 ```
 
-...then start [Rollup](https://rollupjs.org):
 
-```bash
-npm run dev
+*main.js*
+```
+import { App } from "fragment";
+import { OGLRenderer } from "fragment/examples/ogl/renderer.js";
+
+new App({
+    renderer: OGLRenderer(),
+    stages,
+});
+
 ```
 
-Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
-
-By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
+### Motivation
 
 
-## Building and running in production mode
+### Roadmap
 
-To create an optimised version of the app:
+- Documentation
+- Website
 
-```bash
-npm run build
-```
+### License
 
-You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
-
-
-## Single-page app mode
-
-By default, sirv will only respond to requests that match files in `public`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
-
-If you're building a single-page app (SPA) with multiple routes, sirv needs to be able to respond to requests for *any* path. You can make it so by editing the `"start"` command in package.json:
-
-```js
-"start": "sirv public --single"
-```
-
-
-## Deploying to the web
-
-### With [now](https://zeit.co/now)
-
-Install `now` if you haven't already:
-
-```bash
-npm install -g now
-```
-
-Then, from within your project folder:
-
-```bash
-cd public
-now deploy --name my-project
-```
-
-As an alternative, use the [Now desktop client](https://zeit.co/download) and simply drag the unzipped project folder to the taskbar icon.
-
-### With [surge](https://surge.sh/)
-
-Install `surge` if you haven't already:
-
-```bash
-npm install -g surge
-```
-
-Then, from within your project folder:
-
-```bash
-npm run build
-surge public my-project.surge.sh
-```
+MIT, see [LICENSE.md](http://github.com/raphaelameaume/fragment/blob/master/LICENSE.md) for details.
