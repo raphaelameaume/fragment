@@ -26,7 +26,7 @@
             <Button onClick={handleTrigger}>{prop.label ? prop.label : 'Click' }</Button>
         {/if}
         {#if type === 'select'}
-            <Select onChange={(value) => prop.value = value} options={prop.options} value={prop.value} />
+            <Select onChange={(value) => prop.value = value.key} options={prop.options} value={prop.value} />
         {/if}
         {#if type === 'image'}
             <ImageInput
@@ -261,7 +261,7 @@ function handleClickAddTrigger() {
 
 .field__name {
     display: flex;
-    width: 40%;
+    width: 30%;
     height: 30px;
     padding: 0 10px;
     align-items: center;
@@ -328,6 +328,7 @@ function handleClickAddTrigger() {
     padding-bottom: 5px;
     width: 100%;
     justify-content: space-between;
+    /* flex-wrap: wrap; */
 }
 
 .field__settings {

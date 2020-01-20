@@ -1,26 +1,12 @@
 <Panel width={width} title="Input Settings" direction="column">
 	<Dropdown title="MIDI">
-		<Field prop={propMidiDevice} name={propMidiDevice.name}>
-			<Button onClick={handleClickRefresh}>Refresh<IconRefresh/></Button>
-		</Field>
-		<Field prop={propMidiMessages} name={propMidiMessages.name} disabled={true}></Field>
+		<FieldsMidi />
     </Dropdown>
     <Dropdown title="Audio">
-        <Field prop={propInputMicro} name={propInputMicro.name} />
-        <Field prop={propInputPlaylist} name={propInputPlaylist.name}>
-            <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPrev}>Prev</Button>
-            <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPlay}>{propInputPlaylist.labelPlay}</Button>
-            <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickNext}>Next</Button>
-            <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickLoad}>Load</Button>
-            <input type="file" name="load" style="display: none" bind:this={propInputPlaylist.input} on:change={propInputPlaylist.handleUpload} accept="audio/mp3, audio/wav"/>
-        </Field>
-        <Field prop={{ min: 0, max: 1, value: 0.500, step: 0.001, triggers: [Midi.knob(1)], onChange: ({ value }) => { Audio.setGlobalVolume(value)} }} name="volume" />
-        <Field prop={{ min: 0, max: 1000, value: 300, triggers: [Midi.knob(2)] }} name="hold" />
-        <Field prop={{ min: 0, max: 1, value: 0.992, triggers: [Midi.knob(3)] }} name="decay" />
-        <Field prop={{ min: 0, max: 1, value: 0.1, triggers: [Midi.knob(4)] }} name="min" />
+		<FieldsAudio />
     </Dropdown>
     <Dropdown title="Video">
-        <Field prop={propInputWebcam} name={propInputWebcam.name} />
+		<FieldsWebcam />
     </Dropdown>
     
 </Panel>
@@ -32,6 +18,10 @@ import Field from "./Field.svelte";
 import Checkbox from "./Checkbox.svelte";
 import Dropdown from "./Dropdown.svelte";
 import IconRefresh from "./svg/IconRefresh.svelte";
+
+import FieldsMidi from "./fields/FieldsMidi.svelte";
+import FieldsAudio from "./fields/FieldsAudio.svelte";
+import FieldsWebcam from "./fields/FieldsWebcam.svelte";
 import { Audio } from "../core/Audio.js";
 import { Webcam } from "../core/Webcam.js";
 import { Microphone } from "../core/Microphone.js";
@@ -39,8 +29,6 @@ import { Midi } from "../core/Midi.js";
 
 // props
 export let width;
-
-let config = { pads: {}, knobs: {} };
 
 // prop
 let propInputMicro = {

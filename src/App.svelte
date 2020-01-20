@@ -1,14 +1,19 @@
 <main>
-	{#if !output}
+	{#if output}
+	<Output
+		renderer={renderer}
+		stages={stages}
+	/>
+	{:else if single}
+	<Single
+		renderer={renderer}
+		stages={stages}
+	/>
+	{:else}
 	<Controller
 		renderer={renderer}
 		stages={stages}
 		output={output}
-	/>
-	{:else}
-	<Output
-		renderer={renderer}
-		stages={stages}
 	/>
 	{/if}
 </main>
@@ -16,15 +21,15 @@
 <script>
 import Controller from "./Controller.svelte";
 import Output from "./Output.svelte";
-
+import Single from "./Single.svelte";
 
 // props
 export let renderer = {};
 export let stages = {};
 export let output = false;
+export let single = false;
 
 $: dimensions = renderer.dimensions;
-$: console.log(dimensions);
 
 </script>
 

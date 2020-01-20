@@ -24,9 +24,17 @@
 </Panel>
 <Separator height="1px" width="100%" />
 <Panel width="100%" height="calc(28vh - 1px)" direction="row">
-    <PanelInputSettings
-        width="50%"
-    />
+    <Panel width="50%" title="Input Settings" direction="column">
+        <Dropdown title="MIDI">
+            <FieldsMidi />
+        </Dropdown>
+        <Dropdown title="Audio">
+            <FieldsAudio />
+        </Dropdown>
+        <Dropdown title="Video">
+            <FieldsWebcam />
+        </Dropdown>
+    </Panel>
     <Separator />
     <PanelOutputSettings
         width="50%"
@@ -41,9 +49,12 @@ import cloneDeep from "clone-deep";
 import Panel from "./ui/Panel.svelte";
 import PanelStage from "./ui/PanelStage.svelte";
 import PanelOutput from "./ui/PanelOutput.svelte";
-import PanelInputSettings from "./ui/PanelInputSettings.svelte";
+import FieldsAudio from "./ui/fields/FieldsAudio.svelte";
+import FieldsMidi from "./ui/fields/FieldsMidi.svelte";
+import FieldsWebcam from "./ui/fields/FieldsWebcam.svelte";
 import PanelOutputSettings from "./ui/PanelOutputSettings.svelte";
 import Separator from "./ui/Separator.svelte";
+import Dropdown from "./ui/Dropdown.svelte";
 import { Storage } from "./core/Storage.js";
 
 // props

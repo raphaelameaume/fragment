@@ -152,16 +152,20 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
 
     function render(stage1, stage2, { deltaTime }) {
         // render both scenes to target
-        stage1.instance.update({ deltaTime });
-        stage1.instance.render({ renderer, gl, target: renderTarget0, deltaTime });
+        if (stage1 && stage1.instance) {
+            stage1.instance.update({ deltaTime });
+            stage1.instance.render({ renderer, gl, target: renderTarget0, deltaTime });
+        }
 
-        stage2.instance.update({ deltaTime });
-        stage2.instance.render({ renderer, gl, target: renderTarget1, deltaTime });
+        if (stage2 && stage1.instance) {
+            stage2.instance.update({ deltaTime });
+            stage2.instance.render({ renderer, gl, target: renderTarget1, deltaTime });
+        }
 
         // save current treshold
         let tempTreshold = uniforms.uTreshold.value;
 
-        if (stage1.context) {
+        if (stage1 && stage1.context) {
             // render with only stage 1 visible 
             uniforms.uTreshold.value = 0;
             renderer.render({ scene: mesh });
@@ -171,7 +175,7 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
             stage1.context.drawImage(gl.canvas, 0, 0, stage1.context.canvas.width, stage1.context.canvas.height);
         }
         
-        if (stage2.context) {
+        if (stage2 && stage2.context) {
             // render with only stage2 visible
             uniforms.uTreshold.value = 1;
             renderer.render({ scene: mesh });
