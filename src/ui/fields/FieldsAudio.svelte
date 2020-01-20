@@ -33,7 +33,8 @@ let propInputMicro = {
 				Audio.attachStream(stream);
 			}});
 		} else {
-			
+			Microphone.stop();
+			Audio.detachStream();
 		}
 	}
 };

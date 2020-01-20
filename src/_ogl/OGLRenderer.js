@@ -83,9 +83,8 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
             type: 'select',
             options: transitions.map(({ name, key }) => ({ key, label: name })),
             onChange: ({ value }) => {
-                let { key } = value;
                 for (let i = 0; i < transitions.length; i++) {
-                    if (transitions[i].key === key) {
+                    if (transitions[i].key === value) {
                         const { fragment } = transitions[i];
 
                         mesh.program = new Program(gl, {

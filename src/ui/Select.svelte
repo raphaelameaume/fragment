@@ -14,7 +14,6 @@ let select;
 
 function handleChange(event) {
     value = event.target.value;
-    console.log('Select :: handleChange', value);
 
     for (let i = 0; i < options.length; i++) {
         if (options[i].key === value) {

@@ -100,6 +100,11 @@ const Audio = function() {
         audioSource.connect(masterGain);
     }
 
+    function detachStream() {
+        disconnectSource();
+        masterGain.connect(context.destination);
+    }
+
     function update({ deltaTime }) {
         analyser.getByteFrequencyData(freqByteData);
 
@@ -169,6 +174,7 @@ const Audio = function() {
     return {
         masterGain,
         attachStream,
+        detachStream,
         setDecay,   
         setGlobalVolume,
         setHold,

@@ -15,12 +15,12 @@ let propInputWebcam = {
 
 		if (propInputWebcam.enabled) {
 			Webcam.request({ audio: false, onSuccess: () => {
-				Webcam.video.style.cssText = 'position: absolute; bottom: 0; left: 0; z-index: 999;';
+				Webcam.video.style.cssText = 'position: absolute; top: 0; left: 0; z-index: 999; max-width: 300px;';
 	
 				document.body.appendChild(Webcam.video);
 			}});
 		} else {
-
+			Webcam.stop();
 		}
 	}
 };
