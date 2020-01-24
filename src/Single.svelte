@@ -74,7 +74,11 @@ $: {
 			props,
 			renderer,
 		});
-	}
+    }
+    
+    if (typeof stage.instance.onPreview === 'function') {
+        stage.instance.onPreview({ container: output, canvas: renderer.canvas });
+    }
 }
 
 onMount(() => {

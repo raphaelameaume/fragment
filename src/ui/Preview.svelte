@@ -1,4 +1,4 @@
-<div class="preview" bind:this={preview} bind:offsetWidth={offsetWidth} style={`height: ${height}px`}>
+<div class="preview" bind:this={container} bind:offsetWidth={offsetWidth} style={`height: ${height}px`}>
     <canvas bind:this={canvas}></canvas>
 </div>
 
@@ -24,53 +24,50 @@ canvas {
 </style>
 
 <script>
-import { onMount, afterUpdate, getContext } from "svelte";
-import { on } from "../events.js";
+import { beforeUpdate, getContext } from "svelte";
 
 // props
 export let renderer;
 export let stage;
 export let dpr = renderer.dpr;
 
-// variables
-let canvas, preview;
-let context;
+// bindings
+let canvas, container, offsetWidth;
 
+// variables
+let context;
 let rendererWidth = renderer.dimensions.width;
 let rendererHeight = renderer.dimensions.height;
-let dimensions = getContext('rendererDimensions');
 
+let dimensions = getContext('rendererDimensions');
 dimensions.subscribe( (value) => {
     rendererWidth = value.width;
     rendererHeight = value.height;
 }); 
 
-let offsetWidth;
 $: height = window.innerHeight * offsetWidth / window.innerWidth;
 $: canvasWidth = offsetWidth * dpr;
 $: canvasHeight = (rendererHeight * offsetWidth / rendererWidth) * dpr;
-$: {
+$:{ 
     if (canvas) {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         context = canvas.getContext('2d');
     }
-}
 
-onMount(() => {
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    context = canvas.getContext('2d');
-
-    on('frame', () => {
-        attachContext();
-    })
-});
-
-function attachContext() {
-    if (stage) {
+    if (stage && context) {
         stage.context = context;
+
+        if (typeof stage.instance.onPreview === 'function') {
+            stage.instance.onPreview({ container, canvas });
+        }
     }
 }
+
+beforeUpdate( (props) => {
+    console.log(props);
+
+    console.log('beforeUpdate', stage.name);
+})
 
 </script>

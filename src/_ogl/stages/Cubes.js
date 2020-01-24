@@ -1,4 +1,5 @@
-import { Camera, Box, Mesh, Program, Texture, Transform } from "ogl";
+import { Camera, Box, Mesh, Program, Texture, Transform, Orbit } from "ogl";
+
 import { Keyboard } from "../../core/Keyboard";
 import { Midi } from "../../core/Midi";
 
@@ -58,7 +59,7 @@ function Cubes({ props, renderer }) {
         uMap: { value: new Texture(gl) },
     };
 
-    let scene, camera, mesh;
+    let scene, camera, mesh, controls;
 
     function init() {
         camera = new Camera(gl);
@@ -99,6 +100,10 @@ function Cubes({ props, renderer }) {
         if (props.texture.needsUpdate) {
             uniforms.uMap.value.needsUpdate = true;
         }
+
+        if (controls) {
+            controls.update();
+        }
     }
 
     function render({ renderer, gl, target }) {
@@ -110,6 +115,14 @@ function Cubes({ props, renderer }) {
         camera.perspective({ aspect: width / height });
     }
 
+    function onPreview({ container }) {
+        if (controls) {
+            controls.remove();
+        }
+
+        controls = new Orbit(camera, { element: container });
+    }
+
     init();
 
     return {
@@ -117,6 +130,7 @@ function Cubes({ props, renderer }) {
         update,
         render,
         resize,
+        onPreview,
     };
 }
 

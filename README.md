@@ -1,6 +1,6 @@
 # Fragment
 
-`fragment` is a web-based environment to create reactive A/V experiments with a built-in set of inputs, controls and GUI.
+`fragment` is a web-based environment to create and display reactive A/V experiments with a built-in set of inputs, controls and GUI.
 
 ### Installation
 
@@ -13,9 +13,6 @@ npm install fragment
 **stage1.js**
 ```js
 function Stage1({ props, renderer }) {
-    function update({ deltaTime }) {
-    }
-
     function render({ renderer, target }) {
     }
 
@@ -33,17 +30,16 @@ function Stage1({ props, renderer }) {
 export default {
     name: 'Stage1',
     scene: Stage1,
+    props: {
+
+    }
 };
 ```
 **renderer.js**
 ```js
 let renderer = function() {
+    let dimensions = { width: 1280, height: 720 };
     let canvas = document.createElement('canvas');
-    let dimensions = {
-        width: 1280,
-        height: 720,
-    };
-
     let dpr = 1;
     let props = {};
 
@@ -51,11 +47,11 @@ let renderer = function() {
 
     }
 
-    function render() {
-
+    function render(stage1, stage2, { deltaTime }) {
     }
 
     return {
+        props,
         canvas,
         dimensions,
         dpr,
