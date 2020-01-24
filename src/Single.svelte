@@ -76,8 +76,8 @@ $: {
 		});
     }
     
-    if (typeof stage.instance.onPreview === 'function') {
-        stage.instance.onPreview({ container: output, canvas: renderer.canvas });
+    if (typeof stage.instance.onMount === 'function') {
+        stage.instance.onMount({ container: output, canvas: renderer.canvas });
     }
 }
 

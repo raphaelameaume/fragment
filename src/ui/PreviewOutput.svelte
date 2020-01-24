@@ -48,8 +48,6 @@ let currentStages = getContext('currentStages');
 currentStages.subscribe((value) => {
     stage1 = value.stage1;
     stage2 = value.stage2;
-
-    console.log('Preview output ::', stage1, stage2);
 });
 
 $: height = window.innerHeight * offsetWidth / window.innerWidth;

@@ -24,18 +24,23 @@ canvas {
 </style>
 
 <script>
-import { beforeUpdate, getContext } from "svelte";
+import { beforeUpdate, tick, getContext } from "svelte";
+
+
 
 // props
 export let renderer;
 export let stage;
 export let dpr = renderer.dpr;
 
+
+
 // bindings
 let canvas, container, offsetWidth;
 
 // variables
 let context;
+let prevStage = stage;
 let rendererWidth = renderer.dimensions.width;
 let rendererHeight = renderer.dimensions.height;
 
@@ -58,16 +63,23 @@ $:{
     if (stage && context) {
         stage.context = context;
 
-        if (typeof stage.instance.onPreview === 'function') {
-            stage.instance.onPreview({ container, canvas });
+        console.log(`onMount :: ${stage.name}`);
+
+        if (typeof stage.instance.onMount === 'function') {
+            stage.instance.onMount({ container, canvas });
         }
     }
 }
 
-beforeUpdate( (props) => {
-    console.log(props);
+$: {
+    if (prevStage.name !== stage.name) {
+        if (typeof prevStage.instance.onUnmount === 'function') {
+            prevStage.instance.onUnmount({ container, canvas });
+        }
 
-    console.log('beforeUpdate', stage.name);
-})
+        prevStage = stage;
+    }
+}
+
 
 </script>

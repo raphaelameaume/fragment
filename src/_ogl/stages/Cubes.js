@@ -115,12 +115,18 @@ function Cubes({ props, renderer }) {
         camera.perspective({ aspect: width / height });
     }
 
-    function onPreview({ container }) {
+    function onMount({ container }) {
         if (controls) {
             controls.remove();
         }
 
         controls = new Orbit(camera, { element: container });
+    }
+
+    function onUnmount() {
+        if (controls) {
+            controls.remove();
+        }
     }
 
     init();
@@ -130,7 +136,8 @@ function Cubes({ props, renderer }) {
         update,
         render,
         resize,
-        onPreview,
+        onMount,
+        onUnmount,
     };
 }
 
