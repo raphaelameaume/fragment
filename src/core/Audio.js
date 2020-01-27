@@ -1,4 +1,7 @@
 import { on } from "../events";
+import { Trigger } from "./Trigger";
+
+export const TRIGGER_BEAT = 'Audio-beat';
 
 let BEAT_HOLD_TIME = 300;
 let BEAT_DECAY_RATE = 0.992;
@@ -9,6 +12,7 @@ function FrequencyRange(index, start, end) {
     let beatCutOff = 0;
     let beatTime = 0;
     let lastBeat = 0;
+    let triggers = [];
 
     function update(freqByteData, deltaTime) {
         volume = 0;
@@ -21,7 +25,12 @@ function FrequencyRange(index, start, end) {
 
         // detect beat
         if (beatTime >= BEAT_HOLD_TIME && volume > beatCutOff && volume > BEAT_MIN) {
-            //emit('beat');
+            for (let i = 0; i < triggers.length; i++) {
+                if (triggers[i].enabled) {
+                    triggers[i].trigger({ index });
+                }
+            }
+
             beatCutOff = volume * 1.15;
             lastBeat = beatCutOff;
             beatTime = 0;
@@ -36,7 +45,22 @@ function FrequencyRange(index, start, end) {
         }
     }
 
+    function addTrigger(trigger) {
+        triggers.push(trigger);
+    }
+
+    function removeTrigger(trigger) {
+        for (let i = 0; i < triggers.length; i++) {
+            if (trigger.id === triggers[i].id) {
+                triggers.splice(i, 1);
+            }
+        }
+    }
+
     return {
+        addTrigger,
+        removeTrigger,
+        triggers,
         update,
         volume: () => volume
     };
@@ -171,6 +195,31 @@ const Audio = function() {
         }
     }
 
+    function beat(range = 0) {
+        let rangeIndex = Number(range);
+
+        if (rangeIndex < ranges.length) {
+            let trigger = new Trigger(TRIGGER_BEAT, rangeIndex);
+
+            addTrigger(trigger);
+            
+            
+            return trigger;
+        }
+    }
+
+    function addTrigger(trigger) {
+        for (let i = 0; i < trigger.value.length; i++) {
+            let rangeIndex = trigger.value[i];
+
+            ranges[rangeIndex].addTrigger(trigger);
+
+            trigger.destroy = () => {
+                ranges[rangeIndex].removeTrigger(trigger);
+            };
+        }
+    }
+
     init();
 
     return {
@@ -183,10 +232,14 @@ const Audio = function() {
         setMin,
         play,
         pause,
+        beat,
         getRange,
         disconnectSource,
+        addTrigger,
         volume: () => volume,
     };
 }();
+
+Audio.TRIGGER_BEAT = TRIGGER_BEAT;
 
 export { Audio };

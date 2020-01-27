@@ -11,7 +11,7 @@ export let onChange = noop;
 
 let input;
 
-if (value && !value.src) {
+if (value && !value.src && typeof value === 'string') {
     loadImage(value, (image) => {
         onChange({ image, name: value });
     });

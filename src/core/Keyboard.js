@@ -1,37 +1,97 @@
 import { Trigger } from "./Trigger.js";
 
+export const TRIGGER_KEY_PRESS = 'Keyboard-KeyPress';
+export const TRIGGER_KEY_DOWN = 'Keyboard-KeyDown';
+export const TRIGGER_KEY_UP = 'Keyboard-KeyUp';
+
 const Keyboard = function() {
-    let triggers = [];
+    let triggersKeyDown = [];
+    let triggersKeyPress = [];
+    let triggersKeyUp = [];
 
     window.addEventListener('keypress', onKeyPress);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
 
     function onKeyPress(event) {
-        for (let i = 0; i < triggers.length; i++) {
-            if (triggers[i].value.includes(event.key) && triggers[i].enabled) {
-                triggers[i].trigger(event);
+        
+        checkTriggers(triggersKeyPress, event);
+    }
+
+    function onKeyDown(event) {
+        checkTriggers(triggersKeyDown, event);
+    }
+
+    function onKeyUp(event) {
+        checkTriggers(triggersKeyUp, event);
+    }
+
+    function checkTriggers(collection, event) {
+        console.log('Keyboard :: checkTriggers', collection, event.key);
+
+        for (let i = 0; i < collection.length; i++) {
+            if (collection[i].value.includes(event.key) && collection[i].enabled) {
+                console.log('Keybard :: found', collection[i].value, event.key);
+                collection[i].trigger(event);
             }
         }
     }
 
     function key(value) {
-        let trigger = new Trigger('keyboard', value);
+        return keypress(value);
+    }
 
-        addTrigger(trigger);
-        
+    function keypress(value) {
+        let trigger = new Trigger(TRIGGER_KEY_PRESS, value);
+
+        addTrigger(trigger, triggersKeyPress);
+
         return trigger;
     }
 
-    function addTrigger(trigger) {
-        let index = triggers.length;
-        triggers.push(trigger);
+    function keydown() {
+        let trigger = new Trigger(TRIGGER_KEY_DOWN, value);
+
+        addTrigger(trigger, triggersKeyDown);
+
+        return trigger;
+    }
+
+    function keyup() {
+        let trigger = new Trigger(TRIGGER_KEY_UP, value);
+
+        addTrigger(trigger, triggersKeyUp);
+
+        return trigger;
+    }
+
+    function addTrigger(trigger, collection) {
+        if (collection === undefined) {
+            collection = trigger.type === TRIGGER_KEY_UP ? triggersKeyUp :
+                trigger.type === TRIGGER_KEY_DOWN ? triggersKeyDown : triggersKeyPress; 
+        }
+
+        
+        collection.push(trigger);
+        console.log('Keyboard :: addTrigger', trigger.type, collection);
         trigger.destroy = () => {
-            triggers.splice(index, 1);
+            for (let i = 0; i < collection.length; i++) {
+                if (trigger.id === collection[i].id) {
+                    collection.splice(i, 1);
+                }
+            }
         };
     }
 
     return {
         key,
+        keydown,
+        keyup,
+        keypress,
         addTrigger,
+        TRIGGER_KEY_DOWN,
+        TRIGGER_KEY_PRESS,
+        TRIGGER_KEY_UP,
     };
 }();
 

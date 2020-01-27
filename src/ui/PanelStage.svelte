@@ -19,13 +19,13 @@
 </Panel>
 
 <script>
-import { getContext } from "svelte";
 import Panel from "./Panel.svelte";
 import Dropdown from "./Dropdown.svelte";
 import Field from "./Field.svelte";
 import Preview from "./Preview.svelte";
 import Select from "./Select.svelte";
 import { Storage } from "../core/Storage.js";
+import { currentStages } from "../store.js"; 
 
 // props
 export let renderer;
@@ -43,7 +43,6 @@ let list = stageNames.map(key => ({
 }));
 let count = list.length;
 
-let currentStages = getContext('currentStages');
 let stageList = list.map( item => item);
 
 let stage = count < 2 ? stages[stageNames[index]] : stages[stageNames[index * 2]];

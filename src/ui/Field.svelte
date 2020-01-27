@@ -5,7 +5,7 @@
         {/if}
     </div>
     <div class="field__name">{name}</div>
-    <div class="field__content">
+    <div class="field__content {wrap ? 'field__content--wrap' : ''}">
         {#if prop.min !== undefined && prop.max !== undefined} 
             <ProgressInput
                 value={prop.value}
@@ -146,6 +146,7 @@ export let triggerable = true;
 export let disabled = false;
 export let output = false;
 export let url = '';
+export let wrap = false;
 
 // reactive
 $: step = prop.step ? prop.step : 0.1;
@@ -350,7 +351,10 @@ function handleClickSetWebcam() {
     padding-bottom: 5px;
     width: 100%;
     justify-content: space-between;
-    /* flex-wrap: wrap; */
+}
+
+.field__content--wrap {
+    flex-wrap: wrap;
 }
 
 .field__settings {

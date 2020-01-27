@@ -1,11 +1,13 @@
 import io from "socket.io-client";
 
 const Socket = function() {
-    let socket = io('http://192.168.1.44');
-
+    let socket;
     let listeners = [];
 
-    socket.on('message', onMessage);
+    function init() {
+        socket = io('http://192.168.1.44');
+        socket.on('message', onMessage);
+    }
 
     function onMessage(data) {
         for (let i = 0; i < listeners.length; i++) {
@@ -21,8 +23,12 @@ const Socket = function() {
     }
 
     function emit(event, data) {
-        socket.emit('message', {...data, event });
+        if (socket) {
+            socket.emit('message', {...data, event });
+        }
     }
+
+    // init();
 
     return {
         on,

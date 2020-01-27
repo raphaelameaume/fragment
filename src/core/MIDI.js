@@ -2,11 +2,11 @@ import WebMidi from "webmidi";
 import { Trigger } from "./Trigger.js";
 import { map } from "../math/map.js";
 
-export const MIDI_KNOB = 'Midi-Knob';
-export const MIDI_KEY_DOWN = 'Midi-KeyDown';
-export const MIDI_KEY_UP = 'Midi-KeyUp';
-export const MIDI_NOTE_ON = 'Midi-NoteOn';
-export const MIDI_NOTE_OFF = 'Midi-NoteOff';
+export const TRIGGER_KNOB = 'Midi-Knob';
+export const TRIGGER_KEY_DOWN = 'Midi-KeyDown';
+export const TRIGGER_KEY_UP = 'Midi-KeyUp';
+export const TRIGGER_NOTE_ON = 'Midi-NoteOn';
+export const TRIGGER_NOTE_OFF = 'Midi-NoteOff';
 
 const Midi = function() {
     let inputs = [];
@@ -105,7 +105,7 @@ const Midi = function() {
     }
 
     function knob(knobNumber) {
-        let trigger = new Trigger(MIDI_KNOB, knobNumber);
+        let trigger = new Trigger(TRIGGER_KNOB, knobNumber);
 
         let index = triggersKnob.length;
         triggersKnob.push(trigger);
@@ -117,7 +117,7 @@ const Midi = function() {
     }
 
     function keydown(keyNumber) {
-        let trigger = new Trigger(MIDI_KEY_DOWN, keyNumber);
+        let trigger = new Trigger(TRIGGER_KEY_DOWN, keyNumber);
 
         addTriggerKeyDown(trigger);
 
@@ -133,7 +133,7 @@ const Midi = function() {
     }
 
     function keyup(keyNumber) {
-        let trigger = new Trigger(MIDI_KEY_UP, keyNumber);
+        let trigger = new Trigger(TRIGGER_KEY_UP, keyNumber);
 
         addTriggerKeyUp(trigger);
 
@@ -149,7 +149,7 @@ const Midi = function() {
     }
 
     function noteon(note) {
-        let trigger = new Trigger(MIDI_NOTE_ON, note);
+        let trigger = new Trigger(TRIGGER_NOTE_ON, note);
 
         addTriggerNoteOn(trigger);
 
@@ -165,7 +165,7 @@ const Midi = function() {
     }
 
     function noteoff() {
-        let trigger = new Trigger(MIDI_NOTE_OFF, note);
+        let trigger = new Trigger(TRIGGER_NOTE_OFF, note);
         addTriggerNoteOff(trigger);
 
         return trigger;
@@ -181,10 +181,10 @@ const Midi = function() {
 
     function addTrigger(trigger) {
         let triggerTypes = {
-            [`${MIDI_KEY_DOWN}`]: addTriggerKeyDown,
-            [`${MIDI_KEY_UP}`]: addTriggerKeyUp,
-            [`${MIDI_NOTE_ON}`]: addTriggerNoteOn,
-            [`${MIDI_NOTE_OFF}`]: addTriggerNoteOff,
+            [`${TRIGGER_KEY_DOWN}`]: addTriggerKeyDown,
+            [`${TRIGGER_KEY_UP}`]: addTriggerKeyUp,
+            [`${TRIGGER_NOTE_ON}`]: addTriggerNoteOn,
+            [`${TRIGGER_NOTE_OFF}`]: addTriggerNoteOff,
         };
 
         if (triggerTypes[trigger.type]) {
@@ -206,12 +206,14 @@ const Midi = function() {
         loadDevices,
         setInput,
         addTrigger,
-        KEY_DOWN: MIDI_KEY_DOWN,
-        KEY_UP: MIDI_KEY_UP,
-        NOTE_ON: MIDI_NOTE_ON,
-        NOTE_OFF: MIDI_NOTE_OFF,
-        KNOB: MIDI_KNOB,
+        TRIGGER_KEY_DOWN,
+        TRIGGER_KEY_UP,
+        TRIGGER_NOTE_ON,
+        TRIGGER_NOTE_OFF,
+        TRIGGER_KNOB,
     };
 }();
+
+
 
 export { Midi };

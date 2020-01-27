@@ -25,6 +25,7 @@ canvas {
 <script>
 import { onMount, getContext } from "svelte";
 import { on } from "../events.js";
+import { rendererDimensions, currentStages } from "../store.js";
 
 export let renderer;
 export let dpr = renderer.dpr;
@@ -36,15 +37,14 @@ let offsetWidth;
 let rendererWidth = renderer.dimensions.width;
 let rendererHeight = renderer.dimensions.height;
 
-let dimensions = getContext('rendererDimensions');
-dimensions.subscribe( (value) => {
+// let dimensions = getContext('rendererDimensions');
+rendererDimensions.subscribe( (value) => {
     rendererWidth = value.width;
     rendererHeight = value.height;
 }); 
 
 let stage1;
 let stage2;
-let currentStages = getContext('currentStages');
 currentStages.subscribe((value) => {
     stage1 = value.stage1;
     stage2 = value.stage2;

@@ -24,16 +24,12 @@ canvas {
 </style>
 
 <script>
-import { beforeUpdate, tick, getContext } from "svelte";
-
-
+import { rendererDimensions } from "../store.js";
 
 // props
 export let renderer;
 export let stage;
 export let dpr = renderer.dpr;
-
-
 
 // bindings
 let canvas, container, offsetWidth;
@@ -44,8 +40,7 @@ let prevStage = stage;
 let rendererWidth = renderer.dimensions.width;
 let rendererHeight = renderer.dimensions.height;
 
-let dimensions = getContext('rendererDimensions');
-dimensions.subscribe( (value) => {
+rendererDimensions.subscribe( (value) => {
     rendererWidth = value.width;
     rendererHeight = value.height;
 }); 
@@ -62,8 +57,6 @@ $:{
 
     if (stage && context) {
         stage.context = context;
-
-        console.log(`onMount :: ${stage.name}`);
 
         if (typeof stage.instance.onMount === 'function') {
             stage.instance.onMount({ container, canvas });

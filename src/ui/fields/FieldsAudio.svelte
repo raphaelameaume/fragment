@@ -1,5 +1,5 @@
 <Field prop={propInputMicro} name={propInputMicro.name} url="Microphone" />
-<Field prop={propInputPlaylist} name={propInputPlaylist.name}>
+<Field prop={propInputPlaylist} name={propInputPlaylist.name} wrap={true}>
     <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPrev}>Prev</Button>
     <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickPlay}>{propInputPlaylist.labelPlay}</Button>
     <Button style="margin-left: 5px;" onClick={propInputPlaylist.handleClickNext}>Next</Button>

@@ -9,6 +9,7 @@ import Button from "./Button.svelte";
 import Select from "./Select.svelte";
 import TextInput from "./TextInput.svelte";
 import { Midi } from "../core/Midi.js";
+import { Audio } from "../core/Audio.js";
 import { Keyboard } from "../core/Keyboard.js";
 
 export let trigger = {
@@ -18,14 +19,19 @@ export let trigger = {
 };
 export let onDelete = () => {};
 
-let options = [
-    { label: "Keyboard", key: "keyboard" },
-    { label: Midi.KEY_DOWN, key: Midi.KEY_DOWN },
-    { label: Midi.KEY_UP, key: Midi.KEY_UP },
-    { label: Midi.KNOB, key: Midi.KNOB },
-    { label: Midi.NOTE_ON, key: Midi.NOTE_ON },
-    { label: Midi.NOTE_OFF, key: Midi.NOTE_OFF },
+let all = [
+    Keyboard.TRIGGER_KEY_PRESS,
+    Keyboard.TRIGGER_KEY_UP,
+    Keyboard.TRIGGER_KEY_DOWN,
+    Midi.TRIGGER_KEY_DOWN,
+    Midi.TRIGGER_KEY_UP,
+    Midi.TRIGGER_NOTE_ON,
+    Midi.TRIGGER_NOTE_OFF,
+    Midi.TRIGGER_KNOB,
+    Audio.TRIGGER_BEAT,
 ];
+
+let options = all.map( opt => ({ label: opt, key: opt }));
 
 $: label = trigger.enabled ? 'Disable' : 'Enable';
 $: inputValue = Array.isArray(trigger)? trigger.value.join(',') : trigger.value;
@@ -67,8 +73,10 @@ function onTriggerTypeChange() {
 
     type = trigger.type;
 
-    if (trigger.type === 'keyboard') {
+    if ([Keyboard.TRIGGER_KEY_UP, Keyboard.TRIGGER_KEY_DOWN, Keyboard.TRIGGER_KEY_PRESS].includes(trigger.type)) {
         Keyboard.addTrigger(trigger);
+    } else if ([Audio.TRIGGER_BEAT].includes(trigger.type)) {
+        Audio.addTrigger(trigger);
     } else {
         Midi.addTrigger(trigger);
     }

@@ -14,11 +14,11 @@
             {/each}
         </Dropdown>
         <Dropdown title="Inputs">
+            <Dropdown title="Audio" opened={true}>
+                <FieldsAudio />
+            </Dropdown>
             <Dropdown title="Midi" opened={false}>
                 <FieldsMidi />
-            </Dropdown>
-            <Dropdown title="Audio" opened={false}>
-                <FieldsAudio />
             </Dropdown>
             <Dropdown title="Video" opened={false}>
                 <FieldsWebcam />

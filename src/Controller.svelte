@@ -43,8 +43,7 @@
 </Panel>
 
 <script>
-import { onMount, setContext } from "svelte";
-import { writable } from "svelte/store";
+import { onMount } from "svelte";
 import cloneDeep from "clone-deep";
 import Panel from "./ui/Panel.svelte";
 import PanelStage from "./ui/PanelStage.svelte";
@@ -56,6 +55,7 @@ import PanelOutputSettings from "./ui/PanelOutputSettings.svelte";
 import Separator from "./ui/Separator.svelte";
 import Dropdown from "./ui/Dropdown.svelte";
 import { Storage } from "./core/Storage.js";
+import { rendererDimensions, currentStages } from "./store.js";
 
 // props
 export let renderer = {};
@@ -75,11 +75,7 @@ let allStages = Object.keys(stages).reduce((all, key) => {
     return all;
 }, {});
 
-
-let dimensions = writable(renderer.dimensions);
-setContext('rendererDimensions', dimensions);
-
-dimensions.subscribe((value) => {
+rendererDimensions.subscribe((value) => {
     Object.keys(allStages).forEach( (key) => {
         let stage = allStages[key];
 
@@ -89,10 +85,7 @@ dimensions.subscribe((value) => {
     });
 });
 
-let current = writable({ stage1: null, stage2: null });
-setContext('currentStages', current);
-
-current.subscribe((value) => {
+currentStages.subscribe((value) => {
     let names = Object.keys(value).map( key => {
         if (value[key]) return value[key].name;
         

@@ -1,5 +1,8 @@
+let TRIGGER_ID = 0;
+
 class Trigger {
     constructor(type, value, enabled = true) {
+        this.id = TRIGGER_ID++;
         this.type = type;
         this.enabled = enabled;
         this.value = [value];
@@ -14,8 +17,6 @@ class Trigger {
     }
     
     trigger(params) {
-        console.log('trigger', this);
-
         for (let i = 0; i < this.triggersFn.length; i++) {
             this.triggersFn[i](params);
         }
