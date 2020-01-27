@@ -68,6 +68,9 @@
     </button>
     {#if parametersVisible}
     <Window title={name} visible={parametersVisible} onClose={(visibility) => parametersVisible = visibility}>
+        <div slot="header">
+            <Button style="margin-right: 1px" onClick={handleClickReset}>Reset</Button>
+        </div>
         <Dropdown title="Informations">
             <div class="field__info">
                 <span class="info__name">Name:</span>
@@ -253,6 +256,13 @@ function handleClickAddTrigger() {
         ...prop.triggers,
         Keyboard.key(''),
     ];
+}
+
+function handleClickReset() {
+    console.log(prop);
+    if (prop.initialValue) {
+        prop.value = prop.initialValue;
+    }
 }
 
 function handleClickSetWebcam() {

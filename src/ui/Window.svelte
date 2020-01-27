@@ -3,6 +3,7 @@
         <button class="close" on:click={handleClickClose}>
         </button>
         <h1 class="title">{title}</h1>
+        <slot name="header"></slot>
     </header>
     <div class="content">
         <slot></slot>
@@ -40,6 +41,7 @@
 .header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
     margin-bottom: 1px;

@@ -17,13 +17,33 @@
 <script>
 import IconArrowRight from "./svg/IconArrowRight.svelte";
 import IconArrowBottom from "./svg/IconArrowBottom.svelte";
+import { Storage } from "../core/Storage.js";
 
 export let title = "";
 export let opened = true;
 export let style = "";
+export let url = "";
 let button;
 
 $: classNameVisible = opened ? 'visible' : '';
+
+$: {
+    if (url.length > 0) {
+        Storage.rehydrate(url, (value) => {
+            opened = value.opened;
+        })
+    }
+}
+$: {
+    
+
+    if (url.length > 0) {
+        Storage.set(url, JSON.stringify({ opened }));
+    }
+    
+    
+}
+
 
 function toggle() {
     opened = !opened;

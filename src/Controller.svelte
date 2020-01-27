@@ -3,7 +3,7 @@
         title="Stage 1"
         stages={allStages}
         index={0}
-        width="33%"
+        width="100%"
         renderer={renderer}
         output={output}
     />
@@ -12,13 +12,13 @@
         title="Stage 2"
         stages={allStages}
         index={1}
-        width="33%"
+        width="100%"
         renderer={renderer}
         output={output}
     />
     <Separator />
     <PanelOutput
-        width="33%"
+        width="100%"
         renderer={renderer}
     />
 </Panel>

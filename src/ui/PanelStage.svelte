@@ -9,7 +9,7 @@
 			stage={stage}
 		/>
     </Dropdown>
-    <Dropdown title="Settings">
+    <Dropdown title="Settings" url={`PanelStage${index}/${stage.name}/dropdown/settings`}>
         {#if stage !== null}
             {#each Object.keys(stage.props) as propKey}
                 <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={output} />

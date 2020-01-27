@@ -70,9 +70,9 @@ onMount(() => {
 });
 
 function update({ deltaTime, time }) {
-    if (stage1 && stage2) {
-        renderer.render(stage1, stage2, { deltaTime, time });
-    }
+    // if (stage1 && stage2) {
+    //     renderer.render(stage1, stage2, { deltaTime, time });
+    // }
 
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(renderer.canvas, 0, 0, canvas.width, canvas.height);

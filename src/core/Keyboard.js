@@ -27,11 +27,9 @@ const Keyboard = function() {
     }
 
     function checkTriggers(collection, event) {
-        console.log('Keyboard :: checkTriggers', collection, event.key);
 
         for (let i = 0; i < collection.length; i++) {
             if (collection[i].value.includes(event.key) && collection[i].enabled) {
-                console.log('Keybard :: found', collection[i].value, event.key);
                 collection[i].trigger(event);
             }
         }
