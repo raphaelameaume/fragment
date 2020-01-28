@@ -7,7 +7,9 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
     let gl = renderer.gl;
 
     let renderTarget0 = createRenderTarget();
+    let renderTarget0Clone = createRenderTarget();
     let renderTarget1 = createRenderTarget();
+    let renderTarget1Clone = createRenderTarget();
 
     let geometry = new Geometry(gl, {
         position: { size: 2, data: new Float32Array([-1, -1, 3, -1, -1, 3]) },
@@ -149,15 +151,15 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         uniforms.tInput1.value = renderTarget1.texture;
     }
 
-    function render(stage1, stage2, { deltaTime }) {
+    function render(stage1, stage2, { deltaTime, timeOffset }) {
         // render both scenes to target
         if (stage1 && stage1.instance) {
-            stage1.instance.update({ deltaTime });
+            stage1.instance.update({ deltaTime, timeOffset });
             stage1.instance.render({ renderer, gl, target: renderTarget0, deltaTime });
         }
 
         if (stage2 && stage1.instance) {
-            stage2.instance.update({ deltaTime });
+            stage2.instance.update({ deltaTime, timeOffset });
             stage2.instance.render({ renderer, gl, target: renderTarget1, deltaTime });
         }
 

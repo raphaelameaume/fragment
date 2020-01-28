@@ -1,7 +1,8 @@
 import { Camera, Box, Mesh, Program, Texture, Transform, Orbit, Color } from "ogl";
 
-
 import { Audio } from "../../core/Audio.js";
+import { Storage } from "../../core/Storage.js";
+import { Time } from "../../core/Time.js";
 import { clamp } from "../../math/clamp.js";
 import random from "../../math/random.js";
 
@@ -90,6 +91,7 @@ function Black({ props, renderer }) {
     };
 
     let scene, camera, mesh, controls;
+    let ry = 0;
 
     function init() {
         camera = new Camera(gl);
@@ -129,12 +131,17 @@ function Black({ props, renderer }) {
             scene.addChild(mesh);
         }
 
+        Storage.rehydrate('blackSceneRotation', ({ value }) => {
+            scene.rotation.y = value;
+        });
     }
 
     function update({ deltaTime, timeOffset }) {
         uniforms.uBorder.value = props.borderMin.value + clamp(Audio.volume(), 0, props.borderMax.value);
 
-        scene.rotation.y = scene.rotation.y + 0.001 * props.speed.value * deltaTime;
+        scene.rotation.y += 0.001 * props.speed.value * deltaTime;
+
+        Storage.set('blackSceneRotation', JSON.stringify({ value: scene.rotation.y }));
 
         if (controls) {
             controls.update();
