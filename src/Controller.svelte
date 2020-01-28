@@ -25,13 +25,13 @@
 <Separator height="1px" width="100%" />
 <Panel width="100%" height="calc(28vh - 1px)" direction="row">
     <Panel width="50%" title="Input Settings" direction="column">
-        <Dropdown title="MIDI">
+        <Dropdown title="Midi" url="InputSettings/Midi/Dropdown">
             <FieldsMidi />
         </Dropdown>
-        <Dropdown title="Audio">
+        <Dropdown title="Audio" url="InputSettings/Audio/Dropdown">
             <FieldsAudio />
         </Dropdown>
-        <Dropdown title="Video">
+        <Dropdown title="Video" url="InputSettings/Video/Dropdown">
             <FieldsWebcam />
         </Dropdown>
     </Panel>

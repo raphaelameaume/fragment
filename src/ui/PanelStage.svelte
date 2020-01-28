@@ -9,9 +9,16 @@
 			stage={stage}
 		/>
     </Dropdown>
-    <Dropdown title="Settings" url={`PanelStage${index}/${stage.name}/dropdown/settings`}>
+    <Dropdown title="Parameters" url={`PanelStage${index}/${stage.name}/dropdown/settings`}>
         {#if stage !== null}
-            {#each Object.keys(stage.props) as propKey}
+			{#each Object.keys(folders) as folderName}
+				<Dropdown title={folderName}>
+					{#each Object.keys(folders[folderName]) as propKey}
+						<Field prop={folders[folderName][propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={output} />
+					{/each}
+				</Dropdown>
+            {/each}
+            {#each Object.keys(rest) as propKey}
                 <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={output} />
             {/each}
         {/if}
@@ -35,6 +42,7 @@ export let output;
 export let index;
 export let stages;
 
+
 let url = `PanelStage/${index}`;
 let stageNames = Object.keys(stages);
 let list = stageNames.map(key => ({
@@ -46,6 +54,27 @@ let count = list.length;
 let stageList = list.map( item => item);
 
 let stage = count < 2 ? stages[stageNames[index]] : stages[stageNames[index * 2]];
+let props = stage.props;
+
+let folders = {};
+let rest = {};
+
+let keys = Object.keys(props);
+
+for (let i = 0; i < keys.length; i++) {
+	let key = keys[i];
+	let prop = props[keys[i]];
+
+	if (prop.folder) {
+		if (!folders[`${prop.folder}`]) {
+			folders[`${prop.folder}`] = {};
+		}
+
+		folders[`${prop.folder}`][`${key}`] = prop;
+	} else {
+		rest[`${key}`] = prop;
+	}
+}
 
 $: {
 	if (!stage.instance) {

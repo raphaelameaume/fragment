@@ -185,14 +185,17 @@ export default {
         diffuse: {
             type: "color",
             value: "#ffffff",
+            folder: "Colors",
         },
         diffuse2: {
             type: "color",
             value: "#000000",
+            folder: "Colors",
         },
         background: {
             type: "color",
-            value: "#000000"
+            value: "#000000",
+            folder: "Colors",
         },
         speed: {
             value: 0.5,

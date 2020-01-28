@@ -1,5 +1,5 @@
 <Panel width={width} title="Output settings" direction="column">
-    <Dropdown title="Dimensions">
+    <Dropdown title="Dimensions" url="OutputSettings/Dimensions/Dropdown">
         <Field prop={propWidth} name="width" triggerable={false} url="output/props/width" />
         <Field prop={propHeight} name="height" triggerable={false} url="output/props/height" />
     </Dropdown>

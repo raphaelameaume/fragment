@@ -54,6 +54,10 @@ function toggle() {
 </script>
 
 <style>
+.dropdown .dropdown .button {
+    padding-left: 24px;
+}
+
 .button {
     position: relative;
 
@@ -61,10 +65,13 @@ function toggle() {
     width: 100%;
     padding: 4px;
     margin: 0;
-    margin-bottom: 1px;
-    border-radius: 4px;
+    /* margin-bottom: 1px; */
+    border-radius: 0px;
     background-color: #1d1d1e;
-    border: 1px solid black;
+    border-top: 0px solid black;
+    border-bottom: 1px solid black;
+    border-left: 0px;
+    border-right: 0px;
     color: #f0f0f0;
 
     cursor: pointer;
