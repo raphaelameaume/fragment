@@ -43,16 +43,9 @@ rendererDimensions.subscribe( (value) => {
     rendererHeight = value.height;
 }); 
 
-let stage1;
-let stage2;
-currentStages.subscribe((value) => {
-    stage1 = value.stage1;
-    stage2 = value.stage2;
-});
-
 $: height = window.innerHeight * offsetWidth / window.innerWidth;
 $: canvasWidth = offsetWidth * dpr;
-$: canvasHeight = (rendererHeight * offsetWidth / rendererWidth) * dpr;
+$: canvasHeight = ($rendererDimensions.height * offsetWidth / $rendererDimensions.width) * dpr;
 $: {
     if (canvas) {
         canvas.width = canvasWidth;
@@ -69,9 +62,9 @@ onMount(() => {
     on('afterframe', update);
 });
 
-function update({ deltaTime, time }) {
-    if (stage1 && stage2) {
-        renderer.render(stage1, stage2, { deltaTime, time });
+function update({ deltaTime, time, timeOffset }) {
+    if ($currentStages.stage1 && $currentStages.stage2) {
+        renderer.render($currentStages.stage1, $currentStages.stage2, { deltaTime, time, timeOffset });
     }
 
     context.clearRect(0, 0, canvas.width, canvas.height);

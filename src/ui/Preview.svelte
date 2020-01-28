@@ -37,17 +37,10 @@ let canvas, container, offsetWidth;
 // variables
 let context;
 let prevStage = stage;
-let rendererWidth = renderer.dimensions.width;
-let rendererHeight = renderer.dimensions.height;
-
-rendererDimensions.subscribe( (value) => {
-    rendererWidth = value.width;
-    rendererHeight = value.height;
-}); 
 
 $: height = window.innerHeight * offsetWidth / window.innerWidth;
 $: canvasWidth = offsetWidth * dpr;
-$: canvasHeight = (rendererHeight * offsetWidth / rendererWidth) * dpr;
+$: canvasHeight = ($rendererDimensions.height * offsetWidth / $rendererDimensions.width) * dpr;
 $:{ 
     if (canvas) {
         canvas.width = canvasWidth;

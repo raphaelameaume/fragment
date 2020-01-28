@@ -7,6 +7,7 @@
         <Preview
 			renderer={renderer}
 			stage={stage}
+			dpr={window.devicePixelRatio}
 		/>
     </Dropdown>
     <Dropdown title="Parameters" url={`PanelStage${index}/${stage.name}/dropdown/settings`}>
@@ -19,7 +20,7 @@
 				</Dropdown>
             {/each}
             {#each Object.keys(rest) as propKey}
-                <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={output} />
+                <Field prop={rest[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={output} />
             {/each}
         {/if}
     </Dropdown>
@@ -54,27 +55,33 @@ let count = list.length;
 let stageList = list.map( item => item);
 
 let stage = count < 2 ? stages[stageNames[index]] : stages[stageNames[index * 2]];
-let props = stage.props;
 
 let folders = {};
 let rest = {};
 
-let keys = Object.keys(props);
 
-for (let i = 0; i < keys.length; i++) {
-	let key = keys[i];
-	let prop = props[keys[i]];
+$: {
+	folders = {};
+	rest = {};
 
-	if (prop.folder) {
-		if (!folders[`${prop.folder}`]) {
-			folders[`${prop.folder}`] = {};
+	let keys = Object.keys(stage.props);
+	
+	for (let i = 0; i < keys.length; i++) {
+		let key = keys[i];
+		let { folder } = stage.props[key];
+	
+		if (folder) {
+			if (!folders[`${folder}`]) {
+				folders[`${folder}`] = {};
+			}
+	
+			folders[`${folder}`][`${key}`] = stage.props[key];
+		} else {
+			rest[`${key}`] = stage.props[key];
 		}
-
-		folders[`${prop.folder}`][`${key}`] = prop;
-	} else {
-		rest[`${key}`] = prop;
 	}
 }
+
 
 $: {
 	if (!stage.instance) {

@@ -21,7 +21,8 @@ let propWidth = {
     step: 1,
     onChange: ({ value }) => {
         renderer.resize(value, renderer.dimensions.height);
-        rendererDimensions.update(() => renderer.dimensions);
+
+        $rendererDimensions.width = value;
     }
 };
 let propHeight = {
@@ -29,7 +30,8 @@ let propHeight = {
     step: 1,
     onChange: ({ value }) => {
         renderer.resize(renderer.dimensions.width, value);
-        rendererDimensions.update(() => renderer.dimensions);
+
+        $rendererDimensions.height = value;
     }
 };
 </script>
