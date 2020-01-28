@@ -43,8 +43,7 @@
     align-items: center;
     justify-content: space-between;
 
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-    margin-bottom: 1px;
+    border-bottom: 1px solid rgba(0, 0, 0, 1);
 }
 
 .title {
