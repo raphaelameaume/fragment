@@ -103,7 +103,7 @@
         <Dropdown title="Triggers">
             {#if (prop.triggers && prop.triggers.length > 0)}
                 {#each prop.triggers as trigger}
-                <Trigger trigger={trigger} />
+                <TriggerInput trigger={trigger} />
                 {/each }
             {/if}
             <div style="display: flex; justify-content: center;">
@@ -122,7 +122,7 @@
 
 <script>
 import Window from "./Window.svelte";
-import Trigger from "./Trigger.svelte";
+import TriggerInput from "./TriggerInput.svelte";
 import Dropdown from "./Dropdown.svelte";
 import Button from "./Button.svelte";
 import Select from "./Select.svelte";

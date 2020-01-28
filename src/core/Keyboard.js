@@ -71,7 +71,6 @@ const Keyboard = function() {
 
         
         collection.push(trigger);
-        console.log('Keyboard :: addTrigger', trigger.type, collection);
         trigger.destroy = () => {
             for (let i = 0; i < collection.length; i++) {
                 if (trigger.id === collection[i].id) {

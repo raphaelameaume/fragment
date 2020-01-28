@@ -33,6 +33,7 @@ import Field from "./Field.svelte";
 import Preview from "./Preview.svelte";
 import Select from "./Select.svelte";
 import { Storage } from "../core/Storage.js";
+import { Property } from "../core/Property.js";
 import { currentStages } from "../store.js"; 
 
 // props
@@ -81,14 +82,24 @@ $: {
 		}
 	}
 }
+function createProps(properties) {
+	return Object.keys(properties).reduce((all, key) => {
+		all[key] = new Property({...properties[key], name: key });
 
+		return all;
+	}, {});
+}
 
 $: {
+	
+
 	if (!stage.instance) {
 		let { name, props, scene } = stage;
+
+		// stage.props = createProps(stage.props);
 		stage.instance = new scene({
 			name,
-			props,
+			props: stage.props,
 			renderer,
 		});
 	}
@@ -109,6 +120,7 @@ Storage.rehydrate(url, ({ name }) => {
 	for (let i = 0; i < list.length; i++) {
 		if (list[i].label === name) {
 			stage = stages[list[i].key];
+
 			break;
 		}
 	}

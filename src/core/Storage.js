@@ -33,7 +33,6 @@ const Storage = function Storage() {
 
     function rehydrate(key, fn) {
         if (key.length > 0 && get(key)) {
-            console.log(key, get(key));
             let parsed = JSON.parse(get(key));
             
             if (fn && typeof fn === 'function') {

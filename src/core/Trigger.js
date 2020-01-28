@@ -5,7 +5,7 @@ class Trigger {
         this.id = TRIGGER_ID++;
         this.type = type;
         this.enabled = enabled;
-        this.value = [value];
+        this.value = Array.isArray(value) ? value : [value];
 
         this.triggersFn = [];
     }

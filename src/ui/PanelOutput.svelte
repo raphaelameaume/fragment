@@ -4,7 +4,7 @@
         <Button onClick={handleClickOpenOutput}>Open</Button>
     </div>
     <Dropdown title="Monitor">
-        <PreviewOutput renderer={renderer} />
+        <PreviewOutput renderer={renderer} dpr={window.devicePixelRatio} />
     </Dropdown>
     <Dropdown title="Settings">
         {#each Object.keys(renderer.props) as propKey}
