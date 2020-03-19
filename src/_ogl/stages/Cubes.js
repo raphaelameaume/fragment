@@ -102,7 +102,7 @@ function Cubes({ props, renderer }) {
         }
 
         if (controls) {
-            controls.update();
+            // controls.update();
         }
     }
 
@@ -120,7 +120,7 @@ function Cubes({ props, renderer }) {
             controls.remove();
         }
 
-        controls = new Orbit(camera, { element: container });
+        // controls = new Orbit(camera, { element: container });
     }
 
     function onUnmount() {

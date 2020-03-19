@@ -2,7 +2,7 @@
     <Panel width="30%" direction="column">
         <Field prop={propStage} name="stage" triggerable={false} />
         <Dropdown title="Scene">
-            {#if stage !== null}
+            {#if stage }
                 {#each Object.keys(stage.props) as propKey}
                     <Field prop={stage.props[propKey]} name={propKey} url={`${stage.name}/props/${propKey}`} output={false} />
                 {/each}

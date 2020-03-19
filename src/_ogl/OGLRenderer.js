@@ -3,7 +3,7 @@ import { emit } from "../events";
 
 export default function ({ width = window.innerWidth, height = window.innerHeight, dpr = window.devicePixelRatio } = {}) {
     let dimensions = { width, height };
-    let renderer = new Renderer({ dpr });
+    let renderer = new Renderer({ dpr, antialias: true });
     let gl = renderer.gl;
 
     let renderTarget0 = createRenderTarget();

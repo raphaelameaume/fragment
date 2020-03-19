@@ -50,17 +50,21 @@ const app = new App({
 		single: params.mode && params.mode === 'single',
 		renderer: renderer,
 		stages: OGLstages,
-		actions: [
+		propTypes: [
 			{
-				type: 'button',
-				label: 'Set last frame',
-				onTrigger: (prop) => {
-					console.log('action trigger');
-				}
+				type: 'image',
+				actions: [
+					{ 
+						label: 'Set last frame',
+						onClick: (prop) => {
+							prop.value = 'LAST_FRAME';
+							prop.needsUpdate = true;
+							console.log(prop);
+						}
+					}
+				]
 			}
-		]
-		// renderer: THREERenderer(),
-		// stages: THREEstages,
+		],
 	}
 });
 

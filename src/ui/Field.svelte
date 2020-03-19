@@ -114,6 +114,11 @@
         {#if isStreamable}
         <Dropdown title="Actions">
             <Button onClick={handleClickSetWebcam}>Set webcam feed</Button>
+            {#if (actions && actions.length > 0)}
+                {#each actions as action}
+                    <Button onClick={() => { action.onClick(prop) }}>{action.label}</Button>
+                {/each }
+            {/if}
         </Dropdown>
         {/if}
     </Window>
@@ -141,6 +146,7 @@ import IconTrigger from "./svg/IconTrigger.svelte";
 import loadImage from "../utils/loadImage.js";
 import getFilename from "../utils/getFilename.js";
 import { Socket } from "../Socket.js";
+import { propTypesStore } from "../store.js";
 
 // props
 export let prop;
@@ -157,6 +163,14 @@ $: type = prop.type ? prop.type : typeof prop.value;
 $: isTriggerable = triggerable && ['boolean', 'number', 'button'].includes(type);
 $: isStreamable = type === 'image';
 $: checked = prop.value ? true : false;
+
+$: actions = $propTypesStore.reduce( (all, propType) => {
+    if (propType.type === type) {
+        all.push(...propType.actions);
+    }
+
+    return all;
+}, []);
 $: {
     if (typeof prop.onChange === 'function' && prop.value !== undefined) {
         prop.onChange(prop);
@@ -392,4 +406,5 @@ function handleClickSetWebcam() {
     padding: 0 10px;
     align-items: center;
 }
+
 </style>

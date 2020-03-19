@@ -8,11 +8,13 @@
 	<Single
 		renderer={renderer}
 		stages={stages}
+		propTypes={propTypes}
 	/>
 	{:else}
 	<Controller
 		renderer={renderer}
 		stages={stages}
+		propTypes={propTypes}
 		output={output}
 	/>
 	{/if}
@@ -22,14 +24,18 @@
 import Controller from "./Controller.svelte";
 import Output from "./Output.svelte";
 import Single from "./Single.svelte";
+import { propTypesStore } from "./store.js";
 
 // props
 export let renderer = {};
 export let stages = {};
+export let propTypes = [];
 export let output = false;
 export let single = false;
 
 $: dimensions = renderer.dimensions;
+
+$propTypesStore = propTypes;
 
 </script>
 
