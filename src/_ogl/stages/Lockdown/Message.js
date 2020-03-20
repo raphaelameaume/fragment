@@ -42,15 +42,15 @@ float scaleUv(float v, float scale) {
 
 void main() {
     vec2 uv = vUv;
-    // uv.y *= 1. + uScaleX.y * vUv.x;
-    uv.y = scaleUv(uv.y, 1. + (uScaleX.y - 1.) * vUv.x);
-    uv.y = scaleUv(uv.y, 1. + (uScaleX.x - 1.) * (1. - vUv.x));
+    // uv.y = scaleUv(uv.y, 1. + (uScaleX.y - 1.) * vUv.x);
+    // uv.y = scaleUv(uv.y, 1. + (uScaleX.x - 1.) * (1. - vUv.x));
 
-    uv.x = scaleUv(uv.x, 1. + (uScaleY.y - 1.) * vUv.x);
-    uv.x = scaleUv(uv.x, 1. + (uScaleY.x - 1.) * (1. - vUv.x));
+    // uv.x = scaleUv(uv.x, 1. + (uScaleY.y - 1.) * vUv.x);
+    // uv.x = scaleUv(uv.x, 1. + (uScaleY.x - 1.) * (1. - vUv.x));
 
     vec4 mapTexel = texture2D(uMap, uv);
     gl_FragColor = vec4(mapTexel.rgb, 1. * mapTexel.a);
+    // gl_FragColor = vec4(vec3(1.0, 0., 0.), 1. * (1. - mapTexel.a));
 
 }
 `;
@@ -90,6 +90,8 @@ function Message(gl, props) {
     };
 
     let mesh = new Mesh(gl, { geometry, program });
+    mesh.position.x = props.positionX.value;
+    mesh.position.y = props.positionY.value;
     mesh.rotation.x = props.rotateX.value;
     mesh.rotation.y = props.rotateY.value;
 
@@ -103,6 +105,12 @@ function Message(gl, props) {
 
     props.rotateY.onChange = () => {
         mesh.rotation.y = props.rotateY.value;
+    };
+    props.positionX.onChange = () => {
+        mesh.position.x = props.positionX.value;
+    };
+    props.positionY.onChange = () => {
+        mesh.position.y = props.positionY.value;
     };
     // mesh.rotation.x = props.rotateX.value;
     // mesh.rotation.y = props.rotateY.value;

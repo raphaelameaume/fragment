@@ -5,6 +5,7 @@ const Socket = function() {
     let listeners = [];
 
     function init() {
+        console.log('Socket :: init');
         socket = io('http://192.168.1.44');
         socket.on('message', onMessage);
     }
@@ -28,7 +29,7 @@ const Socket = function() {
         }
     }
 
-    // init();
+    init();
 
     return {
         on,

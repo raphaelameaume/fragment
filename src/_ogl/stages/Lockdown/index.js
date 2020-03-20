@@ -10,8 +10,10 @@ const vertex = /* glsl */ `
     precision highp float;
     precision highp int;
     attribute vec3 position;
+    attribute vec4 random;
     attribute vec2 speed;
     attribute vec3 normal;
+    attribute vec3 color;
 
     uniform mat4 modelViewMatrix;
     uniform mat4 projectionMatrix;
@@ -22,14 +24,26 @@ const vertex = /* glsl */ `
     uniform float uScale;
     uniform float uSize;
     uniform float uForce;
-
+    uniform float uTime;
+    
+    varying float vLife;
+    varying vec3 vColor;
 
     void main() {
+        vColor = color;
+
         // vUv = uv;
         vec3 pos = position * 2.0 - 1.0;
-        pos.y += uForce * speed.x;
+        // pos.y += uForce * speed.x;
 
-        gl_PointSize = uSize;
+
+        float y = mod(pos.y + uTime * 0.0005 * speed.x, 2.5);
+
+        pos.y += -1.5 - pos.y + y;
+
+        vLife = sin(((pos.y + 1.) / 2.) * 3.14);
+
+        gl_PointSize = uSize * random.x;
         gl_Position = vec4(pos, 1.0);
     }
 `;
@@ -41,14 +55,18 @@ const fragment = /* glsl */ `
     uniform sampler2D uMap;
     varying vec3 vNormal;
     varying vec2 vUv;
+    varying float vLife;
+    varying vec3 vColor;
 
     void main() {
         vec2 uv = gl_PointCoord.xy;
                 
         float circle = smoothstep(0.5, 0.4, length(uv - 0.5)) * 0.8;
         
-        gl_FragColor.rgb = 0.8 + 0.2 * sin(uv.yxx + 0. + 0.5 * 6.28) + vec3(0.1, 0.0, 0.3);
-        gl_FragColor.a = circle;
+        gl_FragColor.rgb = 0.8 + 0.2 * sin(uv.yxx + 0. + 0.5 * 6.28) + vColor;
+        gl_FragColor.rgb = vColor;
+
+        gl_FragColor.a = circle * vLife;
     }
 `;
 
@@ -59,6 +77,7 @@ function Lockdown({ props, renderer }) {
         uMap: { value: new Texture(gl) },
         uSize: props.particleSize,
         uForce: { value: 0 },
+        uTime: { value: 0 },
     };
 
     let scene, camera, mesh, controls;
@@ -86,8 +105,9 @@ function Lockdown({ props, renderer }) {
             depthTest: false,
         });
 
-        const num = 100;
+        const num = props.particleCount.max;
         const position = new Float32Array(num * 3);
+        const color = new Float32Array(num * 3);
         const random = new Float32Array(num * 4);
         const speeds = new Float32Array(num * 2);
 
@@ -95,18 +115,26 @@ function Lockdown({ props, renderer }) {
             position.set([Math.random(), Math.random(), Math.random()], i * 3);
             random.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
             speeds.set([Math.random(), Math.random()], i * 2);
+
+            color.set([Math.random(), Math.random(), Math.random()], i * 3);
         }
 
         const geometry = new Geometry(gl, {
             position: { size: 3, data: position },
             random: { size: 4, data: random },
-            speed: { size: 2, data: speeds }
+            speed: { size: 2, data: speeds },
+            color: { size: 3, data: color }
         });
 
+        props.particleCount.onChange = () => {
+            geometry.setDrawRange(0, props.particleCount.value)
+        }
+
         mesh = new Mesh(gl, { mode: gl.POINTS, geometry, program });
-        // scene.addChild(mesh);
+        scene.addChild(mesh);
 
         message = Message(gl, props);
+        // message.mesh.position.z += 0.1;
         scene.addChild(message.mesh);
         
 
@@ -115,7 +143,8 @@ function Lockdown({ props, renderer }) {
         });
     }
 
-    function update({ deltaTime }) {
+    function update({ time, deltaTime }) {
+        uniforms.uTime.value = time;
         uniforms.uScale.value = 1 + Audio.volume();
 
         state.force -= 0.015;
@@ -181,6 +210,12 @@ export default {
             max: 20,
             value: 10,
         },
+        particleCount: {
+            min: 0,
+            max: 2000,
+            value: 100,
+            step: 1,
+        },
         texture: {
             type: "image",
             value: 'assets/images/lockdown.png',
@@ -224,6 +259,18 @@ export default {
             max: 4,
             value: 1,
             step: 0.01,
+        },
+        positionX: {
+            min: -10,
+            max: 10,
+            step: 0.01,
+            value: 0,
+        },
+        positionY: {
+            min: -10,
+            max: 10,
+            step: 0.01,
+            value: 0,
         },
     }
 };

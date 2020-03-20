@@ -1,4 +1,4 @@
-import { Renderer, RenderTarget, Geometry, Program, Mesh } from "ogl";
+import { Renderer, RenderTarget, Geometry, Program, Mesh, Vec2 } from "ogl";
 import { emit } from "../events";
 
 export default function ({ width = window.innerWidth, height = window.innerHeight, dpr = window.devicePixelRatio } = {}) {
@@ -29,21 +29,35 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         }
     `;
 
-    let fragmentFade = /* glsl */`
-        precision highp float;
+    let stretchUv = /* glsl */`
+        uniform vec2 uScaleX;
+        uniform vec2 uScaleY;
+        uniform float uScale;
+        uniform vec2 uOffset;
 
-        uniform sampler2D tInput0;
-        uniform sampler2D tInput1;
-        uniform float uTreshold;
+        float scaleUv(float v, float scale) {
+            float s = 1. / scale;
+            float value = v * s - ( s - 1. ) * 0.5;
 
-        varying vec2 vUv;
+            return value;
+        }
 
-        void main() {
-            vec4 texel0 = texture2D(tInput0, vUv);
-            vec4 texel1 = texture2D(tInput1, vUv);
+        vec2 stretchUv(vec2 uv) {
+            vec2 uvs = uv;
             
-            gl_FragColor = mix(texel0, texel1, uTreshold);
-            // gl_FragColor = vec4(0.0, 1., 1., 1.);
+
+            uvs.y = scaleUv(uv.y, 1. + (uScaleX.y - 1.) * uv.x);
+            uvs.y = scaleUv(uvs.y, 1. + (uScaleX.x - 1.) * (1. - uv.x));
+
+            uvs.x = scaleUv(uvs.x, 1. + (uScaleY.x - 1.) * (1. - uv.y));
+            uvs.x = scaleUv(uvs.x, 1. + (uScaleY.y - 1.) * uv.y);
+
+            uvs = vec2(scaleUv(uvs.x, uScale), scaleUv(uvs.y, uScale));
+
+            uvs.x -= uOffset.x;
+            uvs.y -= uOffset.y;
+
+            return uvs;
         }
     `;
 
@@ -55,13 +69,43 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         uniform float uTreshold;
 
         varying vec2 vUv;
+        
+        ${stretchUv}
 
         void main() {
+            vec2 uv = stretchUv(vUv);
+
             vec4 texel0 = texture2D(tInput0, vUv);
             vec4 texel1 = texture2D(tInput1, vUv);
             
-            gl_FragColor = mix(texel0, texel1, step(vUv.x, uTreshold));
+            gl_FragColor = mix(texel0, texel1, step(uv.x, uTreshold));
             // gl_FragColor = vec4(0.0, 1., 1., 1.);
+        }
+    `;
+
+    let fragmentFade = /* glsl */`
+        precision highp float;
+
+        uniform sampler2D tInput0;
+        uniform sampler2D tInput1;
+        uniform float uTreshold;
+
+        varying vec2 vUv;
+
+        ${stretchUv}
+
+        void main() {
+            vec2 uv = stretchUv(vUv);
+
+            vec4 texel0 = texture2D(tInput0, uv);
+            vec4 texel1 = texture2D(tInput1, uv);
+            
+            gl_FragColor = mix(texel0, texel1, uTreshold);
+            
+            gl_FragColor.rgb = uv.x <= 0.001 ? vec3(0.) : gl_FragColor.rgb;
+            gl_FragColor.rgb = uv.x >= 0.999 ? vec3(0.) : gl_FragColor.rgb;
+            gl_FragColor.rgb = uv.y <= 0.001 ? vec3(0.) : gl_FragColor.rgb;
+            gl_FragColor.rgb = uv.y >= 0.999 ? vec3(0.) : gl_FragColor.rgb;
         }
     `;
 
@@ -97,13 +141,83 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
                     }
                 }
             }
+        },
+        scale: {
+            min: 0,
+            max: 3,
+            value: 1,
+            step: 0.01,
+        },
+        scaleXStart: {
+            min: 0,
+            max: 4,
+            value: 1,
+            step: 0.01,
+        },
+        scaleXEnd: {
+            min: 0,
+            max: 4,
+            value: 1,
+            step: 0.01,
+        },
+        scaleYStart: {
+            min: 0,
+            max: 4,
+            value: 1,
+            step: 0.01,
+        },
+        scaleYEnd: {
+            min: 0,
+            max: 4,
+            value: 1,
+            step: 0.01,
+        },
+        offsetX: {
+            min: -3,
+            max: 3,
+            value: 0,
+            step: 0.01,
+            onChange: () => {
+                uniforms.uOffset.value.x = props.offsetX.value;
+            }
+        },
+        offsetY: {
+            min: -3,
+            max: 3,
+            value: 0,
+            step: 0.01,
+            onChange: () => {
+                uniforms.uOffset.value.y = props.offsetY.value;
+            }
         }
+    };
+
+    props.scale.onChange = () => {
+        uniforms.uScale.value = props.scale.value;
+    };
+
+    props.scaleXStart.onChange = () => {
+        uniforms.uScaleX.value.x = props.scaleXStart.value;
+    };
+    props.scaleXEnd.onChange = () => {
+        uniforms.uScaleX.value.y = props.scaleXEnd.value;
+    };
+
+    props.scaleYStart.onChange = () => {
+        uniforms.uScaleY.value.x = props.scaleYStart.value;
+    };
+    props.scaleYEnd.onChange = () => {
+        uniforms.uScaleY.value.y = props.scaleYEnd.value;
     };
 
     let uniforms = {
         tInput0: { value: renderTarget0.texture },
         tInput1: { value: renderTarget1.texture },
         uTreshold: { value: props.treshold.value },
+        uScale: { value: props.scale.value },
+        uScaleX: { value: new Vec2(props.scaleXStart.value, props.scaleXEnd.value) },
+        uScaleY: { value: new Vec2(props.scaleYStart.value, props.scaleYEnd.value) },
+        uOffset: { value: new Vec2(props.offsetX.value, props.offsetY.value) },
     };
 
     let program = new Program(gl, {
@@ -151,15 +265,15 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         uniforms.tInput1.value = renderTarget1.texture;
     }
 
-    function render(stage1, stage2, { deltaTime, timeOffset }) {
+    function render(stage1, stage2, { deltaTime, time, timeOffset }) {
         // render both scenes to target
         if (stage1 && stage1.instance) {
-            stage1.instance.update({ deltaTime, timeOffset });
+            stage1.instance.update({ deltaTime, time, timeOffset });
             stage1.instance.render({ renderer, gl, target: renderTarget0, deltaTime });
         }
 
         if (stage2 && stage1.instance) {
-            stage2.instance.update({ deltaTime, timeOffset });
+            stage2.instance.update({ deltaTime, time, timeOffset });
             stage2.instance.render({ renderer, gl, target: renderTarget1, deltaTime });
         }
 
