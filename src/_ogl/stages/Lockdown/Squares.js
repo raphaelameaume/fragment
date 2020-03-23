@@ -19,7 +19,9 @@ void main() {
     vUv = uv;
 
     vec3 transformed = position;
-    transformed *= uScale + (1. - uScale) * (sin(uTime * 0.001 + uTimeOffset) + 1.) * 0.5;
+    // transformed *= uScale + (1. - uScale) * (sin(uTime * 0.001 + uTimeOffset) + 1.) * 0.5;
+    transformed *= uScale * (sin(uTime * 0.001 + uTimeOffset) + 1.) * 0.5;
+    // transformed *= uScale;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
 }
@@ -36,6 +38,28 @@ uniform float uTime;
 uniform float uTimeOffset;
 
 varying vec2 vUv;
+
+float aastep(float threshold, float value) {
+  #ifdef GL_OES_standard_derivatives
+    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+    return smoothstep(threshold-afwidth, threshold+afwidth, value);
+  #else
+    return step(threshold, value);
+  #endif  
+}
+
+
+float rectangle(vec2 st, vec2 size) {
+    size = vec2(0.5) - size * 0.5;
+    vec2 uv = vec2(aastep(size.x, st.x), aastep(size.y, st.y));
+    uv *= vec2(aastep(size.x, 1.0 - st.x), aastep(size.y, 1.0 - st.y));
+
+    return uv.x * uv.y;
+}
+
+float circle(vec2 st, float radius) {
+    return aastep(radius, length(st - vec2(0.5)));
+}
 
 float scaleUv(float v, float scale) {
     float s = 1. / scale;
@@ -59,19 +83,26 @@ vec2 rotateUvs ( vec2 uvs, float angle, vec2 center) {
 void main() {
     vec2 uv = vUv;
 
-    float uBorder = 0.1;
+    float uBorder = 0.2;
 
-    float f = step(uv.x, uBorder);
-    f = max(f, step(uv.y, uBorder));
-    f = max(f, step(1. - uv.x, uBorder));
-    f = max(f, step(1. - uv.y, uBorder));
+    // float f = step(uv.x, uBorder);
+    // f = max(f, step(uv.y, uBorder));
+    // f = max(f, step(1. - uv.x, uBorder));
+    // f = max(f, step(1. - uv.y, uBorder));
+
+    float rect = rectangle(vUv, vec2(1.0 - uBorder, 1.0 - uBorder));
+
+    float o = 1.0;
+    rect = circle(vUv, 0.5);
+    o *= 1. - rect;
 
     float c = (sin(uTimeOffset + uTime * 0.002) + 1.) * 0.5;
-    vec3 color = mix(vec3(c), vec3(1.) * opacity, f);
+    vec3 color = mix(vec3(0.), vec3(1.) * opacity, 1.0);
 
     color *= uDiffuse;
 
-    gl_FragColor = vec4(color, 1.0);
+
+    gl_FragColor = vec4(color, o);
 }
 `;
 
@@ -102,9 +133,17 @@ function hslToRgb(h, s, l) {
 
 function Squares (gl, props) {
     let container = new Transform(gl);
+
+    let ease = function expoInOut(t) {
+        return (t === 0.0 || t === 1.0)
+            ? t
+            : t < 0.5
+                ? +0.5 * Math.pow(2.0, (20.0 * t) - 10.0)
+                : -0.5 * Math.pow(2.0, 10.0 - (t * 20.0)) + 1.0
+    }
     
-    let count = { x: 10, y: 5 };
-    let size = 0.2;
+    let count = { x: 20, y: 10 };
+    let size = 0.1;
     let uniforms = {
         uTime: { value: 0 }
     };
@@ -158,11 +197,10 @@ function Squares (gl, props) {
     // };
 
 
-    let base = Math.random() * 0.7;
-    let interval = () => Math.random() * 0.1 + 0.2;
+    let base = 0.4;
+    let interval = () => Math.random() * 0.2;
 
     function randomColors() {
-        base = Math.random() * 0.5;
 
         for (let i = 0; i < planes.length; i++) {
             let [r, g, b] = randomColor();
@@ -188,8 +226,13 @@ function Squares (gl, props) {
     for (let i = 0; i < count.x; i++) {
         let x = -count.x * size * 0.5 + i * size;
 
+        let left = i;
+        let right = count.x - 1 - i;
+
         for (let j = 0; j < count.y; j++) {
             let y = -count.y * size * 0.5 + j * size;
+            let top = j;
+            let bottom = count.y - 1 - j;
 
             let [ r, g, b ] = randomColor();
             
@@ -204,34 +247,100 @@ function Squares (gl, props) {
                     opacity: { value: Math.random() },
                     uDiffuse: { value: [r, g, b ]}
                 },
+                depthTest: false,
+                transparent: true,
             });
 
             let mesh0 = new Mesh(gl, { geometry, program });
+            mesh0.directions = [top, right, bottom, left];
             mesh0.position.x = x;
+            mesh0.position.x0 = x;
             mesh0.position.y = y;
+            mesh0.position.y0 = y;
             wall0.addChild(mesh0);
 
             let mesh1 = new Mesh(gl, { geometry, program });
+            mesh1.directions = [top, right, bottom, left];
             mesh1.position.x = x;
+            mesh1.position.x0 = x;
             mesh1.position.y = y;
+            mesh1.position.y0 = y;
             wall1.addChild(mesh1);
 
             planes.push(mesh0, mesh1);
         }
     }
 
-    function update({ time }) {
+    function every({ period, time}, fn) {
+
+    }
+
+    let t = 0;
+
+    function update({ time, deltaTime }) {
         uniforms.uTime.value = time;
 
+        t += deltaTime;
 
-        if (Math.round(time / 1000) % 4 === 0) {
+        let period = props.period.value;
+
+        if (t >= period) {
+            t = 0;
+
             randomColors();
+
+            for (let i = 0; i < planes.length; i++) {
+                let mesh = planes[i];
+
+                if (Math.random() > 0.8) {
+                    let direction = Math.floor(Math.random() * mesh.directions.length);
+                    
+                    if (mesh.directions[direction] > 0) {
+                        mesh.directions[direction] -= 1;
+    
+                        if (direction === 0) {
+                            mesh.directions[2] += 1;
+                        } else if (direction === 1) {
+                            mesh.directions[3] += 1
+                        } else if (direction === 2) {
+                            mesh.directions[0] += 1;
+                        } else {
+                            mesh.directions[1] += 1;
+                        }
+    
+                        mesh.direction = [0, 0, 0, 0];
+                        mesh.direction[direction] = 1;
+
+                        mesh.position.x0 = mesh.position.x;
+                        mesh.position.y0 = mesh.position.y; 
+                    }
+                } else {
+                    mesh.direction = null;
+                }
+
+                
+            }
         }
+
+        let p = t / period;
+        p = ease(p);
 
         for (let i = 0; i < planes.length; i++) {
             let mesh = planes[i];
 
-            // mesh.rotation.z = i * Math.PI * 0.5 + time * 0.001;
+            if (mesh.direction) {
+                mesh.position.x = mesh.position.x0 + p * size * mesh.direction[1] - p * size * mesh.direction[3];
+                mesh.position.y = mesh.position.y0 - p * size * mesh.direction[0] + p * size * mesh.direction[2];
+            }
+            // mesh.position.x = mesh.position.x0 + p * size;
+
+            // let direction = Math.floor(Math.random() * mesh.directions.length);
+
+            // if (mesh.directions[direction] > 0) {
+            //     mesh.direction = direction;
+            // } else {
+            //     mesh.direction = null;
+            // }
         }
     }
 
@@ -239,6 +348,12 @@ function Squares (gl, props) {
 }
 
 Squares.props = {
+    period: {
+        min: 16,
+        max: 3000,
+        value: 200,
+        step: 1,
+    },
     squaresRX: {
         min: -Math.PI,
         max: Math.PI,
@@ -293,7 +408,13 @@ Squares.props = {
     squaresColor: {
         type: 'button',
         label: 'randomColor',
-    }
+    },
+    squareShape: {
+        min: 0,
+        max: 1,
+        value: 1,
+        step: 0.01,
+    },
 };
 
 export default Squares;

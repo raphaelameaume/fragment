@@ -159,7 +159,7 @@ function Lockdown({ props, renderer }) {
 
         uniforms.uForce.value = state.forceS;
 
-        squares.update({ time });
+        squares.update({ time, deltaTime });
 
         // if (props.move.value) {
         //     mesh.rotation.x += 0.001 * props.speed.value * deltaTime;
@@ -279,6 +279,6 @@ export default {
             max: 10,
             step: 0.01,
             value: 0,
-        },
+        }
     }
 };
