@@ -34,6 +34,19 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         uniform vec2 uScaleY;
         uniform float uScale;
         uniform vec2 uOffset;
+        uniform float uAngle;
+
+        vec2 rotateUvs ( vec2 uvs, float angle, vec2 center) {
+            vec2 uv = uvs;
+            uv -= center;
+
+            mat2 m = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+            uv = m * uv;
+
+            uv += center;
+
+            return uv;
+        }
 
         float scaleUv(float v, float scale) {
             float s = 1. / scale;
@@ -44,7 +57,6 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
 
         vec2 stretchUv(vec2 uv) {
             vec2 uvs = uv;
-            
 
             uvs.y = scaleUv(uv.y, 1. + (uScaleX.y - 1.) * uv.x);
             uvs.y = scaleUv(uvs.y, 1. + (uScaleX.x - 1.) * (1. - uv.x));
@@ -56,6 +68,8 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
 
             uvs.x -= uOffset.x;
             uvs.y -= uOffset.y;
+
+            uvs = rotateUvs(uvs, uAngle, vec2(0.5, 0.5));
 
             return uvs;
         }
@@ -189,6 +203,14 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
             onChange: () => {
                 uniforms.uOffset.value.y = props.offsetY.value;
             }
+        },
+        uAngle: {
+            min: -2 * Math.PI,
+            max: 2 * Math.PI,
+            value: 0,
+            onChange: () => {
+                uniforms.uAngle.value = props.uAngle.value;
+            }
         }
     };
 
@@ -218,6 +240,7 @@ export default function ({ width = window.innerWidth, height = window.innerHeigh
         uScaleX: { value: new Vec2(props.scaleXStart.value, props.scaleXEnd.value) },
         uScaleY: { value: new Vec2(props.scaleYStart.value, props.scaleYEnd.value) },
         uOffset: { value: new Vec2(props.offsetX.value, props.offsetY.value) },
+        uAngle: { value: props.uAngle.value }
     };
 
     let program = new Program(gl, {

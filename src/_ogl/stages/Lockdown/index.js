@@ -5,6 +5,7 @@ import { Midi } from "../../../core/Midi";
 
 import { Audio } from "../../../core/Audio.js";
 import Message from "./Message";
+import Squares from "./Squares";
 
 const vertex = /* glsl */ `
     precision highp float;
@@ -81,6 +82,7 @@ function Lockdown({ props, renderer }) {
     };
 
     let scene, camera, mesh, controls;
+    let squares;
     let message;
     let state = {
         location: new Vec2(),
@@ -131,11 +133,14 @@ function Lockdown({ props, renderer }) {
         }
 
         mesh = new Mesh(gl, { mode: gl.POINTS, geometry, program });
-        scene.addChild(mesh);
+        // scene.addChild(mesh);
 
-        message = Message(gl, props);
+        // message = Message(gl, props);
         // message.mesh.position.z += 0.1;
-        scene.addChild(message.mesh);
+        // scene.addChild(message.mesh);
+
+        squares = Squares(gl, props);
+        scene.addChild(squares.container);
         
 
         window.addEventListener('click', () => {
@@ -153,6 +158,8 @@ function Lockdown({ props, renderer }) {
         state.forceS += (state.force - state.forceS) * 0.01;
 
         uniforms.uForce.value = state.forceS;
+
+        squares.update({ time });
 
         // if (props.move.value) {
         //     mesh.rotation.x += 0.001 * props.speed.value * deltaTime;
@@ -205,9 +212,10 @@ export default {
     name: 'Lockdown',
     scene: Lockdown,
     props: {
+        ...Squares.props,
         particleSize: {
             min: 0,
-            max: 20,
+            max: 50,
             value: 10,
         },
         particleCount: {
