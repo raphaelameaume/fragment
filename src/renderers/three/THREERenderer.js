@@ -1,21 +1,20 @@
-import { Camera, WebGLRenderer, WebGLRenderTarget, BufferGeometry, BufferAttribute, RawShaderMaterial, Mesh, RGBFormat, Scene } from "three";
 
-export default function ({ width = window.innerWidth * 0.5, height = window.innerHeight * 0.5 } = {}) {
+function THREERenderer(THREE, { width = window.innerWidth * 0.5, height = window.innerHeight * 0.5 } = {}) {
     let dimensions = { width, height };
-    let renderer = new WebGLRenderer({ antialias: true });
+    let renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
 
-    let camera = new Camera();
-    let scene = new Scene();
+    let camera = new THREE.Camera();
+    let scene = new THREE.Scene();
 
-    let renderTarget0 = new WebGLRenderTarget(width, height, {
-        format: RGBFormat,
+    let renderTarget0 = new THREE.WebGLRenderTarget(width, height, {
+        format: THREE.RGBFormat,
         stencilBuffer: false,
         depthBuffer: true,
     });
 
-    let renderTarget1 = new WebGLRenderTarget(width, height, {
-        format: RGBFormat,
+    let renderTarget1 = new THREE.WebGLRenderTarget(width, height, {
+        format: THREE.RGBFormat,
         stencilBuffer: false,
         depthBuffer: true,
     });
@@ -32,9 +31,9 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         0, 2
     ]);
 
-    let geometry = new BufferGeometry();
-    geometry.setAttribute('position', new BufferAttribute(vertices, 2));
-    geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
+    let geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 2));
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 
     let vertexShader = /* glsl */ `
         precision highp float;
@@ -102,19 +101,19 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         },
         transition: {
             type: 'select',
-            value: transitions.map(({ name, key }) => ({ key, value: name })),
+            options: transitions.map(({ name, key }) => ({ key, label: name })),
             onChange: ({ key }) => {
-                // for (let i = 0; i < transitions.length; i++) {
-                //     if (transitions[i].key === key) {
-                //         const { fragment } = transitions[i];
+                for (let i = 0; i < transitions.length; i++) {
+                    if (transitions[i].key === key) {
+                        const { fragment } = transitions[i];
 
-                //         mesh.material = new RawShaderMaterial({
-                //             vertexShader,
-                //             fragmentShader: fragment,
-                //             uniforms
-                //         });
-                //     }
-                // }
+                        mesh.material = new THREE.RawShaderMaterial({
+                            vertexShader,
+                            fragmentShader: fragment,
+                            uniforms
+                        });
+                    }
+                }
             }
         }
     };
@@ -125,13 +124,13 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         uTreshold: { value: props.treshold.value },
     };
 
-    let material = new RawShaderMaterial({
+    let material = new THREE.RawShaderMaterial({
         vertexShader,
         fragmentShader: fragmentFade,
         uniforms,
     })
 
-    let mesh = new Mesh(geometry, material);
+    let mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
     function resize({ width = w, height = h } = {}) {
@@ -143,13 +142,17 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
 
     function render(stage1, stage2) {
         // render both scenes to target
-        stage1.instance.update();
-        renderer.setRenderTarget(renderTarget0);
-        stage1.instance.render({ renderer });
+        if (stage1 && stage1.instance) {
+            stage1.instance.update();
+            renderer.setRenderTarget(renderTarget0);
+            stage1.instance.render({ renderer });
+        }
 
-        stage2.instance.update();
-        renderer.setRenderTarget(renderTarget1);
-        stage2.instance.render({ renderer });
+        if (stage2 && stage2.instance) {
+            stage2.instance.update();
+            renderer.setRenderTarget(renderTarget1);
+            stage2.instance.render({ renderer });
+        }
 
         renderer.setRenderTarget(null);
 
@@ -161,16 +164,20 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         renderer.render(scene, camera);
 
         // draw gl context in 2d context
-        stage1.context.clearRect(0, 0, width, height);
-        stage1.context.drawImage(renderer.domElement, 0, 0);
+        if (stage1 && stage1.context) {
+            stage1.context.clearRect(0, 0, width, height);
+            stage1.context.drawImage(renderer.domElement, 0, 0);
+        }
 
         // render with only stage2 visible
         uniforms.uTreshold.value = 1;
         renderer.render(scene, camera);
 
         // draw gl context in 2d context
-        stage2.context.clearRect(0, 0, width, height);
-        stage2.context.drawImage(renderer.domElement, 0, 0);
+        if (stage2 && stage2.context) {
+            stage2.context.clearRect(0, 0, width, height);
+            stage2.context.drawImage(renderer.domElement, 0, 0);
+        }
 
         // restore treshold value
         uniforms.uTreshold.value = tempTreshold;
@@ -190,3 +197,5 @@ export default function ({ width = window.innerWidth * 0.5, height = window.inne
         props,
     };
 };
+
+export default THREERenderer;

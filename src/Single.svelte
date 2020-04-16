@@ -56,6 +56,8 @@ let list = stageNames.map(key => ({
 
 let stage = stages[stageNames[0]];
 
+console.log(stageNames, list);
+
 let propStage = {
     name: "stage",
     type: "select",

@@ -4,10 +4,12 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --cors --dev --host 0.0.0.0"
+    "start": "sirv public --cors --dev --host 0.0.0.0",
+    "example": "node ./tools/esbuild.js"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^4.0.1",
+    "esbuild": "^0.1.6",
     "rollup": "^1.27.11",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-livereload": "^1.0.0",
@@ -18,7 +20,10 @@
   },
   "dependencies": {
     "canvas-sketch-util": "^1.10.0",
+    "chalk": "^4.0.0",
+    "chokidar": "^3.3.1",
     "clone-deep": "^4.0.1",
+    "fancy-log": "^1.3.3",
     "ogl": "0.0.33",
     "sirv-cli": "^0.4.4",
     "socket.io": "^2.3.0",

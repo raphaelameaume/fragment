@@ -1,0 +1,22 @@
+import Fragment, { THREERenderer } from "./build/bundle.js";
+import * as stages from "./stages/index.js";
+
+
+import * as THREE from "three";
+
+window.THREE = THREE;
+
+function init() {
+    Fragment({
+        renderer: THREERenderer({ width: 1280 * 1, height: 720 * 1, dpr: 1 }),
+        stages,
+    });
+}
+
+if (document.body) {
+    init();
+} else {
+    window.addEventListener('DOMContentLoaded', () => {
+        init();
+    });
+}
