@@ -142,8 +142,8 @@ function Squares (gl, props) {
                 : -0.5 * Math.pow(2.0, 10.0 - (t * 20.0)) + 1.0
     }
     
-    let count = { x: 20, y: 10 };
-    let size = 0.1;
+    let count = { x: 20, y: 7 };
+    let size = 0.2;
     let uniforms = {
         uTime: { value: 0 }
     };
@@ -197,25 +197,35 @@ function Squares (gl, props) {
     // };
 
 
-    let base = 0.4;
-    let interval = () => Math.random() * 0.2;
+    let base = 0.2;
+    let interval = () => Math.random() * 0.8;
 
-    function randomColors() {
+    function randomColors(index) {
 
-        for (let i = 0; i < planes.length; i++) {
+        if (index) {
             let [r, g, b] = randomColor();
 
-            planes[i].program.uniforms.uDiffuse.value[0] = r;
-            planes[i].program.uniforms.uDiffuse.value[1] = g;
-            planes[i].program.uniforms.uDiffuse.value[2] = b;
+            planes[index].program.uniforms.uDiffuse.value[0] = r;
+            planes[index].program.uniforms.uDiffuse.value[1] = g;
+            planes[index].program.uniforms.uDiffuse.value[2] = b;
+        } else {
+            for (let i = 0; i < planes.length; i++) {
+                let [r, g, b] = randomColor();
+    
+                planes[i].program.uniforms.uDiffuse.value[0] = r;
+                planes[i].program.uniforms.uDiffuse.value[1] = g;
+                planes[i].program.uniforms.uDiffuse.value[2] = b;
+            }
+
         }
+
     }
 
 
     props.squaresColor.onTrigger = randomColors;
 
     function randomColor() {
-        let [r, g, b] = hslToRgb(interval() + base, 1, 0.5);
+        let [r, g, b] = hslToRgb(interval() + base, 4, 0.6);
         return [r/255, g/255, b/255];
     }
 
@@ -287,7 +297,6 @@ function Squares (gl, props) {
         if (t >= period) {
             t = 0;
 
-            randomColors();
 
             for (let i = 0; i < planes.length; i++) {
                 let mesh = planes[i];
@@ -313,8 +322,11 @@ function Squares (gl, props) {
 
                         mesh.position.x0 = mesh.position.x;
                         mesh.position.y0 = mesh.position.y; 
+
+                        
                     }
                 } else {
+                    randomColors(i);
                     mesh.direction = null;
                 }
 
