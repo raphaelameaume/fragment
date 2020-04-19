@@ -17477,7 +17477,7 @@
       let geometry = new THREE2.BufferGeometry();
       geometry.setAttribute("position", new THREE2.BufferAttribute(vertices, 2));
       geometry.setAttribute("uv", new THREE2.BufferAttribute(uvs, 2));
-      let vertexShader8 = `
+      let vertexShader9 = `
         precision highp float;
 
         attribute vec2 position;
@@ -17553,7 +17553,7 @@
               if (transitions[i3].key === key) {
                 const {fragment} = transitions[i3];
                 mesh.material = new THREE2.RawShaderMaterial({
-                  vertexShader: vertexShader8,
+                  vertexShader: vertexShader9,
                   fragmentShader: fragment,
                   uniforms
                 });
@@ -17574,7 +17574,7 @@
         }
       };
       let material2 = new THREE2.RawShaderMaterial({
-        vertexShader: vertexShader8,
+        vertexShader: vertexShader9,
         fragmentShader: fragmentFade,
         uniforms
       });
@@ -17716,7 +17716,7 @@
     const default2 = Fragment;
 
     // public/stages/Tampa/Uniforms.js
-    const Uniforms8 = function() {
+    const Uniforms9 = function() {
       let uniforms = {
         uTime: {
           value: 0
@@ -17743,7 +17743,7 @@
         get
       };
     }();
-    const default13 = Uniforms8;
+    const default13 = Uniforms9;
 
     // public/stages/Tampa/Room.js
     let vertexShader5 = `
@@ -17997,12 +17997,52 @@ void main() {
     const default4 = Floor3;
 
     // public/stages/Tampa/Shape.js
+    let vertexShader6 = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+    vec3 transformed = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+}`;
+    const fragmentShader6 = `
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
+
+varying vec2 vUv;
+
+#include <common>
+
+void main() {
+    vec3 color = roomDiffuse;
+
+    float intensity = roomAOIntensity;
+    intensity *= 0.2;
+
+    float aox = sin(vUv.x * PI) * intensity + (1. - intensity);
+    float aoy = sin(vUv.y * PI) * intensity + (1. - intensity);
+
+    color -= (1. - aox);
+    color -= (1. - aoy);
+    // color *= aoy;
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
     function Shape4() {
       let transform = new THREE.Object3D();
       let height = default6.width;
       let geometry = new THREE.BoxGeometry(default6.width, default6.depth, default6.depth);
-      let material2 = new THREE.MeshBasicMaterial({
-        color: 16777215
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader6,
+        fragmentShader: fragmentShader6,
+        uniforms: {
+          ...default13.common(),
+          diffuse: {
+            value: new THREE.Color(16777215)
+          }
+        }
       });
       let mesh = new THREE.Mesh(geometry, material2);
       mesh.position.y = height * 1.5;
@@ -18197,7 +18237,7 @@ void main() {
     const default11 = Particles3;
 
     // public/stages/Tampa/TubeLight.js
-    let vertexShader6 = `
+    let vertexShader7 = `
     varying vec2 vUv;
 
     void main() {
@@ -18272,7 +18312,7 @@ void main() {
     const default15 = TubeLight2;
 
     // public/stages/Tampa/TubeLights.js
-    let vertexShader7 = `
+    let vertexShader8 = `
     varying vec2 vUv;
 
     void main() {
@@ -18312,7 +18352,7 @@ void main() {
         }
         let shadowGeometry = new THREE.PlaneBufferGeometry(default15.width * 2, h2 * 2);
         let shadowMaterial = new THREE.ShaderMaterial({
-          vertexShader: vertexShader7,
+          vertexShader: vertexShader8,
           fragmentShader: fragmentShaderShadow2,
           uniforms: {
             diffuse: {
@@ -28569,8 +28609,8 @@ void main() {
     function WebGLProgram(renderer, extensions, cacheKey, material2, shader, parameters) {
       var gl = renderer.getContext();
       var defines = material2.defines;
-      var vertexShader8 = shader.vertexShader;
-      var fragmentShader6 = shader.fragmentShader;
+      var vertexShader9 = shader.vertexShader;
+      var fragmentShader7 = shader.fragmentShader;
       var shadowMapTypeDefine = generateShadowMapTypeDefine(parameters);
       var envMapTypeDefine = generateEnvMapTypeDefine(parameters);
       var envMapModeDefine = generateEnvMapModeDefine(parameters);
@@ -28594,21 +28634,21 @@ void main() {
         prefixVertex = [generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.instancing ? "#define USE_INSTANCING" : "", parameters.supportsVertexTextures ? "#define VERTEX_TEXTURES" : "", "#define GAMMA_FACTOR " + gammaFactorDefine, "#define MAX_BONES " + parameters.maxBones, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.displacementMap && parameters.supportsVertexTextures ? "#define USE_DISPLACEMENTMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.skinning ? "#define USE_SKINNING" : "", parameters.useVertexTexture ? "#define BONE_TEXTURE" : "", parameters.morphTargets ? "#define USE_MORPHTARGETS" : "", parameters.morphNormals && parameters.flatShading === false ? "#define USE_MORPHNORMALS" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.sizeAttenuation ? "#define USE_SIZEATTENUATION" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", "uniform mat4 modelMatrix;", "uniform mat4 modelViewMatrix;", "uniform mat4 projectionMatrix;", "uniform mat4 viewMatrix;", "uniform mat3 normalMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", "#ifdef USE_INSTANCING", " attribute mat4 instanceMatrix;", "#endif", "attribute vec3 position;", "attribute vec3 normal;", "attribute vec2 uv;", "#ifdef USE_TANGENT", "	attribute vec4 tangent;", "#endif", "#ifdef USE_COLOR", "	attribute vec3 color;", "#endif", "#ifdef USE_MORPHTARGETS", "	attribute vec3 morphTarget0;", "	attribute vec3 morphTarget1;", "	attribute vec3 morphTarget2;", "	attribute vec3 morphTarget3;", "	#ifdef USE_MORPHNORMALS", "		attribute vec3 morphNormal0;", "		attribute vec3 morphNormal1;", "		attribute vec3 morphNormal2;", "		attribute vec3 morphNormal3;", "	#else", "		attribute vec3 morphTarget4;", "		attribute vec3 morphTarget5;", "		attribute vec3 morphTarget6;", "		attribute vec3 morphTarget7;", "	#endif", "#endif", "#ifdef USE_SKINNING", "	attribute vec4 skinIndex;", "	attribute vec4 skinWeight;", "#endif", "\n"].filter(filterEmptyLine).join("\n");
         prefixFragment = [customExtensions, generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.alphaTest ? "#define ALPHATEST " + parameters.alphaTest + (parameters.alphaTest % 1 ? "" : ".0") : "", "#define GAMMA_FACTOR " + gammaFactorDefine, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.matcap ? "#define USE_MATCAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapTypeDefine : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.envMap ? "#define " + envMapBlendingDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.sheen ? "#define USE_SHEEN" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.gradientMap ? "#define USE_GRADIENTMAP" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.premultipliedAlpha ? "#define PREMULTIPLIED_ALPHA" : "", parameters.physicallyCorrectLights ? "#define PHYSICALLY_CORRECT_LIGHTS" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", ((material2.extensions ? material2.extensions.shaderTextureLOD : false) || parameters.envMap) && (parameters.isWebGL2 || extensions.get("EXT_shader_texture_lod")) ? "#define TEXTURE_LOD_EXT" : "", "uniform mat4 viewMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", parameters.toneMapping !== NoToneMapping ? "#define TONE_MAPPING" : "", parameters.toneMapping !== NoToneMapping ? ShaderChunk["tonemapping_pars_fragment"] : "", parameters.toneMapping !== NoToneMapping ? getToneMappingFunction("toneMapping", parameters.toneMapping) : "", parameters.dithering ? "#define DITHERING" : "", parameters.outputEncoding || parameters.mapEncoding || parameters.matcapEncoding || parameters.envMapEncoding || parameters.emissiveMapEncoding || parameters.lightMapEncoding ? ShaderChunk["encodings_pars_fragment"] : "", parameters.mapEncoding ? getTexelDecodingFunction("mapTexelToLinear", parameters.mapEncoding) : "", parameters.matcapEncoding ? getTexelDecodingFunction("matcapTexelToLinear", parameters.matcapEncoding) : "", parameters.envMapEncoding ? getTexelDecodingFunction("envMapTexelToLinear", parameters.envMapEncoding) : "", parameters.emissiveMapEncoding ? getTexelDecodingFunction("emissiveMapTexelToLinear", parameters.emissiveMapEncoding) : "", parameters.lightMapEncoding ? getTexelDecodingFunction("lightMapTexelToLinear", parameters.lightMapEncoding) : "", parameters.outputEncoding ? getTexelEncodingFunction("linearToOutputTexel", parameters.outputEncoding) : "", parameters.depthPacking ? "#define DEPTH_PACKING " + material2.depthPacking : "", "\n"].filter(filterEmptyLine).join("\n");
       }
-      vertexShader8 = resolveIncludes(vertexShader8);
-      vertexShader8 = replaceLightNums(vertexShader8, parameters);
-      vertexShader8 = replaceClippingPlaneNums(vertexShader8, parameters);
-      fragmentShader6 = resolveIncludes(fragmentShader6);
-      fragmentShader6 = replaceLightNums(fragmentShader6, parameters);
-      fragmentShader6 = replaceClippingPlaneNums(fragmentShader6, parameters);
-      vertexShader8 = unrollLoops(vertexShader8);
-      fragmentShader6 = unrollLoops(fragmentShader6);
+      vertexShader9 = resolveIncludes(vertexShader9);
+      vertexShader9 = replaceLightNums(vertexShader9, parameters);
+      vertexShader9 = replaceClippingPlaneNums(vertexShader9, parameters);
+      fragmentShader7 = resolveIncludes(fragmentShader7);
+      fragmentShader7 = replaceLightNums(fragmentShader7, parameters);
+      fragmentShader7 = replaceClippingPlaneNums(fragmentShader7, parameters);
+      vertexShader9 = unrollLoops(vertexShader9);
+      fragmentShader7 = unrollLoops(fragmentShader7);
       if (parameters.isWebGL2 && !material2.isRawShaderMaterial) {
         var isGLSL3ShaderMaterial = false;
         var versionRegex = /^\s*#version\s+300\s+es\s*\n/;
-        if (material2.isShaderMaterial && vertexShader8.match(versionRegex) !== null && fragmentShader6.match(versionRegex) !== null) {
+        if (material2.isShaderMaterial && vertexShader9.match(versionRegex) !== null && fragmentShader7.match(versionRegex) !== null) {
           isGLSL3ShaderMaterial = true;
-          vertexShader8 = vertexShader8.replace(versionRegex, "");
-          fragmentShader6 = fragmentShader6.replace(versionRegex, "");
+          vertexShader9 = vertexShader9.replace(versionRegex, "");
+          fragmentShader7 = fragmentShader7.replace(versionRegex, "");
         }
         prefixVertex = ["#version 300 es\n", "#define attribute in", "#define varying out", "#define texture2D texture"].join("\n") + "\n" + prefixVertex;
         prefixFragment = ["#version 300 es\n", "#define varying in", isGLSL3ShaderMaterial ? "" : "out highp vec4 pc_fragColor;", isGLSL3ShaderMaterial ? "" : "#define gl_FragColor pc_fragColor", "#define gl_FragDepthEXT gl_FragDepth", "#define texture2D texture", "#define textureCube texture", "#define texture2DProj textureProj", "#define texture2DLodEXT textureLod", "#define texture2DProjLodEXT textureProjLod", "#define textureCubeLodEXT textureLod", "#define texture2DGradEXT textureGrad", "#define texture2DProjGradEXT textureProjGrad", "#define textureCubeGradEXT textureGrad"].join("\n") + "\n" + prefixFragment;
@@ -28619,8 +28659,8 @@ void main() {
           prefixFragment = prefixFragment.replace("uniform mat4 viewMatrix;", ["uniform mat4 viewMatrices[" + numMultiviewViews + "];", "#define viewMatrix viewMatrices[VIEW_ID]"].join("\n"));
         }
       }
-      var vertexGlsl = prefixVertex + vertexShader8;
-      var fragmentGlsl = prefixFragment + fragmentShader6;
+      var vertexGlsl = prefixVertex + vertexShader9;
+      var fragmentGlsl = prefixFragment + fragmentShader7;
       var glVertexShader = WebGLShader(gl, 35633, vertexGlsl);
       var glFragmentShader = WebGLShader(gl, 35632, fragmentGlsl);
       gl.attachShader(program, glVertexShader);
