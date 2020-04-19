@@ -1,7 +1,8 @@
 const Uniforms = function() {
     let uniforms = {
         uTime: { value: 0 },
-        roomDiffuse: { value: new THREE.Color(0xFF0000) }
+        roomDiffuse: { value: new THREE.Color(0xFF0000) },
+        roomAOIntensity: { value: 0.2 },
     }
 
     function common() {

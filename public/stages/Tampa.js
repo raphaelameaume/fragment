@@ -42,6 +42,10 @@ function Tampa({ props, renderer }) {
     props.roomDiffuse.onChange = ({ value }) => {
         Uniforms.get('roomDiffuse').value = new THREE.Color(props.roomDiffuse.value);
     }
+
+    props.roomAOIntensity.onChange = () => {
+        Uniforms.get('roomAOIntensity').value = props.roomAOIntensity.value;
+    }
     
     function update({ time, deltaTime }) {
         Uniforms.update({ time, deltaTime });
@@ -76,6 +80,12 @@ export default {
         roomDiffuse: {
             type: 'color',
             value: '#ff0000',
+        },
+        roomAOIntensity: {
+            min: 0,
+            max: 1,
+            value: 0.2,
+            step: 0.01,
         }
     },
 };

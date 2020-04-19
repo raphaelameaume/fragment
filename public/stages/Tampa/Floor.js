@@ -15,6 +15,7 @@ let vertexShader = /* glsl */`
 let fragmentShader = /* glsl */`
     uniform vec3 roomDiffuse;
     uniform vec4 uvTransform;
+    uniform float roomAOIntensity;
 
     varying vec2 vUv;
 
@@ -31,9 +32,8 @@ let fragmentShader = /* glsl */`
         );
         vec3 color = roomDiffuse;
 
-        float intensity = 0.2;
-        color *= sin(uv.y * PI) * intensity + (1. - intensity);
-        color *= sin(uv.x * PI) * intensity + (1. - intensity);
+        color *= sin(uv.y * PI) * roomAOIntensity + (1. - roomAOIntensity);
+        color *= sin(uv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
 
         gl_FragColor = vec4(color, 1.0);
     }

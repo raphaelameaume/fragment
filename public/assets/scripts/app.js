@@ -17723,6 +17723,9 @@
         },
         roomDiffuse: {
           value: new THREE.Color(16711680)
+        },
+        roomAOIntensity: {
+          value: 0.2
         }
       };
       function common3() {
@@ -17754,6 +17757,7 @@ void main() {
 }`;
     const fragmentShader5 = `
 uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
 
 varying vec2 vUv;
 
@@ -17762,9 +17766,8 @@ varying vec2 vUv;
 void main() {
     vec3 color = roomDiffuse;
 
-    float intensity = 0.2;
-    color *= sin(vUv.y * PI) * intensity + (1. - intensity); // vertical gradient
-    color *= sin(vUv.x * PI) * intensity + (1. - intensity);
+    color *= sin(vUv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
+    color *= sin(vUv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
 
     gl_FragColor = vec4(color, 1.0);
 }
@@ -17893,6 +17896,7 @@ void main() {
     let fragmentShader2 = `
     uniform vec3 roomDiffuse;
     uniform vec4 uvTransform;
+    uniform float roomAOIntensity;
 
     varying vec2 vUv;
 
@@ -17909,9 +17913,8 @@ void main() {
         );
         vec3 color = roomDiffuse;
 
-        float intensity = 0.2;
-        color *= sin(uv.y * PI) * intensity + (1. - intensity);
-        color *= sin(uv.x * PI) * intensity + (1. - intensity);
+        color *= sin(uv.y * PI) * roomAOIntensity + (1. - roomAOIntensity);
+        color *= sin(uv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
 
         gl_FragColor = vec4(color, 1.0);
     }
@@ -18018,6 +18021,7 @@ void main() {
     const fragmentShader = `
 uniform vec3 diffuse;
 uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
 
 varying vec2 vUv;
 
@@ -18026,9 +18030,8 @@ varying vec2 vUv;
 void main() {
     vec3 color = roomDiffuse;
 
-    float intensity = 0.2;
-    color *= sin(vUv.y * PI) * intensity + (1. - intensity); // vertical gradient
-    color *= sin(vUv.x * PI) * intensity + (1. - intensity);
+    color *= sin(vUv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
+    color *= sin(vUv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
 
     gl_FragColor = vec4(color, 1.0);
 }
@@ -45765,6 +45768,9 @@ vec4 envMapTexelToLinear(vec4 color) {
       props.roomDiffuse.onChange = ({value: value2}) => {
         default11.get("roomDiffuse").value = new THREE.Color(props.roomDiffuse.value);
       };
+      props.roomAOIntensity.onChange = () => {
+        default11.get("roomAOIntensity").value = props.roomAOIntensity.value;
+      };
       function update2({time: time2, deltaTime: deltaTime2}) {
         default11.update({
           time: time2,
@@ -45792,6 +45798,12 @@ vec4 envMapTexelToLinear(vec4 color) {
         roomDiffuse: {
           type: "color",
           value: "#ff0000"
+        },
+        roomAOIntensity: {
+          min: 0,
+          max: 1,
+          value: 0.2,
+          step: 0.01
         }
       }
     };
