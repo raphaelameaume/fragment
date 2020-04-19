@@ -17790,20 +17790,20 @@ void main() {
       left.position.x = -Room7.width * 0.5;
       left.position.y = Room7.height * 0.5;
       left.rotation.y = Math.PI * 0.5;
-      left.scale.set(Room7.width, Room7.height, 1);
+      left.scale.set(Room7.depth, Room7.height, 1);
       transform.add(left);
       let right = new THREE.Mesh(geometry, material2);
       right.position.x = Room7.width * 0.5;
       right.position.y = Room7.height * 0.5;
       right.rotation.y = -Math.PI * 0.5;
-      right.scale.set(Room7.width, Room7.height, 1);
+      right.scale.set(Room7.depth, Room7.height, 1);
       transform.add(right);
       return {
         transform
       };
     }
     Room7.width = 10;
-    Room7.depth = 10;
+    Room7.depth = 20;
     Room7.height = 7;
     const default5 = Room7;
 
@@ -17906,8 +17906,6 @@ void main() {
         color *= sin(uv.y * PI) * intensity + (1. - intensity);
         color *= sin(uv.x * PI) * intensity + (1. - intensity);
 
-        color = vec3(uv.y, 0., 0.);
-
         gl_FragColor = vec4(color, 1.0);
     }
 `;
@@ -17917,17 +17915,12 @@ void main() {
       let depthSmall = (default5.depth - default6.depth) * 0.5;
       let geometry = new THREE.PlaneBufferGeometry(1, 1);
       geometry.rotateX(-Math.PI * 0.5);
-      let material2 = new THREE.MeshBasicMaterial({
-        color: 16777215,
-        roughness: 0.2,
-        flatShading: true
-      });
       let shaderMaterial = new THREE.ShaderMaterial({
         vertexShader: vertexShader2,
         fragmentShader: fragmentShader2,
         uniforms: {
           diffuse: {
-            value: new THREE.Color(16711680)
+            value: new THREE.Color(16777215)
           },
           uvTransform: {
             value: new THREE.Vector4()

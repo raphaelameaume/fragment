@@ -34,8 +34,6 @@ let fragmentShader = /* glsl */`
         color *= sin(uv.y * PI) * intensity + (1. - intensity);
         color *= sin(uv.x * PI) * intensity + (1. - intensity);
 
-        color = vec3(uv.y, 0., 0.);
-
         gl_FragColor = vec4(color, 1.0);
     }
 `;
@@ -47,17 +45,12 @@ function Floor() {
     let depthSmall = (Room.depth - Hole.depth) * 0.5;
     let geometry = new THREE.PlaneBufferGeometry(1, 1);
     geometry.rotateX(-Math.PI * 0.5);
-    let material = new THREE.MeshBasicMaterial({
-        color: 0xFFFFFF,
-        roughness: 0.2,
-        flatShading: true
-    });
 
     let shaderMaterial = new THREE.ShaderMaterial({
         vertexShader,
         fragmentShader,
         uniforms: {
-            diffuse: { value: new THREE.Color(0xFF0000) },
+            diffuse: { value: new THREE.Color(0xFFFFFF) },
             uvTransform: { value: new THREE.Vector4()}
         },
     });

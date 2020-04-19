@@ -64,14 +64,14 @@ function Room () {
     left.position.x = -Room.width * 0.5;
     left.position.y = Room.height * 0.5;
     left.rotation.y = Math.PI * 0.5;
-    left.scale.set(Room.width, Room.height, 1);
+    left.scale.set(Room.depth, Room.height, 1);
     transform.add(left);
 
     let right = new THREE.Mesh(geometry, material);
     right.position.x = Room.width * 0.5;
     right.position.y = Room.height * 0.5;
     right.rotation.y = -Math.PI * 0.5;
-    right.scale.set(Room.width, Room.height, 1);
+    right.scale.set(Room.depth, Room.height, 1);
     transform.add(right);
 
     // let wallBack = new THREE.Mesh(geometry, material);
@@ -86,7 +86,7 @@ function Room () {
 }
 
 Room.width = 10;
-Room.depth = 10;
+Room.depth = 20;
 Room.height= 7;
 
 export default Room;
