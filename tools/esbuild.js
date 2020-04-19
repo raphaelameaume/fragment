@@ -18,8 +18,8 @@ function command(cmd) {
 }
 
 let input = 'public/index.js';
-let directory = 'public/stages';
-let output = 'public/app.js';
+let directory = 'public';
+let output = 'public/assets/scripts/app.js';
 
 function createCommand() {
     return `esbuild ${input} --bundle '--define:process.env.NODE_ENV=\"development\"' --outfile=${output} --sourcemap`;
@@ -37,9 +37,18 @@ async function run() {
     log(chalk.green(`JS :: Bundled in ${endTime - startTime}ms`));
 }
 
+let dir = path.resolve(directory);
+let watchlist = [
+    `${dir}/stages/`,
+    `${dir}/index.js`,
+]
+
+console.log(watchlist);
+
 async function init() {
-    const watcher = watch(path.resolve(directory), {
-        ignored: /[\/\\]\./, persistent: true
+    const watcher = watch(watchlist, {
+        ignored: /[\/\\]\./,
+        persistent: true
     })
     watcher.on('ready', () => {
         watcher.on('add', run); // Listen to files added
@@ -50,3 +59,5 @@ async function init() {
 }
 
 init();
+
+module.exports = { run: run };

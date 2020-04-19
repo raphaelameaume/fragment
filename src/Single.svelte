@@ -1,6 +1,6 @@
 <Panel width="100%">
     <Panel width="30%" direction="column">
-        <Field prop={propStage} name="stage" triggerable={false} />
+        <Field prop={propStage} name="stage" triggerable={false} url={`Single/stage`} />
         <Dropdown title="Scene">
             {#if stage !== null}
                 {#each Object.keys(stage.props) as propKey}

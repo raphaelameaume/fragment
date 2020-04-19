@@ -10,18 +10,20 @@
 	<link rel='stylesheet' href='/global.css'>
 	<link rel='stylesheet' href='/build/bundle.css'>
 
-	<!-- <script defer src='/app.js'></script> -->
 	<script src="./lib/three.min.js"></script>
-	<script type="module">
+	<script defer src='/assets/scripts/app.js'></script>
+	<!-- <script type="module">
 		import Fragment, { THREERenderer } from "./build/bundle.js";
 		import Cubes from "./stages/Cubes.js";
+		import Tampa from "./stages/Tampa.js";
 		Fragment({
 			renderer: THREERenderer(THREE, { width: 1280, height: 720, dpr: 1 }),
 			stages: {
 				Cubes,
+				Tampa,
 			}
 		});
-	</script>
+	</script> -->
 </head>
 
 <body>

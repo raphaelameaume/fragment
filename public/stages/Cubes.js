@@ -53,6 +53,7 @@ function Cubes({ props, renderer }) {
         canvas: renderer.canvas,
         update,
         render,
+        resize,
     };
 }
 

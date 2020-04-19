@@ -133,23 +133,23 @@ function THREERenderer(THREE, { width = window.innerWidth * 0.5, height = window
     let mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    function resize({ width = w, height = h } = {}) {
+    function resize({ width = dimensions.widt, height = dimensions.height } = {}) {
         dimensions.width = width;
         dimensions.height = height;
 
         renderer.setSize(width, height);
     }
 
-    function render(stage1, stage2) {
+    function render(stage1, stage2, { deltaTime, time, timeOffset }) {
         // render both scenes to target
         if (stage1 && stage1.instance) {
-            stage1.instance.update();
+            stage1.instance.update({ deltaTime, time });
             renderer.setRenderTarget(renderTarget0);
             stage1.instance.render({ renderer });
         }
 
         if (stage2 && stage2.instance) {
-            stage2.instance.update();
+            stage2.instance.update({ deltaTime, time });
             renderer.setRenderTarget(renderTarget1);
             stage2.instance.render({ renderer });
         }

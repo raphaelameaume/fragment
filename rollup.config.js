@@ -5,7 +5,19 @@ import livereload from 'rollup-plugin-livereload';
 import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 
+
+const { run } = require('./tools/esbuild.js');
 const production = !process.env.ROLLUP_WATCH;
+
+
+function esbuild () {
+	return {
+		name: 'esbuild',
+		buildEnd: function() {
+			run();
+		}
+	}
+}
 
 export default {
 	input: 'src/main.js',
@@ -38,13 +50,10 @@ export default {
 		}),
 		commonjs(),
 
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
-		!production && serve(),
-
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		!production && livereload('public'),
+		livereload({ watch: ['public/build/', 'public/app.js', 'public/stages'] }),
+		// !production && esbuild(),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
