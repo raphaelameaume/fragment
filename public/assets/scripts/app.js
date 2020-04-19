@@ -17716,24 +17716,31 @@
     const default2 = Fragment;
 
     // public/stages/Tampa/Uniforms.js
-    const Uniforms7 = function() {
+    const Uniforms8 = function() {
       let uniforms = {
         uTime: {
           value: 0
+        },
+        roomDiffuse: {
+          value: new THREE.Color(16711680)
         }
       };
       function common3() {
         return uniforms;
+      }
+      function get(name) {
+        return uniforms[name];
       }
       function update2({time: time2, deltaTime: deltaTime2}) {
         uniforms.uTime.value = time2 / 1000;
       }
       return {
         common: common3,
-        update: update2
+        update: update2,
+        get
       };
     }();
-    const default11 = Uniforms7;
+    const default11 = Uniforms8;
 
     // public/stages/Tampa/Room.js
     let vertexShader5 = `
@@ -17746,14 +17753,14 @@ void main() {
     gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
 }`;
     const fragmentShader5 = `
-uniform vec3 diffuse;
+uniform vec3 roomDiffuse;
 
 varying vec2 vUv;
 
 #include <common>
 
 void main() {
-    vec3 color = diffuse;
+    vec3 color = roomDiffuse;
 
     float intensity = 0.2;
     color *= sin(vUv.y * PI) * intensity + (1. - intensity); // vertical gradient
@@ -17803,7 +17810,7 @@ void main() {
       };
     }
     Room7.width = 10;
-    Room7.depth = 20;
+    Room7.depth = 10;
     Room7.height = 7;
     const default5 = Room7;
 
@@ -17884,7 +17891,7 @@ void main() {
         gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
     }`;
     let fragmentShader2 = `
-    uniform vec3 diffuse;
+    uniform vec3 roomDiffuse;
     uniform vec4 uvTransform;
 
     varying vec2 vUv;
@@ -17900,7 +17907,7 @@ void main() {
             mapRange(vUv.x, 0., 1., uvTransform.x, uvTransform.y),
             mapRange(vUv.y, 0., 1., uvTransform.z, uvTransform.w)
         );
-        vec3 color = diffuse;
+        vec3 color = roomDiffuse;
 
         float intensity = 0.2;
         color *= sin(uv.y * PI) * intensity + (1. - intensity);
@@ -17915,35 +17922,64 @@ void main() {
       let depthSmall = (default5.depth - default6.depth) * 0.5;
       let geometry = new THREE.PlaneBufferGeometry(1, 1);
       geometry.rotateX(-Math.PI * 0.5);
-      let shaderMaterial = new THREE.ShaderMaterial({
+      let uniforms = {
+        ...default11.common(),
+        roomDiffuse: {
+          value: new THREE.Color(16711680)
+        },
+        uvTransform: {
+          value: new THREE.Vector4()
+        }
+      };
+      let left = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
         vertexShader: vertexShader2,
         fragmentShader: fragmentShader2,
         uniforms: {
-          diffuse: {
-            value: new THREE.Color(16777215)
-          },
+          ...default11.common(),
           uvTransform: {
-            value: new THREE.Vector4()
+            value: new THREE.Vector4(0, (default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, 0, 1)
           }
         }
-      });
-      let left = new THREE.Mesh(geometry, shaderMaterial.clone());
+      }));
       left.position.x = -widthBig * 0.5 - default6.width * 0.5;
-      left.material.uniforms.uvTransform.value = new THREE.Vector4(0, (default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, 0, 1);
       left.scale.set(widthBig, 1, default5.depth);
       transform.add(left);
-      let right = new THREE.Mesh(geometry, shaderMaterial.clone());
+      let right = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default11.common(),
+          uvTransform: {
+            value: new THREE.Vector4(((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 1, 0, 1)
+          }
+        }
+      }));
       right.position.x = widthBig * 0.5 + default6.width * 0.5;
-      right.material.uniforms.uvTransform.value = new THREE.Vector4(((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 1, 0, 1);
       right.scale.copy(left.scale);
       transform.add(right);
-      let back = new THREE.Mesh(geometry, shaderMaterial.clone());
-      back.material.uniforms.uvTransform.value = new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, ((default5.depth - default6.depth) * 0.5 + default6.depth) / default5.depth, 1);
+      let back = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default11.common(),
+          uvTransform: {
+            value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, ((default5.depth - default6.depth) * 0.5 + default6.depth) / default5.depth, 1)
+          }
+        }
+      }));
       back.scale.set(default6.width, 1, depthSmall);
       back.position.z = -depthSmall * 0.5 - default6.depth * 0.5;
       transform.add(back);
-      let front = new THREE.Mesh(geometry, shaderMaterial.clone());
-      front.material.uniforms.uvTransform.value = new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 0, (default5.depth - default6.depth - (default5.depth - default6.depth) * 0.5) / default5.depth);
+      let front = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default11.common(),
+          uvTransform: {
+            value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 0, (default5.depth - default6.depth - (default5.depth - default6.depth) * 0.5) / default5.depth)
+          }
+        }
+      }));
       front.scale.copy(back.scale);
       front.position.z = depthSmall * 0.5 + default6.depth * 0.5;
       transform.add(front);
@@ -17981,13 +18017,14 @@ void main() {
 }`;
     const fragmentShader = `
 uniform vec3 diffuse;
+uniform vec3 roomDiffuse;
 
 varying vec2 vUv;
 
 #include <common>
 
 void main() {
-    vec3 color = diffuse;
+    vec3 color = roomDiffuse;
 
     float intensity = 0.2;
     color *= sin(vUv.y * PI) * intensity + (1. - intensity); // vertical gradient
@@ -45725,6 +45762,9 @@ vec4 envMapTexelToLinear(vec4 color) {
       const particles = default10();
       scene.add(particles.transform);
       const controls = new OrbitControls2(camera, document.querySelector(".output"));
+      props.roomDiffuse.onChange = ({value: value2}) => {
+        default11.get("roomDiffuse").value = new THREE.Color(props.roomDiffuse.value);
+      };
       function update2({time: time2, deltaTime: deltaTime2}) {
         default11.update({
           time: time2,
@@ -45748,7 +45788,12 @@ vec4 envMapTexelToLinear(vec4 color) {
     const default12 = {
       name: "Tampa",
       scene: Tampa2,
-      props: {}
+      props: {
+        roomDiffuse: {
+          type: "color",
+          value: "#ff0000"
+        }
+      }
     };
 
     // public/stages/Cubes.js

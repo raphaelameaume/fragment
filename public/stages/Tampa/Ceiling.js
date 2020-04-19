@@ -13,13 +13,14 @@ void main() {
 
 const fragmentShader = /* glsl */`
 uniform vec3 diffuse;
+uniform vec3 roomDiffuse;
 
 varying vec2 vUv;
 
 #include <common>
 
 void main() {
-    vec3 color = diffuse;
+    vec3 color = roomDiffuse;
 
     float intensity = 0.2;
     color *= sin(vUv.y * PI) * intensity + (1. - intensity); // vertical gradient

@@ -1,5 +1,6 @@
 import Room from "./Room.js";
 import Hole from "./Hole.js";
+import Uniforms from "./Uniforms.js";
 
 let vertexShader = /* glsl */`
     varying vec2 vUv;
@@ -12,7 +13,7 @@ let vertexShader = /* glsl */`
     }`;
 
 let fragmentShader = /* glsl */`
-    uniform vec3 diffuse;
+    uniform vec3 roomDiffuse;
     uniform vec4 uvTransform;
 
     varying vec2 vUv;
@@ -28,7 +29,7 @@ let fragmentShader = /* glsl */`
             mapRange(vUv.x, 0., 1., uvTransform.x, uvTransform.y),
             mapRange(vUv.y, 0., 1., uvTransform.z, uvTransform.w)
         );
-        vec3 color = diffuse;
+        vec3 color = roomDiffuse;
 
         float intensity = 0.2;
         color *= sin(uv.y * PI) * intensity + (1. - intensity);
@@ -46,55 +47,84 @@ function Floor() {
     let geometry = new THREE.PlaneBufferGeometry(1, 1);
     geometry.rotateX(-Math.PI * 0.5);
 
-    let shaderMaterial = new THREE.ShaderMaterial({
+    let uniforms = {
+        ...Uniforms.common(),
+        roomDiffuse: { value: new THREE.Color(0xFF0000) },
+        uvTransform: { value: new THREE.Vector4() }
+    };
+
+    let left = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
         vertexShader,
         fragmentShader,
         uniforms: {
-            diffuse: { value: new THREE.Color(0xFFFFFF) },
-            uvTransform: { value: new THREE.Vector4()}
+            ...Uniforms.common(),
+            uvTransform: {
+                value: new THREE.Vector4(
+                    0,
+                    (Room.width - Hole.width - (Room.width - Hole.width) * 0.5) / Room.width,
+                    0,
+                    1,
+                )
+            }
         },
-    });
-
-    let left = new THREE.Mesh(geometry, shaderMaterial.clone());
+    }));
     left.position.x = -widthBig * 0.5 - Hole.width * 0.5;
-    left.material.uniforms.uvTransform.value = new THREE.Vector4(
-        0,
-        (Room.width - Hole.width - (Room.width - Hole.width) * 0.5) / Room.width,
-        0, 
-        1,
-    );
     left.scale.set(widthBig, 1, Room.depth);
     transform.add(left);
 
-    let right = new THREE.Mesh(geometry, shaderMaterial.clone());
+    let right = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            ...Uniforms.common(),
+            uvTransform: {
+                value: new THREE.Vector4(
+                    ((Room.width - Hole.width) * 0.5 + Hole.width) / Room.width,
+                    1,
+                    0,
+                    1,
+                )
+            }
+        },
+    }));
     right.position.x = widthBig * 0.5 + Hole.width * 0.5;
-    right.material.uniforms.uvTransform.value = new THREE.Vector4(
-        ((Room.width - Hole.width) * 0.5 + Hole.width) / Room.width,
-        1,
-        0,
-        1,
-    );
     right.scale.copy(left.scale);
     transform.add(right);
 
-    let back = new THREE.Mesh(geometry, shaderMaterial.clone());
-    back.material.uniforms.uvTransform.value = new THREE.Vector4(
-        (Room.width - Hole.width - (Room.width - Hole.width) * 0.5) / Room.width,
-        ((Room.width - Hole.width) * 0.5 + Hole.width) / Room.width,
-        ((Room.depth - Hole.depth) * 0.5 + Hole.depth) / Room.depth,
-        1,
-    );
+    let back = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            ...Uniforms.common(),
+            uvTransform: {
+                value: new THREE.Vector4(
+                    (Room.width - Hole.width - (Room.width - Hole.width) * 0.5) / Room.width,
+                    ((Room.width - Hole.width) * 0.5 + Hole.width) / Room.width,
+                    ((Room.depth - Hole.depth) * 0.5 + Hole.depth) / Room.depth,
+                    1,
+                )
+            }
+        },
+    }));
     back.scale.set(Hole.width, 1, depthSmall);
     back.position.z = -depthSmall * 0.5 - Hole.depth * 0.5;
     transform.add(back);
 
-    let front = new THREE.Mesh(geometry, shaderMaterial.clone());
-    front.material.uniforms.uvTransform.value = new THREE.Vector4(
-        (Room.width - Hole.width - (Room.width - Hole.width) * 0.5) / Room.width,
-        ((Room.width - Hole.width) * 0.5 + Hole.width) / Room.width,
-        0,
-        (Room.depth - Hole.depth - (Room.depth - Hole.depth) * 0.5) / Room.depth,
-    );
+    let front = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+            ...Uniforms.common(),
+            uvTransform: {
+                value: new THREE.Vector4(
+                    (Room.width - Hole.width - (Room.width - Hole.width) * 0.5) / Room.width,
+                    ((Room.width - Hole.width) * 0.5 + Hole.width) / Room.width,
+                    0,
+                    (Room.depth - Hole.depth - (Room.depth - Hole.depth) * 0.5) / Room.depth,
+                )
+            }
+        },
+    }));
     front.scale.copy(back.scale);
     front.position.z = depthSmall * 0.5 + Hole.depth * 0.5;
     transform.add(front);

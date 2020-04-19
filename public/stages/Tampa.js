@@ -38,6 +38,10 @@ function Tampa({ props, renderer }) {
     scene.add(particles.transform);
 
     const controls = new OrbitControls(camera, document.querySelector('.output'));
+
+    props.roomDiffuse.onChange = ({ value }) => {
+        Uniforms.get('roomDiffuse').value = new THREE.Color(props.roomDiffuse.value);
+    }
     
     function update({ time, deltaTime }) {
         Uniforms.update({ time, deltaTime });
@@ -68,7 +72,12 @@ function Tampa({ props, renderer }) {
 export default {
     name: 'Tampa',
     scene: Tampa,
-    props: {},
+    props: {
+        roomDiffuse: {
+            type: 'color',
+            value: '#ff0000',
+        }
+    },
 };
 
     
