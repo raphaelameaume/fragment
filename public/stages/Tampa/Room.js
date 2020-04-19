@@ -85,8 +85,8 @@ function Room () {
     }
 }
 
-Room.width = 10;
-Room.depth = 10;
+Room.width = 15;
+Room.depth = 15;
 Room.height= 7;
 
 export default Room;

@@ -2376,15 +2376,15 @@
       }
     }
     var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
-    function createCommonjsModule(fn, module16) {
-      return module16 = {
+    function createCommonjsModule(fn, module19) {
+      return module19 = {
         exports: {}
-      }, fn(module16, module16.exports), module16.exports;
+      }, fn(module19, module19.exports), module19.exports;
     }
     function getCjsExportFromNamespace(n) {
       return n && n["default"] || n;
     }
-    var webmidi_min = createCommonjsModule(function(module16) {
+    var webmidi_min = createCommonjsModule(function(module19) {
       !function(scope) {
         function WebMidi() {
           if (WebMidi.prototype._singleton)
@@ -3350,7 +3350,7 @@
           return Array.isArray(note2) || (note2 = [note2]), note2.forEach(function(item) {
             notes.push(wm.guessNoteNumber(item));
           }), notes;
-        }, module16.exports ? module16.exports = wm : scope.WebMidi || (scope.WebMidi = wm);
+        }, module19.exports ? module19.exports = wm : scope.WebMidi || (scope.WebMidi = wm);
       }(commonjsGlobal);
     });
     let TRIGGER_ID = 0;
@@ -5137,7 +5137,7 @@
       return createDebug;
     }
     var common2 = setup;
-    var browser = createCommonjsModule(function(module16, exports2) {
+    var browser = createCommonjsModule(function(module19, exports2) {
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -5155,7 +5155,7 @@
         return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
       }
       function formatArgs(args) {
-        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module16.exports.humanize(this.diff);
+        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module19.exports.humanize(this.diff);
         if (!this.useColors) {
           return;
         }
@@ -5204,8 +5204,8 @@
         } catch (error) {
         }
       }
-      module16.exports = common2(exports2);
-      const {formatters} = module16.exports;
+      module19.exports = common2(exports2);
+      const {formatters} = module19.exports;
       formatters.j = function(v) {
         try {
           return JSON.stringify(v);
@@ -5353,8 +5353,8 @@
       }
       return Math.ceil(ms2 / n) + " " + name + "s";
     }
-    var debug$1 = createCommonjsModule(function(module16, exports2) {
-      exports2 = module16.exports = createDebug.debug = createDebug["default"] = createDebug;
+    var debug$1 = createCommonjsModule(function(module19, exports2) {
+      exports2 = module19.exports = createDebug.debug = createDebug["default"] = createDebug;
       exports2.coerce = coerce;
       exports2.disable = disable2;
       exports2.enable = enable2;
@@ -5487,8 +5487,8 @@
     var debug_7 = debug$1.names;
     var debug_8 = debug$1.skips;
     var debug_9 = debug$1.formatters;
-    var browser$1 = createCommonjsModule(function(module16, exports2) {
-      exports2 = module16.exports = debug$1;
+    var browser$1 = createCommonjsModule(function(module19, exports2) {
+      exports2 = module19.exports = debug$1;
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -5570,9 +5570,9 @@
     var browser_5$1 = browser$1.useColors;
     var browser_6$1 = browser$1.storage;
     var browser_7$1 = browser$1.colors;
-    var componentEmitter = createCommonjsModule(function(module16) {
+    var componentEmitter = createCommonjsModule(function(module19) {
       {
-        module16.exports = Emitter2;
+        module19.exports = Emitter2;
       }
       function Emitter2(obj) {
         if (obj)
@@ -5753,7 +5753,7 @@
       reconstructPacket,
       removeBlobs
     };
-    var socket_ioParser = createCommonjsModule(function(module16, exports2) {
+    var socket_ioParser = createCommonjsModule(function(module19, exports2) {
       var debug2 = browser$1("socket.io-parser");
       exports2.protocol = 4;
       exports2.types = ["CONNECT", "DISCONNECT", "EVENT", "ACK", "ERROR", "BINARY_EVENT", "BINARY_ACK"];
@@ -5954,11 +5954,11 @@
     var socket_ioParser_9 = socket_ioParser.BINARY_ACK;
     var socket_ioParser_10 = socket_ioParser.Encoder;
     var socket_ioParser_11 = socket_ioParser.Decoder;
-    var hasCors = createCommonjsModule(function(module16) {
+    var hasCors = createCommonjsModule(function(module19) {
       try {
-        module16.exports = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
+        module19.exports = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
       } catch (err) {
-        module16.exports = false;
+        module19.exports = false;
       }
     });
     var xmlhttprequest = function(opts) {
@@ -6240,7 +6240,7 @@
       encode: utf8encode,
       decode: utf8decode
     };
-    var base64Arraybuffer = createCommonjsModule(function(module16, exports2) {
+    var base64Arraybuffer = createCommonjsModule(function(module19, exports2) {
       (function() {
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         var lookup = new Uint8Array(256);
@@ -6342,7 +6342,7 @@
         return void 0;
       }
     }();
-    var browser$2 = createCommonjsModule(function(module16, exports2) {
+    var browser$2 = createCommonjsModule(function(module19, exports2) {
       var base64encoder;
       if (typeof ArrayBuffer !== "undefined") {
         base64encoder = base64Arraybuffer;
@@ -6741,9 +6741,9 @@
     var browser_9 = browser$2.encodePayloadAsArrayBuffer;
     var browser_10 = browser$2.encodePayloadAsBlob;
     var browser_11 = browser$2.decodePayloadAsBinary;
-    var componentEmitter$1 = createCommonjsModule(function(module16) {
+    var componentEmitter$1 = createCommonjsModule(function(module19) {
       {
-        module16.exports = Emitter2;
+        module19.exports = Emitter2;
       }
       function Emitter2(obj) {
         if (obj)
@@ -7190,7 +7190,7 @@
       return createDebug;
     }
     var common$1 = setup$1;
-    var browser$3 = createCommonjsModule(function(module16, exports2) {
+    var browser$3 = createCommonjsModule(function(module19, exports2) {
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -7208,7 +7208,7 @@
         return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
       }
       function formatArgs(args) {
-        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module16.exports.humanize(this.diff);
+        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module19.exports.humanize(this.diff);
         if (!this.useColors) {
           return;
         }
@@ -7257,8 +7257,8 @@
         } catch (error) {
         }
       }
-      module16.exports = common$1(exports2);
-      const {formatters} = module16.exports;
+      module19.exports = common$1(exports2);
+      const {formatters} = module19.exports;
       formatters.j = function(v) {
         try {
           return JSON.stringify(v);
@@ -8491,9 +8491,9 @@
         return fn.apply(obj, args.concat(slice.call(arguments)));
       };
     };
-    var socket$1 = createCommonjsModule(function(module16, exports2) {
+    var socket$1 = createCommonjsModule(function(module19, exports2) {
       var debug2 = browser("socket.io-client:socket");
-      module16.exports = exports2 = Socket2;
+      module19.exports = exports2 = Socket2;
       var events = {
         connect: 1,
         connect_error: 1,
@@ -9067,9 +9067,9 @@
       this.updateSocketIds();
       this.emitAll("reconnect", attempt);
     };
-    var lib$1 = createCommonjsModule(function(module16, exports2) {
+    var lib$1 = createCommonjsModule(function(module19, exports2) {
       var debug2 = browser("socket.io-client");
-      module16.exports = exports2 = lookup;
+      module19.exports = exports2 = lookup;
       var cache = exports2.managers = {};
       function lookup(uri, opts) {
         if (typeof uri === "object") {
@@ -17477,7 +17477,7 @@
       let geometry = new THREE2.BufferGeometry();
       geometry.setAttribute("position", new THREE2.BufferAttribute(vertices, 2));
       geometry.setAttribute("uv", new THREE2.BufferAttribute(uvs, 2));
-      let vertexShader6 = `
+      let vertexShader8 = `
         precision highp float;
 
         attribute vec2 position;
@@ -17553,7 +17553,7 @@
               if (transitions[i3].key === key) {
                 const {fragment} = transitions[i3];
                 mesh.material = new THREE2.RawShaderMaterial({
-                  vertexShader: vertexShader6,
+                  vertexShader: vertexShader8,
                   fragmentShader: fragment,
                   uniforms
                 });
@@ -17574,7 +17574,7 @@
         }
       };
       let material2 = new THREE2.RawShaderMaterial({
-        vertexShader: vertexShader6,
+        vertexShader: vertexShader8,
         fragmentShader: fragmentFade,
         uniforms
       });
@@ -17743,7 +17743,7 @@
         get
       };
     }();
-    const default11 = Uniforms8;
+    const default13 = Uniforms8;
 
     // public/stages/Tampa/Room.js
     let vertexShader5 = `
@@ -17772,50 +17772,50 @@ void main() {
     gl_FragColor = vec4(color, 1.0);
 }
 `;
-    function Room7() {
+    function Room8() {
       let transform = new THREE.Object3D();
       let geometry = new THREE.PlaneBufferGeometry(1, 1);
       let material2 = new THREE.ShaderMaterial({
         vertexShader: vertexShader5,
         fragmentShader: fragmentShader5,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           diffuse: {
             value: new THREE.Color(16777215)
           }
         }
       });
       let back = new THREE.Mesh(geometry, material2);
-      back.position.z = -Room7.depth * 0.5;
-      back.scale.set(Room7.width, Room7.height, 1);
-      back.position.y = Room7.height * 0.5;
+      back.position.z = -Room8.depth * 0.5;
+      back.scale.set(Room8.width, Room8.height, 1);
+      back.position.y = Room8.height * 0.5;
       transform.add(back);
       let front = new THREE.Mesh(geometry, material2);
-      front.position.y = Room7.height * 0.5;
-      front.position.z = Room7.depth * 0.5;
-      front.scale.set(Room7.width, Room7.height, 1);
+      front.position.y = Room8.height * 0.5;
+      front.position.z = Room8.depth * 0.5;
+      front.scale.set(Room8.width, Room8.height, 1);
       front.rotation.y = Math.PI;
       transform.add(front);
       let left = new THREE.Mesh(geometry, material2);
-      left.position.x = -Room7.width * 0.5;
-      left.position.y = Room7.height * 0.5;
+      left.position.x = -Room8.width * 0.5;
+      left.position.y = Room8.height * 0.5;
       left.rotation.y = Math.PI * 0.5;
-      left.scale.set(Room7.depth, Room7.height, 1);
+      left.scale.set(Room8.depth, Room8.height, 1);
       transform.add(left);
       let right = new THREE.Mesh(geometry, material2);
-      right.position.x = Room7.width * 0.5;
-      right.position.y = Room7.height * 0.5;
+      right.position.x = Room8.width * 0.5;
+      right.position.y = Room8.height * 0.5;
       right.rotation.y = -Math.PI * 0.5;
-      right.scale.set(Room7.depth, Room7.height, 1);
+      right.scale.set(Room8.depth, Room8.height, 1);
       transform.add(right);
       return {
         transform
       };
     }
-    Room7.width = 10;
-    Room7.depth = 10;
-    Room7.height = 7;
-    const default5 = Room7;
+    Room8.width = 15;
+    Room8.depth = 15;
+    Room8.height = 7;
+    const default5 = Room8;
 
     // public/stages/Tampa/Hole.js
     let vertexShader3 = `
@@ -17828,18 +17828,22 @@ void main() {
     gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
 }`;
     const fragmentShader3 = `
-uniform vec3 diffuse;
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
 
 varying vec2 vUv;
 
 #include <common>
 
 void main() {
-    vec3 color = diffuse;
+    vec3 color = roomDiffuse;
     color *= vUv.y; // vertical gradient
 
-    float intensity = 0.2;
+    float intensity = roomAOIntensity;
+    intensity *= 0.2;
+
     color *= sin(vUv.x * PI) * intensity + (1. - intensity);
+    color *= sin(vUv.y * PI) * intensity + (1. - intensity);
 
     gl_FragColor = vec4(color, 1.0);
 }
@@ -17852,7 +17856,7 @@ void main() {
         vertexShader: vertexShader3,
         fragmentShader: fragmentShader3,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           diffuse: {
             value: new THREE.Color(16777215)
           }
@@ -17926,7 +17930,7 @@ void main() {
       let geometry = new THREE.PlaneBufferGeometry(1, 1);
       geometry.rotateX(-Math.PI * 0.5);
       let uniforms = {
-        ...default11.common(),
+        ...default13.common(),
         roomDiffuse: {
           value: new THREE.Color(16711680)
         },
@@ -17938,7 +17942,7 @@ void main() {
         vertexShader: vertexShader2,
         fragmentShader: fragmentShader2,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           uvTransform: {
             value: new THREE.Vector4(0, (default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, 0, 1)
           }
@@ -17951,7 +17955,7 @@ void main() {
         vertexShader: vertexShader2,
         fragmentShader: fragmentShader2,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           uvTransform: {
             value: new THREE.Vector4(((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 1, 0, 1)
           }
@@ -17964,7 +17968,7 @@ void main() {
         vertexShader: vertexShader2,
         fragmentShader: fragmentShader2,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           uvTransform: {
             value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, ((default5.depth - default6.depth) * 0.5 + default6.depth) / default5.depth, 1)
           }
@@ -17977,7 +17981,7 @@ void main() {
         vertexShader: vertexShader2,
         fragmentShader: fragmentShader2,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           uvTransform: {
             value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 0, (default5.depth - default6.depth - (default5.depth - default6.depth) * 0.5) / default5.depth)
           }
@@ -17995,18 +17999,45 @@ void main() {
     // public/stages/Tampa/Shape.js
     function Shape4() {
       let transform = new THREE.Object3D();
-      let geometry = new THREE.BoxGeometry(default6.width, default6.width, default6.depth);
+      let height = default6.width;
+      let geometry = new THREE.BoxGeometry(default6.width, default6.depth, default6.depth);
       let material2 = new THREE.MeshBasicMaterial({
-        color: 16711935
+        color: 16777215
       });
       let mesh = new THREE.Mesh(geometry, material2);
-      mesh.position.y = -default6.width * 0.5;
+      mesh.position.y = height * 1.5;
       transform.add(mesh);
+      function update2({deltaTime: deltaTime2}) {
+        mesh.rotation.x += deltaTime2 * 0.001;
+        mesh.rotation.y += deltaTime2 * 0.001;
+        mesh.rotation.z += deltaTime2 * 0.001;
+      }
       return {
-        transform
+        transform,
+        update: update2
       };
     }
     const default7 = Shape4;
+
+    // public/stages/Tampa/Camera.js
+    function Camera4({aspect: aspect2} = {}) {
+      let transform = new THREE.Object3D();
+      let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
+      camera.position.set(0, 0, 10);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      camera.updateProjectionMatrix();
+      transform.add(camera);
+      let speed = 0.0005;
+      function update2({deltaTime: deltaTime2}) {
+        transform.rotation.y -= deltaTime2 * speed;
+      }
+      return {
+        camera,
+        transform,
+        update: update2
+      };
+    }
+    const default8 = Camera4;
 
     // public/stages/Tampa/Ceiling.js
     let vertexShader = `
@@ -18044,7 +18075,7 @@ void main() {
         vertexShader,
         fragmentShader,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           diffuse: {
             value: new THREE.Color(16777215)
           }
@@ -18073,7 +18104,7 @@ void main() {
         transform
       };
     }
-    const default8 = Ceiling3;
+    const default9 = Ceiling3;
 
     // public/stages/Tampa/Lights.js
     function Lights3() {
@@ -18084,7 +18115,7 @@ void main() {
         transform
       };
     }
-    const default9 = Lights3;
+    const default10 = Lights3;
 
     // public/stages/Tampa/Particles.js
     const random = require(0 /* canvas-sketch-util/random */, true /* ES6 import */);
@@ -18152,19 +18183,176 @@ void main() {
         vertexShader: vertexShader4,
         fragmentShader: fragmentShader4,
         uniforms: {
-          ...default11.common(),
+          ...default13.common(),
           color: {
             value: new THREE.Color(16777215)
           }
         }
       });
       let mesh = new THREE.Points(geometry, material2);
-      transform.add(mesh);
       return {
         transform
       };
     }
-    const default10 = Particles3;
+    const default11 = Particles3;
+
+    // public/stages/Tampa/TubeLight.js
+    let vertexShader6 = `
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
+    let fragmentShaderShadow = `
+    uniform vec3 diffuse;
+    uniform float opacity;
+
+    varying vec2 vUv;
+
+    #include <common>
+
+    void main() {
+        float o = opacity;
+        o *= sin(PI * vUv.x);
+        o *= sin(PI * vUv.y);
+
+        gl_FragColor = vec4(diffuse, o);
+    }
+`;
+    function TubeLight2() {
+      let transform = new THREE.Object3D();
+      let length2 = TubeLight2.width;
+      let radiusLight = TubeLight2.radius * 0.5;
+      let radiusGlass = TubeLight2.radius;
+      let color = Math.random() * 16777215;
+      color = 16777215;
+      let lightGeometry = new THREE.CylinderBufferGeometry(radiusLight, radiusLight, length2, 32, 1, true);
+      lightGeometry.rotateZ(Math.PI * 0.5);
+      let lightMaterial = new THREE.MeshBasicMaterial({
+        color,
+        side: THREE.DoubleSide
+      });
+      let light = new THREE.Mesh(lightGeometry, lightMaterial);
+      transform.add(light);
+      let glassGeometry = new THREE.CylinderBufferGeometry(radiusGlass, radiusGlass, length2, 32, 1, true);
+      glassGeometry.rotateZ(Math.PI * 0.5);
+      let glassMaterial = new THREE.MeshBasicMaterial({
+        color: 16777215,
+        opacity: 0.5,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+      let glass = new THREE.Mesh(glassGeometry, glassMaterial);
+      transform.add(glass);
+      let radiusPiece = radiusGlass * 1.02;
+      let lengthPiece = length2 * 0.05;
+      let pieceGeometry = new THREE.CylinderBufferGeometry(radiusPiece, radiusPiece, lengthPiece, 32, 1, false);
+      pieceGeometry.rotateZ(Math.PI * 0.5);
+      let pieceMaterial = new THREE.MeshBasicMaterial({
+        color: 14737632
+      });
+      let pieceLeft = new THREE.Mesh(pieceGeometry, pieceMaterial);
+      pieceLeft.position.x = -length2 * 0.5 + lengthPiece * 0.5;
+      transform.add(pieceLeft);
+      let pieceRight = new THREE.Mesh(pieceGeometry, pieceMaterial);
+      pieceRight.position.x = length2 * 0.5 - lengthPiece * 0.5;
+      transform.add(pieceRight);
+      const tubeLight = {
+        color,
+        transform
+      };
+      return tubeLight;
+    }
+    TubeLight2.radius = 0.06;
+    TubeLight2.width = 5;
+    const default15 = TubeLight2;
+
+    // public/stages/Tampa/TubeLights.js
+    let vertexShader7 = `
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
+    let fragmentShaderShadow2 = `
+    uniform vec3 diffuse;
+    uniform float opacity;
+
+    varying vec2 vUv;
+
+    #include <common>
+
+    void main() {
+        float o = opacity;
+        o *= sin(PI * vUv.x);
+        o *= sin(PI * vUv.y);
+
+        gl_FragColor = vec4(diffuse, o);
+    }
+`;
+    function TubeLights3() {
+      let transform = new THREE.Object3D();
+      let countY = 10;
+      function createLightWall() {
+        let transformWall = new THREE.Object3D();
+        let spaceBetween = 0.2;
+        let h2 = countY * default15.radius + (countY - 1) * spaceBetween;
+        for (let i3 = 0; i3 < countY; i3++) {
+          let light = default15();
+          light.transform.position.y = -h2 * 0.5 + i3 * default15.radius + i3 * spaceBetween;
+          transformWall.add(light.transform);
+        }
+        let shadowGeometry = new THREE.PlaneBufferGeometry(default15.width * 2, h2 * 2);
+        let shadowMaterial = new THREE.ShaderMaterial({
+          vertexShader: vertexShader7,
+          fragmentShader: fragmentShaderShadow2,
+          uniforms: {
+            diffuse: {
+              value: new THREE.Color(16777215)
+            },
+            opacity: {
+              value: 0.2
+            }
+          },
+          transparent: true
+        });
+        let shadowMesh = new THREE.Mesh(shadowGeometry, shadowMaterial);
+        transformWall.add(shadowMesh);
+        return {
+          transform: transformWall
+        };
+      }
+      let lightWallBack = createLightWall();
+      lightWallBack.transform.position.y = default5.height * 0.5;
+      lightWallBack.transform.position.z = -default5.depth * 0.5 + default15.radius + 0.01;
+      transform.add(lightWallBack.transform);
+      let lightWallFront = createLightWall();
+      lightWallFront.transform.position.y = default5.height * 0.5;
+      lightWallFront.transform.position.z = default5.depth * 0.5 - default15.radius * 0.5;
+      transform.add(lightWallFront.transform);
+      let lightWallLeft = createLightWall();
+      lightWallLeft.transform.position.y = default5.height * 0.5;
+      lightWallLeft.transform.rotation.y = Math.PI * 0.5;
+      lightWallLeft.transform.position.x = -default5.width * 0.5 + default15.radius * 0.5;
+      transform.add(lightWallLeft.transform);
+      let lightWallRight = createLightWall();
+      lightWallRight.transform.position.y = default5.height * 0.5;
+      lightWallRight.transform.rotation.y = -Math.PI * 0.5;
+      lightWallRight.transform.position.x = default5.width * 0.5 - default15.radius * 0.5;
+      transform.add(lightWallRight.transform);
+      return {
+        transform
+      };
+    }
+    const default12 = TubeLights3;
 
     // node_modules/three/build/three.module.js
     if (Number.EPSILON === void 0) {
@@ -28381,7 +28569,7 @@ void main() {
     function WebGLProgram(renderer, extensions, cacheKey, material2, shader, parameters) {
       var gl = renderer.getContext();
       var defines = material2.defines;
-      var vertexShader6 = shader.vertexShader;
+      var vertexShader8 = shader.vertexShader;
       var fragmentShader6 = shader.fragmentShader;
       var shadowMapTypeDefine = generateShadowMapTypeDefine(parameters);
       var envMapTypeDefine = generateEnvMapTypeDefine(parameters);
@@ -28406,20 +28594,20 @@ void main() {
         prefixVertex = [generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.instancing ? "#define USE_INSTANCING" : "", parameters.supportsVertexTextures ? "#define VERTEX_TEXTURES" : "", "#define GAMMA_FACTOR " + gammaFactorDefine, "#define MAX_BONES " + parameters.maxBones, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.displacementMap && parameters.supportsVertexTextures ? "#define USE_DISPLACEMENTMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.skinning ? "#define USE_SKINNING" : "", parameters.useVertexTexture ? "#define BONE_TEXTURE" : "", parameters.morphTargets ? "#define USE_MORPHTARGETS" : "", parameters.morphNormals && parameters.flatShading === false ? "#define USE_MORPHNORMALS" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.sizeAttenuation ? "#define USE_SIZEATTENUATION" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", "uniform mat4 modelMatrix;", "uniform mat4 modelViewMatrix;", "uniform mat4 projectionMatrix;", "uniform mat4 viewMatrix;", "uniform mat3 normalMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", "#ifdef USE_INSTANCING", " attribute mat4 instanceMatrix;", "#endif", "attribute vec3 position;", "attribute vec3 normal;", "attribute vec2 uv;", "#ifdef USE_TANGENT", "	attribute vec4 tangent;", "#endif", "#ifdef USE_COLOR", "	attribute vec3 color;", "#endif", "#ifdef USE_MORPHTARGETS", "	attribute vec3 morphTarget0;", "	attribute vec3 morphTarget1;", "	attribute vec3 morphTarget2;", "	attribute vec3 morphTarget3;", "	#ifdef USE_MORPHNORMALS", "		attribute vec3 morphNormal0;", "		attribute vec3 morphNormal1;", "		attribute vec3 morphNormal2;", "		attribute vec3 morphNormal3;", "	#else", "		attribute vec3 morphTarget4;", "		attribute vec3 morphTarget5;", "		attribute vec3 morphTarget6;", "		attribute vec3 morphTarget7;", "	#endif", "#endif", "#ifdef USE_SKINNING", "	attribute vec4 skinIndex;", "	attribute vec4 skinWeight;", "#endif", "\n"].filter(filterEmptyLine).join("\n");
         prefixFragment = [customExtensions, generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.alphaTest ? "#define ALPHATEST " + parameters.alphaTest + (parameters.alphaTest % 1 ? "" : ".0") : "", "#define GAMMA_FACTOR " + gammaFactorDefine, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.matcap ? "#define USE_MATCAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapTypeDefine : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.envMap ? "#define " + envMapBlendingDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.sheen ? "#define USE_SHEEN" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.gradientMap ? "#define USE_GRADIENTMAP" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.premultipliedAlpha ? "#define PREMULTIPLIED_ALPHA" : "", parameters.physicallyCorrectLights ? "#define PHYSICALLY_CORRECT_LIGHTS" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", ((material2.extensions ? material2.extensions.shaderTextureLOD : false) || parameters.envMap) && (parameters.isWebGL2 || extensions.get("EXT_shader_texture_lod")) ? "#define TEXTURE_LOD_EXT" : "", "uniform mat4 viewMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", parameters.toneMapping !== NoToneMapping ? "#define TONE_MAPPING" : "", parameters.toneMapping !== NoToneMapping ? ShaderChunk["tonemapping_pars_fragment"] : "", parameters.toneMapping !== NoToneMapping ? getToneMappingFunction("toneMapping", parameters.toneMapping) : "", parameters.dithering ? "#define DITHERING" : "", parameters.outputEncoding || parameters.mapEncoding || parameters.matcapEncoding || parameters.envMapEncoding || parameters.emissiveMapEncoding || parameters.lightMapEncoding ? ShaderChunk["encodings_pars_fragment"] : "", parameters.mapEncoding ? getTexelDecodingFunction("mapTexelToLinear", parameters.mapEncoding) : "", parameters.matcapEncoding ? getTexelDecodingFunction("matcapTexelToLinear", parameters.matcapEncoding) : "", parameters.envMapEncoding ? getTexelDecodingFunction("envMapTexelToLinear", parameters.envMapEncoding) : "", parameters.emissiveMapEncoding ? getTexelDecodingFunction("emissiveMapTexelToLinear", parameters.emissiveMapEncoding) : "", parameters.lightMapEncoding ? getTexelDecodingFunction("lightMapTexelToLinear", parameters.lightMapEncoding) : "", parameters.outputEncoding ? getTexelEncodingFunction("linearToOutputTexel", parameters.outputEncoding) : "", parameters.depthPacking ? "#define DEPTH_PACKING " + material2.depthPacking : "", "\n"].filter(filterEmptyLine).join("\n");
       }
-      vertexShader6 = resolveIncludes(vertexShader6);
-      vertexShader6 = replaceLightNums(vertexShader6, parameters);
-      vertexShader6 = replaceClippingPlaneNums(vertexShader6, parameters);
+      vertexShader8 = resolveIncludes(vertexShader8);
+      vertexShader8 = replaceLightNums(vertexShader8, parameters);
+      vertexShader8 = replaceClippingPlaneNums(vertexShader8, parameters);
       fragmentShader6 = resolveIncludes(fragmentShader6);
       fragmentShader6 = replaceLightNums(fragmentShader6, parameters);
       fragmentShader6 = replaceClippingPlaneNums(fragmentShader6, parameters);
-      vertexShader6 = unrollLoops(vertexShader6);
+      vertexShader8 = unrollLoops(vertexShader8);
       fragmentShader6 = unrollLoops(fragmentShader6);
       if (parameters.isWebGL2 && !material2.isRawShaderMaterial) {
         var isGLSL3ShaderMaterial = false;
         var versionRegex = /^\s*#version\s+300\s+es\s*\n/;
-        if (material2.isShaderMaterial && vertexShader6.match(versionRegex) !== null && fragmentShader6.match(versionRegex) !== null) {
+        if (material2.isShaderMaterial && vertexShader8.match(versionRegex) !== null && fragmentShader6.match(versionRegex) !== null) {
           isGLSL3ShaderMaterial = true;
-          vertexShader6 = vertexShader6.replace(versionRegex, "");
+          vertexShader8 = vertexShader8.replace(versionRegex, "");
           fragmentShader6 = fragmentShader6.replace(versionRegex, "");
         }
         prefixVertex = ["#version 300 es\n", "#define attribute in", "#define varying out", "#define texture2D texture"].join("\n") + "\n" + prefixVertex;
@@ -28431,7 +28619,7 @@ void main() {
           prefixFragment = prefixFragment.replace("uniform mat4 viewMatrix;", ["uniform mat4 viewMatrices[" + numMultiviewViews + "];", "#define viewMatrix viewMatrices[VIEW_ID]"].join("\n"));
         }
       }
-      var vertexGlsl = prefixVertex + vertexShader6;
+      var vertexGlsl = prefixVertex + vertexShader8;
       var fragmentGlsl = prefixFragment + fragmentShader6;
       var glVertexShader = WebGLShader(gl, 35633, vertexGlsl);
       var glFragmentShader = WebGLShader(gl, 35632, fragmentGlsl);
@@ -45747,42 +45935,60 @@ vec4 envMapTexelToLinear(vec4 color) {
     function Tampa2({props, renderer}) {
       let scene = new THREE.Scene();
       scene.position.y = -default5.height * 0.5;
-      let camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
-      camera.position.set(0, 3, 4);
-      camera.lookAt(new THREE.Vector3());
+      let camera = default8({
+        aspect: renderer.canvas.width / renderer.canvas.height
+      });
       let shape = default7();
       scene.add(shape.transform);
-      const lights = default9();
+      const lights = default10();
       scene.add(lights.transform);
       const room = default5();
       scene.add(room.transform);
       const hole = default6();
       scene.add(hole.transform);
-      const ceiling = default8();
+      const ceiling = default9();
       scene.add(ceiling.transform);
       const floor = default4();
       scene.add(floor.transform);
-      const particles = default10();
+      const particles = default11();
       scene.add(particles.transform);
-      const controls = new OrbitControls2(camera, document.querySelector(".output"));
+      const tubeLights = default12();
+      scene.add(tubeLights.transform);
+      let controls;
+      controls = new OrbitControls2(camera.camera, document.querySelector(".output"));
+      controls.target = new THREE.Vector3(0, 0, 0);
+      props.orbits.onChange = () => {
+        controls.enabled = props.orbits.value;
+      };
       props.roomDiffuse.onChange = ({value: value2}) => {
-        default11.get("roomDiffuse").value = new THREE.Color(props.roomDiffuse.value);
+        default13.get("roomDiffuse").value = new THREE.Color(props.roomDiffuse.value);
       };
       props.roomAOIntensity.onChange = () => {
-        default11.get("roomAOIntensity").value = props.roomAOIntensity.value;
+        default13.get("roomAOIntensity").value = props.roomAOIntensity.value;
       };
       function update2({time: time2, deltaTime: deltaTime2}) {
-        default11.update({
+        default13.update({
           time: time2,
           deltaTime: deltaTime2
         });
-        controls.update();
+        if (controls) {
+          controls.update();
+        }
+        camera.update({
+          time: time2,
+          deltaTime: deltaTime2
+        });
+        shape.update({
+          time: time2,
+          deltaTime: deltaTime2
+        });
       }
       function render({renderer: renderer2}) {
         renderer2.setClearColor("#000", 1);
-        renderer2.render(scene, camera);
+        renderer2.render(scene, camera.camera);
       }
       function resize() {
+        console.log("Tampa :: resize");
       }
       return {
         canvas: renderer.canvas,
@@ -45791,10 +45997,13 @@ vec4 envMapTexelToLinear(vec4 color) {
         resize
       };
     }
-    const default12 = {
+    const default14 = {
       name: "Tampa",
       scene: Tampa2,
       props: {
+        orbits: {
+          value: true
+        },
         roomDiffuse: {
           type: "color",
           value: "#ff0000"
@@ -45877,7 +46086,7 @@ vec4 envMapTexelToLinear(vec4 color) {
     var exports = {};
     require(exports, {
       Cubes: () => default3,
-      Tampa: () => default12
+      Tampa: () => default14
     });
 
     // public/index.js

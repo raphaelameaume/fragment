@@ -81,7 +81,7 @@ function Particles() {
     });
 
     let mesh = new THREE.Points(geometry, material);
-    transform.add(mesh);
+    // transform.add(mesh);
     
     return {
         transform,

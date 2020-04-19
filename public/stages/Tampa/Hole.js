@@ -12,18 +12,22 @@ void main() {
 }`;
 
 const fragmentShader = /* glsl */`
-uniform vec3 diffuse;
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
 
 varying vec2 vUv;
 
 #include <common>
 
 void main() {
-    vec3 color = diffuse;
+    vec3 color = roomDiffuse;
     color *= vUv.y; // vertical gradient
 
-    float intensity = 0.2;
+    float intensity = roomAOIntensity;
+    intensity *= 0.2;
+
     color *= sin(vUv.x * PI) * intensity + (1. - intensity);
+    color *= sin(vUv.y * PI) * intensity + (1. - intensity);
 
     gl_FragColor = vec4(color, 1.0);
 }
