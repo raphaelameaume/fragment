@@ -57,14 +57,18 @@ function Particles() {
     let speeds = [];
     let count = 500;
 
+    let minRadius = Math.sqrt(Room.width * Room.width * 0.5 * 0.5 + Room.depth * Room.depth * 0.5 * 0.5);
+    let maxRadius = minRadius * 4;
     for (let i = 0; i < count; i++) {
-        let x = random.range(-Room.width * 0.5, Room.width * 0.5);
+        let angle = Math.random() * 2 * Math.PI;
+        let r = random.range(minRadius, maxRadius);
+        let x = Math.cos(angle) * r;
         let y = random.range(0, Room.height);
-        let z = random.range(-Room.depth * 0.5, Room.depth * 0.5);
+        let z = Math.sin(angle) * r;
         
         positions.push(x, y, z);
-        sizes.push(Math.random() * 0.2);
-        speeds.push(random.range(0.5, 1));
+        sizes.push(random.range(0.2, 0.5));
+        speeds.push(random.range(0.5, 1) * 0.1);
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
@@ -81,7 +85,7 @@ function Particles() {
     });
 
     let mesh = new THREE.Points(geometry, material);
-    // transform.add(mesh);
+    transform.add(mesh);
     
     return {
         transform,

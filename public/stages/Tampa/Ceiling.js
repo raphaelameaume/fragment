@@ -42,6 +42,7 @@ function Ceiling() {
             ...Uniforms.common(),
             diffuse: { value: new THREE.Color(0xFFFFFF) },
         },
+        side: THREE.DoubleSide,
     });
 
     let mesh = new THREE.Mesh(geometry, material);

@@ -52,7 +52,7 @@ function Hole() {
             ...Uniforms.common(),
             diffuse: { value: new THREE.Color(0xFFFFFF) },
         },
-        side: THREE.BackSide,
+        side: THREE.DoubleSide,
     })
 
     let meshFront = new THREE.Mesh(geometry, material);

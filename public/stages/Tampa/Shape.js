@@ -40,7 +40,7 @@ function Shape() {
     let transform = new THREE.Object3D();
     
     let height = Hole.width;
-    let geometry = new THREE.BoxGeometry(Hole.width, Hole.depth, Hole.depth);
+    let geometry = new THREE.BoxGeometry(Hole.width, height, Hole.depth);
     let material = new THREE.ShaderMaterial({
         vertexShader,
         fragmentShader,
@@ -50,14 +50,16 @@ function Shape() {
         }
     });
     let mesh = new THREE.Mesh(geometry, material);
-    // mesh.position.y = -h * 0.5;
-    mesh.position.y = height * 1.5;
+    mesh.position.y = height;
+    // mesh.position.y = height * 1.5;
     transform.add(mesh);
 
-    function update({ deltaTime }) {
-        mesh.rotation.x += deltaTime * 0.001;
-        mesh.rotation.y += deltaTime * 0.001;
-        mesh.rotation.z += deltaTime * 0.001;
+    function update({ deltaTime, time }) {
+        // mesh.rotation.x += deltaTime * 0.001;
+        // mesh.rotation.y += deltaTime * 0.001;
+        // mesh.rotation.z += deltaTime * 0.001;
+
+        // mesh.position.y = -height * 0.5 + (Math.sin(time * 0.001 * Math.PI) + 1) * height * 0.5;
     }
 
     return {

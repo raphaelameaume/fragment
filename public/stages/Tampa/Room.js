@@ -31,12 +31,6 @@ void main() {
 function Room () {
     let transform = new THREE.Object3D();
     let geometry = new THREE.PlaneBufferGeometry(1, 1);
-    // let geometry = new THREE.BoxGeometry(Room.width, Room.height, Room.depth);
-    // let material = new THREE.MeshBasicMaterial({
-    //     color: 0xFF0000,
-    //     // wireframe: true,
-    //     // side: THREE.BackSide,
-    // });
 
     let material = new THREE.ShaderMaterial({
         vertexShader,

@@ -5,6 +5,7 @@ import Shape from "./Tampa/Shape.js";
 import Camera from "./Tampa/Camera.js";
 import Ceiling from "./Tampa/Ceiling.js";
 import Lights from "./Tampa/Lights.js";
+import Structure from "./Tampa/Structure.js";
 import Particles from './Tampa/Particles.js';
 import TubeLights from './Tampa/TubeLights.js';
 import Uniforms from './Tampa/Uniforms.js';
@@ -46,6 +47,20 @@ function Tampa({ props, renderer }) {
     const tubeLights = TubeLights();
     scene.add(tubeLights.transform);
 
+    const structure = Structure();
+    scene.add(structure.transform);
+
+    props.structureVisibility.onChange = () => {
+        let visible = props.structureVisibility.value;
+        structure.transform.visible = visible;
+        
+        // ceiling.transform.visible = !visible;
+        room.transform.visible = !visible;
+        // floor.transform.visible = !visible;
+        tubeLights.transform.visible = !visible;
+        // hole.transform.visible = !visible;
+    }
+
     let controls;
 
     controls = new OrbitControls(camera.camera, document.querySelector('.output'));
@@ -72,6 +87,17 @@ function Tampa({ props, renderer }) {
 
         camera.update({ time, deltaTime });
         shape.update({ time, deltaTime });
+
+        // if (structure.transform.visible) {
+        //     scene.rotation.x += deltaTime * 0.001;
+        //     scene.rotation.y += deltaTime * 0.001;
+        //     scene.rotation.z += deltaTime * 0.001;
+        //     camera.camera.lookAt(new THREE.Vector3(0, Room.height * 0.5, 0));
+        // } else {
+        //     scene.rotation.x = 0;
+        //     scene.rotation.y = 0;
+        //     scene.rotation.z = 0;
+        // }
     }
 
     function render({ renderer }) {
@@ -107,6 +133,9 @@ export default {
             max: 1,
             value: 0.2,
             step: 0.01,
+        },
+        structureVisibility: {
+            value: false,
         }
     },
 };

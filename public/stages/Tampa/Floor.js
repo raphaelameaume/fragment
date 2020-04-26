@@ -67,6 +67,7 @@ function Floor() {
                 )
             }
         },
+        side: THREE.DoubleSide,
     }));
     left.position.x = -widthBig * 0.5 - Hole.width * 0.5;
     left.scale.set(widthBig, 1, Room.depth);
@@ -86,6 +87,7 @@ function Floor() {
                 )
             }
         },
+        side: THREE.DoubleSide,
     }));
     right.position.x = widthBig * 0.5 + Hole.width * 0.5;
     right.scale.copy(left.scale);
@@ -105,6 +107,7 @@ function Floor() {
                 )
             }
         },
+        side: THREE.DoubleSide,
     }));
     back.scale.set(Hole.width, 1, depthSmall);
     back.position.z = -depthSmall * 0.5 - Hole.depth * 0.5;
@@ -124,6 +127,7 @@ function Floor() {
                 )
             }
         },
+        side: THREE.DoubleSide,
     }));
     front.scale.copy(back.scale);
     front.position.z = depthSmall * 0.5 + Hole.depth * 0.5;
