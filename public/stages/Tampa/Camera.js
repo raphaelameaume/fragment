@@ -11,6 +11,8 @@ function Camera({ aspect } = {}) {
     let speed = 0.0005;
 
     function update({ deltaTime }) {
+        // transform.rotation.x -= deltaTime * speed;
+        // transform.rotation.z -= deltaTime * speed;
         transform.rotation.y -= deltaTime * speed;
     }
 

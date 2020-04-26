@@ -65,12 +65,19 @@ function Ceiling() {
 
     const LIGHT_LENGTH = (LIGHT_COUNT * LIGHT_DEPTH + (LIGHT_COUNT - 1) * (LIGHT_SPACE - LIGHT_DEPTH))
 
+    let lights = [];
+
     for (let i = 0; i < LIGHT_COUNT; i++) {
         let light = new THREE.Mesh(geometry, lightMaterial);
         light.scale.set(LIGHT_WIDTH, 1, LIGHT_DEPTH);
         light.position.y = Room.height - 0.01;
         light.position.z = i * LIGHT_SPACE + LIGHT_DEPTH * 0.5 - LIGHT_LENGTH * 0.5;
         transform.add(light);
+
+        lights.push(light);
+
+        light.deltaVisibility = computeLightDelta();
+        light.visibilityPassed = 0;
 
         // let rectLight = new THREE.RectAreaLight(0xffffff, 1, 10, 10);
         // rectLight.width = LIGHT_WIDTH;
@@ -82,8 +89,27 @@ function Ceiling() {
         // transform.add(rectLight);
     }
 
+    function computeLightDelta () {
+        return Math.random() * 1000;
+    }
+
+    function update({ time, deltaTime }) {
+        
+        for (let i = 2; i < 3; i++) {
+            lights[i].visibilityPassed += deltaTime;
+
+            if (lights[i].visibilityPassed >= lights[i].deltaVisibility) {
+                lights[i].visibilityPassed = 0;
+                lights[i].deltaVisibility = computeLightDelta();
+
+                lights[i].visible = !lights[i].visible;
+            }
+        }
+    }
+
     return {
-        transform
+        transform,
+        update,
     }
 }
 

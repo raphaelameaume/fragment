@@ -52,7 +52,7 @@ export default {
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		livereload({ watch: ['public/build/', 'public/app.js', 'public/stages'] }),
+		// livereload({ watch: ['public/build/', 'public/app.js', 'public/stages'] }),
 		// !production && esbuild(),
 
 		// If we're building for production (npm run build

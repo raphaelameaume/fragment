@@ -1,6 +1,7 @@
 import random from "canvas-sketch-util/random";
 
 import Room from "./Room.js";
+import Hole from "./Hole.js";
 import Uniforms from "./Uniforms.js";
 
 const vertexShader = /* glsl */`
@@ -27,9 +28,9 @@ mat4 rotationMatrix(vec3 axis, float angle) {
 
 void main() {
     vec3 transformed = position;
-    transformed -= vec3(0., position.y, 0.);
-    transformed = (rotationMatrix(vec3(0., 1., 0.), uTime * speed) * vec4(transformed, 1.)).xyz;
-    transformed += vec3(0., position.y, 0.);
+    // transformed -= vec3(0., position.y, 0.);
+    // transformed = (rotationMatrix(vec3(0., 1., 0.), uTime * speed) * vec4(transformed, 1.)).xyz;
+    // transformed += vec3(0., position.y, 0.);
 
     vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0 );
 
@@ -42,8 +43,23 @@ void main() {
 const fragmentShader = /* glsl */`
 uniform vec3 color;
 
+float aastep(float threshold, float value) {
+  #ifdef GL_OES_standard_derivatives
+    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+    return smoothstep(threshold-afwidth, threshold+afwidth, value);
+  #else
+    return step(threshold, value);
+  #endif  
+}
+
+float circle(vec2 st, float radius) {
+    return aastep(radius, length(st - vec2(0.5)));
+}
+
 void main() {
-    gl_FragColor = vec4(color, 1.0);
+    float opacity = 1. - circle(gl_PointCoord, 0.5);
+
+    gl_FragColor = vec4(color, opacity);
 }
 `;
 
@@ -55,19 +71,33 @@ function Particles() {
     let positions = [];
     let sizes = [];
     let speeds = [];
-    let count = 500;
+    let count = 2000;
 
-    let minRadius = Math.sqrt(Room.width * Room.width * 0.5 * 0.5 + Room.depth * Room.depth * 0.5 * 0.5);
-    let maxRadius = minRadius * 4;
+    let radiusRoom = Math.sqrt(Room.width * Room.width * 0.5 * 0.5 + Room.depth * Room.depth * 0.5 * 0.5);
+    let maxRadius = radiusRoom * 4;
+
     for (let i = 0; i < count; i++) {
+        let top = i < (count / 3);
+        let bottom = i > (count/3) * 2;
+        let minRadius = radiusRoom;
+
+        if (top) minRadius *= 0;
+        if (bottom) minRadius = Math.sqrt(Hole.width * Hole.width * 0.5 * 0.5 + Hole.depth * Hole.depth * 0.5 * 0.5);
+
         let angle = Math.random() * 2 * Math.PI;
         let r = random.range(minRadius, maxRadius);
+
         let x = Math.cos(angle) * r;
         let y = random.range(0, Room.height);
+
+        if (top) y += Room.height;
+        if (bottom) y -= Room.height;
+
+
         let z = Math.sin(angle) * r;
         
         positions.push(x, y, z);
-        sizes.push(random.range(0.2, 0.5));
+        sizes.push(random.range(0.1, 0.3));
         speeds.push(random.range(0.5, 1) * 0.1);
     }
 
@@ -81,7 +111,11 @@ function Particles() {
         uniforms: {
             ...Uniforms.common(),
             color: { value: new THREE.Color(0xFFFFFF) },
-        }
+        },
+        extensions: {
+            derivatives: true,
+        },
+        transparent: true,
     });
 
     let mesh = new THREE.Points(geometry, material);

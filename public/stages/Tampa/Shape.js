@@ -56,7 +56,7 @@ function Shape() {
 
     function update({ deltaTime, time }) {
         // mesh.rotation.x += deltaTime * 0.001;
-        // mesh.rotation.y += deltaTime * 0.001;
+        mesh.rotation.y += deltaTime * 0.001;
         // mesh.rotation.z += deltaTime * 0.001;
 
         // mesh.position.y = -height * 0.5 + (Math.sin(time * 0.001 * Math.PI) + 1) * height * 0.5;

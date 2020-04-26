@@ -54,12 +54,27 @@ function Tampa({ props, renderer }) {
         let visible = props.structureVisibility.value;
         structure.transform.visible = visible;
         
-        // ceiling.transform.visible = !visible;
+        if (!visible) {
+            ceiling.transform.visible = true;
+            floor.transform.visible = true;
+            hole.transform.visible = true;
+            structure.top.transform.visible = false;
+            structure.bottom.transform.visible = false;
+        }
+        
         room.transform.visible = !visible;
-        // floor.transform.visible = !visible;
         tubeLights.transform.visible = !visible;
-        // hole.transform.visible = !visible;
     }
+
+    props.structureFull.onChange = () => {
+        if (props.structureVisibility.value) {
+            floor.transform.visible = !props.structureFull.value;
+            hole.transform.visible = !props.structureFull.value;
+            ceiling.transform.visible = !props.structureFull.value;
+            structure.top.transform.visible = props.structureFull.value;
+            structure.bottom.transform.visible = props.structureFull.value;
+        }
+    };
 
     let controls;
 
@@ -87,6 +102,7 @@ function Tampa({ props, renderer }) {
 
         camera.update({ time, deltaTime });
         shape.update({ time, deltaTime });
+        ceiling.update({ time, deltaTime });
 
         // if (structure.transform.visible) {
         //     scene.rotation.x += deltaTime * 0.001;
@@ -135,6 +151,9 @@ export default {
             step: 0.01,
         },
         structureVisibility: {
+            value: false,
+        },
+        structureFull: {
             value: false,
         }
     },
