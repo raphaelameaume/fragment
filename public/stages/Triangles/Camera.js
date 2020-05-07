@@ -1,5 +1,3 @@
-import Room from "./Room";
-
 function Camera({ aspect } = {}) {
     let transform = new THREE.Object3D();
     let camera = new THREE.PerspectiveCamera(45, aspect, 6, 80);
@@ -11,9 +9,6 @@ function Camera({ aspect } = {}) {
     let speed = 0.0005;
 
     function update({ deltaTime }) {
-        // transform.rotation.x -= deltaTime * speed;
-        // transform.rotation.z -= deltaTime * speed;
-        // transform.rotation.y -= deltaTime * speed;
     }
 
     return {

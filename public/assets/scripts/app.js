@@ -2367,15 +2367,15 @@
       }
     }
     var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
-    function createCommonjsModule(fn, module27) {
-      return module27 = {
+    function createCommonjsModule(fn, module32) {
+      return module32 = {
         exports: {}
-      }, fn(module27, module27.exports), module27.exports;
+      }, fn(module32, module32.exports), module32.exports;
     }
     function getCjsExportFromNamespace(n) {
       return n && n["default"] || n;
     }
-    var webmidi_min = createCommonjsModule(function(module27) {
+    var webmidi_min = createCommonjsModule(function(module32) {
       !function(scope) {
         function WebMidi() {
           if (WebMidi.prototype._singleton)
@@ -3341,7 +3341,7 @@
           return Array.isArray(note2) || (note2 = [note2]), note2.forEach(function(item) {
             notes.push(wm.guessNoteNumber(item));
           }), notes;
-        }, module27.exports ? module27.exports = wm : scope.WebMidi || (scope.WebMidi = wm);
+        }, module32.exports ? module32.exports = wm : scope.WebMidi || (scope.WebMidi = wm);
       }(commonjsGlobal);
     });
     let TRIGGER_ID = 0;
@@ -5128,7 +5128,7 @@
       return createDebug;
     }
     var common2 = setup;
-    var browser = createCommonjsModule(function(module27, exports2) {
+    var browser = createCommonjsModule(function(module32, exports2) {
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -5146,7 +5146,7 @@
         return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
       }
       function formatArgs(args) {
-        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module27.exports.humanize(this.diff);
+        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module32.exports.humanize(this.diff);
         if (!this.useColors) {
           return;
         }
@@ -5195,8 +5195,8 @@
         } catch (error) {
         }
       }
-      module27.exports = common2(exports2);
-      const {formatters} = module27.exports;
+      module32.exports = common2(exports2);
+      const {formatters} = module32.exports;
       formatters.j = function(v) {
         try {
           return JSON.stringify(v);
@@ -5344,8 +5344,8 @@
       }
       return Math.ceil(ms2 / n) + " " + name + "s";
     }
-    var debug$1 = createCommonjsModule(function(module27, exports2) {
-      exports2 = module27.exports = createDebug.debug = createDebug["default"] = createDebug;
+    var debug$1 = createCommonjsModule(function(module32, exports2) {
+      exports2 = module32.exports = createDebug.debug = createDebug["default"] = createDebug;
       exports2.coerce = coerce;
       exports2.disable = disable2;
       exports2.enable = enable2;
@@ -5478,8 +5478,8 @@
     var debug_7 = debug$1.names;
     var debug_8 = debug$1.skips;
     var debug_9 = debug$1.formatters;
-    var browser$1 = createCommonjsModule(function(module27, exports2) {
-      exports2 = module27.exports = debug$1;
+    var browser$1 = createCommonjsModule(function(module32, exports2) {
+      exports2 = module32.exports = debug$1;
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -5561,9 +5561,9 @@
     var browser_5$1 = browser$1.useColors;
     var browser_6$1 = browser$1.storage;
     var browser_7$1 = browser$1.colors;
-    var componentEmitter = createCommonjsModule(function(module27) {
+    var componentEmitter = createCommonjsModule(function(module32) {
       {
-        module27.exports = Emitter2;
+        module32.exports = Emitter2;
       }
       function Emitter2(obj) {
         if (obj)
@@ -5744,7 +5744,7 @@
       reconstructPacket,
       removeBlobs
     };
-    var socket_ioParser = createCommonjsModule(function(module27, exports2) {
+    var socket_ioParser = createCommonjsModule(function(module32, exports2) {
       var debug2 = browser$1("socket.io-parser");
       exports2.protocol = 4;
       exports2.types = ["CONNECT", "DISCONNECT", "EVENT", "ACK", "ERROR", "BINARY_EVENT", "BINARY_ACK"];
@@ -5945,11 +5945,11 @@
     var socket_ioParser_9 = socket_ioParser.BINARY_ACK;
     var socket_ioParser_10 = socket_ioParser.Encoder;
     var socket_ioParser_11 = socket_ioParser.Decoder;
-    var hasCors = createCommonjsModule(function(module27) {
+    var hasCors = createCommonjsModule(function(module32) {
       try {
-        module27.exports = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
+        module32.exports = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
       } catch (err) {
-        module27.exports = false;
+        module32.exports = false;
       }
     });
     var xmlhttprequest = function(opts) {
@@ -6231,7 +6231,7 @@
       encode: utf8encode,
       decode: utf8decode
     };
-    var base64Arraybuffer = createCommonjsModule(function(module27, exports2) {
+    var base64Arraybuffer = createCommonjsModule(function(module32, exports2) {
       (function() {
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         var lookup = new Uint8Array(256);
@@ -6333,7 +6333,7 @@
         return void 0;
       }
     }();
-    var browser$2 = createCommonjsModule(function(module27, exports2) {
+    var browser$2 = createCommonjsModule(function(module32, exports2) {
       var base64encoder;
       if (typeof ArrayBuffer !== "undefined") {
         base64encoder = base64Arraybuffer;
@@ -6732,9 +6732,9 @@
     var browser_9 = browser$2.encodePayloadAsArrayBuffer;
     var browser_10 = browser$2.encodePayloadAsBlob;
     var browser_11 = browser$2.decodePayloadAsBinary;
-    var componentEmitter$1 = createCommonjsModule(function(module27) {
+    var componentEmitter$1 = createCommonjsModule(function(module32) {
       {
-        module27.exports = Emitter2;
+        module32.exports = Emitter2;
       }
       function Emitter2(obj) {
         if (obj)
@@ -7181,7 +7181,7 @@
       return createDebug;
     }
     var common$1 = setup$1;
-    var browser$3 = createCommonjsModule(function(module27, exports2) {
+    var browser$3 = createCommonjsModule(function(module32, exports2) {
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -7199,7 +7199,7 @@
         return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
       }
       function formatArgs(args) {
-        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module27.exports.humanize(this.diff);
+        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module32.exports.humanize(this.diff);
         if (!this.useColors) {
           return;
         }
@@ -7248,8 +7248,8 @@
         } catch (error) {
         }
       }
-      module27.exports = common$1(exports2);
-      const {formatters} = module27.exports;
+      module32.exports = common$1(exports2);
+      const {formatters} = module32.exports;
       formatters.j = function(v) {
         try {
           return JSON.stringify(v);
@@ -8482,9 +8482,9 @@
         return fn.apply(obj, args.concat(slice.call(arguments)));
       };
     };
-    var socket$1 = createCommonjsModule(function(module27, exports2) {
+    var socket$1 = createCommonjsModule(function(module32, exports2) {
       var debug2 = browser("socket.io-client:socket");
-      module27.exports = exports2 = Socket2;
+      module32.exports = exports2 = Socket2;
       var events = {
         connect: 1,
         connect_error: 1,
@@ -9058,9 +9058,9 @@
       this.updateSocketIds();
       this.emitAll("reconnect", attempt);
     };
-    var lib$1 = createCommonjsModule(function(module27, exports2) {
+    var lib$1 = createCommonjsModule(function(module32, exports2) {
       var debug2 = browser("socket.io-client");
-      module27.exports = exports2 = lookup;
+      module32.exports = exports2 = lookup;
       var cache = exports2.managers = {};
       function lookup(uri, opts) {
         if (typeof uri === "object") {
@@ -17468,7 +17468,7 @@
       let geometry = new THREE2.BufferGeometry();
       geometry.setAttribute("position", new THREE2.BufferAttribute(vertices, 2));
       geometry.setAttribute("uv", new THREE2.BufferAttribute(uvs, 2));
-      let vertexShader10 = `
+      let vertexShader11 = `
         precision highp float;
 
         attribute vec2 position;
@@ -17544,7 +17544,7 @@
               if (transitions[i3].key === key) {
                 const {fragment} = transitions[i3];
                 mesh.material = new THREE2.RawShaderMaterial({
-                  vertexShader: vertexShader10,
+                  vertexShader: vertexShader11,
                   fragmentShader: fragment,
                   uniforms
                 });
@@ -17565,7 +17565,7 @@
         }
       };
       let material2 = new THREE2.RawShaderMaterial({
-        vertexShader: vertexShader10,
+        vertexShader: vertexShader11,
         fragmentShader: fragmentFade,
         uniforms
       });
@@ -17705,1006 +17705,6 @@
       });
     }
     const default2 = Fragment;
-
-    // public/stages/Tampa/Uniforms.js
-    const Uniforms10 = function() {
-      let uniforms = {
-        uTime: {
-          value: 0
-        },
-        roomDiffuse: {
-          value: new THREE.Color(16711680)
-        },
-        roomAOIntensity: {
-          value: 0.2
-        }
-      };
-      function common3() {
-        return uniforms;
-      }
-      function get(name) {
-        return uniforms[name];
-      }
-      function update2({time: time2, deltaTime: deltaTime2}) {
-        uniforms.uTime.value = time2 / 1000;
-      }
-      return {
-        common: common3,
-        update: update2,
-        get
-      };
-    }();
-    const default14 = Uniforms10;
-
-    // public/stages/Tampa/Room.js
-    let vertexShader5 = `
-varying vec2 vUv;
-
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
-    const fragmentShader5 = `
-uniform vec3 roomDiffuse;
-uniform float roomAOIntensity;
-
-varying vec2 vUv;
-
-#include <common>
-
-void main() {
-    vec3 color = roomDiffuse;
-
-    color *= sin(vUv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
-    color *= sin(vUv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-    function Room8() {
-      let transform = new THREE.Object3D();
-      let geometry = new THREE.PlaneBufferGeometry(1, 1);
-      let material2 = new THREE.ShaderMaterial({
-        vertexShader: vertexShader5,
-        fragmentShader: fragmentShader5,
-        uniforms: {
-          ...default14.common(),
-          diffuse: {
-            value: new THREE.Color(16777215)
-          }
-        }
-      });
-      let back = new THREE.Mesh(geometry, material2);
-      back.position.z = -Room8.depth * 0.5;
-      back.scale.set(Room8.width, Room8.height, 1);
-      back.position.y = Room8.height * 0.5;
-      transform.add(back);
-      let front = new THREE.Mesh(geometry, material2);
-      front.position.y = Room8.height * 0.5;
-      front.position.z = Room8.depth * 0.5;
-      front.scale.set(Room8.width, Room8.height, 1);
-      front.rotation.y = Math.PI;
-      transform.add(front);
-      let left = new THREE.Mesh(geometry, material2);
-      left.position.x = -Room8.width * 0.5;
-      left.position.y = Room8.height * 0.5;
-      left.rotation.y = Math.PI * 0.5;
-      left.scale.set(Room8.depth, Room8.height, 1);
-      transform.add(left);
-      let right = new THREE.Mesh(geometry, material2);
-      right.position.x = Room8.width * 0.5;
-      right.position.y = Room8.height * 0.5;
-      right.rotation.y = -Math.PI * 0.5;
-      right.scale.set(Room8.depth, Room8.height, 1);
-      transform.add(right);
-      return {
-        transform
-      };
-    }
-    Room8.width = 15;
-    Room8.depth = 15;
-    Room8.height = 7;
-    const default5 = Room8;
-
-    // public/stages/Tampa/Hole.js
-    let vertexShader3 = `
-varying vec2 vUv;
-
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
-    const fragmentShader3 = `
-uniform vec3 roomDiffuse;
-uniform float roomAOIntensity;
-
-varying vec2 vUv;
-
-#include <common>
-
-void main() {
-    vec3 color = roomDiffuse;
-    color *= vUv.y; // vertical gradient
-
-    float intensity = roomAOIntensity;
-    intensity *= 0.2;
-
-    color *= sin(vUv.x * PI) * intensity + (1. - intensity);
-    color *= sin(vUv.y * PI) * intensity + (1. - intensity);
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-    function Hole4() {
-      let transform = new THREE.Object3D();
-      let geometry = new THREE.PlaneGeometry(Hole4.width, Hole4.height);
-      geometry.translate(0, -Hole4.height * 0.5, 0);
-      let material2 = new THREE.ShaderMaterial({
-        vertexShader: vertexShader3,
-        fragmentShader: fragmentShader3,
-        uniforms: {
-          ...default14.common(),
-          diffuse: {
-            value: new THREE.Color(16777215)
-          }
-        },
-        side: THREE.DoubleSide
-      });
-      let meshFront = new THREE.Mesh(geometry, material2);
-      meshFront.position.z = Hole4.depth * 0.5;
-      transform.add(meshFront);
-      let meshLeft = new THREE.Mesh(geometry, material2);
-      meshLeft.position.x = -Hole4.width * 0.5;
-      meshLeft.rotation.y = -Math.PI * 0.5;
-      transform.add(meshLeft);
-      let meshRight = new THREE.Mesh(geometry, material2);
-      meshRight.position.x = Hole4.width * 0.5;
-      meshRight.rotation.y = Math.PI * 0.5;
-      transform.add(meshRight);
-      let meshBack = new THREE.Mesh(geometry, material2);
-      meshBack.position.z = -Hole4.depth * 0.5;
-      meshBack.rotation.y = Math.PI;
-      transform.add(meshBack);
-      return {
-        transform
-      };
-    }
-    Hole4.width = default5.width * 0.2;
-    Hole4.depth = default5.depth * 0.2;
-    Hole4.height = default5.height * 0.75;
-    const default6 = Hole4;
-
-    // public/stages/Tampa/Floor.js
-    let vertexShader2 = `
-    varying vec2 vUv;
-
-    void main() {
-        vUv = uv;
-        vec3 transformed = position;
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-    }`;
-    let fragmentShader2 = `
-    uniform vec3 roomDiffuse;
-    uniform vec4 uvTransform;
-    uniform float roomAOIntensity;
-
-    varying vec2 vUv;
-
-    #include <common>
-
-    float mapRange(float value, float low1, float high1, float low2, float high2) {
-        return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
-    }
-
-    void main() {
-        vec2 uv = vec2(
-            mapRange(vUv.x, 0., 1., uvTransform.x, uvTransform.y),
-            mapRange(vUv.y, 0., 1., uvTransform.z, uvTransform.w)
-        );
-        vec3 color = roomDiffuse;
-
-        color *= sin(uv.y * PI) * roomAOIntensity + (1. - roomAOIntensity);
-        color *= sin(uv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
-
-        gl_FragColor = vec4(color, 1.0);
-    }
-`;
-    function Floor3() {
-      let transform = new THREE.Object3D();
-      let widthBig = (default5.width - default6.width) * 0.5;
-      let depthSmall = (default5.depth - default6.depth) * 0.5;
-      let geometry = new THREE.PlaneBufferGeometry(1, 1);
-      geometry.rotateX(-Math.PI * 0.5);
-      let uniforms = {
-        ...default14.common(),
-        roomDiffuse: {
-          value: new THREE.Color(16711680)
-        },
-        uvTransform: {
-          value: new THREE.Vector4()
-        }
-      };
-      let left = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-        vertexShader: vertexShader2,
-        fragmentShader: fragmentShader2,
-        uniforms: {
-          ...default14.common(),
-          uvTransform: {
-            value: new THREE.Vector4(0, (default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, 0, 1)
-          }
-        },
-        side: THREE.DoubleSide
-      }));
-      left.position.x = -widthBig * 0.5 - default6.width * 0.5;
-      left.scale.set(widthBig, 1, default5.depth);
-      transform.add(left);
-      let right = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-        vertexShader: vertexShader2,
-        fragmentShader: fragmentShader2,
-        uniforms: {
-          ...default14.common(),
-          uvTransform: {
-            value: new THREE.Vector4(((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 1, 0, 1)
-          }
-        },
-        side: THREE.DoubleSide
-      }));
-      right.position.x = widthBig * 0.5 + default6.width * 0.5;
-      right.scale.copy(left.scale);
-      transform.add(right);
-      let back = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-        vertexShader: vertexShader2,
-        fragmentShader: fragmentShader2,
-        uniforms: {
-          ...default14.common(),
-          uvTransform: {
-            value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, ((default5.depth - default6.depth) * 0.5 + default6.depth) / default5.depth, 1)
-          }
-        },
-        side: THREE.DoubleSide
-      }));
-      back.scale.set(default6.width, 1, depthSmall);
-      back.position.z = -depthSmall * 0.5 - default6.depth * 0.5;
-      transform.add(back);
-      let front = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
-        vertexShader: vertexShader2,
-        fragmentShader: fragmentShader2,
-        uniforms: {
-          ...default14.common(),
-          uvTransform: {
-            value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 0, (default5.depth - default6.depth - (default5.depth - default6.depth) * 0.5) / default5.depth)
-          }
-        },
-        side: THREE.DoubleSide
-      }));
-      front.scale.copy(back.scale);
-      front.position.z = depthSmall * 0.5 + default6.depth * 0.5;
-      transform.add(front);
-      return {
-        transform
-      };
-    }
-    const default4 = Floor3;
-
-    // public/stages/Tampa/Shape.js
-    let vertexShader6 = `
-varying vec2 vUv;
-
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
-    const fragmentShader6 = `
-uniform vec3 roomDiffuse;
-uniform float roomAOIntensity;
-
-varying vec2 vUv;
-
-#include <common>
-
-void main() {
-    vec3 color = roomDiffuse;
-
-    float intensity = roomAOIntensity;
-    intensity *= 0.2;
-
-    float aox = sin(vUv.x * PI) * intensity + (1. - intensity);
-    float aoy = sin(vUv.y * PI) * intensity + (1. - intensity);
-
-    color -= (1. - aox);
-    color -= (1. - aoy);
-    // color *= aoy;
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-    function Shape4() {
-      let transform = new THREE.Object3D();
-      let height = default6.width;
-      let geometry = new THREE.BoxGeometry(default6.width, height, default6.depth);
-      let material2 = new THREE.ShaderMaterial({
-        vertexShader: vertexShader6,
-        fragmentShader: fragmentShader6,
-        uniforms: {
-          ...default14.common(),
-          diffuse: {
-            value: new THREE.Color(16777215)
-          }
-        }
-      });
-      let mesh = new THREE.Mesh(geometry, material2);
-      mesh.position.y = height;
-      transform.add(mesh);
-      function update2({deltaTime: deltaTime2, time: time2}) {
-        mesh.rotation.y += deltaTime2 * 0.001;
-      }
-      return {
-        transform,
-        update: update2
-      };
-    }
-    const default7 = Shape4;
-
-    // public/stages/Tampa/Camera.js
-    function Camera4({aspect: aspect2} = {}) {
-      let transform = new THREE.Object3D();
-      let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
-      camera.position.set(0, 0, 10);
-      camera.lookAt(new THREE.Vector3(0, 0, 0));
-      camera.updateProjectionMatrix();
-      transform.add(camera);
-      let speed = 0.0005;
-      function update2({deltaTime: deltaTime2}) {
-        transform.rotation.y -= deltaTime2 * speed;
-      }
-      return {
-        camera,
-        transform,
-        update: update2
-      };
-    }
-    const default8 = Camera4;
-
-    // public/stages/Tampa/Ceiling.js
-    let vertexShader = `
-varying vec2 vUv;
-
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
-    const fragmentShader = `
-uniform vec3 diffuse;
-uniform vec3 roomDiffuse;
-uniform float roomAOIntensity;
-
-varying vec2 vUv;
-
-#include <common>
-
-void main() {
-    vec3 color = roomDiffuse;
-
-    color *= sin(vUv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
-    color *= sin(vUv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-    function Ceiling3() {
-      let transform = new THREE.Object3D();
-      let geometry = new THREE.PlaneBufferGeometry(1, 1);
-      geometry.rotateX(Math.PI * 0.5);
-      let material2 = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-          ...default14.common(),
-          diffuse: {
-            value: new THREE.Color(16777215)
-          }
-        },
-        side: THREE.DoubleSide
-      });
-      let mesh = new THREE.Mesh(geometry, material2);
-      mesh.scale.set(default5.width, 1, default5.depth);
-      mesh.position.y = default5.height;
-      transform.add(mesh);
-      const LIGHT_COUNT = 4;
-      const LIGHT_WIDTH = default5.width * 0.5;
-      const LIGHT_DEPTH = default5.depth * 0.1;
-      const LIGHT_SPACE = LIGHT_DEPTH * 2;
-      let lightMaterial = new THREE.MeshBasicMaterial({
-        color: 16777215
-      });
-      const LIGHT_LENGTH = LIGHT_COUNT * LIGHT_DEPTH + (LIGHT_COUNT - 1) * (LIGHT_SPACE - LIGHT_DEPTH);
-      let lights = [];
-      for (let i3 = 0; i3 < LIGHT_COUNT; i3++) {
-        let light = new THREE.Mesh(geometry, lightMaterial);
-        light.scale.set(LIGHT_WIDTH, 1, LIGHT_DEPTH);
-        light.position.y = default5.height - 0.01;
-        light.position.z = i3 * LIGHT_SPACE + LIGHT_DEPTH * 0.5 - LIGHT_LENGTH * 0.5;
-        transform.add(light);
-        lights.push(light);
-        light.deltaVisibility = computeLightDelta();
-        light.visibilityPassed = 0;
-      }
-      function computeLightDelta() {
-        return Math.random() * 1000;
-      }
-      function update2({time: time2, deltaTime: deltaTime2}) {
-        for (let i3 = 2; i3 < 3; i3++) {
-          lights[i3].visibilityPassed += deltaTime2;
-          if (lights[i3].visibilityPassed >= lights[i3].deltaVisibility) {
-            lights[i3].visibilityPassed = 0;
-            lights[i3].deltaVisibility = computeLightDelta();
-            lights[i3].visible = !lights[i3].visible;
-          }
-        }
-      }
-      return {
-        transform,
-        update: update2
-      };
-    }
-    const default9 = Ceiling3;
-
-    // public/stages/Tampa/Lights.js
-    function Lights3() {
-      let transform = new THREE.Object3D();
-      let ambientLight = new THREE.AmbientLight(16777215, 0.5);
-      transform.add(ambientLight);
-      return {
-        transform
-      };
-    }
-    const default10 = Lights3;
-
-    // node_modules/lemonade-math/clamp.js
-    function clamp2(value2, min, max) {
-      return Math.max(min, Math.min(value2, max));
-    }
-
-    // node_modules/lemonade-math/degToRad.js
-    const DEG2RAD = Math.PI / 180;
-    function degToRad2(value2) {
-      return value2 * DEG2RAD;
-    }
-
-    // node_modules/lemonade-math/lerp.js
-    function lerp3(x, y2, t) {
-      return (1 - t) * x * +t * y2;
-    }
-    function lerp22([x0, y0] = [], [x1, y1] = [], t) {
-      return [lerp3(x0, x1, t), lerp3(y0, y1, t)];
-    }
-    function lerp32([x0, y0, z0] = [], [x1, y1, z1] = [], t) {
-      return [lerp3(x0, x1, t), lerp3(y0, y1, t), lerp3(z0, z1, t)];
-    }
-    function lerp4([x0, y0, z0, w0] = [], [x1, y1, z1, w1] = [], t) {
-      return [lerp3(x0, x1, t), lerp3(y0, y1, t), lerp3(z0, z1, t), lerp3(w0, w1, t)];
-    }
-
-    // node_modules/lemonade-math/map.js
-    function map3(value2, min, max, nmin, nmax) {
-      return (value2 - min) / (max - min) * (nmax - nmin) + nmin;
-    }
-
-    // node_modules/lemonade-math/polarToGeo.js
-    function polarToGeo3(latitude, longitude, radius = 1) {
-      const phi = (90 - latitude) * (Math.PI / 180);
-      const theta = (longitude + 180) * (Math.PI / 180);
-      const x = -(radius * Math.sin(phi) * Math.cos(theta));
-      const z = radius * Math.sin(phi) * Math.sin(theta);
-      const y2 = radius * Math.cos(phi);
-      return {
-        x,
-        y: y2,
-        z
-      };
-    }
-
-    // node_modules/lemonade-math/radToDeg.js
-    const RAD2DEG = 180 / Math.PI;
-    function radToDeg3(value2) {
-      return value2 * RAD2DEG;
-    }
-
-    // node_modules/lemonade-math/index.js
-
-    // public/stages/Tampa/Structure.js
-    console.log(map3);
-    const vertexShader7 = `
-varying vec2 vUv;
-
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
-    const fragmentShader7 = `
-uniform vec3 roomDiffuse;
-uniform float roomAOIntensity;
-uniform vec4 uvTransform;
-uniform float scale;
-
-varying vec2 vUv;
-
-#include <common>
-
-float mapRange(float value, float low1, float high1, float low2, float high2) {
-    return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
-}
-
-void main() {
-    vec3 color = roomDiffuse;
-
-    vec2 uv = vec2(
-        mapRange(vUv.x, 0., 1., uvTransform.x, uvTransform.y),
-        mapRange(vUv.y, 0., 1., uvTransform.z, uvTransform.w)
-    );
-
-    color *= sin(uv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
-    color *= sin(uv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
-
-    // color = mix(roomDiffuse, color, scale);
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-    function Face({geometry, material: material2}) {
-      let transform = new THREE.Object3D();
-      let top = new THREE.Mesh(geometry, material2.clone());
-      top.material.uniforms = {
-        ...default14.common(),
-        scale: {
-          value: 0
-        },
-        uvTransform: {
-          value: new THREE.Vector4()
-        }
-      };
-      transform.add(top);
-      let bottom = new THREE.Mesh(geometry, material2.clone());
-      bottom.material.uniforms = {
-        ...default14.common(),
-        scale: {
-          value: 0
-        },
-        uvTransform: {
-          value: new THREE.Vector4()
-        }
-      };
-      transform.add(bottom);
-      let left = new THREE.Mesh(geometry, material2.clone());
-      left.material.uniforms = {
-        ...default14.common(),
-        scale: {
-          value: 0
-        },
-        uvTransform: {
-          value: new THREE.Vector4()
-        }
-      };
-      transform.add(left);
-      let right = new THREE.Mesh(geometry, material2.clone());
-      right.material.uniforms = {
-        ...default14.common(),
-        scale: {
-          value: 0
-        },
-        uvTransform: {
-          value: new THREE.Vector4()
-        }
-      };
-      transform.add(right);
-      function setScale(scale) {
-        top.scale.x = 1;
-        top.scale.y = 0.5 * scale;
-        top.position.y = 0.5 - top.scale.y * 0.5;
-        top.material.uniforms.scale.value = scale;
-        top.material.uniforms.uvTransform.value.x = 0;
-        top.material.uniforms.uvTransform.value.y = 1;
-        top.material.uniforms.uvTransform.value.z = map3(top.scale.y, 0.5, 0, 0.5, 1);
-        top.material.uniforms.uvTransform.value.w = 1;
-        bottom.scale.x = 1;
-        bottom.scale.y = 0.5 * scale;
-        bottom.position.y = -0.5 + bottom.scale.y * 0.5;
-        bottom.material.uniforms.scale.value = scale;
-        bottom.material.uniforms.uvTransform.value.x = 0;
-        bottom.material.uniforms.uvTransform.value.y = 1;
-        bottom.material.uniforms.uvTransform.value.z = 0;
-        bottom.material.uniforms.uvTransform.value.w = map3(bottom.scale.y, 0, 0.5, 0, 0.5);
-        left.scale.x = top.scale.y * 0.5;
-        left.scale.y = 1 - top.scale.y * 2;
-        left.position.x = -0.5 + left.scale.x * 0.5;
-        left.material.uniforms.scale.value = scale;
-        left.material.uniforms.uvTransform.value.x = 0;
-        left.material.uniforms.uvTransform.value.y = left.scale.x;
-        left.material.uniforms.uvTransform.value.z = bottom.material.uniforms.uvTransform.value.w;
-        left.material.uniforms.uvTransform.value.w = top.material.uniforms.uvTransform.value.z;
-        right.scale.x = top.scale.y * 0.5;
-        right.scale.y = 1 - top.scale.y * 2;
-        right.material.uniforms.scale.value = scale;
-        right.material.uniforms.uvTransform.value.x = 1 - right.scale.x;
-        right.material.uniforms.uvTransform.value.y = 1;
-        right.material.uniforms.uvTransform.value.z = bottom.material.uniforms.uvTransform.value.w;
-        right.material.uniforms.uvTransform.value.w = top.material.uniforms.uvTransform.value.z;
-        right.position.x = 0.5 - left.scale.x * 0.5;
-      }
-      setScale(0.1);
-      return {
-        transform,
-        setScale
-      };
-    }
-    function Structure3() {
-      let transform = new THREE.Object3D();
-      let geometry = new THREE.PlaneBufferGeometry(1, 1);
-      let material2 = new THREE.MeshBasicMaterial({
-        color: 16777215,
-        side: THREE.DoubleSide
-      });
-      material2 = new THREE.ShaderMaterial({
-        vertexShader: vertexShader7,
-        fragmentShader: fragmentShader7,
-        uniforms: {
-          ...default14.common(),
-          uvTransform: {
-            value: new THREE.Vector4()
-          }
-        },
-        side: THREE.DoubleSide
-      });
-      let faceFront = Face({
-        geometry,
-        material: material2
-      });
-      faceFront.transform.scale.x = default5.width;
-      faceFront.transform.scale.y = default5.height;
-      faceFront.transform.position.z = default5.depth * 0.5;
-      faceFront.transform.position.y = default5.height * 0.5;
-      transform.add(faceFront.transform);
-      let faceBack = Face({
-        geometry,
-        material: material2
-      });
-      faceBack.transform.scale.x = default5.width;
-      faceBack.transform.scale.y = default5.height;
-      faceBack.transform.position.z = -default5.depth * 0.5;
-      faceBack.transform.position.y = default5.height * 0.5;
-      transform.add(faceBack.transform);
-      let faceLeft = Face({
-        geometry,
-        material: material2
-      });
-      faceLeft.transform.scale.x = default5.depth;
-      faceLeft.transform.scale.y = default5.height;
-      faceLeft.transform.rotation.y = Math.PI * 0.5;
-      faceLeft.transform.position.x = -default5.width * 0.5;
-      faceLeft.transform.position.y = default5.height * 0.5;
-      transform.add(faceLeft.transform);
-      let faceRight = Face({
-        geometry,
-        material: material2
-      });
-      faceRight.transform.scale.x = default5.depth;
-      faceRight.transform.scale.y = default5.height;
-      faceRight.transform.rotation.y = -Math.PI * 0.5;
-      faceRight.transform.position.x = default5.width * 0.5;
-      faceRight.transform.position.y = default5.height * 0.5;
-      transform.add(faceRight.transform);
-      let top = Face({
-        geometry,
-        material: material2
-      });
-      top.transform.scale.x = default5.width;
-      top.transform.scale.y = default5.depth;
-      top.transform.rotation.x = Math.PI * 0.5;
-      top.transform.position.x = 0;
-      top.transform.position.y = default5.height;
-      top.transform.visible = false;
-      transform.add(top.transform);
-      let bottom = Face({
-        geometry,
-        material: material2
-      });
-      bottom.transform.scale.x = default5.width;
-      bottom.transform.scale.y = default5.depth;
-      bottom.transform.rotation.x = -Math.PI * 0.5;
-      bottom.transform.position.x = 0;
-      bottom.transform.position.y = 0;
-      bottom.transform.visible = false;
-      transform.add(bottom.transform);
-      return {
-        transform,
-        top,
-        bottom
-      };
-    }
-    const default11 = Structure3;
-
-    // public/stages/Tampa/Particles.js
-    const random = require(0 /* canvas-sketch-util/random */, true /* ES6 import */);
-    const vertexShader4 = `
-
-attribute float size;
-attribute float speed;
-attribute vec3 customColor;
-
-uniform float uTime;
-
-varying vec3 vColor;
-
-mat4 rotationMatrix(vec3 axis, float angle) {
-    axis = normalize(axis);
-    float s = sin(angle);
-    float c = cos(angle);
-    float oc = 1.0 - c;
-    
-    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-                0.0,                                0.0,                                0.0,                                1.0);
-}
-
-void main() {
-    vec3 transformed = position;
-    // transformed -= vec3(0., position.y, 0.);
-    // transformed = (rotationMatrix(vec3(0., 1., 0.), uTime * speed) * vec4(transformed, 1.)).xyz;
-    // transformed += vec3(0., position.y, 0.);
-
-    vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0 );
-
-    gl_PointSize = size * ( 300.0 / -mvPosition.z );
-
-    gl_Position = projectionMatrix * mvPosition;
-}
-`;
-    const fragmentShader4 = `
-uniform vec3 color;
-
-float aastep(float threshold, float value) {
-  #ifdef GL_OES_standard_derivatives
-    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
-    return smoothstep(threshold-afwidth, threshold+afwidth, value);
-  #else
-    return step(threshold, value);
-  #endif  
-}
-
-float circle(vec2 st, float radius) {
-    return aastep(radius, length(st - vec2(0.5)));
-}
-
-void main() {
-    float opacity = 1. - circle(gl_PointCoord, 0.5);
-
-    gl_FragColor = vec4(color, opacity);
-}
-`;
-    function Particles3() {
-      let transform = new THREE.Object3D();
-      let geometry = new THREE.BufferGeometry();
-      let positions = [];
-      let sizes = [];
-      let speeds = [];
-      let count = 2000;
-      let radiusRoom = Math.sqrt(default5.width * default5.width * 0.5 * 0.5 + default5.depth * default5.depth * 0.5 * 0.5);
-      let maxRadius = radiusRoom * 4;
-      for (let i3 = 0; i3 < count; i3++) {
-        let top = i3 < count / 3;
-        let bottom = i3 > count / 3 * 2;
-        let minRadius = radiusRoom;
-        if (top)
-          minRadius *= 0;
-        if (bottom)
-          minRadius = Math.sqrt(default6.width * default6.width * 0.5 * 0.5 + default6.depth * default6.depth * 0.5 * 0.5);
-        let angle = Math.random() * 2 * Math.PI;
-        let r = random.default.range(minRadius, maxRadius);
-        let x = Math.cos(angle) * r;
-        let y2 = random.default.range(0, default5.height);
-        if (top)
-          y2 += default5.height;
-        if (bottom)
-          y2 -= default5.height;
-        let z = Math.sin(angle) * r;
-        positions.push(x, y2, z);
-        sizes.push(random.default.range(0.1, 0.3));
-        speeds.push(random.default.range(0.5, 1) * 0.1);
-      }
-      geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
-      geometry.setAttribute("size", new THREE.BufferAttribute(new Float32Array(sizes), 1));
-      geometry.setAttribute("speed", new THREE.BufferAttribute(new Float32Array(speeds), 1));
-      let material2 = new THREE.ShaderMaterial({
-        vertexShader: vertexShader4,
-        fragmentShader: fragmentShader4,
-        uniforms: {
-          ...default14.common(),
-          color: {
-            value: new THREE.Color(16777215)
-          }
-        },
-        extensions: {
-          derivatives: true
-        },
-        transparent: true
-      });
-      let mesh = new THREE.Points(geometry, material2);
-      transform.add(mesh);
-      return {
-        transform
-      };
-    }
-    const default12 = Particles3;
-
-    // public/stages/Tampa/TubeLight.js
-    let vertexShader8 = `
-    varying vec2 vUv;
-
-    void main() {
-        vUv = uv;
-        vec3 transformed = position;
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-    }
-`;
-    let fragmentShaderShadow = `
-    uniform vec3 diffuse;
-    uniform float opacity;
-
-    varying vec2 vUv;
-
-    #include <common>
-
-    void main() {
-        float o = opacity;
-        o *= sin(PI * vUv.x);
-        o *= sin(PI * vUv.y);
-
-        gl_FragColor = vec4(diffuse, o);
-    }
-`;
-    function TubeLight2() {
-      let transform = new THREE.Object3D();
-      let length2 = TubeLight2.width;
-      let radiusLight = TubeLight2.radius * 0.5;
-      let radiusGlass = TubeLight2.radius;
-      let color = Math.random() * 16777215;
-      color = 16777215;
-      let lightGeometry = new THREE.CylinderBufferGeometry(radiusLight, radiusLight, length2, 32, 1, true);
-      lightGeometry.rotateZ(Math.PI * 0.5);
-      let lightMaterial = new THREE.MeshBasicMaterial({
-        color,
-        side: THREE.DoubleSide
-      });
-      let light = new THREE.Mesh(lightGeometry, lightMaterial);
-      transform.add(light);
-      let glassGeometry = new THREE.CylinderBufferGeometry(radiusGlass, radiusGlass, length2, 32, 1, true);
-      glassGeometry.rotateZ(Math.PI * 0.5);
-      let glassMaterial = new THREE.MeshBasicMaterial({
-        color: 16777215,
-        opacity: 0.5,
-        transparent: true,
-        side: THREE.DoubleSide
-      });
-      let glass = new THREE.Mesh(glassGeometry, glassMaterial);
-      transform.add(glass);
-      let radiusPiece = radiusGlass * 1.02;
-      let lengthPiece = length2 * 0.05;
-      let pieceGeometry = new THREE.CylinderBufferGeometry(radiusPiece, radiusPiece, lengthPiece, 32, 1, false);
-      pieceGeometry.rotateZ(Math.PI * 0.5);
-      let pieceMaterial = new THREE.MeshBasicMaterial({
-        color: 14737632
-      });
-      let pieceLeft = new THREE.Mesh(pieceGeometry, pieceMaterial);
-      pieceLeft.position.x = -length2 * 0.5 + lengthPiece * 0.5;
-      transform.add(pieceLeft);
-      let pieceRight = new THREE.Mesh(pieceGeometry, pieceMaterial);
-      pieceRight.position.x = length2 * 0.5 - lengthPiece * 0.5;
-      transform.add(pieceRight);
-      const tubeLight = {
-        color,
-        transform
-      };
-      return tubeLight;
-    }
-    TubeLight2.radius = 0.06;
-    TubeLight2.width = 5;
-    const default16 = TubeLight2;
-
-    // public/stages/Tampa/TubeLights.js
-    let vertexShader9 = `
-    varying vec2 vUv;
-
-    void main() {
-        vUv = uv;
-        vec3 transformed = position;
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-    }
-`;
-    let fragmentShaderShadow2 = `
-    uniform vec3 diffuse;
-    uniform float opacity;
-
-    varying vec2 vUv;
-
-    #include <common>
-
-    void main() {
-        float o = opacity;
-        o *= sin(PI * vUv.x);
-        o *= sin(PI * vUv.y);
-
-        gl_FragColor = vec4(diffuse, o);
-    }
-`;
-    function TubeLights3() {
-      let transform = new THREE.Object3D();
-      let countY = 10;
-      function createLightWall() {
-        let transformWall = new THREE.Object3D();
-        let spaceBetween = 0.2;
-        let h2 = countY * default16.radius + (countY - 1) * spaceBetween;
-        for (let i3 = 0; i3 < countY; i3++) {
-          let light = default16();
-          light.transform.position.y = -h2 * 0.5 + i3 * default16.radius + i3 * spaceBetween;
-          transformWall.add(light.transform);
-        }
-        let shadowGeometry = new THREE.PlaneBufferGeometry(default16.width * 2, h2 * 2);
-        let shadowMaterial = new THREE.ShaderMaterial({
-          vertexShader: vertexShader9,
-          fragmentShader: fragmentShaderShadow2,
-          uniforms: {
-            diffuse: {
-              value: new THREE.Color(16777215)
-            },
-            opacity: {
-              value: 0.2
-            }
-          },
-          transparent: true
-        });
-        let shadowMesh = new THREE.Mesh(shadowGeometry, shadowMaterial);
-        transformWall.add(shadowMesh);
-        return {
-          transform: transformWall
-        };
-      }
-      let lightWallBack = createLightWall();
-      lightWallBack.transform.position.y = default5.height * 0.5;
-      lightWallBack.transform.position.z = -default5.depth * 0.5 + default16.radius + 0.01;
-      transform.add(lightWallBack.transform);
-      let lightWallFront = createLightWall();
-      lightWallFront.transform.position.y = default5.height * 0.5;
-      lightWallFront.transform.position.z = default5.depth * 0.5 - default16.radius * 0.5;
-      transform.add(lightWallFront.transform);
-      let lightWallLeft = createLightWall();
-      lightWallLeft.transform.position.y = default5.height * 0.5;
-      lightWallLeft.transform.rotation.y = Math.PI * 0.5;
-      lightWallLeft.transform.position.x = -default5.width * 0.5 + default16.radius * 0.5;
-      transform.add(lightWallLeft.transform);
-      let lightWallRight = createLightWall();
-      lightWallRight.transform.position.y = default5.height * 0.5;
-      lightWallRight.transform.rotation.y = -Math.PI * 0.5;
-      lightWallRight.transform.position.x = default5.width * 0.5 - default16.radius * 0.5;
-      transform.add(lightWallRight.transform);
-      return {
-        transform
-      };
-    }
-    const default13 = TubeLights3;
 
     // node_modules/three/build/three.module.js
     if (Number.EPSILON === void 0) {
@@ -28921,8 +27921,8 @@ void main() {
     function WebGLProgram(renderer, extensions, cacheKey, material2, shader, parameters) {
       var gl = renderer.getContext();
       var defines = material2.defines;
-      var vertexShader10 = shader.vertexShader;
-      var fragmentShader8 = shader.fragmentShader;
+      var vertexShader11 = shader.vertexShader;
+      var fragmentShader9 = shader.fragmentShader;
       var shadowMapTypeDefine = generateShadowMapTypeDefine(parameters);
       var envMapTypeDefine = generateEnvMapTypeDefine(parameters);
       var envMapModeDefine = generateEnvMapModeDefine(parameters);
@@ -28946,21 +27946,21 @@ void main() {
         prefixVertex = [generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.instancing ? "#define USE_INSTANCING" : "", parameters.supportsVertexTextures ? "#define VERTEX_TEXTURES" : "", "#define GAMMA_FACTOR " + gammaFactorDefine, "#define MAX_BONES " + parameters.maxBones, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.displacementMap && parameters.supportsVertexTextures ? "#define USE_DISPLACEMENTMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.skinning ? "#define USE_SKINNING" : "", parameters.useVertexTexture ? "#define BONE_TEXTURE" : "", parameters.morphTargets ? "#define USE_MORPHTARGETS" : "", parameters.morphNormals && parameters.flatShading === false ? "#define USE_MORPHNORMALS" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.sizeAttenuation ? "#define USE_SIZEATTENUATION" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", "uniform mat4 modelMatrix;", "uniform mat4 modelViewMatrix;", "uniform mat4 projectionMatrix;", "uniform mat4 viewMatrix;", "uniform mat3 normalMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", "#ifdef USE_INSTANCING", " attribute mat4 instanceMatrix;", "#endif", "attribute vec3 position;", "attribute vec3 normal;", "attribute vec2 uv;", "#ifdef USE_TANGENT", "	attribute vec4 tangent;", "#endif", "#ifdef USE_COLOR", "	attribute vec3 color;", "#endif", "#ifdef USE_MORPHTARGETS", "	attribute vec3 morphTarget0;", "	attribute vec3 morphTarget1;", "	attribute vec3 morphTarget2;", "	attribute vec3 morphTarget3;", "	#ifdef USE_MORPHNORMALS", "		attribute vec3 morphNormal0;", "		attribute vec3 morphNormal1;", "		attribute vec3 morphNormal2;", "		attribute vec3 morphNormal3;", "	#else", "		attribute vec3 morphTarget4;", "		attribute vec3 morphTarget5;", "		attribute vec3 morphTarget6;", "		attribute vec3 morphTarget7;", "	#endif", "#endif", "#ifdef USE_SKINNING", "	attribute vec4 skinIndex;", "	attribute vec4 skinWeight;", "#endif", "\n"].filter(filterEmptyLine).join("\n");
         prefixFragment = [customExtensions, generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.alphaTest ? "#define ALPHATEST " + parameters.alphaTest + (parameters.alphaTest % 1 ? "" : ".0") : "", "#define GAMMA_FACTOR " + gammaFactorDefine, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.matcap ? "#define USE_MATCAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapTypeDefine : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.envMap ? "#define " + envMapBlendingDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.sheen ? "#define USE_SHEEN" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.gradientMap ? "#define USE_GRADIENTMAP" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.premultipliedAlpha ? "#define PREMULTIPLIED_ALPHA" : "", parameters.physicallyCorrectLights ? "#define PHYSICALLY_CORRECT_LIGHTS" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", ((material2.extensions ? material2.extensions.shaderTextureLOD : false) || parameters.envMap) && (parameters.isWebGL2 || extensions.get("EXT_shader_texture_lod")) ? "#define TEXTURE_LOD_EXT" : "", "uniform mat4 viewMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", parameters.toneMapping !== NoToneMapping ? "#define TONE_MAPPING" : "", parameters.toneMapping !== NoToneMapping ? ShaderChunk["tonemapping_pars_fragment"] : "", parameters.toneMapping !== NoToneMapping ? getToneMappingFunction("toneMapping", parameters.toneMapping) : "", parameters.dithering ? "#define DITHERING" : "", parameters.outputEncoding || parameters.mapEncoding || parameters.matcapEncoding || parameters.envMapEncoding || parameters.emissiveMapEncoding || parameters.lightMapEncoding ? ShaderChunk["encodings_pars_fragment"] : "", parameters.mapEncoding ? getTexelDecodingFunction("mapTexelToLinear", parameters.mapEncoding) : "", parameters.matcapEncoding ? getTexelDecodingFunction("matcapTexelToLinear", parameters.matcapEncoding) : "", parameters.envMapEncoding ? getTexelDecodingFunction("envMapTexelToLinear", parameters.envMapEncoding) : "", parameters.emissiveMapEncoding ? getTexelDecodingFunction("emissiveMapTexelToLinear", parameters.emissiveMapEncoding) : "", parameters.lightMapEncoding ? getTexelDecodingFunction("lightMapTexelToLinear", parameters.lightMapEncoding) : "", parameters.outputEncoding ? getTexelEncodingFunction("linearToOutputTexel", parameters.outputEncoding) : "", parameters.depthPacking ? "#define DEPTH_PACKING " + material2.depthPacking : "", "\n"].filter(filterEmptyLine).join("\n");
       }
-      vertexShader10 = resolveIncludes(vertexShader10);
-      vertexShader10 = replaceLightNums(vertexShader10, parameters);
-      vertexShader10 = replaceClippingPlaneNums(vertexShader10, parameters);
-      fragmentShader8 = resolveIncludes(fragmentShader8);
-      fragmentShader8 = replaceLightNums(fragmentShader8, parameters);
-      fragmentShader8 = replaceClippingPlaneNums(fragmentShader8, parameters);
-      vertexShader10 = unrollLoops(vertexShader10);
-      fragmentShader8 = unrollLoops(fragmentShader8);
+      vertexShader11 = resolveIncludes(vertexShader11);
+      vertexShader11 = replaceLightNums(vertexShader11, parameters);
+      vertexShader11 = replaceClippingPlaneNums(vertexShader11, parameters);
+      fragmentShader9 = resolveIncludes(fragmentShader9);
+      fragmentShader9 = replaceLightNums(fragmentShader9, parameters);
+      fragmentShader9 = replaceClippingPlaneNums(fragmentShader9, parameters);
+      vertexShader11 = unrollLoops(vertexShader11);
+      fragmentShader9 = unrollLoops(fragmentShader9);
       if (parameters.isWebGL2 && !material2.isRawShaderMaterial) {
         var isGLSL3ShaderMaterial = false;
         var versionRegex = /^\s*#version\s+300\s+es\s*\n/;
-        if (material2.isShaderMaterial && vertexShader10.match(versionRegex) !== null && fragmentShader8.match(versionRegex) !== null) {
+        if (material2.isShaderMaterial && vertexShader11.match(versionRegex) !== null && fragmentShader9.match(versionRegex) !== null) {
           isGLSL3ShaderMaterial = true;
-          vertexShader10 = vertexShader10.replace(versionRegex, "");
-          fragmentShader8 = fragmentShader8.replace(versionRegex, "");
+          vertexShader11 = vertexShader11.replace(versionRegex, "");
+          fragmentShader9 = fragmentShader9.replace(versionRegex, "");
         }
         prefixVertex = ["#version 300 es\n", "#define attribute in", "#define varying out", "#define texture2D texture"].join("\n") + "\n" + prefixVertex;
         prefixFragment = ["#version 300 es\n", "#define varying in", isGLSL3ShaderMaterial ? "" : "out highp vec4 pc_fragColor;", isGLSL3ShaderMaterial ? "" : "#define gl_FragColor pc_fragColor", "#define gl_FragDepthEXT gl_FragDepth", "#define texture2D texture", "#define textureCube texture", "#define texture2DProj textureProj", "#define texture2DLodEXT textureLod", "#define texture2DProjLodEXT textureProjLod", "#define textureCubeLodEXT textureLod", "#define texture2DGradEXT textureGrad", "#define texture2DProjGradEXT textureProjGrad", "#define textureCubeGradEXT textureGrad"].join("\n") + "\n" + prefixFragment;
@@ -28971,8 +27971,8 @@ void main() {
           prefixFragment = prefixFragment.replace("uniform mat4 viewMatrix;", ["uniform mat4 viewMatrices[" + numMultiviewViews + "];", "#define viewMatrix viewMatrices[VIEW_ID]"].join("\n"));
         }
       }
-      var vertexGlsl = prefixVertex + vertexShader10;
-      var fragmentGlsl = prefixFragment + fragmentShader8;
+      var vertexGlsl = prefixVertex + vertexShader11;
+      var fragmentGlsl = prefixFragment + fragmentShader9;
       var glVertexShader = WebGLShader(gl, 35633, vertexGlsl);
       var glFragmentShader = WebGLShader(gl, 35632, fragmentGlsl);
       gl.attachShader(program, glVertexShader);
@@ -46283,6 +45283,1227 @@ vec4 envMapTexelToLinear(vec4 color) {
     MapControls.prototype = Object.create(EventDispatcher.prototype);
     MapControls.prototype.constructor = MapControls;
 
+    // public/stages/Triangles/Camera.js
+    function Camera7({aspect: aspect2} = {}) {
+      let transform = new THREE.Object3D();
+      let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
+      camera.position.set(0, 0, 10);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      camera.updateProjectionMatrix();
+      transform.add(camera);
+      let speed = 0.0005;
+      function update2({deltaTime: deltaTime2}) {
+      }
+      return {
+        camera,
+        transform,
+        update: update2
+      };
+    }
+    const default18 = Camera7;
+
+    // public/stages/Triangles/Composition.js
+    function Composition3() {
+      let transform = new THREE.Object3D();
+      let radius = 1;
+      let side = radius * Math.sqrt(3);
+      let grid = 32;
+      let size = side * grid;
+      let positions = [];
+      for (let i3 = 0; i3 < grid + 1; i3++) {
+        let x = i3 / grid * size - size * 0.5;
+        for (let j = 0; j < grid + 1; j++) {
+          let y2 = j / grid * size - size * 0.5;
+          positions.push([x, y2]);
+        }
+      }
+      let geometryPyr = new THREE.ConeBufferGeometry(radius, radius, 3);
+      geometryPyr.rotateY(Math.PI);
+      geometryPyr.rotateX(Math.PI * 0.5);
+      let materialPyr = new THREE.MeshBasicMaterial({
+        color: 16711680,
+        wireframe: true
+      });
+      let materialGrid = new THREE.MeshBasicMaterial({
+        color: 16777215
+      });
+      let geometryGrid = new THREE.PlaneBufferGeometry(side * 0.1, side * 0.1);
+      for (let i3 = 0; i3 < positions.length; i3++) {
+        let [x, y2] = positions[i3];
+        let material2 = materialGrid;
+        if (x === 0 && y2 === 0) {
+          material2 = new THREE.MeshBasicMaterial({
+            color: 16711680
+          });
+        }
+        let mesh = new THREE.Mesh(geometryGrid, material2);
+        mesh.position.x = x;
+        mesh.position.y = y2;
+        transform.add(mesh);
+      }
+      let pyramids = [[side * 2, radius * 2, 4, 0], [0, radius * 4, 4, Math.PI], [-side * 2, radius * 2, 4, 0], [-side * 4, radius * 4, 4, Math.PI]];
+      for (let i3 = 0; i3 < pyramids.length; i3++) {
+        let [x, y2, scale, rotationZ] = pyramids[i3];
+        let mesh = new THREE.Mesh(geometryPyr, materialPyr);
+        mesh.position.x = x;
+        mesh.position.y = y2;
+        mesh.position.z = radius * 2;
+        mesh.scale.set(scale, scale, scale);
+        mesh.rotation.z = rotationZ;
+        transform.add(mesh);
+      }
+      return {
+        transform
+      };
+    }
+    const default19 = Composition3;
+
+    // public/stages/Triangles/Uniforms.js
+    const Uniforms13 = function() {
+      let uniforms = {
+        uTime: {
+          value: 0
+        },
+        roomDiffuse: {
+          value: new THREE.Color(16711680)
+        },
+        roomAOIntensity: {
+          value: 0.2
+        }
+      };
+      function common3() {
+        return uniforms;
+      }
+      function get(name) {
+        return uniforms[name];
+      }
+      function update2({time: time2, deltaTime: deltaTime2}) {
+        uniforms.uTime.value = time2 / 1000;
+      }
+      return {
+        common: common3,
+        update: update2,
+        get
+      };
+    }();
+    const default20 = Uniforms13;
+
+    // public/stages/Triangles.js
+    function Triangles2({props, renderer}) {
+      let scene = new THREE.Scene();
+      let camera = default18({
+        aspect: renderer.canvas.width / renderer.canvas.height
+      });
+      let controls = new OrbitControls2(camera.camera, document.querySelector(".output"));
+      controls.target = new THREE.Vector3(0, 0, 0);
+      let composition = default19();
+      scene.add(composition.transform);
+      function update2({time: time2, deltaTime: deltaTime2}) {
+        default20.update({
+          time: time2,
+          deltaTime: deltaTime2
+        });
+        if (controls) {
+          controls.update();
+        }
+        camera.update({
+          time: time2,
+          deltaTime: deltaTime2
+        });
+      }
+      function render({renderer: renderer2}) {
+        renderer2.setClearColor("#000000", 1);
+        renderer2.render(scene, camera.camera);
+      }
+      function resize() {
+        console.log("Triangles :: resize");
+      }
+      return {
+        canvas: renderer.canvas,
+        update: update2,
+        render,
+        resize
+      };
+    }
+    const default21 = {
+      name: "Triangles",
+      scene: Triangles2,
+      props: {}
+    };
+
+    // public/stages/Tampa/Uniforms.js
+    const Uniforms10 = function() {
+      let uniforms = {
+        uTime: {
+          value: 0
+        },
+        roomDiffuse: {
+          value: new THREE.Color(16711680)
+        },
+        roomAOIntensity: {
+          value: 0.2
+        }
+      };
+      function common3() {
+        return uniforms;
+      }
+      function get(name) {
+        return uniforms[name];
+      }
+      function update2({time: time2, deltaTime: deltaTime2}) {
+        uniforms.uTime.value = time2 / 1000;
+      }
+      return {
+        common: common3,
+        update: update2,
+        get
+      };
+    }();
+    const default14 = Uniforms10;
+
+    // public/stages/Tampa/Room.js
+    const vertexShader6 = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+    vec3 transformed = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+}`;
+    const fragmentShader6 = `
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
+
+varying vec2 vUv;
+
+#include <common>
+
+void main() {
+    vec3 color = roomDiffuse;
+
+    color *= sin(vUv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
+    color *= sin(vUv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+    function Room9() {
+      let transform = new THREE.Object3D();
+      let geometry = new THREE.PlaneBufferGeometry(1, 1);
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader6,
+        fragmentShader: fragmentShader6,
+        uniforms: {
+          ...default14.common(),
+          diffuse: {
+            value: new THREE.Color(16777215)
+          }
+        }
+      });
+      let back = new THREE.Mesh(geometry, material2);
+      back.position.z = -Room9.depth * 0.5;
+      back.scale.set(Room9.width, Room9.height, 1);
+      back.position.y = Room9.height * 0.5;
+      transform.add(back);
+      let front = new THREE.Mesh(geometry, material2);
+      front.position.y = Room9.height * 0.5;
+      front.position.z = Room9.depth * 0.5;
+      front.scale.set(Room9.width, Room9.height, 1);
+      front.rotation.y = Math.PI;
+      transform.add(front);
+      let left = new THREE.Mesh(geometry, material2);
+      left.position.x = -Room9.width * 0.5;
+      left.position.y = Room9.height * 0.5;
+      left.rotation.y = Math.PI * 0.5;
+      left.scale.set(Room9.depth, Room9.height, 1);
+      transform.add(left);
+      let right = new THREE.Mesh(geometry, material2);
+      right.position.x = Room9.width * 0.5;
+      right.position.y = Room9.height * 0.5;
+      right.rotation.y = -Math.PI * 0.5;
+      right.scale.set(Room9.depth, Room9.height, 1);
+      transform.add(right);
+      return {
+        transform
+      };
+    }
+    Room9.width = 15;
+    Room9.depth = 15;
+    Room9.height = 7;
+    const default5 = Room9;
+
+    // public/stages/Tampa/Hole.js
+    let vertexShader3 = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+    vec3 transformed = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+}`;
+    const fragmentShader3 = `
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
+
+varying vec2 vUv;
+
+#include <common>
+
+void main() {
+    vec3 color = roomDiffuse;
+    color *= vUv.y; // vertical gradient
+
+    float intensity = roomAOIntensity;
+    intensity *= 0.2;
+
+    color *= sin(vUv.x * PI) * intensity + (1. - intensity);
+    color *= sin(vUv.y * PI) * intensity + (1. - intensity);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+    function Hole4() {
+      let transform = new THREE.Object3D();
+      let geometry = new THREE.PlaneGeometry(Hole4.width, Hole4.height);
+      geometry.translate(0, -Hole4.height * 0.5, 0);
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader3,
+        fragmentShader: fragmentShader3,
+        uniforms: {
+          ...default14.common(),
+          diffuse: {
+            value: new THREE.Color(16777215)
+          }
+        },
+        side: THREE.DoubleSide
+      });
+      let meshFront = new THREE.Mesh(geometry, material2);
+      meshFront.position.z = Hole4.depth * 0.5;
+      transform.add(meshFront);
+      let meshLeft = new THREE.Mesh(geometry, material2);
+      meshLeft.position.x = -Hole4.width * 0.5;
+      meshLeft.rotation.y = -Math.PI * 0.5;
+      transform.add(meshLeft);
+      let meshRight = new THREE.Mesh(geometry, material2);
+      meshRight.position.x = Hole4.width * 0.5;
+      meshRight.rotation.y = Math.PI * 0.5;
+      transform.add(meshRight);
+      let meshBack = new THREE.Mesh(geometry, material2);
+      meshBack.position.z = -Hole4.depth * 0.5;
+      meshBack.rotation.y = Math.PI;
+      transform.add(meshBack);
+      return {
+        transform
+      };
+    }
+    Hole4.width = default5.width * 0.2;
+    Hole4.depth = default5.depth * 0.2;
+    Hole4.height = default5.height * 0.75;
+    const default6 = Hole4;
+
+    // public/stages/Tampa/Floor.js
+    let vertexShader2 = `
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }`;
+    let fragmentShader2 = `
+    uniform vec3 roomDiffuse;
+    uniform vec4 uvTransform;
+    uniform float roomAOIntensity;
+
+    varying vec2 vUv;
+
+    #include <common>
+
+    float mapRange(float value, float low1, float high1, float low2, float high2) {
+        return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+    }
+
+    void main() {
+        vec2 uv = vec2(
+            mapRange(vUv.x, 0., 1., uvTransform.x, uvTransform.y),
+            mapRange(vUv.y, 0., 1., uvTransform.z, uvTransform.w)
+        );
+        vec3 color = roomDiffuse;
+
+        color *= sin(uv.y * PI) * roomAOIntensity + (1. - roomAOIntensity);
+        color *= sin(uv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
+
+        gl_FragColor = vec4(color, 1.0);
+    }
+`;
+    function Floor3() {
+      let transform = new THREE.Object3D();
+      let widthBig = (default5.width - default6.width) * 0.5;
+      let depthSmall = (default5.depth - default6.depth) * 0.5;
+      let geometry = new THREE.PlaneBufferGeometry(1, 1);
+      geometry.rotateX(-Math.PI * 0.5);
+      let uniforms = {
+        ...default14.common(),
+        roomDiffuse: {
+          value: new THREE.Color(16711680)
+        },
+        uvTransform: {
+          value: new THREE.Vector4()
+        }
+      };
+      let left = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default14.common(),
+          uvTransform: {
+            value: new THREE.Vector4(0, (default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, 0, 1)
+          }
+        },
+        side: THREE.DoubleSide
+      }));
+      left.position.x = -widthBig * 0.5 - default6.width * 0.5;
+      left.scale.set(widthBig, 1, default5.depth);
+      transform.add(left);
+      let right = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default14.common(),
+          uvTransform: {
+            value: new THREE.Vector4(((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 1, 0, 1)
+          }
+        },
+        side: THREE.DoubleSide
+      }));
+      right.position.x = widthBig * 0.5 + default6.width * 0.5;
+      right.scale.copy(left.scale);
+      transform.add(right);
+      let back = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default14.common(),
+          uvTransform: {
+            value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, ((default5.depth - default6.depth) * 0.5 + default6.depth) / default5.depth, 1)
+          }
+        },
+        side: THREE.DoubleSide
+      }));
+      back.scale.set(default6.width, 1, depthSmall);
+      back.position.z = -depthSmall * 0.5 - default6.depth * 0.5;
+      transform.add(back);
+      let front = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
+        vertexShader: vertexShader2,
+        fragmentShader: fragmentShader2,
+        uniforms: {
+          ...default14.common(),
+          uvTransform: {
+            value: new THREE.Vector4((default5.width - default6.width - (default5.width - default6.width) * 0.5) / default5.width, ((default5.width - default6.width) * 0.5 + default6.width) / default5.width, 0, (default5.depth - default6.depth - (default5.depth - default6.depth) * 0.5) / default5.depth)
+          }
+        },
+        side: THREE.DoubleSide
+      }));
+      front.scale.copy(back.scale);
+      front.position.z = depthSmall * 0.5 + default6.depth * 0.5;
+      transform.add(front);
+      return {
+        transform
+      };
+    }
+    const default4 = Floor3;
+
+    // public/stages/Tampa/Shape.js
+    let vertexShader7 = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+    vec3 transformed = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+}`;
+    const fragmentShader7 = `
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
+
+varying vec2 vUv;
+
+#include <common>
+
+void main() {
+    vec3 color = roomDiffuse;
+
+    float intensity = roomAOIntensity;
+    intensity *= 0.2;
+
+    float aox = sin(vUv.x * PI) * intensity + (1. - intensity);
+    float aoy = sin(vUv.y * PI) * intensity + (1. - intensity);
+
+    color -= (1. - aox);
+    color -= (1. - aoy);
+    // color *= aoy;
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+    function Shape4() {
+      let transform = new THREE.Object3D();
+      let height = default6.width;
+      let geometry = new THREE.BoxGeometry(default6.width, height, default6.depth);
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader7,
+        fragmentShader: fragmentShader7,
+        uniforms: {
+          ...default14.common(),
+          diffuse: {
+            value: new THREE.Color(16777215)
+          }
+        }
+      });
+      let mesh = new THREE.Mesh(geometry, material2);
+      mesh.position.y = height;
+      transform.add(mesh);
+      function update2({deltaTime: deltaTime2, time: time2}) {
+        mesh.rotation.y += deltaTime2 * 0.001;
+      }
+      return {
+        transform,
+        update: update2
+      };
+    }
+    const default7 = Shape4;
+
+    // public/stages/Tampa/Camera.js
+    function Camera4({aspect: aspect2} = {}) {
+      let transform = new THREE.Object3D();
+      let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
+      camera.position.set(0, 0, 10);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      camera.updateProjectionMatrix();
+      transform.add(camera);
+      let speed = 0.0005;
+      function update2({deltaTime: deltaTime2}) {
+      }
+      return {
+        camera,
+        transform,
+        update: update2
+      };
+    }
+    const default8 = Camera4;
+
+    // public/stages/Tampa/Ceiling.js
+    let vertexShader = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+    vec3 transformed = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+}`;
+    const fragmentShader = `
+uniform vec3 diffuse;
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
+
+varying vec2 vUv;
+
+#include <common>
+
+void main() {
+    vec3 color = roomDiffuse;
+
+    color *= sin(vUv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
+    color *= sin(vUv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+    function Ceiling3() {
+      let transform = new THREE.Object3D();
+      let geometry = new THREE.PlaneBufferGeometry(1, 1);
+      geometry.rotateX(Math.PI * 0.5);
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+          ...default14.common(),
+          diffuse: {
+            value: new THREE.Color(16777215)
+          }
+        },
+        side: THREE.DoubleSide
+      });
+      let mesh = new THREE.Mesh(geometry, material2);
+      mesh.scale.set(default5.width, 1, default5.depth);
+      mesh.position.y = default5.height;
+      transform.add(mesh);
+      const LIGHT_COUNT = 4;
+      const LIGHT_WIDTH = default5.width * 0.5;
+      const LIGHT_DEPTH = default5.depth * 0.1;
+      const LIGHT_SPACE = LIGHT_DEPTH * 2;
+      let lightMaterial = new THREE.MeshBasicMaterial({
+        color: 16777215
+      });
+      const LIGHT_LENGTH = LIGHT_COUNT * LIGHT_DEPTH + (LIGHT_COUNT - 1) * (LIGHT_SPACE - LIGHT_DEPTH);
+      let lights = [];
+      for (let i3 = 0; i3 < LIGHT_COUNT; i3++) {
+        let light = new THREE.Mesh(geometry, lightMaterial);
+        light.scale.set(LIGHT_WIDTH, 1, LIGHT_DEPTH);
+        light.position.y = default5.height - 0.01;
+        light.position.z = i3 * LIGHT_SPACE + LIGHT_DEPTH * 0.5 - LIGHT_LENGTH * 0.5;
+        transform.add(light);
+        lights.push(light);
+        light.deltaVisibility = computeLightDelta();
+        light.visibilityPassed = 0;
+      }
+      function computeLightDelta() {
+        return Math.random() * 1000;
+      }
+      function update2({time: time2, deltaTime: deltaTime2}) {
+        for (let i3 = 2; i3 < 3; i3++) {
+          lights[i3].visibilityPassed += deltaTime2;
+          if (lights[i3].visibilityPassed >= lights[i3].deltaVisibility) {
+            lights[i3].visibilityPassed = 0;
+            lights[i3].deltaVisibility = computeLightDelta();
+            lights[i3].visible = !lights[i3].visible;
+          }
+        }
+      }
+      return {
+        transform,
+        update: update2
+      };
+    }
+    const default9 = Ceiling3;
+
+    // public/stages/Tampa/Lights.js
+    function Lights3() {
+      let transform = new THREE.Object3D();
+      let ambientLight = new THREE.AmbientLight(16777215, 0.5);
+      transform.add(ambientLight);
+      return {
+        transform
+      };
+    }
+    const default10 = Lights3;
+
+    // node_modules/lemonade-math/clamp.js
+    function clamp2(value2, min, max) {
+      return Math.max(min, Math.min(value2, max));
+    }
+
+    // node_modules/lemonade-math/degToRad.js
+    const DEG2RAD = Math.PI / 180;
+    function degToRad2(value2) {
+      return value2 * DEG2RAD;
+    }
+
+    // node_modules/lemonade-math/lerp.js
+    function lerp3(x, y2, t) {
+      return (1 - t) * x * +t * y2;
+    }
+    function lerp22([x0, y0] = [], [x1, y1] = [], t) {
+      return [lerp3(x0, x1, t), lerp3(y0, y1, t)];
+    }
+    function lerp32([x0, y0, z0] = [], [x1, y1, z1] = [], t) {
+      return [lerp3(x0, x1, t), lerp3(y0, y1, t), lerp3(z0, z1, t)];
+    }
+    function lerp4([x0, y0, z0, w0] = [], [x1, y1, z1, w1] = [], t) {
+      return [lerp3(x0, x1, t), lerp3(y0, y1, t), lerp3(z0, z1, t), lerp3(w0, w1, t)];
+    }
+
+    // node_modules/lemonade-math/map.js
+    function map3(value2, min, max, nmin, nmax) {
+      return (value2 - min) / (max - min) * (nmax - nmin) + nmin;
+    }
+
+    // node_modules/lemonade-math/polarToGeo.js
+    function polarToGeo3(latitude, longitude, radius = 1) {
+      const phi = (90 - latitude) * (Math.PI / 180);
+      const theta = (longitude + 180) * (Math.PI / 180);
+      const x = -(radius * Math.sin(phi) * Math.cos(theta));
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      const y2 = radius * Math.cos(phi);
+      return {
+        x,
+        y: y2,
+        z
+      };
+    }
+
+    // node_modules/lemonade-math/radToDeg.js
+    const RAD2DEG = 180 / Math.PI;
+    function radToDeg3(value2) {
+      return value2 * RAD2DEG;
+    }
+
+    // node_modules/lemonade-math/index.js
+
+    // public/stages/Tampa/Structure.js
+    console.log(map3);
+    const vertexShader8 = `
+varying vec2 vUv;
+
+void main() {
+    vUv = uv;
+    vec3 transformed = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+}`;
+    const fragmentShader8 = `
+uniform vec3 roomDiffuse;
+uniform float roomAOIntensity;
+uniform vec4 uvTransform;
+uniform float scale;
+
+varying vec2 vUv;
+
+#include <common>
+
+float mapRange(float value, float low1, float high1, float low2, float high2) {
+    return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+}
+
+void main() {
+    vec3 color = roomDiffuse;
+
+    vec2 uv = vec2(
+        mapRange(vUv.x, 0., 1., uvTransform.x, uvTransform.y),
+        mapRange(vUv.y, 0., 1., uvTransform.z, uvTransform.w)
+    );
+
+    color *= sin(uv.y * PI) * roomAOIntensity + (1. - roomAOIntensity); // vertical gradient
+    color *= sin(uv.x * PI) * roomAOIntensity + (1. - roomAOIntensity);
+
+    // color = mix(roomDiffuse, color, scale);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+    function Face({geometry, material: material2}) {
+      let transform = new THREE.Object3D();
+      let top = new THREE.Mesh(geometry, material2.clone());
+      top.material.uniforms = {
+        ...default14.common(),
+        scale: {
+          value: 0
+        },
+        uvTransform: {
+          value: new THREE.Vector4()
+        }
+      };
+      transform.add(top);
+      let bottom = new THREE.Mesh(geometry, material2.clone());
+      bottom.material.uniforms = {
+        ...default14.common(),
+        scale: {
+          value: 0
+        },
+        uvTransform: {
+          value: new THREE.Vector4()
+        }
+      };
+      transform.add(bottom);
+      let left = new THREE.Mesh(geometry, material2.clone());
+      left.material.uniforms = {
+        ...default14.common(),
+        scale: {
+          value: 0
+        },
+        uvTransform: {
+          value: new THREE.Vector4()
+        }
+      };
+      transform.add(left);
+      let right = new THREE.Mesh(geometry, material2.clone());
+      right.material.uniforms = {
+        ...default14.common(),
+        scale: {
+          value: 0
+        },
+        uvTransform: {
+          value: new THREE.Vector4()
+        }
+      };
+      transform.add(right);
+      function setScale(scale) {
+        top.scale.x = 1;
+        top.scale.y = 0.5 * scale;
+        top.position.y = 0.5 - top.scale.y * 0.5;
+        top.material.uniforms.scale.value = scale;
+        top.material.uniforms.uvTransform.value.x = 0;
+        top.material.uniforms.uvTransform.value.y = 1;
+        top.material.uniforms.uvTransform.value.z = map3(top.scale.y, 0.5, 0, 0.5, 1);
+        top.material.uniforms.uvTransform.value.w = 1;
+        bottom.scale.x = 1;
+        bottom.scale.y = 0.5 * scale;
+        bottom.position.y = -0.5 + bottom.scale.y * 0.5;
+        bottom.material.uniforms.scale.value = scale;
+        bottom.material.uniforms.uvTransform.value.x = 0;
+        bottom.material.uniforms.uvTransform.value.y = 1;
+        bottom.material.uniforms.uvTransform.value.z = 0;
+        bottom.material.uniforms.uvTransform.value.w = map3(bottom.scale.y, 0, 0.5, 0, 0.5);
+        left.scale.x = top.scale.y * 0.5;
+        left.scale.y = 1 - top.scale.y * 2;
+        left.position.x = -0.5 + left.scale.x * 0.5;
+        left.material.uniforms.scale.value = scale;
+        left.material.uniforms.uvTransform.value.x = 0;
+        left.material.uniforms.uvTransform.value.y = left.scale.x;
+        left.material.uniforms.uvTransform.value.z = bottom.material.uniforms.uvTransform.value.w;
+        left.material.uniforms.uvTransform.value.w = top.material.uniforms.uvTransform.value.z;
+        right.scale.x = top.scale.y * 0.5;
+        right.scale.y = 1 - top.scale.y * 2;
+        right.material.uniforms.scale.value = scale;
+        right.material.uniforms.uvTransform.value.x = 1 - right.scale.x;
+        right.material.uniforms.uvTransform.value.y = 1;
+        right.material.uniforms.uvTransform.value.z = bottom.material.uniforms.uvTransform.value.w;
+        right.material.uniforms.uvTransform.value.w = top.material.uniforms.uvTransform.value.z;
+        right.position.x = 0.5 - left.scale.x * 0.5;
+      }
+      setScale(0.1);
+      return {
+        transform,
+        setScale
+      };
+    }
+    function Structure3() {
+      let transform = new THREE.Object3D();
+      let geometry = new THREE.PlaneBufferGeometry(1, 1);
+      let material2 = new THREE.MeshBasicMaterial({
+        color: 16777215,
+        side: THREE.DoubleSide
+      });
+      material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader8,
+        fragmentShader: fragmentShader8,
+        uniforms: {
+          ...default14.common(),
+          uvTransform: {
+            value: new THREE.Vector4()
+          }
+        },
+        side: THREE.DoubleSide
+      });
+      let faceFront = Face({
+        geometry,
+        material: material2
+      });
+      faceFront.transform.scale.x = default5.width;
+      faceFront.transform.scale.y = default5.height;
+      faceFront.transform.position.z = default5.depth * 0.5;
+      faceFront.transform.position.y = default5.height * 0.5;
+      transform.add(faceFront.transform);
+      let faceBack = Face({
+        geometry,
+        material: material2
+      });
+      faceBack.transform.scale.x = default5.width;
+      faceBack.transform.scale.y = default5.height;
+      faceBack.transform.position.z = -default5.depth * 0.5;
+      faceBack.transform.position.y = default5.height * 0.5;
+      transform.add(faceBack.transform);
+      let faceLeft = Face({
+        geometry,
+        material: material2
+      });
+      faceLeft.transform.scale.x = default5.depth;
+      faceLeft.transform.scale.y = default5.height;
+      faceLeft.transform.rotation.y = Math.PI * 0.5;
+      faceLeft.transform.position.x = -default5.width * 0.5;
+      faceLeft.transform.position.y = default5.height * 0.5;
+      transform.add(faceLeft.transform);
+      let faceRight = Face({
+        geometry,
+        material: material2
+      });
+      faceRight.transform.scale.x = default5.depth;
+      faceRight.transform.scale.y = default5.height;
+      faceRight.transform.rotation.y = -Math.PI * 0.5;
+      faceRight.transform.position.x = default5.width * 0.5;
+      faceRight.transform.position.y = default5.height * 0.5;
+      transform.add(faceRight.transform);
+      let top = Face({
+        geometry,
+        material: material2
+      });
+      top.transform.scale.x = default5.width;
+      top.transform.scale.y = default5.depth;
+      top.transform.rotation.x = Math.PI * 0.5;
+      top.transform.position.x = 0;
+      top.transform.position.y = default5.height;
+      top.transform.visible = false;
+      transform.add(top.transform);
+      let bottom = Face({
+        geometry,
+        material: material2
+      });
+      bottom.transform.scale.x = default5.width;
+      bottom.transform.scale.y = default5.depth;
+      bottom.transform.rotation.x = -Math.PI * 0.5;
+      bottom.transform.position.x = 0;
+      bottom.transform.position.y = 0;
+      bottom.transform.visible = false;
+      transform.add(bottom.transform);
+      return {
+        transform,
+        top,
+        bottom
+      };
+    }
+    const default11 = Structure3;
+
+    // public/stages/Tampa/Particles.js
+    const random = require(0 /* canvas-sketch-util/random */, true /* ES6 import */);
+    const vertexShader5 = `
+
+attribute float size;
+attribute float speed;
+attribute vec3 customColor;
+
+uniform float uTime;
+
+varying vec3 vColor;
+
+mat4 rotationMatrix(vec3 axis, float angle) {
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0);
+}
+
+void main() {
+    vec3 transformed = position;
+    // transformed -= vec3(0., position.y, 0.);
+    // transformed = (rotationMatrix(vec3(0., 1., 0.), uTime * speed) * vec4(transformed, 1.)).xyz;
+    // transformed += vec3(0., position.y, 0.);
+
+    vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0 );
+
+    gl_PointSize = size * ( 300.0 / -mvPosition.z );
+
+    gl_Position = projectionMatrix * mvPosition;
+}
+`;
+    const fragmentShader5 = `
+uniform vec3 color;
+
+float aastep(float threshold, float value) {
+  #ifdef GL_OES_standard_derivatives
+    float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+    return smoothstep(threshold-afwidth, threshold+afwidth, value);
+  #else
+    return step(threshold, value);
+  #endif  
+}
+
+float circle(vec2 st, float radius) {
+    return aastep(radius, length(st - vec2(0.5)));
+}
+
+void main() {
+    float opacity = 1. - circle(gl_PointCoord, 0.5);
+
+    gl_FragColor = vec4(color, opacity);
+}
+`;
+    function Particles3() {
+      let transform = new THREE.Object3D();
+      let geometry = new THREE.BufferGeometry();
+      let positions = [];
+      let sizes = [];
+      let speeds = [];
+      let count = 2000;
+      let radiusRoom = Math.sqrt(default5.width * default5.width * 0.5 * 0.5 + default5.depth * default5.depth * 0.5 * 0.5);
+      let maxRadius = radiusRoom * 4;
+      for (let i3 = 0; i3 < count; i3++) {
+        let top = i3 < count / 3;
+        let bottom = i3 > count / 3 * 2;
+        let minRadius = radiusRoom;
+        if (top)
+          minRadius *= 0;
+        if (bottom)
+          minRadius = Math.sqrt(default6.width * default6.width * 0.5 * 0.5 + default6.depth * default6.depth * 0.5 * 0.5);
+        let angle = Math.random() * 2 * Math.PI;
+        let r = random.default.range(minRadius, maxRadius);
+        let x = Math.cos(angle) * r;
+        let y2 = random.default.range(0, default5.height);
+        if (top)
+          y2 += default5.height;
+        if (bottom)
+          y2 -= default5.height;
+        let z = Math.sin(angle) * r;
+        positions.push(x, y2, z);
+        sizes.push(random.default.range(0.1, 0.3));
+        speeds.push(random.default.range(0.5, 1) * 0.1);
+      }
+      geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
+      geometry.setAttribute("size", new THREE.BufferAttribute(new Float32Array(sizes), 1));
+      geometry.setAttribute("speed", new THREE.BufferAttribute(new Float32Array(speeds), 1));
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader5,
+        fragmentShader: fragmentShader5,
+        uniforms: {
+          ...default14.common(),
+          color: {
+            value: new THREE.Color(16777215)
+          }
+        },
+        extensions: {
+          derivatives: true
+        },
+        transparent: true
+      });
+      let mesh = new THREE.Points(geometry, material2);
+      transform.add(mesh);
+      return {
+        transform
+      };
+    }
+    const default12 = Particles3;
+
+    // public/stages/Tampa/TubeLight.js
+    let vertexShader9 = `
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
+    let fragmentShaderShadow = `
+    uniform vec3 diffuse;
+    uniform float opacity;
+
+    varying vec2 vUv;
+
+    #include <common>
+
+    void main() {
+        float o = opacity;
+        o *= sin(PI * vUv.x);
+        o *= sin(PI * vUv.y);
+
+        gl_FragColor = vec4(diffuse, o);
+    }
+`;
+    function TubeLight2() {
+      let transform = new THREE.Object3D();
+      let length2 = TubeLight2.width;
+      let radiusLight = TubeLight2.radius * 0.5;
+      let radiusGlass = TubeLight2.radius;
+      let color = Math.random() * 16777215;
+      color = 16777215;
+      let lightGeometry = new THREE.CylinderBufferGeometry(radiusLight, radiusLight, length2, 32, 1, true);
+      lightGeometry.rotateZ(Math.PI * 0.5);
+      let lightMaterial = new THREE.MeshBasicMaterial({
+        color,
+        side: THREE.DoubleSide
+      });
+      let light = new THREE.Mesh(lightGeometry, lightMaterial);
+      transform.add(light);
+      let glassGeometry = new THREE.CylinderBufferGeometry(radiusGlass, radiusGlass, length2, 32, 1, true);
+      glassGeometry.rotateZ(Math.PI * 0.5);
+      let glassMaterial = new THREE.MeshBasicMaterial({
+        color: 16777215,
+        opacity: 0.5,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+      let glass = new THREE.Mesh(glassGeometry, glassMaterial);
+      transform.add(glass);
+      let radiusPiece = radiusGlass * 1.02;
+      let lengthPiece = length2 * 0.05;
+      let pieceGeometry = new THREE.CylinderBufferGeometry(radiusPiece, radiusPiece, lengthPiece, 32, 1, false);
+      pieceGeometry.rotateZ(Math.PI * 0.5);
+      let pieceMaterial = new THREE.MeshBasicMaterial({
+        color: 14737632
+      });
+      let pieceLeft = new THREE.Mesh(pieceGeometry, pieceMaterial);
+      pieceLeft.position.x = -length2 * 0.5 + lengthPiece * 0.5;
+      transform.add(pieceLeft);
+      let pieceRight = new THREE.Mesh(pieceGeometry, pieceMaterial);
+      pieceRight.position.x = length2 * 0.5 - lengthPiece * 0.5;
+      transform.add(pieceRight);
+      const tubeLight = {
+        color,
+        transform
+      };
+      return tubeLight;
+    }
+    TubeLight2.radius = 0.06;
+    TubeLight2.width = 5;
+    const default17 = TubeLight2;
+
+    // public/stages/Tampa/TubeLights.js
+    let vertexShader10 = `
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
+    let fragmentShaderShadow2 = `
+    uniform vec3 diffuse;
+    uniform float opacity;
+
+    varying vec2 vUv;
+
+    #include <common>
+
+    void main() {
+        float o = opacity;
+        o *= sin(PI * vUv.x);
+        o *= sin(PI * vUv.y);
+
+        gl_FragColor = vec4(diffuse, o);
+    }
+`;
+    function TubeLights3() {
+      let transform = new THREE.Object3D();
+      let countY = 10;
+      function createLightWall() {
+        let transformWall = new THREE.Object3D();
+        let spaceBetween = 0.2;
+        let h2 = countY * default17.radius + (countY - 1) * spaceBetween;
+        for (let i3 = 0; i3 < countY; i3++) {
+          let light = default17();
+          light.transform.position.y = -h2 * 0.5 + i3 * default17.radius + i3 * spaceBetween;
+          transformWall.add(light.transform);
+        }
+        let shadowGeometry = new THREE.PlaneBufferGeometry(default17.width * 2, h2 * 2);
+        let shadowMaterial = new THREE.ShaderMaterial({
+          vertexShader: vertexShader10,
+          fragmentShader: fragmentShaderShadow2,
+          uniforms: {
+            diffuse: {
+              value: new THREE.Color(16777215)
+            },
+            opacity: {
+              value: 0.2
+            }
+          },
+          transparent: true
+        });
+        let shadowMesh = new THREE.Mesh(shadowGeometry, shadowMaterial);
+        transformWall.add(shadowMesh);
+        return {
+          transform: transformWall
+        };
+      }
+      let lightWallBack = createLightWall();
+      lightWallBack.transform.position.y = default5.height * 0.5;
+      lightWallBack.transform.position.z = -default5.depth * 0.5 + default17.radius + 0.01;
+      transform.add(lightWallBack.transform);
+      let lightWallFront = createLightWall();
+      lightWallFront.transform.position.y = default5.height * 0.5;
+      lightWallFront.transform.position.z = default5.depth * 0.5 - default17.radius * 0.5;
+      transform.add(lightWallFront.transform);
+      let lightWallLeft = createLightWall();
+      lightWallLeft.transform.position.y = default5.height * 0.5;
+      lightWallLeft.transform.rotation.y = Math.PI * 0.5;
+      lightWallLeft.transform.position.x = -default5.width * 0.5 + default17.radius * 0.5;
+      transform.add(lightWallLeft.transform);
+      let lightWallRight = createLightWall();
+      lightWallRight.transform.position.y = default5.height * 0.5;
+      lightWallRight.transform.rotation.y = -Math.PI * 0.5;
+      lightWallRight.transform.position.x = default5.width * 0.5 - default17.radius * 0.5;
+      transform.add(lightWallRight.transform);
+      return {
+        transform
+      };
+    }
+    const default13 = TubeLights3;
+
+    // public/stages/Tampa/LedWalls.js
+    const vertexShader4 = `
+    attribute vec3 aOffset;
+    attribute vec2 aUv;
+
+    uniform float uScale;
+
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+
+        vec3 transformed = position;
+        transformed *= uScale;
+        transformed += aOffset;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
+    const fragmentShader4 = `
+    varying vec2 vUv;
+
+    void main() {
+        gl_FragColor = vec4(vec3(vUv.y, 0., 0.), 1.);
+    }
+`;
+    function LedWall() {
+      let transform = new THREE.Object3D();
+      let positions = [];
+      let uvs = [];
+      let w2 = default5.width / 40;
+      let h2 = default5.height / 20;
+      let size = Math.min(w2, h2);
+      let cx = default5.width / size;
+      let cy = default5.height / size;
+      for (let i3 = 0; i3 < cx; i3++) {
+        let x = -default5.width * 0.5 + i3 * size;
+        for (let j = 0; j < cy; j++) {
+          let y2 = -default5.height * 0.5 + j * size;
+          positions.push(x, y2, 0);
+          let u = i3 / cx;
+          let v = j / cy;
+          uvs.push(u, v);
+        }
+      }
+      let geometry = new THREE.PlaneBufferGeometry(1, 1);
+      let instancedGeometry = new THREE.InstancedBufferGeometry().copy(geometry);
+      instancedGeometry.setAttribute("aOffset", new THREE.InstancedBufferAttribute(new Float32Array(positions), 3));
+      console.log(size);
+      let material2 = new THREE.ShaderMaterial({
+        vertexShader: vertexShader4,
+        fragmentShader: fragmentShader4,
+        uniforms: {
+          uScale: {
+            value: size
+          }
+        }
+      });
+      let mesh = new THREE.Mesh(instancedGeometry, material2);
+      transform.add(mesh);
+      return {
+        transform
+      };
+    }
+    function LedWalls3() {
+      let transform = new THREE.Object3D();
+      let wall = LedWall();
+      transform.add(wall.transform);
+      return {
+        transform
+      };
+    }
+    const default15 = LedWall;
+
     // public/stages/Tampa.js
     function Tampa2({props, renderer}) {
       let scene = new THREE.Scene();
@@ -46308,6 +46529,7 @@ vec4 envMapTexelToLinear(vec4 color) {
       scene.add(tubeLights.transform);
       const structure = default11();
       scene.add(structure.transform);
+      const ledWalls = default15();
       props.structureVisibility.onChange = () => {
         let visible = props.structureVisibility.value;
         structure.transform.visible = visible;
@@ -46377,7 +46599,7 @@ vec4 envMapTexelToLinear(vec4 color) {
         resize
       };
     }
-    const default15 = {
+    const default16 = {
       name: "Tampa",
       scene: Tampa2,
       props: {
@@ -46472,7 +46694,8 @@ vec4 envMapTexelToLinear(vec4 color) {
     var exports = {};
     require(exports, {
       Cubes: () => default3,
-      Tampa: () => default15
+      Tampa: () => default16,
+      Triangles: () => default21
     });
 
     // public/index.js

@@ -9,6 +9,7 @@ import Structure from "./Tampa/Structure.js";
 import Particles from './Tampa/Particles.js';
 import TubeLights from './Tampa/TubeLights.js';
 import Uniforms from './Tampa/Uniforms.js';
+import LedWalls from './Tampa/LedWalls.js';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 function Tampa({ props, renderer }) {
@@ -49,6 +50,9 @@ function Tampa({ props, renderer }) {
 
     const structure = Structure();
     scene.add(structure.transform);
+
+    const ledWalls = LedWalls();
+    // scene.add(ledWalls.transform);
 
     props.structureVisibility.onChange = () => {
         let visible = props.structureVisibility.value;

@@ -1,6 +1,6 @@
 import Uniforms from "./Uniforms.js";
 
-let vertexShader = /* glsl */`
+const vertexShader = /* glsl */`
 varying vec2 vUv;
 
 void main() {
