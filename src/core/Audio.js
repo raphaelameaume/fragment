@@ -160,22 +160,22 @@ const Audio = function() {
     }
 
     function play(source, { onEnd = () => {} } = {}) {
-        audio = document.createElement('audio');
-        audio.loop = false;
-
-        audio.addEventListener('loadedmetadata', () => {
-            console.log('loaded metadata');
-        });
-        audio.addEventListener('ended', () => {
-            onEnd();
-        });
-
-        audio.src = source;
-
-        
-
-        audioSource = context.createMediaElementSource(audio);
-        audioSource.connect(masterGain);
+        if (!audio || audio && audio.src !== source ) {
+            audio = document.createElement('audio');
+            audio.loop = false;
+    
+            audio.addEventListener('loadedmetadata', () => {
+                console.log('loaded metadata');
+            });
+            audio.addEventListener('ended', () => {
+                onEnd();
+            });
+    
+            audio.src = source;
+    
+            audioSource = context.createMediaElementSource(audio);
+            audioSource.connect(masterGain);
+        }
 
         audio.play();
     }

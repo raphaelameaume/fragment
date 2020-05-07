@@ -1,5 +1,6 @@
 import App from './App.svelte';
 import { emit } from "./events";
+import { Audio } from "./core/Audio";
 import THREERenderer from './renderers/three/THREERenderer';
 import parseParams from "./utils/parseParams.js";
 import { Storage} from "./core/Storage.js";
@@ -52,6 +53,6 @@ function Fragment({ renderer, stages }) {
 	});
 }
 
-export { THREERenderer };
+export { THREERenderer, Audio };
 
 export default Fragment;

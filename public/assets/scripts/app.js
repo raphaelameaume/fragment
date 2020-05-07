@@ -2367,15 +2367,15 @@
       }
     }
     var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
-    function createCommonjsModule(fn, module32) {
-      return module32 = {
+    function createCommonjsModule(fn, module33) {
+      return module33 = {
         exports: {}
-      }, fn(module32, module32.exports), module32.exports;
+      }, fn(module33, module33.exports), module33.exports;
     }
     function getCjsExportFromNamespace(n) {
       return n && n["default"] || n;
     }
-    var webmidi_min = createCommonjsModule(function(module32) {
+    var webmidi_min = createCommonjsModule(function(module33) {
       !function(scope) {
         function WebMidi() {
           if (WebMidi.prototype._singleton)
@@ -3341,7 +3341,7 @@
           return Array.isArray(note2) || (note2 = [note2]), note2.forEach(function(item) {
             notes.push(wm.guessNoteNumber(item));
           }), notes;
-        }, module32.exports ? module32.exports = wm : scope.WebMidi || (scope.WebMidi = wm);
+        }, module33.exports ? module33.exports = wm : scope.WebMidi || (scope.WebMidi = wm);
       }(commonjsGlobal);
     });
     let TRIGGER_ID = 0;
@@ -3677,17 +3677,19 @@
       }
       function play(source, {onEnd = () => {
       }} = {}) {
-        audio = document.createElement("audio");
-        audio.loop = false;
-        audio.addEventListener("loadedmetadata", () => {
-          console.log("loaded metadata");
-        });
-        audio.addEventListener("ended", () => {
-          onEnd();
-        });
-        audio.src = source;
-        audioSource = context.createMediaElementSource(audio);
-        audioSource.connect(masterGain);
+        if (!audio || audio && audio.src !== source) {
+          audio = document.createElement("audio");
+          audio.loop = false;
+          audio.addEventListener("loadedmetadata", () => {
+            console.log("loaded metadata");
+          });
+          audio.addEventListener("ended", () => {
+            onEnd();
+          });
+          audio.src = source;
+          audioSource = context.createMediaElementSource(audio);
+          audioSource.connect(masterGain);
+        }
         audio.play();
       }
       function pause() {
@@ -5128,7 +5130,7 @@
       return createDebug;
     }
     var common2 = setup;
-    var browser = createCommonjsModule(function(module32, exports2) {
+    var browser = createCommonjsModule(function(module33, exports2) {
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -5146,7 +5148,7 @@
         return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
       }
       function formatArgs(args) {
-        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module32.exports.humanize(this.diff);
+        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module33.exports.humanize(this.diff);
         if (!this.useColors) {
           return;
         }
@@ -5195,8 +5197,8 @@
         } catch (error) {
         }
       }
-      module32.exports = common2(exports2);
-      const {formatters} = module32.exports;
+      module33.exports = common2(exports2);
+      const {formatters} = module33.exports;
       formatters.j = function(v) {
         try {
           return JSON.stringify(v);
@@ -5344,8 +5346,8 @@
       }
       return Math.ceil(ms2 / n) + " " + name + "s";
     }
-    var debug$1 = createCommonjsModule(function(module32, exports2) {
-      exports2 = module32.exports = createDebug.debug = createDebug["default"] = createDebug;
+    var debug$1 = createCommonjsModule(function(module33, exports2) {
+      exports2 = module33.exports = createDebug.debug = createDebug["default"] = createDebug;
       exports2.coerce = coerce;
       exports2.disable = disable2;
       exports2.enable = enable2;
@@ -5478,8 +5480,8 @@
     var debug_7 = debug$1.names;
     var debug_8 = debug$1.skips;
     var debug_9 = debug$1.formatters;
-    var browser$1 = createCommonjsModule(function(module32, exports2) {
-      exports2 = module32.exports = debug$1;
+    var browser$1 = createCommonjsModule(function(module33, exports2) {
+      exports2 = module33.exports = debug$1;
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -5561,9 +5563,9 @@
     var browser_5$1 = browser$1.useColors;
     var browser_6$1 = browser$1.storage;
     var browser_7$1 = browser$1.colors;
-    var componentEmitter = createCommonjsModule(function(module32) {
+    var componentEmitter = createCommonjsModule(function(module33) {
       {
-        module32.exports = Emitter2;
+        module33.exports = Emitter2;
       }
       function Emitter2(obj) {
         if (obj)
@@ -5744,7 +5746,7 @@
       reconstructPacket,
       removeBlobs
     };
-    var socket_ioParser = createCommonjsModule(function(module32, exports2) {
+    var socket_ioParser = createCommonjsModule(function(module33, exports2) {
       var debug2 = browser$1("socket.io-parser");
       exports2.protocol = 4;
       exports2.types = ["CONNECT", "DISCONNECT", "EVENT", "ACK", "ERROR", "BINARY_EVENT", "BINARY_ACK"];
@@ -5945,11 +5947,11 @@
     var socket_ioParser_9 = socket_ioParser.BINARY_ACK;
     var socket_ioParser_10 = socket_ioParser.Encoder;
     var socket_ioParser_11 = socket_ioParser.Decoder;
-    var hasCors = createCommonjsModule(function(module32) {
+    var hasCors = createCommonjsModule(function(module33) {
       try {
-        module32.exports = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
+        module33.exports = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
       } catch (err) {
-        module32.exports = false;
+        module33.exports = false;
       }
     });
     var xmlhttprequest = function(opts) {
@@ -6231,7 +6233,7 @@
       encode: utf8encode,
       decode: utf8decode
     };
-    var base64Arraybuffer = createCommonjsModule(function(module32, exports2) {
+    var base64Arraybuffer = createCommonjsModule(function(module33, exports2) {
       (function() {
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         var lookup = new Uint8Array(256);
@@ -6333,7 +6335,7 @@
         return void 0;
       }
     }();
-    var browser$2 = createCommonjsModule(function(module32, exports2) {
+    var browser$2 = createCommonjsModule(function(module33, exports2) {
       var base64encoder;
       if (typeof ArrayBuffer !== "undefined") {
         base64encoder = base64Arraybuffer;
@@ -6732,9 +6734,9 @@
     var browser_9 = browser$2.encodePayloadAsArrayBuffer;
     var browser_10 = browser$2.encodePayloadAsBlob;
     var browser_11 = browser$2.decodePayloadAsBinary;
-    var componentEmitter$1 = createCommonjsModule(function(module32) {
+    var componentEmitter$1 = createCommonjsModule(function(module33) {
       {
-        module32.exports = Emitter2;
+        module33.exports = Emitter2;
       }
       function Emitter2(obj) {
         if (obj)
@@ -7181,7 +7183,7 @@
       return createDebug;
     }
     var common$1 = setup$1;
-    var browser$3 = createCommonjsModule(function(module32, exports2) {
+    var browser$3 = createCommonjsModule(function(module33, exports2) {
       exports2.log = log;
       exports2.formatArgs = formatArgs;
       exports2.save = save;
@@ -7199,7 +7201,7 @@
         return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
       }
       function formatArgs(args) {
-        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module32.exports.humanize(this.diff);
+        args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module33.exports.humanize(this.diff);
         if (!this.useColors) {
           return;
         }
@@ -7248,8 +7250,8 @@
         } catch (error) {
         }
       }
-      module32.exports = common$1(exports2);
-      const {formatters} = module32.exports;
+      module33.exports = common$1(exports2);
+      const {formatters} = module33.exports;
       formatters.j = function(v) {
         try {
           return JSON.stringify(v);
@@ -8482,9 +8484,9 @@
         return fn.apply(obj, args.concat(slice.call(arguments)));
       };
     };
-    var socket$1 = createCommonjsModule(function(module32, exports2) {
+    var socket$1 = createCommonjsModule(function(module33, exports2) {
       var debug2 = browser("socket.io-client:socket");
-      module32.exports = exports2 = Socket2;
+      module33.exports = exports2 = Socket2;
       var events = {
         connect: 1,
         connect_error: 1,
@@ -9058,9 +9060,9 @@
       this.updateSocketIds();
       this.emitAll("reconnect", attempt);
     };
-    var lib$1 = createCommonjsModule(function(module32, exports2) {
+    var lib$1 = createCommonjsModule(function(module33, exports2) {
       var debug2 = browser("socket.io-client");
-      module32.exports = exports2 = lookup;
+      module33.exports = exports2 = lookup;
       var cache = exports2.managers = {};
       function lookup(uri, opts) {
         if (typeof uri === "object") {
@@ -13497,7 +13499,8 @@
       let stream;
       async function request({onSuccess = noop$1, onError = noop$1} = {}) {
         try {
-          stream = await navigator.mediaDevices.getUserMedia({
+          console.log(navigation.mediaDevices);
+          stream = await window.navigator.mediaDevices.getUserMedia({
             audio: true,
             video: false
           });
@@ -13505,6 +13508,7 @@
         } catch (error) {
           console.error("Microphone: error while requesting access.");
           console.error(error);
+          console.log(window.navigator, window.navigator.mediaDevices);
           onError(error);
         }
       }
@@ -17468,7 +17472,7 @@
       let geometry = new THREE2.BufferGeometry();
       geometry.setAttribute("position", new THREE2.BufferAttribute(vertices, 2));
       geometry.setAttribute("uv", new THREE2.BufferAttribute(uvs, 2));
-      let vertexShader11 = `
+      let vertexShader12 = `
         precision highp float;
 
         attribute vec2 position;
@@ -17544,7 +17548,7 @@
               if (transitions[i3].key === key) {
                 const {fragment} = transitions[i3];
                 mesh.material = new THREE2.RawShaderMaterial({
-                  vertexShader: vertexShader11,
+                  vertexShader: vertexShader12,
                   fragmentShader: fragment,
                   uniforms
                 });
@@ -17565,7 +17569,7 @@
         }
       };
       let material2 = new THREE2.RawShaderMaterial({
-        vertexShader: vertexShader11,
+        vertexShader: vertexShader12,
         fragmentShader: fragmentFade,
         uniforms
       });
@@ -27921,8 +27925,8 @@
     function WebGLProgram(renderer, extensions, cacheKey, material2, shader, parameters) {
       var gl = renderer.getContext();
       var defines = material2.defines;
-      var vertexShader11 = shader.vertexShader;
-      var fragmentShader9 = shader.fragmentShader;
+      var vertexShader12 = shader.vertexShader;
+      var fragmentShader10 = shader.fragmentShader;
       var shadowMapTypeDefine = generateShadowMapTypeDefine(parameters);
       var envMapTypeDefine = generateEnvMapTypeDefine(parameters);
       var envMapModeDefine = generateEnvMapModeDefine(parameters);
@@ -27946,21 +27950,21 @@
         prefixVertex = [generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.instancing ? "#define USE_INSTANCING" : "", parameters.supportsVertexTextures ? "#define VERTEX_TEXTURES" : "", "#define GAMMA_FACTOR " + gammaFactorDefine, "#define MAX_BONES " + parameters.maxBones, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.displacementMap && parameters.supportsVertexTextures ? "#define USE_DISPLACEMENTMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.skinning ? "#define USE_SKINNING" : "", parameters.useVertexTexture ? "#define BONE_TEXTURE" : "", parameters.morphTargets ? "#define USE_MORPHTARGETS" : "", parameters.morphNormals && parameters.flatShading === false ? "#define USE_MORPHNORMALS" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.sizeAttenuation ? "#define USE_SIZEATTENUATION" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", "uniform mat4 modelMatrix;", "uniform mat4 modelViewMatrix;", "uniform mat4 projectionMatrix;", "uniform mat4 viewMatrix;", "uniform mat3 normalMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", "#ifdef USE_INSTANCING", " attribute mat4 instanceMatrix;", "#endif", "attribute vec3 position;", "attribute vec3 normal;", "attribute vec2 uv;", "#ifdef USE_TANGENT", "	attribute vec4 tangent;", "#endif", "#ifdef USE_COLOR", "	attribute vec3 color;", "#endif", "#ifdef USE_MORPHTARGETS", "	attribute vec3 morphTarget0;", "	attribute vec3 morphTarget1;", "	attribute vec3 morphTarget2;", "	attribute vec3 morphTarget3;", "	#ifdef USE_MORPHNORMALS", "		attribute vec3 morphNormal0;", "		attribute vec3 morphNormal1;", "		attribute vec3 morphNormal2;", "		attribute vec3 morphNormal3;", "	#else", "		attribute vec3 morphTarget4;", "		attribute vec3 morphTarget5;", "		attribute vec3 morphTarget6;", "		attribute vec3 morphTarget7;", "	#endif", "#endif", "#ifdef USE_SKINNING", "	attribute vec4 skinIndex;", "	attribute vec4 skinWeight;", "#endif", "\n"].filter(filterEmptyLine).join("\n");
         prefixFragment = [customExtensions, generatePrecision(parameters), "#define SHADER_NAME " + shader.name, customDefines, parameters.alphaTest ? "#define ALPHATEST " + parameters.alphaTest + (parameters.alphaTest % 1 ? "" : ".0") : "", "#define GAMMA_FACTOR " + gammaFactorDefine, parameters.useFog && parameters.fog ? "#define USE_FOG" : "", parameters.useFog && parameters.fogExp2 ? "#define FOG_EXP2" : "", parameters.map ? "#define USE_MAP" : "", parameters.matcap ? "#define USE_MATCAP" : "", parameters.envMap ? "#define USE_ENVMAP" : "", parameters.envMap ? "#define " + envMapTypeDefine : "", parameters.envMap ? "#define " + envMapModeDefine : "", parameters.envMap ? "#define " + envMapBlendingDefine : "", parameters.lightMap ? "#define USE_LIGHTMAP" : "", parameters.aoMap ? "#define USE_AOMAP" : "", parameters.emissiveMap ? "#define USE_EMISSIVEMAP" : "", parameters.bumpMap ? "#define USE_BUMPMAP" : "", parameters.normalMap ? "#define USE_NORMALMAP" : "", parameters.normalMap && parameters.objectSpaceNormalMap ? "#define OBJECTSPACE_NORMALMAP" : "", parameters.normalMap && parameters.tangentSpaceNormalMap ? "#define TANGENTSPACE_NORMALMAP" : "", parameters.clearcoatNormalMap ? "#define USE_CLEARCOAT_NORMALMAP" : "", parameters.specularMap ? "#define USE_SPECULARMAP" : "", parameters.roughnessMap ? "#define USE_ROUGHNESSMAP" : "", parameters.metalnessMap ? "#define USE_METALNESSMAP" : "", parameters.alphaMap ? "#define USE_ALPHAMAP" : "", parameters.sheen ? "#define USE_SHEEN" : "", parameters.vertexTangents ? "#define USE_TANGENT" : "", parameters.vertexColors ? "#define USE_COLOR" : "", parameters.vertexUvs ? "#define USE_UV" : "", parameters.uvsVertexOnly ? "#define UVS_VERTEX_ONLY" : "", parameters.gradientMap ? "#define USE_GRADIENTMAP" : "", parameters.flatShading ? "#define FLAT_SHADED" : "", parameters.doubleSided ? "#define DOUBLE_SIDED" : "", parameters.flipSided ? "#define FLIP_SIDED" : "", parameters.shadowMapEnabled ? "#define USE_SHADOWMAP" : "", parameters.shadowMapEnabled ? "#define " + shadowMapTypeDefine : "", parameters.premultipliedAlpha ? "#define PREMULTIPLIED_ALPHA" : "", parameters.physicallyCorrectLights ? "#define PHYSICALLY_CORRECT_LIGHTS" : "", parameters.logarithmicDepthBuffer ? "#define USE_LOGDEPTHBUF" : "", parameters.logarithmicDepthBuffer && (parameters.isWebGL2 || extensions.get("EXT_frag_depth")) ? "#define USE_LOGDEPTHBUF_EXT" : "", ((material2.extensions ? material2.extensions.shaderTextureLOD : false) || parameters.envMap) && (parameters.isWebGL2 || extensions.get("EXT_shader_texture_lod")) ? "#define TEXTURE_LOD_EXT" : "", "uniform mat4 viewMatrix;", "uniform vec3 cameraPosition;", "uniform bool isOrthographic;", parameters.toneMapping !== NoToneMapping ? "#define TONE_MAPPING" : "", parameters.toneMapping !== NoToneMapping ? ShaderChunk["tonemapping_pars_fragment"] : "", parameters.toneMapping !== NoToneMapping ? getToneMappingFunction("toneMapping", parameters.toneMapping) : "", parameters.dithering ? "#define DITHERING" : "", parameters.outputEncoding || parameters.mapEncoding || parameters.matcapEncoding || parameters.envMapEncoding || parameters.emissiveMapEncoding || parameters.lightMapEncoding ? ShaderChunk["encodings_pars_fragment"] : "", parameters.mapEncoding ? getTexelDecodingFunction("mapTexelToLinear", parameters.mapEncoding) : "", parameters.matcapEncoding ? getTexelDecodingFunction("matcapTexelToLinear", parameters.matcapEncoding) : "", parameters.envMapEncoding ? getTexelDecodingFunction("envMapTexelToLinear", parameters.envMapEncoding) : "", parameters.emissiveMapEncoding ? getTexelDecodingFunction("emissiveMapTexelToLinear", parameters.emissiveMapEncoding) : "", parameters.lightMapEncoding ? getTexelDecodingFunction("lightMapTexelToLinear", parameters.lightMapEncoding) : "", parameters.outputEncoding ? getTexelEncodingFunction("linearToOutputTexel", parameters.outputEncoding) : "", parameters.depthPacking ? "#define DEPTH_PACKING " + material2.depthPacking : "", "\n"].filter(filterEmptyLine).join("\n");
       }
-      vertexShader11 = resolveIncludes(vertexShader11);
-      vertexShader11 = replaceLightNums(vertexShader11, parameters);
-      vertexShader11 = replaceClippingPlaneNums(vertexShader11, parameters);
-      fragmentShader9 = resolveIncludes(fragmentShader9);
-      fragmentShader9 = replaceLightNums(fragmentShader9, parameters);
-      fragmentShader9 = replaceClippingPlaneNums(fragmentShader9, parameters);
-      vertexShader11 = unrollLoops(vertexShader11);
-      fragmentShader9 = unrollLoops(fragmentShader9);
+      vertexShader12 = resolveIncludes(vertexShader12);
+      vertexShader12 = replaceLightNums(vertexShader12, parameters);
+      vertexShader12 = replaceClippingPlaneNums(vertexShader12, parameters);
+      fragmentShader10 = resolveIncludes(fragmentShader10);
+      fragmentShader10 = replaceLightNums(fragmentShader10, parameters);
+      fragmentShader10 = replaceClippingPlaneNums(fragmentShader10, parameters);
+      vertexShader12 = unrollLoops(vertexShader12);
+      fragmentShader10 = unrollLoops(fragmentShader10);
       if (parameters.isWebGL2 && !material2.isRawShaderMaterial) {
         var isGLSL3ShaderMaterial = false;
         var versionRegex = /^\s*#version\s+300\s+es\s*\n/;
-        if (material2.isShaderMaterial && vertexShader11.match(versionRegex) !== null && fragmentShader9.match(versionRegex) !== null) {
+        if (material2.isShaderMaterial && vertexShader12.match(versionRegex) !== null && fragmentShader10.match(versionRegex) !== null) {
           isGLSL3ShaderMaterial = true;
-          vertexShader11 = vertexShader11.replace(versionRegex, "");
-          fragmentShader9 = fragmentShader9.replace(versionRegex, "");
+          vertexShader12 = vertexShader12.replace(versionRegex, "");
+          fragmentShader10 = fragmentShader10.replace(versionRegex, "");
         }
         prefixVertex = ["#version 300 es\n", "#define attribute in", "#define varying out", "#define texture2D texture"].join("\n") + "\n" + prefixVertex;
         prefixFragment = ["#version 300 es\n", "#define varying in", isGLSL3ShaderMaterial ? "" : "out highp vec4 pc_fragColor;", isGLSL3ShaderMaterial ? "" : "#define gl_FragColor pc_fragColor", "#define gl_FragDepthEXT gl_FragDepth", "#define texture2D texture", "#define textureCube texture", "#define texture2DProj textureProj", "#define texture2DLodEXT textureLod", "#define texture2DProjLodEXT textureProjLod", "#define textureCubeLodEXT textureLod", "#define texture2DGradEXT textureGrad", "#define texture2DProjGradEXT textureProjGrad", "#define textureCubeGradEXT textureGrad"].join("\n") + "\n" + prefixFragment;
@@ -27971,8 +27975,8 @@
           prefixFragment = prefixFragment.replace("uniform mat4 viewMatrix;", ["uniform mat4 viewMatrices[" + numMultiviewViews + "];", "#define viewMatrix viewMatrices[VIEW_ID]"].join("\n"));
         }
       }
-      var vertexGlsl = prefixVertex + vertexShader11;
-      var fragmentGlsl = prefixFragment + fragmentShader9;
+      var vertexGlsl = prefixVertex + vertexShader12;
+      var fragmentGlsl = prefixFragment + fragmentShader10;
       var glVertexShader = WebGLShader(gl, 35633, vertexGlsl);
       var glFragmentShader = WebGLShader(gl, 35632, fragmentGlsl);
       gl.attachShader(program, glVertexShader);
@@ -45286,7 +45290,7 @@ vec4 envMapTexelToLinear(vec4 color) {
     // public/stages/Triangles/Camera.js
     function Camera7({aspect: aspect2} = {}) {
       let transform = new THREE.Object3D();
-      let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
+      let camera = new THREE.PerspectiveCamera(45, aspect2, 1, 200);
       camera.position.set(0, 0, 10);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.updateProjectionMatrix();
@@ -45302,8 +45306,144 @@ vec4 envMapTexelToLinear(vec4 color) {
     }
     const default18 = Camera7;
 
+    // public/stages/Triangles/geometryUtils.js
+    function addBarycentricCoordinates(bufferGeometry, removeEdge = false) {
+      const attrib = bufferGeometry.getIndex() || bufferGeometry.getAttribute("position");
+      const count = attrib.count / 3;
+      const barycentric = [];
+      for (let i3 = 0; i3 < count; i3++) {
+        const even = i3 % 2 === 0;
+        const Q = removeEdge ? 1 : 0;
+        if (even) {
+          barycentric.push(0, 0, 1, 0, 1, 0, 1, 0, Q);
+        } else {
+          barycentric.push(0, 1, 0, 0, 0, 1, 1, 0, Q);
+        }
+      }
+      const array = new Float32Array(barycentric);
+      const attribute = new THREE.BufferAttribute(array, 3);
+      bufferGeometry.setAttribute("barycentric", attribute);
+    }
+    ;
+    function unindexBufferGeometry(bufferGeometry) {
+      const index3 = bufferGeometry.getIndex();
+      if (!index3)
+        return;
+      const indexArray = index3.array;
+      const triangleCount = indexArray.length / 3;
+      const attributes = bufferGeometry.attributes;
+      const newAttribData = Object.keys(attributes).map((key) => {
+        return {
+          array: [],
+          attribute: bufferGeometry.getAttribute(key),
+          name: key
+        };
+      });
+      console.log(attributes);
+      for (let i3 = 0; i3 < triangleCount; i3++) {
+        const a = indexArray[i3 * 3 + 0];
+        const b = indexArray[i3 * 3 + 1];
+        const c = indexArray[i3 * 3 + 2];
+        const indices = [a, b, c];
+        newAttribData.forEach((data) => {
+          const attrib = data.attribute;
+          const dim = attrib.itemSize;
+          for (let i4 = 0; i4 < indices.length; i4++) {
+            const index4 = indices[i4];
+            for (let d2 = 0; d2 < dim; d2++) {
+              const v = attrib.array[index4 * dim + d2];
+              data.array.push(v);
+            }
+          }
+        });
+      }
+      index3.array = null;
+      bufferGeometry.setIndex(null);
+      newAttribData.forEach((data) => {
+        const newArray = new data.attribute.array.constructor(data.array);
+        bufferGeometry.setAttribute(data.name, new THREE.BufferAttribute(newArray, data.attribute.itemSize));
+      });
+    }
+    ;
+
     // public/stages/Triangles/Composition.js
-    function Composition3() {
+    const vertexShader11 = `
+    attribute vec3 barycentric;
+    attribute float even;
+
+    varying vec3 vBarycentric;
+    varying vec3 vPosition;
+    varying float vEven;
+    varying vec2 vUv;
+
+    void main() {
+        vUv = uv;
+        vBarycentric = barycentric;
+        vPosition = position.xyz;
+        vEven = even;
+
+        vec3 transformed = position;
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
+    const fragmentShader9 = `
+    uniform vec3 uFillDiffuse;
+    uniform vec3 uStrokeDiffuse;
+    uniform float uThickness;
+    varying vec2 vUv;
+
+    #include <common>
+
+    varying vec3 vBarycentric;
+
+    bool seeThrough = false;
+    bool insideAltColor = false;
+
+    vec3 fill = uFillDiffuse;
+    vec3 stroke = uStrokeDiffuse;
+
+    float thickness = uThickness;
+
+    float aastep (float threshold, float dist) {
+        float afwidth = fwidth(dist) * 0.5;
+        return smoothstep(threshold - afwidth, threshold + afwidth, dist);
+    }
+
+    vec4 wireframe(vec3 barycentric) {
+        float d = min(min(barycentric.x, barycentric.y), barycentric.z);
+
+        vec4 outColor = vec4(0.0);
+
+        float computedThickness = thickness;
+
+        float edge = 1.0 - aastep(computedThickness, d);
+
+        if (seeThrough) {
+            outColor = vec4(stroke, edge);
+            if (insideAltColor && !gl_FrontFacing) {
+                outColor.rgb = fill;
+            }
+        } else {
+            vec3 mainStroke = mix(fill, stroke, edge);
+            outColor.a = 1.0;
+            // if (dualStroke) {
+            //     float inner = 1.0 - aastep(secondThickness, d);
+            //     vec3 wireColor = mix(fill, stroke, abs(inner - edge));
+            //     outColor.rgb = wireColor;
+            // } else {
+            outColor.rgb = mainStroke;
+            // }
+        }
+
+        return outColor;
+    }
+
+    void main() {
+        gl_FragColor = wireframe(vBarycentric);
+    }
+`;
+    function Composition3(props) {
       let transform = new THREE.Object3D();
       let radius = 1;
       let side = radius * Math.sqrt(3);
@@ -45313,13 +45453,15 @@ vec4 envMapTexelToLinear(vec4 color) {
       for (let i3 = 0; i3 < grid + 1; i3++) {
         let x = i3 / grid * size - size * 0.5;
         for (let j = 0; j < grid + 1; j++) {
-          let y2 = j / grid * size - size * 0.5;
+          let y2 = j * radius - radius * grid * 0.5;
           positions.push([x, y2]);
         }
       }
       let geometryPyr = new THREE.ConeBufferGeometry(radius, radius, 3);
       geometryPyr.rotateY(Math.PI);
       geometryPyr.rotateX(Math.PI * 0.5);
+      unindexBufferGeometry(geometryPyr);
+      addBarycentricCoordinates(geometryPyr);
       let materialPyr = new THREE.MeshBasicMaterial({
         color: 16711680,
         wireframe: true
@@ -45328,6 +45470,7 @@ vec4 envMapTexelToLinear(vec4 color) {
         color: 16777215
       });
       let geometryGrid = new THREE.PlaneBufferGeometry(side * 0.1, side * 0.1);
+      let transformGrid = new THREE.Object3D();
       for (let i3 = 0; i3 < positions.length; i3++) {
         let [x, y2] = positions[i3];
         let material2 = materialGrid;
@@ -45339,9 +45482,41 @@ vec4 envMapTexelToLinear(vec4 color) {
         let mesh = new THREE.Mesh(geometryGrid, material2);
         mesh.position.x = x;
         mesh.position.y = y2;
-        transform.add(mesh);
+        transformGrid.add(mesh);
       }
-      let pyramids = [[side * 2, radius * 2, 4, 0], [side * 2, -radius * 2, 4, Math.PI], [0, radius * 4, 4, Math.PI], [-side * 2, radius * 2, 4, 0], [-side * 4, radius * 4, 4, Math.PI], [-side * 4, radius * 8, 4, 0], [side * 3.5, radius * 4.5, 3, Math.PI], [0, -radius * 3, 3, 0], [0, -radius * 6, 3, Math.PI], [-side * 1.5, -radius * 1.5, 3, Math.PI], [side * 1.5, -radius * 7.5, 3, 0], [side * 1.5, -radius * 10.5, 3, Math.PI], [-side * 3, radius * 11, 2, Math.PI]];
+      transform.add(transformGrid);
+      let pyramids = [[side * 2, radius * 2, 4, 0], [side * 2, -radius * 2, 4, Math.PI], [0, radius * 4, 4, Math.PI], [-side * 2, radius * 2, 4, 0], [-side * 4, radius * 4, 4, Math.PI], [-side * 4, radius * 8, 4, 0], [side * 3.5, radius * 4.5, 3, Math.PI], [0, -radius * 3, 3, 0], [0, -radius * 6, 3, Math.PI], [-side * 1.5, -radius * 1.5, 3, Math.PI], [side * 1.5, -radius * 7.5, 3, 0], [side * 1.5, -radius * 10.5, 3, Math.PI], [-side * 3, radius * 11, 2, Math.PI], [-side * 2, radius * 8, 2, Math.PI], [-side * 6, radius * 8, 2, Math.PI], [-side * 6, radius * 4, 2, 0], [-side * 5, radius * 1, 2, 0], [-side * 3, radius * -2, 2, 0], [side * 3, radius * -7, 2, Math.PI], [side * 4, radius * -8, 2, 0], [-side * 1.5, radius * 6.5, 1, 0], [-side * 5.5, radius * 2.5, 1, Math.PI], [-side * 3.5, radius * -0.5, 1, Math.PI], [-side * 2, radius * -4, 1, 0], [-side * 0.5, radius * -8.5, 1, 0]];
+      let uniforms = {
+        uThickness: {
+          value: 0.02
+        },
+        uStrokeDiffuse: {
+          value: new THREE.Color(props.strokeColor.value)
+        },
+        uFillColor: {
+          value: new THREE.Color(props.fillColor.value)
+        }
+      };
+      props.strokeColor.onChange = () => {
+        uniforms.uStrokeDiffuse.value = new THREE.Color(props.strokeColor.value);
+      };
+      props.fillColor.onChange = () => {
+        uniforms.uStrokeDiffuse.value = new THREE.Color(props.fillColor.value);
+      };
+      props.thickness.onChange = () => {
+        uniforms.uThickness.value = props.thickness.value;
+      };
+      props.showGrid.onChange = () => {
+        transformGrid.visible = props.showGrid.value;
+      };
+      materialPyr = new THREE.ShaderMaterial({
+        vertexShader: vertexShader11,
+        fragmentShader: fragmentShader9,
+        uniforms,
+        extensions: {
+          derivatives: true
+        }
+      });
       for (let i3 = 0; i3 < pyramids.length; i3++) {
         let [x, y2, scale, rotationZ] = pyramids[i3];
         let mesh = new THREE.Mesh(geometryPyr, materialPyr);
@@ -45352,10 +45527,40 @@ vec4 envMapTexelToLinear(vec4 color) {
         mesh.rotation.z = rotationZ;
         transform.add(mesh);
       }
+      function update2() {
+        console.log(Audio2.volume());
+        uniforms.uThickness.value = props.thickness.value + Audio2.volume() * props.volumeInfluence.value;
+      }
       return {
-        transform
+        transform,
+        update: update2
       };
     }
+    Composition3.props = {
+      fillColor: {
+        type: "color",
+        value: "#000000"
+      },
+      strokeColor: {
+        type: "color",
+        value: "#ffffff"
+      },
+      thickness: {
+        min: 0,
+        max: 1,
+        step: 0.001,
+        value: 0.2
+      },
+      showGrid: {
+        value: true
+      },
+      volumeInfluence: {
+        value: 0.08,
+        min: 0,
+        max: 0.5,
+        step: 0.01
+      }
+    };
     const default19 = Composition3;
 
     // public/stages/Triangles/Uniforms.js
@@ -45396,7 +45601,7 @@ vec4 envMapTexelToLinear(vec4 color) {
       });
       let controls = new OrbitControls2(camera.camera, document.querySelector(".output"));
       controls.target = new THREE.Vector3(0, 0, 0);
-      let composition = default19();
+      let composition = default19(props);
       scene.add(composition.transform);
       function update2({time: time2, deltaTime: deltaTime2}) {
         default20.update({
@@ -45410,6 +45615,7 @@ vec4 envMapTexelToLinear(vec4 color) {
           time: time2,
           deltaTime: deltaTime2
         });
+        composition.update();
       }
       function render({renderer: renderer2}) {
         renderer2.setClearColor("#000000", 1);
@@ -45428,7 +45634,9 @@ vec4 envMapTexelToLinear(vec4 color) {
     const default21 = {
       name: "Triangles",
       scene: Triangles2,
-      props: {}
+      props: {
+        ...default19.props
+      }
     };
 
     // public/stages/Tampa/Uniforms.js
@@ -45781,7 +45989,7 @@ void main() {
     function Camera4({aspect: aspect2} = {}) {
       let transform = new THREE.Object3D();
       let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
-      camera.position.set(0, 0, 10);
+      camera.position.set(0, 0, 100);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.updateProjectionMatrix();
       transform.add(camera);

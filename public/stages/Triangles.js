@@ -13,7 +13,8 @@ function Triangles({ props, renderer }) {
     let controls = new OrbitControls(camera.camera, document.querySelector('.output'));
     controls.target = new THREE.Vector3(0, 0, 0);
 
-    let composition = Composition();
+    let composition = Composition(props);
+    
     scene.add(composition.transform);
     
     function update({ time, deltaTime }) {
@@ -24,6 +25,7 @@ function Triangles({ props, renderer }) {
         }
 
         camera.update({ time, deltaTime });
+        composition.update();
     }
 
     function render({ renderer }) {
@@ -46,5 +48,7 @@ function Triangles({ props, renderer }) {
 export default {
     name: 'Triangles',
     scene: Triangles,
-    props: {},
+    props: {
+        ...Composition.props,
+    },
 };
