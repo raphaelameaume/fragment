@@ -45341,13 +45341,13 @@ vec4 envMapTexelToLinear(vec4 color) {
         mesh.position.y = y2;
         transform.add(mesh);
       }
-      let pyramids = [[side * 2, radius * 2, 4, 0], [0, radius * 4, 4, Math.PI], [-side * 2, radius * 2, 4, 0], [-side * 4, radius * 4, 4, Math.PI]];
+      let pyramids = [[side * 2, radius * 2, 4, 0], [side * 2, -radius * 2, 4, Math.PI], [0, radius * 4, 4, Math.PI], [-side * 2, radius * 2, 4, 0], [-side * 4, radius * 4, 4, Math.PI], [-side * 4, radius * 8, 4, 0], [side * 3.5, radius * 4.5, 3, Math.PI], [0, -radius * 3, 3, 0], [0, -radius * 6, 3, Math.PI], [-side * 1.5, -radius * 1.5, 3, Math.PI], [side * 1.5, -radius * 7.5, 3, 0], [side * 1.5, -radius * 10.5, 3, Math.PI], [-side * 3, radius * 11, 2, Math.PI]];
       for (let i3 = 0; i3 < pyramids.length; i3++) {
         let [x, y2, scale, rotationZ] = pyramids[i3];
         let mesh = new THREE.Mesh(geometryPyr, materialPyr);
         mesh.position.x = x;
         mesh.position.y = y2;
-        mesh.position.z = radius * 2;
+        mesh.position.z = scale * 0.5;
         mesh.scale.set(scale, scale, scale);
         mesh.rotation.z = rotationZ;
         transform.add(mesh);
