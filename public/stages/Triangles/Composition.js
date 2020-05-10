@@ -86,7 +86,7 @@ function Composition(props) {
     let side = radius * Math.sqrt(3);
     let height = side * 0.5 * Math.sqrt(3);
     let hypo = Math.cos(60 * Math.PI / 180) * radius;
-
+    let phi = height - hypo;
 
     let grid = 32;
     let size = side * grid;
@@ -160,28 +160,28 @@ function Composition(props) {
 
         // scale 3
         [side * SCALE_4 * 0.5 + side * SCALE_3 * 0.5, height * SCALE_4 - hypo * SCALE_3, SCALE_3, Math.PI],
-        // [0, -radius * 3, SCALE_3, 0],
-        // [0, -radius * 6, SCALE_3, Math.PI],
-        // [-side * 1.5, -radius * 1.5, SCALE_3, Math.PI],
-        // [side * 1.5, -radius * 7.5, SCALE_3, 0],
-        // [side * 1.5, -radius * 10.5, SCALE_3, Math.PI],
+        [0, -phi * SCALE_3, SCALE_3, 0],
+        [0, -height * SCALE_3 - hypo * SCALE_3, SCALE_3, Math.PI],
+        [-side * 0.5 * SCALE_3, -hypo * SCALE_3, SCALE_3, Math.PI],
+        [side * 0.5 * SCALE_3, -height * SCALE_3 - phi * SCALE_3, SCALE_3, 0],
+        [side * 0.5 * SCALE_3, -height * SCALE_3 * 2 - hypo * SCALE_3, SCALE_3, Math.PI],
 
         // scale 2 (from top to bottom from left to right)
-        // [-side * SCALE_2 * 1.5, radius * SCALE_2 * 5.5, SCALE_2, Math.PI],
-        // [-side * 2, radius * 8, SCALE_2, Math.PI],
-        // [-side * 6, radius * 8, SCALE_2, Math.PI],
-        // [-side * 6, radius * 4, SCALE_2, 0],
-        // [-side * 5, radius * 1, SCALE_2, 0],
-        // [-side * 3, radius * -2, SCALE_2, 0],
-        // [side * 3, radius * -7, SCALE_2, Math.PI],
-        // [side * 4, radius * -8, SCALE_2, 0],
+        [-side * 0.5 * SCALE_4 - side * 0.5 * SCALE_2, height * SCALE_4 + height * SCALE_2 + phi * SCALE_2, SCALE_2, Math.PI],
+        [-side * 0.5 * SCALE_4, height * SCALE_4 + phi * SCALE_2, SCALE_2, Math.PI],
+        [-side * 1.5 * SCALE_4, height * SCALE_4 + phi * SCALE_2, SCALE_2, Math.PI],
+        [-side * 1.5 * SCALE_4, height * SCALE_4 - phi * SCALE_2, SCALE_2, 0],
+        [-side * 1.5 * SCALE_4 + side * 0.5 * SCALE_2, height * SCALE_4 - height * SCALE_2 - phi * SCALE_2, SCALE_2, 0],
+        [-side * SCALE_3, -phi * SCALE_2, SCALE_2, 0],
+        [side * SCALE_3, -2 * height * SCALE_3 + phi * SCALE_2, SCALE_2, Math.PI],
+        [side * SCALE_3 + side * 0.5 * SCALE_2, -2 * height * SCALE_3 + hypo * SCALE_2, SCALE_2, 0],
 
         // scale 1
-        // [-side * 1.5, radius * 6.5, SCALE_1, 0],
-        // [-side * 5.5, radius * 2.5, SCALE_1, Math.PI],
-        // [-side * 3.5, radius * -0.5, SCALE_1, Math.PI],
-        // [-side * 2, radius * -4, SCALE_1, 0],
-        // [-side * 0.5, radius * -8.5, SCALE_1, 0],
+        [-side * 0.5 * SCALE_4 + side * SCALE_1 * 0.5, height * SCALE_4 + hypo, SCALE_1, 0],
+        [-side * SCALE_4 * 1.5 + side * 0.5 * SCALE_2 - side * 0.5, radius * 2.5, SCALE_1, Math.PI],
+        [-side * SCALE_3 - side * 0.5 * SCALE_1, -hypo * SCALE_1, SCALE_1, Math.PI],
+        [-side * SCALE_3 + side * 0.5 * SCALE_2, -height * SCALE_2 - phi * SCALE_1, SCALE_1, 0],
+        [-side * 0.5 * SCALE_1, -2 * height * SCALE_3 + hypo * SCALE_1, SCALE_1, 0],
     ];
 
     let uniforms = {

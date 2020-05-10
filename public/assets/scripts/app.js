@@ -45572,6 +45572,7 @@ vec4 envMapTexelToLinear(vec4 color) {
       let side = radius * Math.sqrt(3);
       let height = side * 0.5 * Math.sqrt(3);
       let hypo = Math.cos(60 * Math.PI / 180) * radius;
+      let phi = height - hypo;
       let grid = 32;
       let size = side * grid;
       let positions = [];
@@ -45616,7 +45617,7 @@ vec4 envMapTexelToLinear(vec4 color) {
       const SCALE_2 = 1.415;
       const SCALE_3 = 2.415;
       const SCALE_4 = 3.415;
-      let pyramids = [[side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0], [side * SCALE_4 / 2, -radius * SCALE_4 / 2, SCALE_4, Math.PI], [0, radius * SCALE_4, SCALE_4, Math.PI], [-side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0], [-side * SCALE_4, radius * SCALE_4, SCALE_4, Math.PI], [-side * SCALE_4, radius * SCALE_4 * 2, SCALE_4, 0], [side * SCALE_4 * 0.5 + side * SCALE_3 * 0.5, height * SCALE_4 - hypo * SCALE_3, SCALE_3, Math.PI]];
+      let pyramids = [[side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0], [side * SCALE_4 / 2, -radius * SCALE_4 / 2, SCALE_4, Math.PI], [0, radius * SCALE_4, SCALE_4, Math.PI], [-side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0], [-side * SCALE_4, radius * SCALE_4, SCALE_4, Math.PI], [-side * SCALE_4, radius * SCALE_4 * 2, SCALE_4, 0], [side * SCALE_4 * 0.5 + side * SCALE_3 * 0.5, height * SCALE_4 - hypo * SCALE_3, SCALE_3, Math.PI], [0, -phi * SCALE_3, SCALE_3, 0], [0, -height * SCALE_3 - hypo * SCALE_3, SCALE_3, Math.PI], [-side * 0.5 * SCALE_3, -hypo * SCALE_3, SCALE_3, Math.PI], [side * 0.5 * SCALE_3, -height * SCALE_3 - phi * SCALE_3, SCALE_3, 0], [side * 0.5 * SCALE_3, -height * SCALE_3 * 2 - hypo * SCALE_3, SCALE_3, Math.PI], [-side * 0.5 * SCALE_4 - side * 0.5 * SCALE_2, height * SCALE_4 + height * SCALE_2 + phi * SCALE_2, SCALE_2, Math.PI], [-side * 0.5 * SCALE_4, height * SCALE_4 + phi * SCALE_2, SCALE_2, Math.PI], [-side * 1.5 * SCALE_4, height * SCALE_4 + phi * SCALE_2, SCALE_2, Math.PI], [-side * 1.5 * SCALE_4, height * SCALE_4 - phi * SCALE_2, SCALE_2, 0], [-side * 1.5 * SCALE_4 + side * 0.5 * SCALE_2, height * SCALE_4 - height * SCALE_2 - phi * SCALE_2, SCALE_2, 0], [-side * SCALE_3, -phi * SCALE_2, SCALE_2, 0], [side * SCALE_3, -2 * height * SCALE_3 + phi * SCALE_2, SCALE_2, Math.PI], [side * SCALE_3 + side * 0.5 * SCALE_2, -2 * height * SCALE_3 + hypo * SCALE_2, SCALE_2, 0], [-side * 0.5 * SCALE_4 + side * SCALE_1 * 0.5, height * SCALE_4 + hypo, SCALE_1, 0], [-side * SCALE_4 * 1.5 + side * 0.5 * SCALE_2 - side * 0.5, radius * 2.5, SCALE_1, Math.PI], [-side * SCALE_3 - side * 0.5 * SCALE_1, -hypo * SCALE_1, SCALE_1, Math.PI], [-side * SCALE_3 + side * 0.5 * SCALE_2, -height * SCALE_2 - phi * SCALE_1, SCALE_1, 0], [-side * 0.5 * SCALE_1, -2 * height * SCALE_3 + hypo * SCALE_1, SCALE_1, 0]];
       let uniforms = {
         uThickness: {
           value: 0.02
