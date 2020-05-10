@@ -2,17 +2,16 @@ import { map } from "lemonade-math";
 import Room from "./Room";
 import Uniforms from "./Uniforms";
 
-console.log(map);
-
 const vertexShader = /* glsl */`
-varying vec2 vUv;
+    varying vec2 vUv;
 
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
 
 const fragmentShader = /* glsl */`
 uniform vec3 roomDiffuse;

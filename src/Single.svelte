@@ -24,6 +24,10 @@
                 <FieldsWebcam />
             </Dropdown>
         </Dropdown>
+        <Dropdown title="Output" url="SingleOutputSettings/Dimensions/Dropdown">
+            <Field prop={propWidth} name="width" triggerable={false} url="SingleOutputSettings/props/width" />
+            <Field prop={propHeight} name="height" triggerable={false} url="SingleOutputSettings/props/height" />
+        </Dropdown>
     </Panel>
     <Panel width="70%">
         <div class="output" bind:this={output}></div>
@@ -41,6 +45,8 @@ import Field from "./ui/Field.svelte";
 import FieldsMidi from "./ui/fields/FieldsMidi.svelte";
 import FieldsWebcam from "./ui/fields/FieldsWebcam.svelte";
 import FieldsAudio from "./ui/fields/FieldsAudio.svelte";
+import PanelOutputSettings from "./ui/PanelOutputSettings.svelte";
+import { rendererDimensions } from "./store.js";
 import { on } from "./events.js";
 
 export let stages;
@@ -56,8 +62,6 @@ let list = stageNames.map(key => ({
 
 let stage = stages[stageNames[0]];
 
-console.log(stageNames, list);
-
 let propStage = {
     name: "stage",
     type: "select",
@@ -65,6 +69,23 @@ let propStage = {
     options: list,
     onChange: (value) => {
         stage = stages[propStage.value];
+    }
+};
+
+let propWidth = {
+    value: renderer.dimensions.width,
+    step: 1,
+    onChange: ({ value }) => {
+        renderer.resize(value, renderer.dimensions.height);
+        $rendererDimensions.width = value;
+    }
+};
+let propHeight = {
+    value: renderer.dimensions.height,
+    step: 1,
+    onChange: ({ value }) => {
+        renderer.resize(renderer.dimensions.width, value);
+        $rendererDimensions.height = value;
     }
 };
 

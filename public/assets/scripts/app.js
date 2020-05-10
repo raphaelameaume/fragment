@@ -16123,16 +16123,16 @@
         throw new Error("<Output>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
       }
     }
-    const {Object: Object_1$4, console: console_1$2} = globals;
+    const {Object: Object_1$4} = globals;
     const file$o = "src/Single.svelte";
     function get_each_context$5(ctx, list, i3) {
       const child_ctx = ctx.slice();
-      child_ctx[9] = list[i3];
+      child_ctx[12] = list[i3];
       return child_ctx;
     }
     function get_each_context_1$3(ctx, list, i3) {
       const child_ctx = ctx.slice();
-      child_ctx[9] = list[i3];
+      child_ctx[12] = list[i3];
       return child_ctx;
     }
     function create_if_block$5(ctx) {
@@ -16217,9 +16217,9 @@
       let current;
       const field = new Field({
         props: {
-          prop: ctx[2].props[ctx[9]],
-          name: ctx[9],
-          url: `${ctx[2].name}/props/${ctx[9]}`,
+          prop: ctx[2].props[ctx[12]],
+          name: ctx[12],
+          url: `${ctx[2].name}/props/${ctx[12]}`,
           output: false
         },
         $$inline: true
@@ -16235,11 +16235,11 @@
         p: function update2(ctx2, dirty) {
           const field_changes = {};
           if (dirty[0] & 4)
-            field_changes.prop = ctx2[2].props[ctx2[9]];
+            field_changes.prop = ctx2[2].props[ctx2[12]];
           if (dirty[0] & 4)
-            field_changes.name = ctx2[9];
+            field_changes.name = ctx2[12];
           if (dirty[0] & 4)
-            field_changes.url = `${ctx2[2].name}/props/${ctx2[9]}`;
+            field_changes.url = `${ctx2[2].name}/props/${ctx2[12]}`;
           field.$set(field_changes);
         },
         i: function intro(local) {
@@ -16265,7 +16265,7 @@
       });
       return block;
     }
-    function create_default_slot_8(ctx) {
+    function create_default_slot_9(ctx) {
       let if_block_anchor;
       let current;
       let if_block = ctx[2] !== null && create_if_block$5(ctx);
@@ -16319,7 +16319,7 @@
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
-        id: create_default_slot_8.name,
+        id: create_default_slot_9.name,
         type: "slot",
         source: '(4:8) <Dropdown title=\\"Scene\\">',
         ctx
@@ -16330,9 +16330,9 @@
       let current;
       const field = new Field({
         props: {
-          prop: ctx[0].props[ctx[9]],
-          name: ctx[9],
-          url: `Output/props/${ctx[9]}`
+          prop: ctx[0].props[ctx[12]],
+          name: ctx[12],
+          url: `Output/props/${ctx[12]}`
         },
         $$inline: true
       });
@@ -16347,11 +16347,11 @@
         p: function update2(ctx2, dirty) {
           const field_changes = {};
           if (dirty[0] & 1)
-            field_changes.prop = ctx2[0].props[ctx2[9]];
+            field_changes.prop = ctx2[0].props[ctx2[12]];
           if (dirty[0] & 1)
-            field_changes.name = ctx2[9];
+            field_changes.name = ctx2[12];
           if (dirty[0] & 1)
-            field_changes.url = `Output/props/${ctx2[9]}`;
+            field_changes.url = `Output/props/${ctx2[12]}`;
           field.$set(field_changes);
         },
         i: function intro(local) {
@@ -16377,7 +16377,7 @@
       });
       return block;
     }
-    function create_default_slot_7$1(ctx) {
+    function create_default_slot_8(ctx) {
       let each_1_anchor;
       let current;
       let each_value = Object.keys(ctx[0].props);
@@ -16448,14 +16448,14 @@
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
-        id: create_default_slot_7$1.name,
+        id: create_default_slot_8.name,
         type: "slot",
         source: '(11:8) <Dropdown title=\\"Renderer\\">',
         ctx
       });
       return block;
     }
-    function create_default_slot_6$1(ctx) {
+    function create_default_slot_7$1(ctx) {
       let current;
       const fieldsaudio = new FieldsAudio({
         $$inline: true
@@ -16484,14 +16484,14 @@
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
-        id: create_default_slot_6$1.name,
+        id: create_default_slot_7$1.name,
         type: "slot",
         source: '(17:12) <Dropdown title=\\"Audio\\" opened={true}>',
         ctx
       });
       return block;
     }
-    function create_default_slot_5$2(ctx) {
+    function create_default_slot_6$1(ctx) {
       let current;
       const fieldsmidi = new FieldsMidi({
         $$inline: true
@@ -16520,14 +16520,14 @@
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
-        id: create_default_slot_5$2.name,
+        id: create_default_slot_6$1.name,
         type: "slot",
         source: '(20:12) <Dropdown title=\\"Midi\\" opened={false}>',
         ctx
       });
       return block;
     }
-    function create_default_slot_4$3(ctx) {
+    function create_default_slot_5$2(ctx) {
       let current;
       const fieldswebcam = new FieldsWebcam({
         $$inline: true
@@ -16556,14 +16556,14 @@
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
-        id: create_default_slot_4$3.name,
+        id: create_default_slot_5$2.name,
         type: "slot",
         source: '(23:12) <Dropdown title=\\"Video\\" opened={false}>',
         ctx
       });
       return block;
     }
-    function create_default_slot_3$5(ctx) {
+    function create_default_slot_4$3(ctx) {
       let t0;
       let t1;
       let current;
@@ -16572,7 +16572,7 @@
           title: "Audio",
           opened: true,
           $$slots: {
-            default: [create_default_slot_6$1]
+            default: [create_default_slot_7$1]
           },
           $$scope: {
             ctx
@@ -16585,7 +16585,7 @@
           title: "Midi",
           opened: false,
           $$slots: {
-            default: [create_default_slot_5$2]
+            default: [create_default_slot_6$1]
           },
           $$scope: {
             ctx
@@ -16598,7 +16598,7 @@
           title: "Video",
           opened: false,
           $$slots: {
-            default: [create_default_slot_4$3]
+            default: [create_default_slot_5$2]
           },
           $$scope: {
             ctx
@@ -16624,7 +16624,7 @@
         },
         p: function update2(ctx2, dirty) {
           const dropdown0_changes = {};
-          if (dirty[0] & 16384) {
+          if (dirty[0] & 131072) {
             dropdown0_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16632,7 +16632,7 @@
           }
           dropdown0.$set(dropdown0_changes);
           const dropdown1_changes = {};
-          if (dirty[0] & 16384) {
+          if (dirty[0] & 131072) {
             dropdown1_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16640,7 +16640,7 @@
           }
           dropdown1.$set(dropdown1_changes);
           const dropdown2_changes = {};
-          if (dirty[0] & 16384) {
+          if (dirty[0] & 131072) {
             dropdown2_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16674,9 +16674,71 @@
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
-        id: create_default_slot_3$5.name,
+        id: create_default_slot_4$3.name,
         type: "slot",
         source: '(16:8) <Dropdown title=\\"Inputs\\">',
+        ctx
+      });
+      return block;
+    }
+    function create_default_slot_3$5(ctx) {
+      let t;
+      let current;
+      const field0 = new Field({
+        props: {
+          prop: ctx[4],
+          name: "width",
+          triggerable: false,
+          url: "SingleOutputSettings/props/width"
+        },
+        $$inline: true
+      });
+      const field1 = new Field({
+        props: {
+          prop: ctx[5],
+          name: "height",
+          triggerable: false,
+          url: "SingleOutputSettings/props/height"
+        },
+        $$inline: true
+      });
+      const block = {
+        c: function create() {
+          create_component(field0.$$.fragment);
+          t = space();
+          create_component(field1.$$.fragment);
+        },
+        m: function mount(target, anchor) {
+          mount_component(field0, target, anchor);
+          insert_dev(target, t, anchor);
+          mount_component(field1, target, anchor);
+          current = true;
+        },
+        p: noop,
+        i: function intro(local) {
+          if (current)
+            return;
+          transition_in(field0.$$.fragment, local);
+          transition_in(field1.$$.fragment, local);
+          current = true;
+        },
+        o: function outro(local) {
+          transition_out(field0.$$.fragment, local);
+          transition_out(field1.$$.fragment, local);
+          current = false;
+        },
+        d: function destroy(detaching) {
+          destroy_component(field0, detaching);
+          if (detaching)
+            detach_dev(t);
+          destroy_component(field1, detaching);
+        }
+      };
+      dispatch_dev("SvelteRegisterBlock", {
+        block,
+        id: create_default_slot_3$5.name,
+        type: "slot",
+        source: '(27:8) <Dropdown title=\\"Output\\" url=\\"SingleOutputSettings/Dimensions/Dropdown\\">',
         ctx
       });
       return block;
@@ -16685,6 +16747,7 @@
       let t0;
       let t1;
       let t2;
+      let t3;
       let current;
       const field = new Field({
         props: {
@@ -16699,7 +16762,7 @@
         props: {
           title: "Scene",
           $$slots: {
-            default: [create_default_slot_8]
+            default: [create_default_slot_9]
           },
           $$scope: {
             ctx
@@ -16711,7 +16774,7 @@
         props: {
           title: "Renderer",
           $$slots: {
-            default: [create_default_slot_7$1]
+            default: [create_default_slot_8]
           },
           $$scope: {
             ctx
@@ -16722,6 +16785,19 @@
       const dropdown2 = new Dropdown({
         props: {
           title: "Inputs",
+          $$slots: {
+            default: [create_default_slot_4$3]
+          },
+          $$scope: {
+            ctx
+          }
+        },
+        $$inline: true
+      });
+      const dropdown3 = new Dropdown({
+        props: {
+          title: "Output",
+          url: "SingleOutputSettings/Dimensions/Dropdown",
           $$slots: {
             default: [create_default_slot_3$5]
           },
@@ -16740,6 +16816,8 @@
           create_component(dropdown1.$$.fragment);
           t2 = space();
           create_component(dropdown2.$$.fragment);
+          t3 = space();
+          create_component(dropdown3.$$.fragment);
         },
         m: function mount(target, anchor) {
           mount_component(field, target, anchor);
@@ -16749,11 +16827,13 @@
           mount_component(dropdown1, target, anchor);
           insert_dev(target, t2, anchor);
           mount_component(dropdown2, target, anchor);
+          insert_dev(target, t3, anchor);
+          mount_component(dropdown3, target, anchor);
           current = true;
         },
         p: function update2(ctx2, dirty) {
           const dropdown0_changes = {};
-          if (dirty[0] & 16388) {
+          if (dirty[0] & 131076) {
             dropdown0_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16761,7 +16841,7 @@
           }
           dropdown0.$set(dropdown0_changes);
           const dropdown1_changes = {};
-          if (dirty[0] & 16385) {
+          if (dirty[0] & 131073) {
             dropdown1_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16769,13 +16849,21 @@
           }
           dropdown1.$set(dropdown1_changes);
           const dropdown2_changes = {};
-          if (dirty[0] & 16384) {
+          if (dirty[0] & 131072) {
             dropdown2_changes.$$scope = {
               dirty,
               ctx: ctx2
             };
           }
           dropdown2.$set(dropdown2_changes);
+          const dropdown3_changes = {};
+          if (dirty[0] & 131072) {
+            dropdown3_changes.$$scope = {
+              dirty,
+              ctx: ctx2
+            };
+          }
+          dropdown3.$set(dropdown3_changes);
         },
         i: function intro(local) {
           if (current)
@@ -16784,6 +16872,7 @@
           transition_in(dropdown0.$$.fragment, local);
           transition_in(dropdown1.$$.fragment, local);
           transition_in(dropdown2.$$.fragment, local);
+          transition_in(dropdown3.$$.fragment, local);
           current = true;
         },
         o: function outro(local) {
@@ -16791,6 +16880,7 @@
           transition_out(dropdown0.$$.fragment, local);
           transition_out(dropdown1.$$.fragment, local);
           transition_out(dropdown2.$$.fragment, local);
+          transition_out(dropdown3.$$.fragment, local);
           current = false;
         },
         d: function destroy(detaching) {
@@ -16804,6 +16894,9 @@
           if (detaching)
             detach_dev(t2);
           destroy_component(dropdown2, detaching);
+          if (detaching)
+            detach_dev(t3);
+          destroy_component(dropdown3, detaching);
         }
       };
       dispatch_dev("SvelteRegisterBlock", {
@@ -16821,24 +16914,24 @@
         c: function create() {
           div = element("div");
           attr_dev(div, "class", "output svelte-1xe7470");
-          add_location(div, file$o, 28, 8, 1128);
+          add_location(div, file$o, 32, 8, 1454);
         },
         m: function mount(target, anchor) {
           insert_dev(target, div, anchor);
-          ctx[8](div);
+          ctx[11](div);
         },
         p: noop,
         d: function destroy(detaching) {
           if (detaching)
             detach_dev(div);
-          ctx[8](null);
+          ctx[11](null);
         }
       };
       dispatch_dev("SvelteRegisterBlock", {
         block,
         id: create_default_slot_1$7.name,
         type: "slot",
-        source: '(28:4) <Panel width=\\"70%\\">',
+        source: '(32:4) <Panel width=\\"70%\\">',
         ctx
       });
       return block;
@@ -16893,7 +16986,7 @@
         },
         p: function update2(ctx2, dirty) {
           const panel0_changes = {};
-          if (dirty[0] & 16389) {
+          if (dirty[0] & 131077) {
             panel0_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16901,7 +16994,7 @@
           }
           panel0.$set(panel0_changes);
           const panel1_changes = {};
-          if (dirty[0] & 16386) {
+          if (dirty[0] & 131074) {
             panel1_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -16969,7 +17062,7 @@
         },
         p: function update2(ctx2, dirty) {
           const panel_changes = {};
-          if (dirty[0] & 16391) {
+          if (dirty[0] & 131079) {
             panel_changes.$$scope = {
               dirty,
               ctx: ctx2
@@ -17001,6 +17094,9 @@
       return block;
     }
     function instance$o($$self, $$props, $$invalidate) {
+      let $rendererDimensions;
+      validate_store(rendererDimensions, "rendererDimensions");
+      component_subscribe($$self, rendererDimensions, ($$value) => $$invalidate(7, $rendererDimensions = $$value));
       let {stages} = $$props;
       let {renderer} = $$props;
       let output;
@@ -17010,7 +17106,6 @@
         label: stages[key].name
       }));
       let stage = stages[stageNames[0]];
-      console.log(stageNames, list);
       let propStage = {
         name: "stage",
         type: "select",
@@ -17018,6 +17113,22 @@
         options: list,
         onChange: (value2) => {
           $$invalidate(2, stage = stages[propStage.value]);
+        }
+      };
+      let propWidth = {
+        value: renderer.dimensions.width,
+        step: 1,
+        onChange: ({value: value2}) => {
+          renderer.resize(value2, renderer.dimensions.height);
+          set_store_value(rendererDimensions, $rendererDimensions.width = value2, $rendererDimensions);
+        }
+      };
+      let propHeight = {
+        value: renderer.dimensions.height,
+        step: 1,
+        onChange: ({value: value2}) => {
+          renderer.resize(renderer.dimensions.width, value2);
+          set_store_value(rendererDimensions, $rendererDimensions.height = value2, $rendererDimensions);
         }
       };
       onMount(() => {
@@ -17035,7 +17146,7 @@
       const writable_props = ["stages", "renderer"];
       Object_1$4.keys($$props).forEach((key) => {
         if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$")
-          console_1$2.warn(`<Single> was created with unknown prop '${key}'`);
+          console.warn(`<Single> was created with unknown prop '${key}'`);
       });
       function div_binding($$value) {
         binding_callbacks[$$value ? "unshift" : "push"](() => {
@@ -17044,7 +17155,7 @@
       }
       $$self.$set = ($$props2) => {
         if ("stages" in $$props2)
-          $$invalidate(4, stages = $$props2.stages);
+          $$invalidate(6, stages = $$props2.stages);
         if ("renderer" in $$props2)
           $$invalidate(0, renderer = $$props2.renderer);
       };
@@ -17056,12 +17167,15 @@
           stageNames,
           list,
           stage,
-          propStage
+          propStage,
+          propWidth,
+          propHeight,
+          $rendererDimensions
         };
       };
       $$self.$inject_state = ($$props2) => {
         if ("stages" in $$props2)
-          $$invalidate(4, stages = $$props2.stages);
+          $$invalidate(6, stages = $$props2.stages);
         if ("renderer" in $$props2)
           $$invalidate(0, renderer = $$props2.renderer);
         if ("output" in $$props2)
@@ -17074,6 +17188,12 @@
           $$invalidate(2, stage = $$props2.stage);
         if ("propStage" in $$props2)
           $$invalidate(3, propStage = $$props2.propStage);
+        if ("propWidth" in $$props2)
+          $$invalidate(4, propWidth = $$props2.propWidth);
+        if ("propHeight" in $$props2)
+          $$invalidate(5, propHeight = $$props2.propHeight);
+        if ("$rendererDimensions" in $$props2)
+          rendererDimensions.set($rendererDimensions = $$props2.$rendererDimensions);
       };
       $$self.$$.update = () => {
         if ($$self.$$.dirty[0] & 7) {
@@ -17095,13 +17215,13 @@
           }
         }
       };
-      return [renderer, output, stage, propStage, stages, stageNames, list, update2, div_binding];
+      return [renderer, output, stage, propStage, propWidth, propHeight, stages, $rendererDimensions, stageNames, list, update2, div_binding];
     }
     class Single extends SvelteComponentDev {
       constructor(options) {
         super(options);
         init(this, options, instance$o, create_fragment$s, safe_not_equal, {
-          stages: 4,
+          stages: 6,
           renderer: 0
         });
         dispatch_dev("SvelteRegisterComponent", {
@@ -17112,11 +17232,11 @@
         });
         const {ctx} = this.$$;
         const props = options.props || {};
-        if (ctx[4] === void 0 && !("stages" in props)) {
-          console_1$2.warn("<Single> was created without expected prop 'stages'");
+        if (ctx[6] === void 0 && !("stages" in props)) {
+          console.warn("<Single> was created without expected prop 'stages'");
         }
         if (ctx[0] === void 0 && !("renderer" in props)) {
-          console_1$2.warn("<Single> was created without expected prop 'renderer'");
+          console.warn("<Single> was created without expected prop 'renderer'");
         }
       }
       get stages() {
@@ -17575,7 +17695,7 @@
       });
       let mesh = new THREE2.Mesh(geometry, material2);
       scene.add(mesh);
-      function resize({width: width2 = dimensions.widt, height: height2 = dimensions.height} = {}) {
+      function resize({width: width2 = dimensions.width, height: height2 = dimensions.height} = {}) {
         dimensions.width = width2;
         dimensions.height = height2;
         renderer.setSize(width2, height2);
@@ -45288,14 +45408,18 @@ vec4 envMapTexelToLinear(vec4 color) {
     MapControls.prototype.constructor = MapControls;
 
     // public/stages/Triangles/Camera.js
-    function Camera7({aspect: aspect2} = {}) {
+    function Camera7({aspect: aspect2, props} = {}) {
       let transform = new THREE.Object3D();
-      let camera = new THREE.PerspectiveCamera(45, aspect2, 1, 200);
+      let camera = new THREE.PerspectiveCamera(props.fov.value, aspect2, 1, 200);
       camera.position.set(0, 0, 10);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.updateProjectionMatrix();
       transform.add(camera);
       let speed = 0.0005;
+      props.fov.onChange = () => {
+        camera.fov = Math.floor(props.fov.value);
+        camera.updateProjectionMatrix();
+      };
       function update2({deltaTime: deltaTime2}) {
       }
       return {
@@ -45339,7 +45463,6 @@ vec4 envMapTexelToLinear(vec4 color) {
           name: key
         };
       });
-      console.log(attributes);
       for (let i3 = 0; i3 < triangleCount; i3++) {
         const a = indexArray[i3 * 3 + 0];
         const b = indexArray[i3 * 3 + 1];
@@ -45447,11 +45570,13 @@ vec4 envMapTexelToLinear(vec4 color) {
       let transform = new THREE.Object3D();
       let radius = 1;
       let side = radius * Math.sqrt(3);
+      let height = side * 0.5 * Math.sqrt(3);
+      let hypo = Math.cos(60 * Math.PI / 180) * radius;
       let grid = 32;
       let size = side * grid;
       let positions = [];
       for (let i3 = 0; i3 < grid + 1; i3++) {
-        let x = i3 / grid * size - size * 0.5;
+        let x = i3 * radius - radius * grid * 0.5;
         for (let j = 0; j < grid + 1; j++) {
           let y2 = j * radius - radius * grid * 0.5;
           positions.push([x, y2]);
@@ -45467,16 +45592,18 @@ vec4 envMapTexelToLinear(vec4 color) {
         wireframe: true
       });
       let materialGrid = new THREE.MeshBasicMaterial({
-        color: 16777215
+        color: 16777215,
+        side: THREE.DoubleSide
       });
-      let geometryGrid = new THREE.PlaneBufferGeometry(side * 0.1, side * 0.1);
+      let geometryGrid = new THREE.PlaneBufferGeometry(side * 0.02, side * 0.02);
       let transformGrid = new THREE.Object3D();
       for (let i3 = 0; i3 < positions.length; i3++) {
         let [x, y2] = positions[i3];
         let material2 = materialGrid;
         if (x === 0 && y2 === 0) {
           material2 = new THREE.MeshBasicMaterial({
-            color: 16711680
+            color: 16711680,
+            side: THREE.DoubleSide
           });
         }
         let mesh = new THREE.Mesh(geometryGrid, material2);
@@ -45485,7 +45612,11 @@ vec4 envMapTexelToLinear(vec4 color) {
         transformGrid.add(mesh);
       }
       transform.add(transformGrid);
-      let pyramids = [[side * 2, radius * 2, 4, 0], [side * 2, -radius * 2, 4, Math.PI], [0, radius * 4, 4, Math.PI], [-side * 2, radius * 2, 4, 0], [-side * 4, radius * 4, 4, Math.PI], [-side * 4, radius * 8, 4, 0], [side * 3.5, radius * 4.5, 3, Math.PI], [0, -radius * 3, 3, 0], [0, -radius * 6, 3, Math.PI], [-side * 1.5, -radius * 1.5, 3, Math.PI], [side * 1.5, -radius * 7.5, 3, 0], [side * 1.5, -radius * 10.5, 3, Math.PI], [-side * 3, radius * 11, 2, Math.PI], [-side * 2, radius * 8, 2, Math.PI], [-side * 6, radius * 8, 2, Math.PI], [-side * 6, radius * 4, 2, 0], [-side * 5, radius * 1, 2, 0], [-side * 3, radius * -2, 2, 0], [side * 3, radius * -7, 2, Math.PI], [side * 4, radius * -8, 2, 0], [-side * 1.5, radius * 6.5, 1, 0], [-side * 5.5, radius * 2.5, 1, Math.PI], [-side * 3.5, radius * -0.5, 1, Math.PI], [-side * 2, radius * -4, 1, 0], [-side * 0.5, radius * -8.5, 1, 0]];
+      const SCALE_1 = 1;
+      const SCALE_2 = 1.415;
+      const SCALE_3 = 2.415;
+      const SCALE_4 = 3.415;
+      let pyramids = [[side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0], [side * SCALE_4 / 2, -radius * SCALE_4 / 2, SCALE_4, Math.PI], [0, radius * SCALE_4, SCALE_4, Math.PI], [-side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0], [-side * SCALE_4, radius * SCALE_4, SCALE_4, Math.PI], [-side * SCALE_4, radius * SCALE_4 * 2, SCALE_4, 0], [side * SCALE_4 * 0.5 + side * SCALE_3 * 0.5, height * SCALE_4 - hypo * SCALE_3, SCALE_3, Math.PI]];
       let uniforms = {
         uThickness: {
           value: 0.02
@@ -45493,7 +45624,7 @@ vec4 envMapTexelToLinear(vec4 color) {
         uStrokeDiffuse: {
           value: new THREE.Color(props.strokeColor.value)
         },
-        uFillColor: {
+        uFillDiffuse: {
           value: new THREE.Color(props.fillColor.value)
         }
       };
@@ -45501,13 +45632,28 @@ vec4 envMapTexelToLinear(vec4 color) {
         uniforms.uStrokeDiffuse.value = new THREE.Color(props.strokeColor.value);
       };
       props.fillColor.onChange = () => {
-        uniforms.uStrokeDiffuse.value = new THREE.Color(props.fillColor.value);
+        uniforms.uFillDiffuse.value = new THREE.Color(props.fillColor.value);
       };
       props.thickness.onChange = () => {
         uniforms.uThickness.value = props.thickness.value;
       };
       props.showGrid.onChange = () => {
         transformGrid.visible = props.showGrid.value;
+      };
+      props.px.onChange = () => {
+        transform.position.x = props.px.value;
+      };
+      props.py.onChange = () => {
+        transform.position.y = props.py.value;
+      };
+      props.pz.onChange = () => {
+        transform.position.z = props.pz.value;
+      };
+      props.scale.onChange = () => {
+        transform.scale.set(props.scale.value, props.scale.value, props.scale.value);
+      };
+      props.rx.onChange = () => {
+        transform.rotation.x = props.rx.value;
       };
       materialPyr = new THREE.ShaderMaterial({
         vertexShader: vertexShader11,
@@ -45528,7 +45674,6 @@ vec4 envMapTexelToLinear(vec4 color) {
         transform.add(mesh);
       }
       function update2() {
-        console.log(Audio2.volume());
         uniforms.uThickness.value = props.thickness.value + Audio2.volume() * props.volumeInfluence.value;
       }
       return {
@@ -45559,6 +45704,36 @@ vec4 envMapTexelToLinear(vec4 color) {
         min: 0,
         max: 0.5,
         step: 0.01
+      },
+      px: {
+        value: 0,
+        min: -300,
+        max: 300,
+        step: 0.01
+      },
+      py: {
+        value: 0,
+        min: -300,
+        max: 300,
+        step: 0.01
+      },
+      pz: {
+        value: 0,
+        min: -300,
+        max: 300,
+        step: 0.01
+      },
+      rx: {
+        value: 0,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01
+      },
+      scale: {
+        value: 1,
+        min: 0,
+        max: 10,
+        step: 0.001
       }
     };
     const default19 = Composition3;
@@ -45597,7 +45772,8 @@ vec4 envMapTexelToLinear(vec4 color) {
     function Triangles2({props, renderer}) {
       let scene = new THREE.Scene();
       let camera = default18({
-        aspect: renderer.canvas.width / renderer.canvas.height
+        aspect: renderer.canvas.width / renderer.canvas.height,
+        props
       });
       let controls = new OrbitControls2(camera.camera, document.querySelector(".output"));
       controls.target = new THREE.Vector3(0, 0, 0);
@@ -45635,6 +45811,12 @@ vec4 envMapTexelToLinear(vec4 color) {
       name: "Triangles",
       scene: Triangles2,
       props: {
+        fov: {
+          value: 45,
+          min: 10,
+          max: 200,
+          step: 1
+        },
         ...default19.props
       }
     };
@@ -45986,7 +46168,7 @@ void main() {
     const default7 = Shape4;
 
     // public/stages/Tampa/Camera.js
-    function Camera4({aspect: aspect2} = {}) {
+    function Camera4({aspect: aspect2, props} = {}) {
       let transform = new THREE.Object3D();
       let camera = new THREE.PerspectiveCamera(45, aspect2, 6, 80);
       camera.position.set(0, 0, 100);
@@ -46154,16 +46336,16 @@ void main() {
     // node_modules/lemonade-math/index.js
 
     // public/stages/Tampa/Structure.js
-    console.log(map3);
     const vertexShader8 = `
-varying vec2 vUv;
+    varying vec2 vUv;
 
-void main() {
-    vUv = uv;
-    vec3 transformed = position;
+    void main() {
+        vUv = uv;
+        vec3 transformed = position;
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
-}`;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.);
+    }
+`;
     const fragmentShader8 = `
 uniform vec3 roomDiffuse;
 uniform float roomAOIntensity;

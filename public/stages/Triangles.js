@@ -8,6 +8,7 @@ function Triangles({ props, renderer }) {
     let scene = new THREE.Scene();
     let camera = Camera({
         aspect: renderer.canvas.width / renderer.canvas.height,
+        props,
     });
 
     let controls = new OrbitControls(camera.camera, document.querySelector('.output'));
@@ -49,6 +50,12 @@ export default {
     name: 'Triangles',
     scene: Triangles,
     props: {
+        fov: {
+            value: 45,
+            min: 10,
+            max: 200,
+            step: 1,
+        },
         ...Composition.props,
     },
 };

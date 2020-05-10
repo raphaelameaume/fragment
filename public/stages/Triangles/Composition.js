@@ -84,12 +84,16 @@ function Composition(props) {
 
     let radius = 1;
     let side = radius * Math.sqrt(3);
+    let height = side * 0.5 * Math.sqrt(3);
+    let hypo = Math.cos(60 * Math.PI / 180) * radius;
+
+
     let grid = 32;
     let size = side * grid;
     let positions = [];
     
     for (let i = 0; i < (grid + 1); i++) {
-        let x = i / grid * size - size * 0.5;
+        let x = i * radius - radius * grid * 0.5;
         for (let j = 0; j < (grid + 1); j++) {
             let y = j * radius - radius * grid * 0.5;
 
@@ -111,10 +115,11 @@ function Composition(props) {
     });
 
     let materialGrid = new THREE.MeshBasicMaterial({
-        color: 0xFFFFFF
+        color: 0xFFFFFF,
+        side: THREE.DoubleSide,
     });
 
-    let geometryGrid = new THREE.PlaneBufferGeometry(side * 0.1, side * 0.1);
+    let geometryGrid = new THREE.PlaneBufferGeometry(side * 0.02, side * 0.02);
     let transformGrid = new THREE.Object3D();
 
     for (let i = 0; i < positions.length; i++) {
@@ -124,7 +129,8 @@ function Composition(props) {
 
         if (x === 0 && y === 0) {
             material = new THREE.MeshBasicMaterial({
-                color: 0xFF0000
+                color: 0xFF0000,
+                side: THREE.DoubleSide,
             });
             // material.color = 0xFF0000;
         }
@@ -138,45 +144,50 @@ function Composition(props) {
 
     transform.add(transformGrid);
 
+    const SCALE_1 = 1;
+    const SCALE_2 = 1.415;
+    const SCALE_3 = 2.415;
+    const SCALE_4 = 3.415;
+
     let pyramids = [
         // scale 4
-        [ side * 2, radius * 2, 4, 0 ],
-        [ side * 2, -radius * 2, 4, Math.PI ],
-        [0, radius * 4, 4, Math.PI],
-        [-side * 2, radius * 2, 4, 0],
-        [-side * 4, radius * 4, 4, Math.PI],
-        [-side * 4, radius * 8, 4, 0],
+        [ side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0 ],
+        [ side * SCALE_4 / 2, -radius * SCALE_4 / 2, SCALE_4, Math.PI ],
+        [0, radius * SCALE_4, SCALE_4, Math.PI],
+        [-side * SCALE_4 / 2, radius * SCALE_4 / 2, SCALE_4, 0],
+        [-side * SCALE_4, radius * SCALE_4, SCALE_4, Math.PI],
+        [-side * SCALE_4, radius * SCALE_4 * 2, SCALE_4, 0],
 
         // scale 3
-        [side * 3.5, radius * 4.5, 3, Math.PI],
-        [0, -radius * 3, 3, 0],
-        [0, -radius * 6, 3, Math.PI],
-        [-side * 1.5, -radius * 1.5, 3, Math.PI],
-        [side * 1.5, -radius * 7.5, 3, 0],
-        [side * 1.5, -radius * 10.5, 3, Math.PI],
+        [side * SCALE_4 * 0.5 + side * SCALE_3 * 0.5, height * SCALE_4 - hypo * SCALE_3, SCALE_3, Math.PI],
+        // [0, -radius * 3, SCALE_3, 0],
+        // [0, -radius * 6, SCALE_3, Math.PI],
+        // [-side * 1.5, -radius * 1.5, SCALE_3, Math.PI],
+        // [side * 1.5, -radius * 7.5, SCALE_3, 0],
+        // [side * 1.5, -radius * 10.5, SCALE_3, Math.PI],
 
         // scale 2 (from top to bottom from left to right)
-        [-side * 3, radius * 11, 2, Math.PI],
-        [-side * 2, radius * 8, 2, Math.PI],
-        [-side * 6, radius * 8, 2, Math.PI],
-        [-side * 6, radius * 4, 2, 0],
-        [-side * 5, radius * 1, 2, 0],
-        [-side * 3, radius * -2, 2, 0],
-        [side * 3, radius * -7, 2, Math.PI],
-        [side * 4, radius * -8, 2, 0],
+        // [-side * SCALE_2 * 1.5, radius * SCALE_2 * 5.5, SCALE_2, Math.PI],
+        // [-side * 2, radius * 8, SCALE_2, Math.PI],
+        // [-side * 6, radius * 8, SCALE_2, Math.PI],
+        // [-side * 6, radius * 4, SCALE_2, 0],
+        // [-side * 5, radius * 1, SCALE_2, 0],
+        // [-side * 3, radius * -2, SCALE_2, 0],
+        // [side * 3, radius * -7, SCALE_2, Math.PI],
+        // [side * 4, radius * -8, SCALE_2, 0],
 
         // scale 1
-        [-side * 1.5, radius * 6.5, 1, 0],
-        [-side * 5.5, radius * 2.5, 1, Math.PI],
-        [-side * 3.5, radius * -0.5, 1, Math.PI],
-        [-side * 2, radius * -4, 1, 0],
-        [-side * 0.5, radius * -8.5, 1, 0],
+        // [-side * 1.5, radius * 6.5, SCALE_1, 0],
+        // [-side * 5.5, radius * 2.5, SCALE_1, Math.PI],
+        // [-side * 3.5, radius * -0.5, SCALE_1, Math.PI],
+        // [-side * 2, radius * -4, SCALE_1, 0],
+        // [-side * 0.5, radius * -8.5, SCALE_1, 0],
     ];
 
     let uniforms = {
         uThickness: { value: 0.02 },
         uStrokeDiffuse: { value: new THREE.Color(props.strokeColor.value) },
-        uFillColor: { value: new THREE.Color(props.fillColor.value) },
+        uFillDiffuse: { value: new THREE.Color(props.fillColor.value) },
     };
 
     props.strokeColor.onChange = () => {
@@ -184,7 +195,7 @@ function Composition(props) {
     }
 
     props.fillColor.onChange = () => {
-        uniforms.uStrokeDiffuse.value = new THREE.Color(props.fillColor.value);
+        uniforms.uFillDiffuse.value = new THREE.Color(props.fillColor.value);
     }
 
     props.thickness.onChange = () => {
@@ -194,6 +205,26 @@ function Composition(props) {
     props.showGrid.onChange = () => {
         transformGrid.visible = props.showGrid.value;
     };
+
+    props.px.onChange = () => {
+        transform.position.x = props.px.value;
+    }
+
+    props.py.onChange = () => {
+        transform.position.y = props.py.value;
+    }
+
+    props.pz.onChange = () => {
+        transform.position.z = props.pz.value;
+    }
+
+    props.scale.onChange = () => {
+        transform.scale.set(props.scale.value, props.scale.value, props.scale.value);
+    }
+
+    props.rx.onChange = () => {
+        transform.rotation.x = props.rx.value;
+    }
 
     materialPyr = new THREE.ShaderMaterial({
         vertexShader,
@@ -218,8 +249,6 @@ function Composition(props) {
     }
 
     function update() {
-        console.log(Audio.volume());
-
         uniforms.uThickness.value = props.thickness.value + Audio.volume() * props.volumeInfluence.value;
     }
 
@@ -252,6 +281,36 @@ Composition.props = {
         min: 0,
         max: 0.5,
         step: 0.01,
+    },
+    px: {
+        value: 0,
+        min: -300,
+        max: 300,
+        step: 0.01
+    },
+    py: {
+        value: 0,
+        min: -300,
+        max: 300,
+        step: 0.01
+    },
+    pz: {
+        value: 0,
+        min: -300,
+        max: 300,
+        step: 0.01
+    },
+    rx: {
+        value: 0,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01
+    },
+    scale: {
+        value: 1,
+        min: 0,
+        max: 10,
+        step: 0.001,
     }
 };
 

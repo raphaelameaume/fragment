@@ -1,6 +1,7 @@
 
 function THREERenderer(THREE, { width = window.innerWidth * 0.5, height = window.innerHeight * 0.5 } = {}) {
     let dimensions = { width, height };
+
     let renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
 
@@ -133,7 +134,7 @@ function THREERenderer(THREE, { width = window.innerWidth * 0.5, height = window
     let mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    function resize({ width = dimensions.widt, height = dimensions.height } = {}) {
+    function resize({ width = dimensions.width, height = dimensions.height } = {}) {
         dimensions.width = width;
         dimensions.height = height;
 

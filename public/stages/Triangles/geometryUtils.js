@@ -45,8 +45,6 @@ export function addBarycentricCoordinates (bufferGeometry, removeEdge = false) {
       };
     });
 
-    console.log(attributes);
-  
     for (let i = 0; i < triangleCount; i++) {
       // indices into attributes
       const a = indexArray[i * 3 + 0];
