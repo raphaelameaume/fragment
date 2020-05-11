@@ -34,8 +34,8 @@ function Triangles({ props, renderer }) {
         renderer.render(scene, camera.camera);
     }
 
-    function resize() {
-        console.log('Triangles :: resize');
+    function resize({ width, height }) {
+        console.log('Triangles :: resize', width, height);
     }
 
     return {
@@ -52,9 +52,15 @@ export default {
     props: {
         fov: {
             value: 45,
-            min: 10,
-            max: 200,
+            min: 1,
+            max: 100,
             step: 1,
+        },
+        cameraZ: {
+            value: 200,
+            min: -10,
+            max: 1000,
+            step: 0.01,
         },
         ...Composition.props,
     },

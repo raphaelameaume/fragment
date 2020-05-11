@@ -76,7 +76,7 @@ let propWidth = {
     value: renderer.dimensions.width,
     step: 1,
     onChange: ({ value }) => {
-        renderer.resize(value, renderer.dimensions.height);
+        renderer.resize({ width: value, height: renderer.dimensions.height });
         $rendererDimensions.width = value;
     }
 };
@@ -84,10 +84,12 @@ let propHeight = {
     value: renderer.dimensions.height,
     step: 1,
     onChange: ({ value }) => {
-        renderer.resize(renderer.dimensions.width, value);
+        renderer.resize({ width: renderer.dimensions.width, height: value });
         $rendererDimensions.height = value;
     }
 };
+
+renderer.resize({ width: $rendererDimensions.width, height: $rendererDimensions.height });
 
 $: {
 	if (!stage.instance) {

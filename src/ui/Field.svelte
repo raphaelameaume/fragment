@@ -252,10 +252,15 @@ function setValue(v) {
 }
 
 function handleClickAddTrigger() {
+    if (!prop.triggers) {
+        prop.triggers = [];
+    }
+    
     prop.triggers = [
         ...prop.triggers,
         Keyboard.key(''),
     ];
+
 }
 
 function handleClickReset() {

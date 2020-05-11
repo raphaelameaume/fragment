@@ -226,6 +226,14 @@ function Composition(props) {
         transform.rotation.x = props.rx.value;
     }
 
+    props.ry.onChange = () => {
+        transform.rotation.y = props.ry.value;
+    }
+
+    props.rz.onChange = () => {
+        transform.rotation.z = props.rz.value;
+    }
+
     materialPyr = new THREE.ShaderMaterial({
         vertexShader,
         fragmentShader,
@@ -233,20 +241,84 @@ function Composition(props) {
         extensions: {
             derivatives: true
         }
-    })
+    });
+
+    function createMaterial() {
+        return new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader,
+            uniforms: {
+                ...uniforms,
+                // uStrokeDiffuse: { value: new THREE.Color(Math.random() * 0xFFFFFF) },
+            },
+            extensions: {
+                derivatives: true
+            }
+        });
+    }
+
+    let materials = {
+        [`${SCALE_1}`]: createMaterial(),
+        [`${SCALE_2}`]: createMaterial(),
+        [`${SCALE_3}`]: createMaterial(),
+        [`${SCALE_4}`]: createMaterial(),
+    };
+
+    let scales = [`${SCALE_1}`, `${SCALE_2}`, `${SCALE_3}`, `${SCALE_4}`];
+    let meshes = {};
 
     for (let i = 0; i < pyramids.length; i++) {
         let [ x, y, scale, rotationZ ] = pyramids[i];
 
-        let mesh = new THREE.Mesh(geometryPyr, materialPyr);
+        if (!meshes[scale]) {
+            meshes[scale] = [];
+        }
+
+        let m = materials[scale];
+
+        let mesh = new THREE.Mesh(geometryPyr, m);
         mesh.position.x = x;
         mesh.position.y = y;
         mesh.position.z = scale * 0.5;
         mesh.scale.set(scale, scale, scale);
         mesh.rotation.z = rotationZ;
 
+        meshes[scale].push(mesh);
+
         transform.add(mesh);
     }
+
+    function displayRandomSize() {
+        const index = Math.floor(Math.random() * scales.length);
+        const SCALE_DISPLAY = scales[index];
+
+        console.log('SCALE_DISPLAY', SCALE_DISPLAY);
+
+        Object.keys(meshes).forEach( key => {
+            let all = meshes[key];
+            if (key === SCALE_DISPLAY) {
+                all.forEach(mesh => mesh.visible = true);
+            } else {
+                all.forEach(mesh => mesh.visible = false);
+            }
+        });
+    }
+
+    Audio.beat(1).onTrigger(() => {
+        if (Math.random() > (1 - props.beatInfluence.value)) {
+            displayRandomSize();
+        }
+    });
+
+
+    Audio.beat(3).onTrigger(() => {
+        if (Math.random() > (1 - props.beatInfluence.value)) {
+            Object.keys(meshes).forEach( key => {
+                let all = meshes[key];
+                all.forEach(mesh => mesh.visible = true);
+            });
+        }
+    });
 
     function update() {
         uniforms.uThickness.value = props.thickness.value + Audio.volume() * props.volumeInfluence.value;
@@ -282,6 +354,12 @@ Composition.props = {
         max: 0.5,
         step: 0.01,
     },
+    beatInfluence: {
+        value: 1,
+        min: 0,
+        max: 1,
+        step: 0.01,
+    },
     px: {
         value: 0,
         min: -300,
@@ -306,10 +384,22 @@ Composition.props = {
         max: Math.PI,
         step: 0.01
     },
+    ry: {
+        value: 0,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01
+    },
+    rz: {
+        value: 0,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01
+    },
     scale: {
         value: 1,
-        min: 0,
-        max: 10,
+        min: 0.0001,
+        max: 50,
         step: 0.001,
     }
 };

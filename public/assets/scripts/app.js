@@ -11330,6 +11330,9 @@
         }
       }
       function handleClickAddTrigger() {
+        if (!prop.triggers) {
+          $$invalidate(0, prop.triggers = [], prop);
+        }
         $$invalidate(0, prop.triggers = [...prop.triggers, Keyboard.key("")], prop);
       }
       function handleClickReset() {
@@ -13499,7 +13502,7 @@
       let stream;
       async function request({onSuccess = noop$1, onError = noop$1} = {}) {
         try {
-          console.log(navigation.mediaDevices);
+          console.log(window.navigator.mediaDevices);
           stream = await window.navigator.mediaDevices.getUserMedia({
             audio: true,
             video: false
@@ -17119,7 +17122,10 @@
         value: renderer.dimensions.width,
         step: 1,
         onChange: ({value: value2}) => {
-          renderer.resize(value2, renderer.dimensions.height);
+          renderer.resize({
+            width: value2,
+            height: renderer.dimensions.height
+          });
           set_store_value(rendererDimensions, $rendererDimensions.width = value2, $rendererDimensions);
         }
       };
@@ -17127,10 +17133,17 @@
         value: renderer.dimensions.height,
         step: 1,
         onChange: ({value: value2}) => {
-          renderer.resize(renderer.dimensions.width, value2);
+          renderer.resize({
+            width: renderer.dimensions.width,
+            height: value2
+          });
           set_store_value(rendererDimensions, $rendererDimensions.height = value2, $rendererDimensions);
         }
       };
+      renderer.resize({
+        width: $rendererDimensions.width,
+        height: $rendererDimensions.height
+      });
       onMount(() => {
         $$invalidate(0, renderer.canvas.style.width = "100%", renderer);
         $$invalidate(0, renderer.canvas.style.height = "auto", renderer);
@@ -45410,15 +45423,19 @@ vec4 envMapTexelToLinear(vec4 color) {
     // public/stages/Triangles/Camera.js
     function Camera7({aspect: aspect2, props} = {}) {
       let transform = new THREE.Object3D();
-      let camera = new THREE.PerspectiveCamera(props.fov.value, aspect2, 1, 200);
-      camera.position.set(0, 0, 10);
+      let camera = new THREE.PerspectiveCamera(props.fov.value, aspect2, 1, 1000);
+      camera.position.set(0, 0, 150);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.updateProjectionMatrix();
+      transform.position.z = props.cameraZ.value;
       transform.add(camera);
       let speed = 0.0005;
       props.fov.onChange = () => {
         camera.fov = Math.floor(props.fov.value);
         camera.updateProjectionMatrix();
+      };
+      props.cameraZ.onChange = () => {
+        transform.position.z = props.cameraZ.value;
       };
       function update2({deltaTime: deltaTime2}) {
       }
@@ -45656,6 +45673,12 @@ vec4 envMapTexelToLinear(vec4 color) {
       props.rx.onChange = () => {
         transform.rotation.x = props.rx.value;
       };
+      props.ry.onChange = () => {
+        transform.rotation.y = props.ry.value;
+      };
+      props.rz.onChange = () => {
+        transform.rotation.z = props.rz.value;
+      };
       materialPyr = new THREE.ShaderMaterial({
         vertexShader: vertexShader11,
         fragmentShader: fragmentShader9,
@@ -45664,16 +45687,67 @@ vec4 envMapTexelToLinear(vec4 color) {
           derivatives: true
         }
       });
+      function createMaterial() {
+        return new THREE.ShaderMaterial({
+          vertexShader: vertexShader11,
+          fragmentShader: fragmentShader9,
+          uniforms: {
+            ...uniforms
+          },
+          extensions: {
+            derivatives: true
+          }
+        });
+      }
+      let materials = {
+        [`${SCALE_1}`]: createMaterial(),
+        [`${SCALE_2}`]: createMaterial(),
+        [`${SCALE_3}`]: createMaterial(),
+        [`${SCALE_4}`]: createMaterial()
+      };
+      let scales = [`${SCALE_1}`, `${SCALE_2}`, `${SCALE_3}`, `${SCALE_4}`];
+      let meshes = {};
       for (let i3 = 0; i3 < pyramids.length; i3++) {
         let [x, y2, scale, rotationZ] = pyramids[i3];
-        let mesh = new THREE.Mesh(geometryPyr, materialPyr);
+        if (!meshes[scale]) {
+          meshes[scale] = [];
+        }
+        let m2 = materials[scale];
+        let mesh = new THREE.Mesh(geometryPyr, m2);
         mesh.position.x = x;
         mesh.position.y = y2;
         mesh.position.z = scale * 0.5;
         mesh.scale.set(scale, scale, scale);
         mesh.rotation.z = rotationZ;
+        meshes[scale].push(mesh);
         transform.add(mesh);
       }
+      function displayRandomSize() {
+        const index3 = Math.floor(Math.random() * scales.length);
+        const SCALE_DISPLAY = scales[index3];
+        console.log("SCALE_DISPLAY", SCALE_DISPLAY);
+        Object.keys(meshes).forEach((key) => {
+          let all = meshes[key];
+          if (key === SCALE_DISPLAY) {
+            all.forEach((mesh) => mesh.visible = true);
+          } else {
+            all.forEach((mesh) => mesh.visible = false);
+          }
+        });
+      }
+      Audio2.beat(1).onTrigger(() => {
+        if (Math.random() > 1 - props.beatInfluence.value) {
+          displayRandomSize();
+        }
+      });
+      Audio2.beat(3).onTrigger(() => {
+        if (Math.random() > 1 - props.beatInfluence.value) {
+          Object.keys(meshes).forEach((key) => {
+            let all = meshes[key];
+            all.forEach((mesh) => mesh.visible = true);
+          });
+        }
+      });
       function update2() {
         uniforms.uThickness.value = props.thickness.value + Audio2.volume() * props.volumeInfluence.value;
       }
@@ -45706,6 +45780,12 @@ vec4 envMapTexelToLinear(vec4 color) {
         max: 0.5,
         step: 0.01
       },
+      beatInfluence: {
+        value: 1,
+        min: 0,
+        max: 1,
+        step: 0.01
+      },
       px: {
         value: 0,
         min: -300,
@@ -45730,10 +45810,22 @@ vec4 envMapTexelToLinear(vec4 color) {
         max: Math.PI,
         step: 0.01
       },
+      ry: {
+        value: 0,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01
+      },
+      rz: {
+        value: 0,
+        min: -Math.PI,
+        max: Math.PI,
+        step: 0.01
+      },
       scale: {
         value: 1,
-        min: 0,
-        max: 10,
+        min: 0.0001,
+        max: 50,
         step: 0.001
       }
     };
@@ -45798,8 +45890,8 @@ vec4 envMapTexelToLinear(vec4 color) {
         renderer2.setClearColor("#000000", 1);
         renderer2.render(scene, camera.camera);
       }
-      function resize() {
-        console.log("Triangles :: resize");
+      function resize({width, height}) {
+        console.log("Triangles :: resize", width, height);
       }
       return {
         canvas: renderer.canvas,
@@ -45814,9 +45906,15 @@ vec4 envMapTexelToLinear(vec4 color) {
       props: {
         fov: {
           value: 45,
-          min: 10,
-          max: 200,
+          min: 1,
+          max: 100,
           step: 1
+        },
+        cameraZ: {
+          value: 200,
+          min: -10,
+          max: 1000,
+          step: 0.01
         },
         ...default19.props
       }

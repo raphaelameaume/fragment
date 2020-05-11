@@ -5,7 +5,7 @@ const Microphone = function() {
     
     async function request({ onSuccess = noop, onError = noop } = {}) {
         try {
-            console.log(navigation.mediaDevices);
+            console.log(window.navigator.mediaDevices);
             stream = await window.navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             onSuccess(stream);
         } catch(error) {
