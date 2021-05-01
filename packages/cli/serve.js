@@ -17,13 +17,30 @@ const serve = async (dir, port) => {
             log.warning(`Port ${port} not available. Using ${availablePort} instead.`);
         }
 
-        const templateHtmlFile = path.resolve(__dirname, 'templates/index.html');
+        const startTime = Date.now();
+        const templateHtmlFile = /* html */`
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fragment</title>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/javascript">
+            window.__TIME__ = ${startTime};
+            window.__LIVERELOAD_PORT__ = ${""};
+        </script>
+    </body>
+</html>
+`;
 
         polka()
             .use(sirv(dir, { dev: true }))
             .use(async (req, res, next) => {
                 if (req.url === "/") {
-                    const html = await fs.readFile(templateHtmlFile);
+                    const html = Buffer.from(templateHtmlFile, 'utf8');;
                     res.end(html);
                 }
 
