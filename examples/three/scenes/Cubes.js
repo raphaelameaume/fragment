@@ -1,50 +1,23 @@
-import { Mouse, Keyboard, Audio, Midi } from "fragment";
+// import { Mouse, Keyboard, Audio, Midi } from "$fragment";
+import * as THREE from "three";
 
 export let enabled = false;
 export let duration = 10; //
 export let fps = 24;
 
-let scene, camera, mesh;
-
 export let init = (props) => {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera();
+    console.log("Scene :: init :: hello");
+    const scene = new THREE.Scene()
 
-    uniforms = {
-        speed: props.speed,
-    }
-
-    props.diffuse.onChange(() => {
-        uniforms.diffuse.value = new THREE.Color(props.diffuse.value);
-    });
-
-    props.color.onTrigger(() => {
-
-    });
-
-    props.map.onChange(() => {
-
-    })
-
-    mesh = new Mesh();
+    console.log(scene);
 };
 
 export let update = ({ props, time, deltaTime, playhead, renderer }) => {
-    // if export duration, then playhead is available as 0 => 1
-    // we need to be able to access webglRenderer here
-
-    mesh.rotation.x += 0.1;
-
-    mesh.rotation.y = Mouse.y * Math.PI;
-
-    // renderer is a fragment renderer
-
-    renderer.render(scene, camera); // this could be done like that if we set the render target before calling update ?
+    console.log("Cubes :: update");
 };
 
 export let resize = (width, height) => {
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+    console.log("Cubes :: resize");
 };
 
 export let props = {
@@ -55,13 +28,9 @@ export let props = {
         folder: "Camera.Controls.Test"
     },
     color: {
-        value: "0xFFFFF",
+        value: "0xFFFFFF",
         label: "Change color",
         triggers: [ // how do you reconciliate change from UI
-            Mouse.click(),
-            Keyboard.key("m"),
-            Midi.keydown(32),
-            Audio.beat(0)
         ]
     },
     map: {

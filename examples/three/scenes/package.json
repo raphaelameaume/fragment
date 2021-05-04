@@ -1,0 +1,14 @@
+{
+  "name": "scenes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Cubes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.128.0"
+  }
+}

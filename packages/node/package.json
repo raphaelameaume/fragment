@@ -1,0 +1,23 @@
+{
+  "name": "fragment-cli",
+  "version": "1.0.0",
+  "description": "A CLI used alongside fragment",
+  "main": "cli.js",
+  "bin": {
+    "fragment": "cli.js"
+  },
+  "type": "module",
+  "author": "Raphaël Améaume",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.1",
+    "esbuild": "^0.11.17",
+    "get-port": "^5.1.1",
+    "kleur": "^4.1.4",
+    "mime": "^2.5.2",
+    "polka": "^0.5.2",
+    "sade": "^1.7.4",
+    "sirv": "^1.0.11",
+    "ws": "^7.4.5"
+  }
+}
