@@ -19,5 +19,8 @@
     "sade": "^1.7.4",
     "sirv": "^1.0.11",
     "ws": "^7.4.5"
+  },
+  "devDependencies": {
+    "snowpack": "^3.3.7"
   }
 }
