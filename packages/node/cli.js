@@ -5,7 +5,7 @@ import sade from "sade";
 import path from "path";
 
 import log from "./log.js";
-import { createServer } from "./server/index.js";
+import { createServer } from "./server.js";
 
 sade('fragment [entry]', true)
     .version('1.0.0')

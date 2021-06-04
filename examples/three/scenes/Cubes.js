@@ -1,28 +1,46 @@
-// import { Mouse, Keyboard, Audio, Midi } from "$fragment";
 import * as THREE from "three";
 
 export let enabled = false;
 export let duration = 10; //
-export let fps = 24;
+export let fps = 25;
+
+let mesh, scene, camera;
+
+let color = Math.random() * 0xFFFFFF;
 
 export let init = (props) => {
-    console.log("Scene :: init :: hello");
-    const scene = new THREE.Scene()
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.z = 10;
 
-    console.log(scene);
+    mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color, wireframe: true }));
+    scene.add(mesh);
 };
 
 export let update = ({ props, time, deltaTime, playhead, renderer }) => {
-    console.log("Cubes :: update");
+    // mesh.rotation.x += 0.05;
+    mesh.rotation.y += 0.03;
+
+    renderer.render(scene, camera);
 };
 
+let _width, _height;
+
 export let resize = (width, height) => {
-    console.log("Cubes :: resize");
+    _width = width;
+    _height = height;
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+};
+
+export let dispose = () => {
+    scene.remove(mesh);
 };
 
 export let props = {
     speed: {
-        value: 1,
+        min: 1,
         max: 20,
         value: 1,
         folder: "Camera.Controls.Test"
@@ -30,8 +48,6 @@ export let props = {
     color: {
         value: "0xFFFFFF",
         label: "Change color",
-        triggers: [ // how do you reconciliate change from UI
-        ]
     },
     map: {
         value: "/cubes/map.jpg", // goes to specific assets
@@ -42,3 +58,22 @@ export let props = {
 export let assets = [
     "/scenes/cubes/map.jpg"
 ];
+
+if (import.meta.hot) {
+    console.log("HMR");
+
+    import.meta.hot.dispose(() => {
+        dispose();
+    });
+
+    import.meta.hot.accept(({ module }) => {
+        init = module.init;
+        init();
+
+        resize = module.resize;
+        resize(_width, _height);
+
+        update = module.update;
+        dispose = module.dispose;
+    });
+}

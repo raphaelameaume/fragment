@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "svelte": "^3.38.2",
+    "svelte-hmr": "^0.14.4",
     "three": "^0.128.0"
   }
 }

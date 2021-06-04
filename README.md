@@ -9,13 +9,15 @@ fragment ./scenes/Spheres --new --template 2d
 fragment ./scenes/Spheres --new --template ./custom-template.js
 
 ## Features
-
 - CLI
 - Inputs out of the box: MIDI, Mouse, Keyboard
 - Screenshots
-- Record canvas output to mp4
+- Record canvas output to webm/mp4
 - Renderer: perspective transform on canvas output. Switch layout in UI between transformed/not transformed
 - Scene can have specific duration or framerate
 - Open output in another url with sync
 - Save state between sessions
 - Assets Explorer
+- Built in MoveNet for pose estimation
+- Save/Restore current state
+- Timeline playhead

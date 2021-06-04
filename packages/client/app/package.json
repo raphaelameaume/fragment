@@ -1,0 +1,18 @@
+{
+  "name": "~TODO~",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "svelte-kit dev",
+    "build": "svelte-kit build",
+    "preview": "svelte-kit preview"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^1.0.0-next.12",
+    "@sveltejs/kit": "next",
+    "svelte": "^3.34.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "three": "^0.129.0"
+  }
+}

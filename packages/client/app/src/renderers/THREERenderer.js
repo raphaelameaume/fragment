@@ -6,7 +6,7 @@ export let init = () => {
     renderer = new WebGLRenderer({ antialias: true });
 
     renderer.domElement.style.cssText = `
-        width: ${renderer.domElement.width * 2}px;
+        width: ${renderer.domElement.width}px;
     `;
     // renderer.setPixelRatio(window.devicePixelRatio);
 

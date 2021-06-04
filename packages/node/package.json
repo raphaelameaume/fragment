@@ -10,6 +10,7 @@
   "author": "Raphaël Améaume",
   "license": "MIT",
   "dependencies": {
+    "@snowpack/plugin-svelte": "^3.7.0",
     "chokidar": "^3.5.1",
     "esbuild": "^0.11.17",
     "get-port": "^5.1.1",
@@ -21,6 +22,8 @@
     "ws": "^7.4.5"
   },
   "devDependencies": {
-    "snowpack": "^3.3.7"
+    "@snowpack/plugin-dotenv": "^2.1.0",
+    "snowpack": "^3.5.2",
+    "svelte": "^3.38.2"
   }
 }
