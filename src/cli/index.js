@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import log from "./log.js";
+import { start as startServer } from "./server.js";
 
 import { fileURLToPath } from 'url';
 
@@ -14,6 +15,10 @@ export const run = async (entry, options) => {
 
         if (entries.length > 0) {
             await generateFile(entries);
+            await startServer({
+                options,
+                timestamp,
+            });
         }
     } catch(error) {
         console.log(error);

@@ -24,6 +24,10 @@
     "sade": "^1.7.4"
   },
   "dependencies": {
-    "kleur": "^4.1.4"
+    "@rollup/plugin-alias": "^3.1.5",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.22",
+    "kleur": "^4.1.4",
+    "svelte": "^3.42.4",
+    "vite": "^2.5.6"
   }
 }
