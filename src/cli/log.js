@@ -16,6 +16,7 @@ const log = (() => {
     };
 
     return {
+        prefix,
         success,
         warning,
         error,
