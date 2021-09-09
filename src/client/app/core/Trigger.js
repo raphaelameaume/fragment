@@ -1,10 +1,10 @@
 let ID = 0;
 
 class Trigger {
-    constructor(fn, options) {
+    constructor(fn, params) {
         this.id = ID++;
         this.fn = fn;
-        this.options = options;
+        this.params = params;
         this.enabled = true;
     }
 

@@ -1,3 +1,5 @@
+import Trigger from "../core/Trigger";
+
 const wildcard = "*";
 const pressedKeys = new Map();
 const upKeys = new Map();
@@ -12,26 +14,41 @@ function createEventListener(collection) {
             ...(collection.has(wildcard) ? collection.get(wildcard) : []),
         ];
         
-        triggers.forEach(trigger => trigger());
+        triggers.forEach(trigger => trigger.run());
     };
 }
 
 function createTrigger(collection) {
-    return (key, fn, { caseSensitive = true } = {}) => {
+    const defaultOptions = {
+        caseSensitive: true,
+    };
+
+    return (key, fn, options = defaultOptions) => {
         if (typeof key === "function") {
             fn = key;
             key = "*";
         }
 
-        let keys = caseSensitive ? [key] : [key.toLowerCase(), key.toUpperCase()];
+        if (typeof fn === "object") {
+            options = {
+                ...defaultOptions,
+                ...fn,
+            };
+        }
+
+        let keys = options.caseSensitive ? [key] : [key.toLowerCase(), key.toUpperCase()];
+
+        const trigger = new Trigger(fn, {...options, key});
 
         keys.forEach(k => {
             if (collection.has(k)) {
-                collection.set(k, [...collection.get(k), fn]);
+                collection.set(k, [...collection.get(k), trigger]);
             } else {
-                collection.set(k, [fn]);
+                collection.set(k, [trigger]);
             }
-        })
+        });
+
+        return trigger;
     };
 };
 
@@ -42,3 +59,9 @@ window.addEventListener("keydown", createEventListener(downKeys));
 export const onKeyPress = createTrigger(pressedKeys);
 export const onKeyDown = createTrigger(downKeys); 
 export const onKeyUp = createTrigger(upKeys);
+
+onKeyUp("m", () => {
+
+});
+
+onKeyUp("m", { caseSensitive: false });
