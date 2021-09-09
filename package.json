@@ -1,0 +1,29 @@
+{
+  "name": "fragment",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "fragment": "bin/index.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raphaelameaume/fragment.git"
+  },
+  "author": "Raphaël Améaume",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raphaelameaume/fragment/issues"
+  },
+  "homepage": "https://github.com/raphaelameaume/fragment#readme",
+  "devDependencies": {
+    "sade": "^1.7.4"
+  },
+  "dependencies": {
+    "kleur": "^4.1.4"
+  }
+}

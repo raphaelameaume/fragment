@@ -1,17 +1,33 @@
 <script>
-import { onMount } from "svelte";
-import Stage from "./Stage.svelte";
+import { onMount, onDestroy } from "svelte";
+import Stages from "./Stages.svelte";
 import { init as initRenderer } from "./lib/renderers/THREERenderer.js";
-
-import * as scene from "./scenes/HMR2.js";
-import * as scene2 from "./scenes/HMR1.js";
 
 let renderer = initRenderer();
 
+let index0 = 0;
+let index1 = 1;
+
+onDestroy(() => {
+    renderer.dispose();
+    renderer.domElement.parentNode.removeChild(renderer.domElement);
+
+    console.log("destroy");
+})
+
 </script>
 
-<Stage renderer={renderer} scene={scene}></Stage>
-<Stage renderer={renderer} scene={scene2}></Stage>
+<select bind:value={index0}>
+    <option value={0}>1</option>
+    <option value={1}>2</option>
+</select>
+<select bind:value={index1}>
+    <option value={0}>1</option>
+    <option value={1}>2</option>
+</select>
+<Stages renderer={renderer} indexFirst={index0} indexSecond={index1}></Stages>
+
+
 
 <style>
 :global(html) {

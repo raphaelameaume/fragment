@@ -14,7 +14,7 @@ export let init = () => {
     // renderer.setPixelRatio(window.devicePixelRatio);
 
 
-    document.body.appendChild(renderer.domElement);
+    // document.body.appendChild(renderer.domElement);
 
 
     // const $record = document.querySelector('#record');
