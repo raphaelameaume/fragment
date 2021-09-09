@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 export const run = async (entry, options) => {
     try {
         const entries = await createEntries(entry, options);
+        console.log(entries);
     } catch(error) {
         console.log(error);
     }
@@ -22,6 +23,7 @@ async function createEntries(entry, options) {
         return;
     }
     
+    const entries = [];
     const shouldCreateFile = options.new;
 
     async function createEntryFile(entryPath) {
@@ -54,39 +56,42 @@ async function createEntries(entry, options) {
         console.log(`${log.prefix} Created ${entry} on disk.`);
     }
 
-    async function checkExistence(entry) {
-        const entryPath = path.join(process.cwd(), entry);
+    const entryPath = path.join(process.cwd(), entry);
 
-        try {
-            const stats = await fs.lstat(entryPath);
+    try {
+        const stats = await fs.lstat(entryPath);
 
-            if (stats.isDirectory()) {
-                console.log("Entry is a directory");
-            } else if (stats.isFile()) {
-                if (shouldCreateFile) {
-                    log.warning(`Ignored argument:`);
-                    console.log(`${entry} already exists.`);
-                }
-            } else {
+        if (stats.isDirectory()) {
+            const files = await fs.readdir(entryPath);
+            const sketchFiles = files.filter((file) => path.extname(file) === ".js");
 
+            if (sketchFiles.length === 0) {
+                log.error(`Folder doesn't contain any sketch files.`);
+                console.log("Use --new flag to start working on a sketch.");
+                return;
             }
-        } catch(error) {
-            if (error.code === "ENOENT") {
-                if (shouldCreateFile) {
-                    createEntryFile(entryPath)
-                } else {
-                    log.error(`Missing file: ${entry} doesn't exist.`)
-                    console.log("Use --new flag to create the file automatically");
-                }
+
+            entries.push(...sketchFiles.map((sketchFile) => path.relative(process.cwd(), sketchFile)));
+        } else if (stats.isFile()) {
+            if (shouldCreateFile) {
+                log.warning(`Ignored argument:`);
+                console.log(`${entry} already exists.`);
+            }
+
+            entries.push(path.relative(process.cwd(), entryPath));
+        }
+    } catch(error) {
+        if (error.code === "ENOENT") {
+            if (shouldCreateFile) {
+                await createEntryFile(entryPath);
+            } else {
+                log.error(`Missing file: ${entry} doesn't exist.`)
+                console.log("Use --new flag to create the file automatically");
             }
         }
     }
 
-    checkExistence(entry);
-
-    console.log("createEntries", entry);
-
-    const entries = [];
+    
 
     return entries;
 }
