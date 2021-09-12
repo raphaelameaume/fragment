@@ -1,8 +1,9 @@
 <script>
 export let grow = 1;
+export let node;
 </script>
 
-<div class="column" style="flex: {grow}">
+<div class="column" style="flex: {grow}" bind:this={node}>
     <header class="header">
         <button>Add module</button>
         <button>X</button>

@@ -6,103 +6,17 @@ import Column from "./Column.svelte";
 import Module from "./Module.svelte";
 import Resizer from "./Resizer.svelte";
 
-let current = {
-    rows: [
-        {
-            grow: 1,
-            $element: null,
-            cols: [
-                {
-                    grow: 1.5,
-                },
-                {
-                    grow: 0.5,
-                }
-            ],
-        }, {
-            grow: 1,
-            cols: [
-                { grow: 1 }
-            ]
-        }, {
-            grow: 1,
-            cols: [
-                {
-                    grow: 1,
-                },
-                {
-                    grow: 1,
-                },
-                {
-                    grow: 1,
-                },
-                {
-                    grow: 1,
-                }
-            ]
-        }
-    ]
-};
+import { current as currentLayout } from "../data/LayoutData.js";
+
 
 function addRow() {
-    current.rows = [...current.rows, { grow: 1, cols: []}];
-}
+    currentLayout.update((current) => {
+        const updated = {
+            rows: [...current.rows, { grow: 1, cols: [] }]
+        };
 
-function handleRowDelete(index) {
-    current.rows = current.rows.filter((row, rowIndex) => index !== rowIndex);
-}
-
-function handleColumnAdd(rowIndex) {
-    current.rows = current.rows.map((row, index) => {
-        return index === rowIndex ? {...row, cols: [...row.cols, { grow: 1, modules: [] }]} : row;
-    });
-}
-
-let isResizing = false;
-let prevRow, nextRow;
-let prevRect, nextRect;
-
-let coords = {
-    start: { x: 0, y: 0 },
-    current: { x: 0, y: 0 },
-};
-
-let totalGrow = 0;
-
-function handleResizerDragStart({ prevIndex, nextIndex, event }) {
-    prevRow = current.rows[prevIndex];
-    nextRow = current.rows[nextIndex];
-
-    let $prevRow = prevRow.$element;
-    let $nextRow = nextRow.$element;
-    
-    prevRect = $prevRow.getBoundingClientRect();
-    nextRect = $nextRow.getBoundingClientRect();
-
-    coords.start.y = event.clientY;
-
-    totalGrow = prevRow.grow + nextRow.grow;
-}
-
-function handleResizerDragEnd({ prevIndex, nextIndex, event }) {
-
-}
-
-function handleResizerDrag({ prevIndex, nextIndex, event }) {
-    coords.current.y = event.clientY;
-
-    const top = prevRect.top;
-    const bottom = nextRect.bottom;
-    
-    const y = clamp(event.clientY, top + 80, bottom - 80); 
-
-    const prevGrow = map(y, top, bottom, 0, totalGrow);
-    const nextGrow = map(y, bottom, top, 0, totalGrow);
-
-    current.rows = current.rows.map((row, index) => {
-        return index === prevIndex ? {...row, grow: prevGrow } :
-            index === nextIndex ? {...row, grow: nextGrow} : row
-    });
+        return updated;
+    })
 }
 
 </script>
@@ -112,25 +26,31 @@ function handleResizerDrag({ prevIndex, nextIndex, event }) {
         <button on:click={addRow}>Add row</button>
     </nav>
     <div class="content">
-        {#each current.rows as row, rowIndex}
-            <Row grow={row.grow} index={rowIndex} bind:node={row.$element} onColumnAdd={handleColumnAdd} onDelete={handleRowDelete}>
-                {#each row.cols as col, colIndex}
-                    <Column grow={col.grow}>
-                        {#if col.modules && col.modules.length > 0}
-                            {#each col.modules as module}
-                                <Module name={module}></Module>
-                            {/each}
+        {#each $currentLayout.rows as row, rowIndex}
+            <Row grow={row.grow} index={rowIndex} bind:node={row.$element}>
+                {#if row.cols && row.cols.length >0 }
+                    {#each row.cols as col, colIndex}
+                        <Column grow={col.grow} bind:node={col.$element}>
+                            {#if col.modules && col.modules.length > 0}
+                                {#each col.modules as module}
+                                    <Module name={module}></Module>
+                                {/each}
+                            {/if}
+                        </Column>
+                        {#if colIndex !== row.cols.length - 1}
+                            <Resizer
+                                direction="vertical"
+                                rowIndex={rowIndex}
+                                colIndex={colIndex}
+                            />
                         {/if}
-                    </Column>
-                {/each}
+                    {/each}
+                {/if}
             </Row>
-            {#if rowIndex !== current.rows.length - 1}
+            {#if rowIndex !== $currentLayout.rows.length - 1}
                 <Resizer
-                    prevIndex={rowIndex}
-                    nextIndex={rowIndex + 1}
-                    onDragStart={handleResizerDragStart}
-                    onDrag={handleResizerDrag}
-                    onDragEnd={handleResizerDragEnd}
+                    direction="horizontal"
+                    rowIndex={rowIndex}
                 />
             {/if}
         {/each}

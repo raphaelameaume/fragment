@@ -1,16 +1,39 @@
 <script>
+import { current as currentLayout } from "../data/LayoutData.js";
+
 export let index;
 export let node;
-export let onDelete;
-export let onColumnAdd;
 export let grow;
 
 function handleDelete() {
-    onDelete(index);
+    currentLayout.update((current) => {
+        const updated = {
+            ...current,
+            rows: current.rows.filter((row, rowIndex) => index !== rowIndex)
+        };
+
+        return updated;
+    });
 }
 
 function handleColumnAdd() {
-    onColumnAdd(index);
+    currentLayout.update((current) => {
+        const updated = {
+            ...current,
+            rows: current.rows.map((row, index) => {
+                return index === rowIndex ? {
+                    ...row,
+                    cols: [
+                        ...row.cols,
+                        {
+                            grow: 1,
+                            modules: []
+                        }
+                    ]
+                } : row;
+            })
+        }
+    });
 }
 
 </script>
@@ -41,6 +64,8 @@ function handleColumnAdd() {
     position: absolute;
     top: 2px;
     right: 0;
+    z-index: 2;
+
     display: flex;
     justify-content: flex-end;
     align-items: center;
