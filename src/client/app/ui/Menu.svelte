@@ -6,8 +6,8 @@ let hoverable = false;
 let selectedIndex = -1;
 
 function handleClickItem(index) {
-    selectedIndex = index;
-    hoverable = true;
+    hoverable = selectedIndex === index ? false : true;
+    selectedIndex = selectedIndex === index ?  -1 : index;
 }
 
 function handleClickOutside(event) {
@@ -17,6 +17,8 @@ function handleClickOutside(event) {
     hoverable = false;
     selectedIndex = -1;
 }
+
+$: console.log({hoverable});
 
 </script>
 
@@ -29,10 +31,29 @@ function handleClickOutside(event) {
             { label: "Add row", handler: addLayoutRow },
         ]} />
         <MenuItem index={1} selected={selectedIndex === 1} hoverable={hoverable} onClick={handleClickItem} label="Inputs" actions={[
-            { label: "Mouse", handler: () => {} },
-            { label: "Keyboard", handler: () => {} },
-            { label: "MIDI", actions: [] },
-            { label: "Webcam", handler: addLayoutRow },
+            {
+                label: "Mouse",
+                actions: [
+                    { label: "Enabled", handler: () => {} },
+                ]
+            }, {
+                label: "Keyboard",
+                actions: [
+                    { label: "Enabled", handler: () => {} },
+                ]
+            }, {
+                label: "MIDI",
+                actions: [
+                    { label: "Enabled", handler: () => {} },
+                    { label: "Look for devices...", handler: () => {} },
+                    { label: "Connected: MPK-Mini2" },
+                ]
+            }, {
+                label: "Webcam",
+                actions: [
+                    { label: "Enabled", handler: () => {} },
+                ]
+            }
         ]} />
     </ul>
 </div>
@@ -40,6 +61,12 @@ function handleClickOutside(event) {
 <svelte:window on:click={handleClickOutside} />
 
 <style>
+
+.menu {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+}
 
 .menu__list {
     display: flex;

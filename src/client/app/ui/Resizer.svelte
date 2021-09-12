@@ -120,7 +120,7 @@ function handleMouseMove(event) {
     position: absolute;
     z-index: 999;
 
-    background: rgba(255, 0, 0, 0.5);
+    /* background: rgba(255, 0, 0, 0.5); */
 }
 
 .resizer--horizontal {
@@ -148,7 +148,7 @@ function handleMouseMove(event) {
 
     cursor: ew-resize;
 
-    background: rgba(0, 255, 0, 0.5);
+    /* background: rgba(0, 255, 0, 0.5); */
 }
 
 </style>

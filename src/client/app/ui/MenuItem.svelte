@@ -1,11 +1,15 @@
 <script>
+import MenuSublist from "./MenuSublist.svelte";
+import MenuSubItem from "./MenuSubItem.svelte";
+
 export let label;
 export let index;
-export let action;
 export let selected;
-export let actions;
+export let actions = [];
 export let hoverable;
 export let onClick;
+
+let selectedAction = -1;
 
 function handleClick(event) {
     event.preventDefault();
@@ -15,33 +19,34 @@ function handleClick(event) {
 }
 
 function handleMouseEnter(event) {
-    if (hoverable) {
+    if (hoverable && !selected) {
         onClick(index);
     }
+}
+
+function handleSubMouseEnter(index) {
+    selectedAction = index;
 }
 
 </script>
 
 <li class="list__item { selected ? `list__item--selected` : `` }">
     <button class="item__label" on:click={handleClick} on:mouseenter={handleMouseEnter}>{label}</button>
-    <ul class="sublist { selected ? `sublist--selected` : `` }">
-        {#each actions as action}
-            <li class="sublist__item">
-                {#if action.handler }
-                    <button class="sublist__label" on:click={action.handler}>{action.label}</button>
-                {:else}
-                    <span class="sublist__label">{action.label}</span>
-                {/if}
-            </li>
-        {/each}
-    </ul>
+    <MenuSublist
+        visible={selected}
+        actions={actions}
+        style="top: 100%"
+    />
 </li>
 
 <style>
 
 .list__item {
     position: relative;
+    display: flex;
     cursor: default;
+    padding: 4px;
+    border-radius: 2px 2px 0 0;
 }
 
 .list__item--selected {
@@ -50,44 +55,11 @@ function handleMouseEnter(event) {
 
 .item__label {
     color: #f0f0f0;
-    font-size: 14px;
+    font-size: 12px;
     padding: 0 8px;
+    font-weight: 600;
     border: none;
     background: none;
     user-select: none;
-}
-
-.sublist {
-    position: absolute;
-    left: 0;
-    top: 100%;
-    z-index: 100;
-
-    display: none;
-    padding-top: 4px;
-    padding-bottom: 8px;
-    border-radius: 0 0 2px 2px;
-
-    background-color: rgba(20, 20, 20, 0.75);
-    backdrop-filter: blur(2px);
-}
-
-.list__item--selected .sublist {
-    display: block;
-}
-
-.sublist__item {
-    padding-left: 24px;
-    padding-right: 24px;
-}
-
-.sublist__label {
-    width: max-content;
-    background: none;
-    border: none;
-    font-size: 12px;
-    color: #f0f0f0;
-    padding: 0;
-    margin: 0;
 }
 </style>
