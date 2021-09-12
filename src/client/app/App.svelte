@@ -56,6 +56,20 @@ console.log(renderer);
     margin: 0;
     padding: 0;
     font-family: "Inter", serif;
+
+    background-color: #242425;
+    overscroll-behavior: none;
+}
+
+:global(button) {
+    background-color: #202020;
+    border: 1px solid #505050;
+    -webkit-appearance: none;
+    color: white;
+    font-size: 10px;
+    font-family: "Inter";
+    /* font-weight: 600; */
+    border-radius: 2px;
 }
 
 :global(#app) {

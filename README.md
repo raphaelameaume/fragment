@@ -17,7 +17,8 @@ fragment ./scenes/Spheres --new --template ./custom-template.js
 - Scene can have specific duration or framerate
 - Open output in another url with sync
 - Save state between sessions
-- Assets Explorer
+- Assets Explorer ??
 - Built in MoveNet for pose estimation
 - Save/Restore current state
 - Timeline playhead
+- Save/set custom layout + default ones
