@@ -1,7 +1,5 @@
-import { writable } from "svelte/store";
-
-const savedLayouts = [];
-const defaultsLayouts = [
+export const savedLayouts = [];
+export const defaultLayouts = [
     {
         name: "VJ",
         data: {
@@ -31,9 +29,3 @@ const defaultsLayouts = [
         }
     }
 ];
-
-export const current = writable(defaultsLayouts[0].data);
-
-current.subscribe((value) => {
-    console.log("Layout has changed.");
-});

@@ -4,10 +4,10 @@ import { map, clamp } from "lemonade-math";
 import Row from "./Row.svelte";
 import Column from "./Column.svelte";
 import Module from "./Module.svelte";
+import Menu from "./Menu.svelte";
 import Resizer from "./Resizer.svelte";
 
-import { current as currentLayout } from "../data/LayoutData.js";
-
+import { current as currentLayout } from "../stores/layout.js";
 
 function addRow() {
     currentLayout.update((current) => {
@@ -21,10 +21,8 @@ function addRow() {
 
 </script>
 
+<Menu />
 <div class="layout">
-    <nav class="nav">
-        <button on:click={addRow}>Add row</button>
-    </nav>
     <div class="content">
         {#each $currentLayout.rows as row, rowIndex}
             <Row grow={row.grow} index={rowIndex} bind:node={row.$element}>

@@ -1,5 +1,5 @@
 <script>
-import { current as currentLayout } from "../data/LayoutData.js";
+import { current as currentLayout } from "../stores/layout.js";
 
 export let index;
 export let node;

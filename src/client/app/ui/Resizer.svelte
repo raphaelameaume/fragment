@@ -1,6 +1,6 @@
 <script>
 import { map, clamp } from "lemonade-math";
-import { current as currentLayout } from "../data/LayoutData.js";
+import { current as currentLayout } from "../stores/layout.js";
 
 const DIRECTIONS = {
     HORIZONTAL: "horizontal",
