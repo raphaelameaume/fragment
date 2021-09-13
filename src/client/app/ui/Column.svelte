@@ -20,7 +20,7 @@ export let node;
     flex-direction: column;
     flex-grow: 1;
     justify-content: stretch;
-    margin: 0 2px 2px;
+    /* margin: 0 2px 2px; */
     padding: 2px;
     border: 1px solid #505050;
     border-radius: 2px;

@@ -2,6 +2,7 @@
 import { map, clamp } from "lemonade-math";
 
 import Row from "./Row.svelte";
+import RowToolBar from "./RowToolBar.svelte";
 import Column from "./Column.svelte";
 import Module from "./Module.svelte";
 import Menu from "./Menu.svelte";
@@ -52,6 +53,9 @@ function addRow() {
                 />
             {/if}
         {/each}
+        {#if $currentLayout.editable }
+            <RowToolBar style="bottom: 0" />
+        {/if }
     </div>
 </div>
 
