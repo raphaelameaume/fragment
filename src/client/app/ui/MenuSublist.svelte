@@ -11,9 +11,13 @@ function handleSubMouseEnter(index) {
     selectedAction = index;
 }
 
+function handleMouseLeave() {
+    selectedAction = -1;
+}
+
 </script>
 
-<ul class="sublist {visible ? "sublist--visible" : "" }" style="{style}">
+<ul class="sublist {visible ? "sublist--visible" : "" }" style="{style}" on:mouseleave={handleMouseLeave}>
     {#each actions as action, actionIndex}
         <MenuSubItem
             label={action.label}

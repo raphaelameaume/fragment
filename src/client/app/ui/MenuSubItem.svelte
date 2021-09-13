@@ -9,14 +9,15 @@ export let onMouseEnter;
 export let selected;
 
 function handleMouseEnter() {
-    onMouseEnter(index);
+    if ((actions && actions.length > 0) || handler) {
+        onMouseEnter(index);
+    }
 }
 
 function handleMouseLeave() {
 
 }
 
-console.log(label, actions);
 </script>
 
 <li class="sublist__item { selected ? `sublist__item--selected` : `` }" on:mouseenter={handleMouseEnter} on:mouseleave={handleMouseLeave}>
@@ -33,7 +34,7 @@ console.log(label, actions);
             <MenuSublist
                 actions={actions}
                 visible={selected}
-                style="top: -4px; left: 100%"
+                style="top: -4px; left: 100%; border-radius: 0 2px 2px 2px;"
             />
         {/if}
     {/if}

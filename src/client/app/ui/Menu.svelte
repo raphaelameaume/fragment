@@ -1,5 +1,5 @@
 <script>
-import { addRow as addLayoutRow } from "../stores/layout.js";
+import { addRow as addLayoutRow, edit as editLayout } from "../stores/layout.js";
 import MenuItem from "./MenuItem.svelte";
 
 let hoverable = false;
@@ -18,14 +18,12 @@ function handleClickOutside(event) {
     selectedIndex = -1;
 }
 
-$: console.log({hoverable});
-
 </script>
 
 <div class="menu">
     <ul class="menu__list">
         <MenuItem index={0} selected={selectedIndex === 0} hoverable={hoverable} onClick={handleClickItem} label="Layout" actions={[
-            { label: "Edit...", handler: () => {} },
+            { label: "Edit...", handler: editLayout },
             { label: "Save current as...", handler: () => {} },
             { label: "Switch to", actions: [] },
             { label: "Add row", handler: addLayoutRow },
@@ -38,6 +36,11 @@ $: console.log({hoverable});
                 ]
             }, {
                 label: "Keyboard",
+                actions: [
+                    { label: "Enabled", handler: () => {} },
+                ]
+            }, {
+                label: "Microphone",
                 actions: [
                     { label: "Enabled", handler: () => {} },
                 ]
