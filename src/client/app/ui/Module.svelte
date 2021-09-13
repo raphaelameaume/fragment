@@ -1,30 +1,32 @@
 <script>
 export let name;
+export let container;
+
 </script>
 
-<div class="module">
-    <p class="name">{name}</p>
+<div class="module module--{name}">
+    <header class="module__header">
+        <h3 class="module__title">{name}</h3>
+    </header>
+    <div class="module__container" bind:this={container}>
+        <slot></slot>
+    </div>
 </div>
 
 <style>
-.module {
+.module__header {
     display: flex;
-    justify-content: center;
+    height: 20px;
     align-items: center;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    margin-right: 2px;
+    justify-content: center;
+
+    background: #0E0E0E;
 }
 
-.module:not(:last-child) {
-    margin-bottom: 2px;
-}
-
-.name {
+.module__title {
     color: white;
-    text-transform: uppercase;
-    text-align: center;
     font-size: 10px;
+    text-transform: capitalize;
 }
+
 </style>

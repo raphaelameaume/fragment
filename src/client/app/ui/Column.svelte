@@ -1,13 +1,16 @@
 <script>
+import { current as currentLayout } from "../stores/layout.js";
 export let grow = 1;
 export let node;
 </script>
 
 <div class="column" style="flex: {grow}" bind:this={node}>
-    <header class="header">
-        <button>Add module</button>
-        <button>X</button>
-    </header>
+    {#if $currentLayout.editable }
+      <header class="header">
+          <button>Add module</button>
+          <button>X</button>
+      </header>
+    {/if}
     <div class="container">
         <slot></slot>
     </div>
@@ -20,10 +23,14 @@ export let node;
     flex-direction: column;
     flex-grow: 1;
     justify-content: stretch;
-    /* margin: 0 2px 2px; */
-    padding: 2px;
-    border: 1px solid #505050;
-    border-radius: 2px;
+}
+
+.column:not(:last-child) {
+  border-right: 1px solid #0E0E0E;
+}
+
+.column:not(:first-child) {
+  border-left: 1px solid #0E0E0E;
 }
 
 .header {
@@ -40,7 +47,7 @@ export let node;
 }
 
 .container {
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
     flex-grow: 1;
 }
 

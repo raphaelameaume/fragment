@@ -1,14 +1,46 @@
 <script>
+import { onMount, tick } from "svelte";
+import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
-export let renderer;
+import { current as currentRendering } from "./stores/rendering.js";
+export let rendering;
 
-console.log(renderer);
+async function loadRenderer(renderer) {
+    return import("./renderers/THREERenderer.js");
+};
 
+async function start() {
+    console.log("App :: start");
+    const { init, resize, update, render } = await loadRenderer(rendering);
 
+    init();
+    resize({
+        width: $currentRendering.width,
+        height: $currentRendering.height,
+    });
+
+    const { renderer, canvas } = await loadRenderer();
+
+    currentRendering.update((rendering) => ({
+        ...rendering,
+        renderer,
+        canvas,
+    }));
+
+    await tick();
+
+    render({ renderer });
+
+    console.log("started");
+}
 
 </script>
 
-<Layout />
+{#await start() }
+    <Loading />
+{:then}
+    <Layout />
+{/await}
 
 <style>
 @font-face {

@@ -4,7 +4,7 @@ import { map, clamp } from "lemonade-math";
 import Row from "./Row.svelte";
 import RowToolBar from "./RowToolBar.svelte";
 import Column from "./Column.svelte";
-import Module from "./Module.svelte";
+import ModuleRenderer from "./ModuleRenderer.svelte";
 import Menu from "./Menu.svelte";
 import Resizer from "./Resizer.svelte";
 
@@ -32,7 +32,7 @@ function addRow() {
                         <Column grow={col.grow} bind:node={col.$element}>
                             {#if col.modules && col.modules.length > 0}
                                 {#each col.modules as module}
-                                    <Module name={module}></Module>
+                                    <ModuleRenderer module={module} />
                                 {/each}
                             {/if}
                         </Column>
@@ -65,7 +65,6 @@ function addRow() {
     width: 100%;
     height: 100%;
     flex-direction: column;
-    padding: 0 3px;
 }
 
 .content {
