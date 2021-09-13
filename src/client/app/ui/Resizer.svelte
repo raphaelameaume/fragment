@@ -25,6 +25,8 @@ let currentColRect, nextColRect;
 let totalRowGrow = 0;
 let totalColGrow = 0;
 
+let visible = false;
+
 const MIN_WIDTH_COL = 100;
 const MIN_HEIGHT_ROW = 80;
 
@@ -49,6 +51,7 @@ function handleMouseDown() {
 function handleMouseUp(event) {
     if (isDragging) {
         isDragging = false;
+        visible = false;
     }
 }
 
@@ -60,8 +63,10 @@ function handleMouseMove(event) {
 
             const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
 
-            const prevGrow = map(y, top, bottom, 0, totalRowGrow);
-            const nextGrow = map(y, bottom, top, 0, totalRowGrow);
+            const prevGrow = Math.round(map(y, top, bottom, 0, totalRowGrow) * 100) / 100;
+            const nextGrow = Math.round(map(y, bottom, top, 0, totalRowGrow) * 100) / 100;
+
+            visible = prevGrow === nextGrow;
             
             currentLayout.update((current) => {
                 const updated = {
@@ -79,8 +84,10 @@ function handleMouseMove(event) {
             const right = nextColRect.right;
 
             const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-            const prevGrow = map(x, left, right, 0, totalColGrow);
-            const nextGrow = map(x, right, left, 0, totalColGrow);
+            const prevGrow = Math.round(map(x, left, right, 0, totalColGrow) * 100) / 100;
+            const nextGrow = Math.round(map(x, right, left, 0, totalColGrow) * 100) / 100;
+
+            visible = prevGrow === nextGrow;
 
             currentLayout.update((current) => {
                 const updated = {
@@ -106,7 +113,7 @@ function handleMouseMove(event) {
 </script>
 
 <div class="resizer resizer--{direction}">
-    <div class="resizer-hover" on:mousedown={handleMouseDown}></div>
+    <div class="resizer-hover {visible ? "visible" : ""}" on:mousedown={handleMouseDown}></div>
 </div>
 
 <svelte:body on:mouseup={handleMouseUp} on:mousemove={handleMouseMove} />
@@ -120,7 +127,25 @@ function handleMouseMove(event) {
     position: absolute;
     z-index: 999;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     /* background: rgba(255, 0, 0, 0.5); */
+}
+
+.resizer-hover:before {
+    content: '';
+
+    width: 2px;
+    height: 100%;
+
+    background-color: blue;
+    opacity: 0;
+}
+
+.resizer-hover.visible:before {
+    opacity: 1;
 }
 
 .resizer--horizontal {
@@ -134,6 +159,11 @@ function handleMouseMove(event) {
     left: 0;
 
     cursor: ns-resize;
+}
+
+.resizer--horizontal .resizer-hover:before {
+    width: 100%;
+    height: 2px;
 }
 
 .resizer--vertical {
