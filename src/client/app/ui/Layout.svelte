@@ -73,13 +73,4 @@ function addRow() {
     flex-grow: 1;
 }
 
-.nav {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 1px;
-    flex-grow: 0;
-    height: 24px;
-}
-
 </style>

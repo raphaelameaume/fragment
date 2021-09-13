@@ -26,11 +26,11 @@ export let node;
 }
 
 .column:not(:last-child) {
-  border-right: 1px solid #0E0E0E;
+    border-right: 1px solid #0E0E0E;
 }
 
 .column:not(:first-child) {
-  border-left: 1px solid #0E0E0E;
+    border-left: 1px solid #0E0E0E;
 }
 
 .header {
@@ -47,20 +47,24 @@ export let node;
 }
 
 .container {
-    /* overflow-y: scroll; */
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
+    width: 100%;
 }
 
 .container::-webkit-scrollbar {
-  width: 5px;               /* width of the entire scrollbar */
+    width: 5px;               /* width of the entire scrollbar */
 }
 
 .container::-webkit-scrollbar-track {
-  background: transparent;        /* color of the tracking area */
+    background: transparent;        /* color of the tracking area */
 }
 
 .container::-webkit-scrollbar-thumb {
-  background-color: rgb(174, 174, 185);    /* color of the scroll thumb */
-  border-radius: 20px;       /* roundness of the scroll thumb */
+    background-color: rgb(174, 174, 185);    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
 }
 </style>

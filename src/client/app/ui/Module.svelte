@@ -1,19 +1,29 @@
 <script>
 export let name;
+export let grow;
 export let container;
+
+console.log({ grow });
 
 </script>
 
-<div class="module module--{name}">
-    <header class="module__header">
-        <h3 class="module__title">{name}</h3>
-    </header>
+<div class="module module--{name}" style="flex: {grow}">
+    {#if name}
+        <header class="module__header">
+            <h3 class="module__title">{name}</h3>
+        </header>
+    {/if}
     <div class="module__container" bind:this={container}>
         <slot></slot>
     </div>
 </div>
 
 <style>
+.module {
+    display: flex;
+    flex-direction: column;
+}
+
 .module__header {
     display: flex;
     height: 20px;
@@ -27,6 +37,11 @@ export let container;
     color: white;
     font-size: 10px;
     text-transform: capitalize;
+}
+
+.module__container {
+    display: flex;
+    flex-grow: 1;
 }
 
 </style>

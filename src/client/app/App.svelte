@@ -79,6 +79,11 @@ async function start() {
   height: 100%;
 }
 
+:global(:root) {
+    --fontFamily: "Inter", system-ui, sans-serif;
+    --backgroundColor: #242425;
+}
+
 :global(body) {
     position: relative;
 
@@ -87,9 +92,9 @@ async function start() {
 
     margin: 0;
     padding: 0;
-    font-family: "Inter", serif;
+    font-family: var(--fontFamily);
 
-    background-color: #242425;
+    background-color: var(--backgroundColor);
     overscroll-behavior: none;
 }
 
