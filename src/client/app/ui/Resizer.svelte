@@ -34,10 +34,10 @@ function handleMouseDown() {
     if (!isDragging) {
         isDragging = true;
 
-        currentRowRect = currentRow.$element.getBoundingClientRect();
-        nextRowRect = nextRow.$element.getBoundingClientRect();
+        currentRowRect = currentRow && currentRow.$element.getBoundingClientRect();
+        nextRowRect = nextRow && nextRow.$element.getBoundingClientRect();
 
-        totalRowGrow = currentRow.grow + nextRow.grow;
+        totalRowGrow = (currentRow ? currentRow.grow : 0) + (nextRow ? nextRow.grow : 0);
 
         if (direction === DIRECTIONS.VERTICAL && currentCol && nextCol) {
             totalColGrow = currentCol.grow + nextCol.grow;
@@ -140,7 +140,7 @@ function handleMouseMove(event) {
     width: 2px;
     height: 100%;
 
-    background-color: blue;
+    background-color: #177bd0;
     opacity: 0;
 }
 
