@@ -13,6 +13,7 @@ export let step = 0.1;
 export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
+export let controlled = false;
 
 let node;
 let isFocused = false;
@@ -38,12 +39,6 @@ function composeValue(v) {
 $: currentValue = value;
 $: composedValue = composeValue(currentValue);
 
-$: {
-    if (isFocused) {
-        update(composedValue);
-    }
-}
-
 function onKeyDown(event) {
     if ([38, 40].includes(event.keyCode)) {
         event.preventDefault();
@@ -52,15 +47,22 @@ function onKeyDown(event) {
         const direction = event.keyCode === 38 ? 1 : -1;
         const newValue = sanitize(composedValue) + direction * diff;
 
-        dispatch('change', newValue);
+        if (!controlled) {
+            currentValue = newValue;
+        } else {
+            dispatch('change', newValue);
+        }
     }
 }
 
 function onKeyPress(event) {
     if (event.key === 'Enter') {
-        const sanitizedValue = sanitize(event.currentTarget.value);
-
-        dispatch('change', sanitizedValue);
+        if (!controlled) {
+            currentValue = sanitize(event.currentTarget.value);
+            composedValue = composeValue(currentValue);
+        } else {
+            dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value))));
+        }
     }
 }
 

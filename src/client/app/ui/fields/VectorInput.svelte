@@ -4,6 +4,8 @@ import NumberInput from "./NumberInput.svelte";
 
 export let value;
 export let suffix;
+export let min = -Infinity;
+export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
 export let onChange = () => {};
@@ -25,10 +27,12 @@ function onValueChange(index, newValue) {
     });
 
     currentValue = updated;
+
+    console.log("onValueChange", index, currentValue.map(v => v.value));
 }
 
 </script>
 
 {#each currentValue as curr, index}
-    <NumberInput step={step} label={curr.label} suffix={suffix} value={curr.value} on:change={(event) => onValueChange(index, event.detail)} />
+    <NumberInput controlled={true} min={min} max={max} step={step} label={curr.label} suffix={suffix} value={curr.value} on:change={(event) => onValueChange(index, event.detail)} />
 {/each}
