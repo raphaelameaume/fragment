@@ -62,14 +62,14 @@ function onKeyPress(event) {
     }
 }
 
+const hasProgress = isFinite(min) && isFinite(max);
+
 </script>
 
-<div class="container">
-    {#if (isFinite(min) && isFinite(max))}
+<div class="container {hasProgress ? "container--progress": ""}">
+    {#if hasProgress}
         <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={(event) => currentValue = event.detail} />
     {/if}
-    <div class="container">
-        
         <Input 
             class="input"
             bind:this={node}
@@ -83,11 +83,17 @@ function onKeyPress(event) {
             autocomplete="off"
             spellcheck="false"
         />
-    </div>
 </div>
 
 <style>
 .container {
     position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: var(--columnGap);
+}
+
+.container--progress {
+    grid-template-columns: 1fr 0.5fr;
 }
 </style>

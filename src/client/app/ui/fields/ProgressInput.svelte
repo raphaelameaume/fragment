@@ -48,13 +48,12 @@ function handleMouseUp() {
 .progress {
     position: relative;
     
-    padding: 0 10px;
     width: 100%;
     height: var(--inputHeight);
     border-radius: var(--borderRadius);
-    border: var(--borderWidth) solid var(--borderColor);
+    box-shadow: inset 0 0 0 1px var(--borderColor);
 
-    background: #1d1d1e;
+    background: var(--backgroundColor);
     cursor: ew-resize;
 }
 
@@ -62,20 +61,22 @@ function handleMouseUp() {
     box-shadow: inset 0 0 0 1px var(--activeColor);
 }
 
+.progress:focus-within {
+    box-shadow: 0 0 0 2px var(--activeColor);
+}
+
 .fill {
     position: absolute;
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
+    left: 3px;
+    top: 3px;
+    bottom: 3px;
+    right: 3px;
 
     background: grey;
-    transform: scaleX(0.5);
     transform-origin: 0 50%;
-    border-radius: 2px;
+    border-radius: calc(var(--borderRadius) * 0.5);
 
-    background-color: #448eea;
+    background-color: var(--activeColor);
 }
 
 </style>

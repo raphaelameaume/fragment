@@ -59,6 +59,24 @@ function onValueChange(index, newValue) {
 
 </script>
 
+<div class="vector-container vec{currentValue.length}">
 {#each currentValue as curr, index}
     <NumberInput controlled={true} min={min} max={max} step={step} label={curr.label} suffix={suffix} value={curr.value} on:change={(event) => onValueChange(index, event.detail)} />
 {/each}
+</div>
+
+<style>
+.vector-container {
+    display: grid;
+    column-gap: var(--columnGap);
+}
+
+.vector-container.vec2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.vector-container.vec3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+</style>

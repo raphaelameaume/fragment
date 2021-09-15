@@ -28,24 +28,64 @@ function onChangeText(event) {
 
 </script>
 
-<div>
-    <div class="mirror" style="background-color: {textValue}">
-        <!-- svelte-ignore -->
-        <input class="input" type="color" value={inputValue} on:change={handleChangeColor} />
+<div class="color-input">
+    <div class="layout">
+        <div class="mirror" style="--backgroundColor: {textValue}">
+            <!-- svelte-ignore -->
+            <input class="input" type="color" value={inputValue} on:change={handleChangeColor} />
+        </div>
+        <TextInput value={textValue} on:input={onChangeText} on:change={onChangeText} />
     </div>
-    <TextInput value={textValue} on:input={onChangeText} on:change={onChangeText} />
     {#if hasAlpha }
         <Field name="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}}></Field>
     {/if }
 </div>
 
 <style>
+.color-input {
+    position: relative;
+}
+
+.layout {
+    display: grid;
+    column-gap: var(--columnGap);
+    grid-template-columns: 0.35fr 0.65fr;
+}
+
+.mirror {
+    position: relative;
+    
+    height: var(--inputHeight);
+
+    border-radius: var(--borderRadius);
+    box-shadow: inset 0 0 0 1px var(--borderColor);
+}
+
+.mirror:before {
+    --gap: 1px;
+
+    content: '';
+    position: absolute;
+    top: var(--gap);
+    left: var(--gap);
+    right: var(--gap);
+    bottom: var(--gap);
+
+    background-color: var(--backgroundColor);
+    border-radius: calc(var(--borderRadius) * 0.5);
+}
+
+.mirror:hover {
+    box-shadow: inset 0 0 0 1px var(--activeColor);
+}
+
 .input {
     width: 100%;
-    height: 100%;
+    height: 50%;
     opacity: 0;
     cursor: pointer;
-    opacity: 0.5;
+    background: transparent;
+    border: none;
 }
 
 </style>

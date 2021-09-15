@@ -42,6 +42,7 @@ $: test = 1200;
         value={[
             { label: "x", value: 10 },
             { label: "y", value: 10 },
+            { label: "z", value: 10 },
         ]}
         on:change={handleChangeDimensions}
         params={{
@@ -52,7 +53,7 @@ $: test = 1200;
     />
     <Field
         name="color"
-        value={"rgba(255, 255, 255, 0.5)"}
+        value={"rgb(255, 255, 255)"}
     />
     <Field
         name="text"

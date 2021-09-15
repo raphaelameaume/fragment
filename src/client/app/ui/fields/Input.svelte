@@ -32,9 +32,14 @@ let el;
 .container {
     position: relative;
 
+    display: flex;
+    height: var(--inputHeight);
+
     border-radius: var(--borderRadius);
     background-color: var(--backgroundColor);
     box-shadow: inset 0 0 0 1px var(--borderColor);
+
+    margin-right: calc(var(--padding));
 }
 
 .container:hover {
@@ -60,20 +65,28 @@ let el;
     font-family: var(--fontFamily);
     font-weight: 600;
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.35;
 }
 
 .input {
     width: 100%;
-    height: var(--inputHeight);
+    height: 100%;
     padding: 0 var(--padding);
 
-    color: var(--color);
+    color: rgba(255, 255, 255, 0.5);
     font-size: var(--fontSize);
     text-align: right;
 
     background: transparent;
     outline: 0;
+}
+
+:global(.field:hover .container .input) {
+    color: var(--color);
+}
+
+input:focus {
+    color: var(--color);
 }
 
 /* .input:focus {

@@ -71,13 +71,13 @@ let input = fields[type];
     grid-template-columns: 0.5fr 1fr;
     column-gap: 20px;
     width: 100%;
-    justify-content: space-around;
-    align-items: center;
+    margin: 6px 0;
 
+    --columnGap: 3px;
     --inputHeight: 20px;
     --padding: 6px;
     --activeColor: #177bd0;
-    --borderRadius: 2px;
+    --borderRadius: 3px;
     --borderWidth: 1px;
     --borderColor: #000000;
     --backgroundColor: #1d1d1e;
@@ -86,8 +86,14 @@ let input = fields[type];
     --color: #f0f0f0;
 }
 
+:global(.field__input .field:last-child) {
+    margin-bottom: 0;
+}
+
 .field__infos {
-    flex: 0.75;
+    display: flex;
+    align-items: center;
+    padding-left: calc(var(--padding) * 2);
 }
 
 .field__label {
@@ -95,12 +101,15 @@ let input = fields[type];
     font-size: var(--fontSize);
     font-family: var(--fontFamily);
     user-select: none;
+
+    opacity: 0.5;
+    transition: opacity 0.1s ease; 
+}
+
+.field:hover .field__label, .field:focus-within .field__label {
+    opacity: 1;
 }
 
 .field__input {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    flex: 1;
 }
 </style>

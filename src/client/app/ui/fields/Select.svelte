@@ -19,28 +19,46 @@ function handleClick() {
 
 <style>
 .container {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    height: var(--inputHeight);
+    position: relative;
 
-    border: var(--borderWidth) solid var(--borderColor);
+    display: flex;
+    height: var(--inputHeight);
+    margin-right: var(--padding);
+
+    box-shadow: inset 0 0 0 1px var(--borderColor);
     border-radius: var(--borderRadius);
     background-color: var(--backgroundColor);
 
     cursor: pointer;
 }
 
-.select {
-    padding: 0 4px 0 8px;
+.container:hover {
+    box-shadow: inset 0 0 0 1px var(--activeColor);
+}
 
-    color: white;
+.container:focus-within {
+    box-shadow: 0 0 0 2px var(--activeColor);
+}
+
+.select {
+    padding: 0 var(--padding) 0 var(--padding);
+
+    width: 100%;
+    color: rgba(255, 255, 255, 0.5);
     font-size: var(--fontSize);
     font-family: var(--fontFamily);
 
     outline: 0;
     background-color: transparent;
     cursor: pointer;
+}
+
+:global(.field:hover .select) {
+    color: var(--color);
+}
+
+.select:focus {
+    color: var(--color);
 }
 
 </style>
