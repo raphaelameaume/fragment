@@ -1,6 +1,7 @@
 <script>
 import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
+import ButtonInput from "../ui/fields/ButtonInput.svelte";
 
 $: screen = [0, 0];
 $: normalized = [screen[0] / window.innerWidth, screen[1] / window.innerHeight];
@@ -8,6 +9,10 @@ $: ortho = [normalized[0] * 2 - 1, normalized[1] * 2 - 1];
 
 function handleMouseMove(event) {
     screen = [event.clientX, event.clientY];
+}
+
+function handleClickClear(event) {
+
 }
 
 </script>
@@ -54,5 +59,7 @@ function handleMouseMove(event) {
         params={{
             disabled: false
         }}
-    />
+    >
+        <ButtonInput slot="input" label={"Clear"} on:click={handleClickClear} />
+    </Field>
 </Module>

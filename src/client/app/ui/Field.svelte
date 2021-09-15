@@ -81,9 +81,11 @@ $: {
 <div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
     <div class="field__infos">
         <label class="field__label" for={name}>{name}</label>
+        <slot name="infos"></slot>
     </div>
     <div class="field__input">
         <svelte:component this={input} value={value} {...params} on:change />
+        <slot name="input"></slot>
     </div>
 </div>
 
@@ -149,6 +151,7 @@ $: {
 
 .field__input {
     display: flex;
+    flex-direction: column;
     align-items: center;
 }
 </style>

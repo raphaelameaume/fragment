@@ -21,9 +21,9 @@ export let value;
 .list {
     display: flex;
     width: 100%;
-    height: 60px;
+    height: 80px;
     margin-right: var(--padding);
-    padding: 1px;
+    padding: 1px 0;
 
     background-color: var(--backgroundColor);
     border-radius: var(--borderRadius);
@@ -53,20 +53,12 @@ export let value;
     border-radius: 20px;       /* roundness of the scroll thumb */
 }
 
-.list:not(.disabled):hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
-}
-
-.list:not(.disabled):focus-within {
-    box-shadow: 0 0 0 2px var(--activeColor);
-}
-
 .item {
     display: flex;
     width: 100%;
 
     margin: 0;
-    padding: 0;
+    padding: 0 3px;
     color: var(--color);
     font-size: 10px;
     font-family: var(--fontFamily);
@@ -82,8 +74,16 @@ export let value;
     text-align: left;
 }
 
+.list:not(.disabled) .label:hover {
+    box-shadow: inset 0 0 0 1px var(--activeColor);
+}
+
+.list:not(.disabled) .label:active {
+    box-shadow: 0 0 0 2px var(--activeColor);
+}
+
 .item:hover {
-    background-color: #0E0E0E;
+    /* background-color: #0E0E0E; */
     opacity: 1;
 }
 
