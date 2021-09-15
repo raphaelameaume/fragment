@@ -10,14 +10,15 @@ export const defaultLayouts = [
                         {
                             grow: 2,
                             modules: [
-                                { name: "output-monitor", grow: 1 },
+                                { name: "monitor", grow: 1 },
                             ]
                         }, {
                             grow: 1,
                             modules: [
-                                { name: "output-params" },
-                                { name: "stage-selector" },
-                                { name: "stage-params" },
+                                { name: "mouse" },
+                                { name: "params" },
+                                { name: "midi" },
+                                { name: "keyboard" },
                             ]
                         }
                     ]
