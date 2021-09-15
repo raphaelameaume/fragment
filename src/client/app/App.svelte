@@ -113,7 +113,9 @@ async function start() {
     width: 100%;
     height: 100%;
     flex-direction: column;
+    overflow: hidden;
 }
+
 
 :global(ul, ol) {
   list-style: none;
@@ -135,5 +137,7 @@ async function start() {
 
 :global(h1, h2, h3, h4, h5) {
     font-weight: 400;
+    margin: 0;
+    padding: 0;
 }
 </style>
