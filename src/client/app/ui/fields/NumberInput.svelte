@@ -1,5 +1,5 @@
 <script>
-import { beforeUpdate, afterUpdate, createEventDispatcher } from "svelte";
+import { createEventDispatcher } from "svelte";
 import { clamp } from "lemonade-math";
 import Keyboard from "../../inputs/Keyboard.js";
 
@@ -21,12 +21,6 @@ const dispatch = createEventDispatcher();
 
 function sanitize(v) {
     return suffix !== "" ? Number(v.split(suffix)[0]) : Number(v);
-}
-
-function update(v) {
-    const sanitizedValue = sanitize(v);
-
-    dispatch('change', sanitizedValue);
 }
 
 function composeValue(v) {
