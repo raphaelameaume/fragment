@@ -3,6 +3,8 @@ import { clamp } from "lemonade-math";
 import { onMount, beforeUpdate, afterUpdate } from "svelte";
 import Module from "../ui/Module.svelte";
 import { current as currentRendering } from "../stores/rendering.js";
+import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
+import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
 export let name = "monitor";
 export let grow;
@@ -48,11 +50,34 @@ if ($currentRendering.monitors === 0) {
 </script>
 
 <Module name={name} grow={grow}>
+    <div class="header__left" slot="header-left">
+        <ModuleHeaderSelect value={"output"} options={[
+            { value: "sketch1", label: "sketch1.js" },
+            { value: "sketch2", label: "sketch2.js" },
+            { value: "output", label: "output" },
+        ]} />
+        <ModuleHeaderAction label="Pause">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.25 6.75V17.25"></path>
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.75 6.75V17.25"></path>
+            </svg>
+        </ModuleHeaderAction>
+        <ModuleHeaderAction label="Open in another window">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.25 17.25H6.75C5.64543 17.25 4.75 16.3546 4.75 15.25V6.75C4.75 5.64543 5.64543 4.75 6.75 4.75H17.25C18.3546 4.75 19.25 5.64543 19.25 6.75V9.25"></path>
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.75 13.75C10.75 13.1977 11.1977 12.75 11.75 12.75H18.25C18.8023 12.75 19.25 13.1977 19.25 13.75V18.25C19.25 18.8023 18.8023 19.25 18.25 19.25H11.75C11.1977 19.25 10.75 18.8023 10.75 18.25V13.75Z"></path>
+            </svg>
+        </ModuleHeaderAction>
+    </div>
     <div class="canvas__container" bind:this={container} bind:offsetWidth={offsetWidth} bind:offsetHeight={offsetHeight}>
     </div>
 </Module>
 
 <style>
+.header__left {
+    display: flex;
+}
+
 .canvas__container {
     position: relative;
     display: flex;

@@ -57,7 +57,7 @@ function handleClickClear(event) {
         ]}
         type="list"
         params={{
-            disabled: false
+            disabled: true
         }}
     >
         <ButtonInput slot="input" label={"Clear"} on:click={handleClickClear} />
