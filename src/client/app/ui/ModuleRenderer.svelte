@@ -1,6 +1,7 @@
 <script>
 import Monitor from "../modules/Monitor.svelte";
 import OutputMonitor from "../modules/OutputMonitor.svelte";
+import OutputParams from "../modules/OutputParams.svelte";
 import StageSelector from "../modules/StageSelector.svelte";
 
 export let module;
@@ -8,7 +9,8 @@ export let module;
 const moduleList = {
     "monitor": Monitor,
     "stage-selector": StageSelector,
-    "output-monitor": OutputMonitor
+    "output-monitor": OutputMonitor,
+    "output-params": OutputParams,
 };
 
 const component = moduleList[module.name];

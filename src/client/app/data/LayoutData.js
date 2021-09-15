@@ -1,6 +1,31 @@
 export const savedLayouts = [];
 export const defaultLayouts = [
     {
+        name: "Single",
+        data: {
+            rows: [
+                {
+                    grow: 1,
+                    cols: [
+                        {
+                            grow: 2,
+                            modules: [
+                                { name: "output-monitor", grow: 1 },
+                            ]
+                        }, {
+                            grow: 1,
+                            modules: [
+                                { name: "output-params" },
+                                { name: "stage-selector" },
+                                { name: "stage-params" },
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
         name: "VJ",
         data: {
             rows: [

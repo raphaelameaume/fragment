@@ -1,34 +1,46 @@
 <script>
-export let params = {
-    options: []
-};
-export let onChange;
+export let options = [];
 
-let { options } = params;
+let node;
+
+function handleClick() {
+    node.click();
+}
 
 </script>
 
-<select class="select">
-    {#each options as option}
-        <option value={option.value}>{option.label}</option>
-    {/each}
-</select>
+<div class="container" on:click={handleClick}>
+    <select class="select" bind:this={node}>
+        {#each options as option}
+            <option value={option.value}>{option.label}</option>
+        {/each}
+    </select>
+</div>
 
 <style>
-.select {
-    -webkit-appearance: none;
+.container {
+    display: flex;
+    justify-content: flex-end;
     width: 100%;
-    height: 20px;
+    height: var(--inputHeight);
+
+    border: var(--borderWidth) solid var(--borderColor);
+    border-radius: var(--borderRadius);
+    background-color: var(--backgroundColor);
+
+    cursor: pointer;
+}
+
+.select {
     padding: 0 4px 0 8px;
 
     color: white;
-    font-size: 10px;
-    font-family: "Inter", system-ui, sans-serif;
+    font-size: var(--fontSize);
+    font-family: var(--fontFamily);
 
-    border: 1px solid #0E0E0E;
-    border-radius: 3px;
     outline: 0;
-    background-color: #4a4a4a;
+    background-color: transparent;
+    cursor: pointer;
 }
 
 </style>

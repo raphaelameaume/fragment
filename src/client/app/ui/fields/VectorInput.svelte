@@ -1,5 +1,5 @@
 <script>
-import { beforeUpdate, afterUpdate } from "svelte";
+import { createEventDispatcher } from "svelte";
 import NumberInput from "./NumberInput.svelte";
 
 export let value;
@@ -8,10 +8,36 @@ export let min = -Infinity;
 export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
-export let onChange = () => {};
 
-let previousValue = [...value];
-let currentValue = [...value];
+function sanitize(value, type) {
+    if (Array.isArray(value)) {
+        return value.reduce((all, v, index) => {
+            if (typeof v === "number") {
+                all[index] = {
+                    value: v,
+                    label: ""
+                }
+            } else {
+                all[index] = v;
+            }
+
+            return all;
+        }, []);
+    } else {
+        return Object.keys(value).map((key) => {
+            return { label: key, value: value[key] }
+        });
+    }
+}
+
+function desanitize(updated) {
+    return updated;
+}
+
+let previousValue = sanitize(value);
+let currentValue = sanitize(value);
+
+const dispatch = createEventDispatcher();
 
 function onValueChange(index, newValue) {
     const prevValue = previousValue[index].value;
@@ -28,7 +54,7 @@ function onValueChange(index, newValue) {
 
     currentValue = updated;
 
-    console.log("onValueChange", index, currentValue.map(v => v.value));
+    dispatch("change", desanitize(updated));
 }
 
 </script>

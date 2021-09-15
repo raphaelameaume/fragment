@@ -10,7 +10,6 @@ async function loadRenderer(renderer) {
 };
 
 async function start() {
-    console.log("App :: start");
     const { init, resize, update, render } = await loadRenderer(rendering);
 
     init();
@@ -124,6 +123,14 @@ async function start() {
 
 :global(*) {
     box-sizing: border-box;
+}
+
+:global(input, select, button) {
+  -webkit-appearance: none;
+  padding: 0;
+  margin: 0;
+  border: none;
+  font-family: var(--fontFamily);
 }
 
 :global(h1, h2, h3, h4, h5) {

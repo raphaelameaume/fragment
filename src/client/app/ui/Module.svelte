@@ -3,8 +3,6 @@ export let name;
 export let grow;
 export let container;
 
-console.log({ grow });
-
 </script>
 
 <div class="module module--{name}" style="flex: {grow}">
@@ -42,6 +40,7 @@ console.log({ grow });
 .module__container {
     display: flex;
     flex-grow: 1;
+    flex-direction: column;
 }
 
 </style>

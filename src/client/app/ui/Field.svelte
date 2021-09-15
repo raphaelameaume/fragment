@@ -1,12 +1,16 @@
 <script>
+import { colord } from "colord";
+
 import Select from "./fields/Select.svelte";
 import NumberInput from "./fields/NumberInput.svelte";
+import CheckboxInput from "./fields/CheckboxInput.svelte";
 import Vec2Input from "./fields/Vec2Input.svelte";
 import Vec3Input from "./fields/Vec3Input.svelte";
+import TextInput from "./fields/TextInput.svelte";
+import ColorInput from "./fields/ColorInput.svelte";
 
 export let value;
 export let name;
-export let onChange = () => {};
 export let params = {};
 
 const fields = {
@@ -14,6 +18,9 @@ const fields = {
     "number": NumberInput,
     "vec2": Vec2Input,
     "vec3": Vec3Input,
+    "checkbox": CheckboxInput,
+    "text": TextInput,
+    "color": ColorInput
 };
 
 function inferFromParams() {
@@ -27,6 +34,12 @@ function inferFromParams() {
 function inferFromValue() {
     if (typeof value === "number") {
         return "number";
+    } else if (typeof value === "boolean") {
+        return "checkbox";
+    } else if (typeof value === "string") {
+        if (colord(value).parsed) return "color";
+
+        return "text";
     } else if (Array.isArray(value) && value.length === 2) {
         return "vec2";
     } else if (Array.isArray(value) && value.length === 3) {
@@ -38,63 +51,50 @@ function inferFromValue() {
     }
 }
 
-function sanitize(value, type) {
-    if (type === "vec2" || type === "vec3") {
-        if (Array.isArray(value)) {
-            return value.reduce((all, v, index) => {
-                if (typeof v === "number") {
-                    all[index] = {
-                        value: v,
-                        label: ""
-                    }
-                } else {
-                    all[index] = v;
-                }
-
-                return all;
-            }, []);
-        } else if (typeof value === "object") {
-            return Object.keys(value).map((key) => {
-                return { label: key, value: value[key] }
-            });
-        }
-    }
-
-    return value;
-}
-
 let type = inferFromParams() || inferFromValue();
 let input = fields[type];
-let sanitizedValue = sanitize(value, type);
-
-console.log(params);
 
 </script>
 
 <div class="field">
-    <div class="field__name">
-        <span class="field__text">{name}</span>
+    <div class="field__infos">
+        <label class="field__label" for={name}>{name}</label>
     </div>
     <div class="field__input">
-        <svelte:component this={input} value={sanitizedValue} on:change={onChange} {...params} />
+        <svelte:component this={input} value={value} {...params} on:change />
     </div>
 </div>
 
 <style>
 .field {
-    display: flex;
+    display: grid;
+    grid-template-columns: 0.5fr 1fr;
+    column-gap: 20px;
     width: 100%;
     justify-content: space-around;
     align-items: center;
+
+    --inputHeight: 20px;
+    --padding: 6px;
+    --activeColor: #177bd0;
+    --borderRadius: 2px;
+    --borderWidth: 1px;
+    --borderColor: #000000;
+    --backgroundColor: #1d1d1e;
+    --fontSize: 11px;
+    --fontFamily: "Jetbrains Mono";
+    --color: #f0f0f0;
 }
 
-.field__name {
+.field__infos {
     flex: 0.75;
 }
 
-.field__text {
+.field__label {
     color: #f0f0f0;
-    font-size: 12px;
+    font-size: var(--fontSize);
+    font-family: var(--fontFamily);
+    user-select: none;
 }
 
 .field__input {
@@ -102,6 +102,5 @@ console.log(params);
     flex-wrap: wrap;
     justify-content: flex-end;
     flex: 1;
-    padding-right: 4px;
 }
 </style>

@@ -1,5 +1,7 @@
 <script>
 import { createEventDispatcher } from "svelte";
+import ProgressInput from "./ProgressInput.svelte";
+import Input from "./Input.svelte";
 import { clamp } from "lemonade-math";
 import Keyboard from "../../inputs/Keyboard.js";
 
@@ -9,7 +11,7 @@ function round(value, step) {
 
 export let value;
 export let label;
-export let step = 0.1;
+export let step = 1;
 export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
@@ -39,7 +41,7 @@ function onKeyDown(event) {
 
         const diff = Keyboard.getStepFromEvent(event);
         const direction = event.keyCode === 38 ? 1 : -1;
-        const newValue = sanitize(composedValue) + direction * diff;
+        const newValue = sanitize(composedValue) + direction * (diff);
 
         if (!controlled) {
             currentValue = newValue;
@@ -63,44 +65,29 @@ function onKeyPress(event) {
 </script>
 
 <div class="container">
-    {#if label }
-        <span class="label">{label}</span>
+    {#if (isFinite(min) && isFinite(max))}
+        <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={(event) => currentValue = event.detail} />
     {/if}
-    <input
-        class="input"
-        bind:this={node}
-        type="text"
-        on:keypress={onKeyPress}
-        on:keydown={onKeyDown}
-        on:focus={() => isFocused = true}
-        on:blur={() => isFocused = false}
-        value={composedValue}
-        autocomplete="off"
-        spellcheck="false"
-    />
+    <div class="container">
+        
+        <Input 
+            class="input"
+            bind:this={node}
+            type="text"
+            label={label}
+            on:keypress={onKeyPress}
+            on:keydown={onKeyDown}
+            on:focus={() => isFocused = true}
+            on:blur={() => isFocused = false}
+            value={composedValue}
+            autocomplete="off"
+            spellcheck="false"
+        />
+    </div>
 </div>
 
 <style>
 .container {
     position: relative;
-}
-
-.label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-
-    display: flex;
-    align-items: center;
-    padding: 5px;
-
-    font-size: 10px;
-    font-weight: 600;
-    pointer-events: none;
-}
-
-.input {
-    text-align: right;
 }
 </style>
