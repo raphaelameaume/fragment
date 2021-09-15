@@ -8,10 +8,12 @@ import Vec2Input from "./fields/Vec2Input.svelte";
 import Vec3Input from "./fields/Vec3Input.svelte";
 import TextInput from "./fields/TextInput.svelte";
 import ColorInput from "./fields/ColorInput.svelte";
+import ListInput from "./fields/ListInput.svelte";
 
 export let value;
 export let name;
 export let params = {};
+export let type = inferFromParams() || inferFromValue();
 
 const fields = {
     "select": Select,
@@ -20,6 +22,7 @@ const fields = {
     "vec3": Vec3Input,
     "checkbox": CheckboxInput,
     "text": TextInput,
+    "list": ListInput,
     "color": ColorInput
 };
 
@@ -51,7 +54,6 @@ function inferFromValue() {
     }
 }
 
-let type = inferFromParams() || inferFromValue();
 let input = fields[type];
 
 let offsetWidth;
@@ -76,7 +78,7 @@ $: {
 
 </script>
 
-<div class="field {sizeClassName}" bind:offsetWidth={offsetWidth}>
+<div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
     <div class="field__infos">
         <label class="field__label" for={name}>{name}</label>
     </div>
@@ -118,10 +120,17 @@ $: {
     padding-bottom: 0px !important;
 }
 
+.field.disabled {
+    pointer-events: none;
+}
+
+:global(.field.disabled .input) {
+    opacity: 0.4;
+}
+
 .field__infos {
     display: flex;
     align-items: center;
-    
 }
 
 .field__label {
