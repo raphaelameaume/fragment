@@ -1,16 +1,18 @@
 <script>
 import Monitor from "../modules/Monitor.svelte";
-import OutputMonitor from "../modules/OutputMonitor.svelte";
-import OutputParams from "../modules/OutputParams.svelte";
-import StageSelector from "../modules/StageSelector.svelte";
+import Params from "../modules/Params.svelte";
+import MousePanel from "../modules/MousePanel.svelte";
+import MidiPanel from "../modules/MidiPanel.svelte";
+import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 
 export let module;
 
 const moduleList = {
     "monitor": Monitor,
-    "stage-selector": StageSelector,
-    "output-monitor": OutputMonitor,
-    "output-params": OutputParams,
+    "params": Params,
+    "mouse": MousePanel,
+    "midi": MidiPanel,
+    "keyboard": KeyboardPanel
 };
 
 const component = moduleList[module.name];
