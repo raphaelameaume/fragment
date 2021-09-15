@@ -14,7 +14,7 @@ if (color.toRgbString().includes("rgba")) {
     alpha = color.alpha();
 }
 
-$: textValue = color.toHex();
+$: textValue = hasAlpha ? colord(`rgb(${color.rgba.r}, ${color.rgba.g}, ${color.rgba.b})`).toHex() : color.toHex();
 $: inputValue = colord(textValue).toHex();
 
 function handleChangeColor() {
@@ -24,7 +24,6 @@ function handleChangeColor() {
 function onChangeText(event) {
     textValue = event.currentTarget.value;
 }
-
 
 </script>
 
@@ -44,12 +43,14 @@ function onChangeText(event) {
 <style>
 .color-input {
     position: relative;
+    width: 100%;
 }
 
 .layout {
     display: grid;
     column-gap: var(--columnGap);
     grid-template-columns: 0.35fr 0.65fr;
+    align-items: center;
 }
 
 .mirror {
@@ -81,7 +82,7 @@ function onChangeText(event) {
 
 .input {
     width: 100%;
-    height: 50%;
+    height: 100%;
     opacity: 0;
     cursor: pointer;
     background: transparent;

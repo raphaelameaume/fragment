@@ -68,6 +68,7 @@ function onValueChange(index, newValue) {
 <style>
 .vector-container {
     display: grid;
+    width: 100%;
     column-gap: var(--columnGap);
 }
 
@@ -75,8 +76,20 @@ function onValueChange(index, newValue) {
     grid-template-columns: 1fr 1fr;
 }
 
+:global(.xxsmall) .vector-container.vec2{
+    grid-template-columns: 1fr;
+}
+
 .vector-container.vec3 {
     grid-template-columns: 1fr 1fr 1fr;
+}
+
+:global(.xsmall) .vector-container.vec3{
+    grid-template-columns: 1fr;
+}
+
+:global(.xxsmall) .vector-container.vec3{
+    grid-template-columns: 1fr;
 }
 
 </style>

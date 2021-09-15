@@ -73,7 +73,7 @@ export const edit = () => {
     current.update((curr) => {
         return {
             ...curr,
-            editable: true,
+            editable: !curr.editable,
         };
     })
 }

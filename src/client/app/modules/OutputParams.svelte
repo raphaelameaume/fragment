@@ -27,34 +27,66 @@ $: test = 1200;
 </script>
 
 <Module name="Output Parameters">
-    <Field
-        name="dimensions"
-        value={[10, 20]}
-        on:change={handleChangeDimensions}
-        params={{
-            step: 1,
-            suffix: "px",
-            locked: true
-        }}
-    />
-    <Field
-        name="vector"
-        value={[
-            { label: "x", value: 10 },
-            { label: "y", value: 10 },
-            { label: "z", value: 10 },
-        ]}
-        on:change={handleChangeDimensions}
-        params={{
-            step: 1,
-            suffix: "px",
-            locked: true
-        }}
-    />
-    <Field
-        name="color"
-        value={"rgb(255, 255, 255)"}
-    />
+    <FieldGroup name="Layout">
+        <Field
+            name="Resolution"
+            value={[1920, 1080]}
+            on:change={handleChangeDimensions}
+            params={{
+                step: 1,
+                suffix: "px",
+                locked: true
+            }}
+        />
+        <Field
+            name="vector"
+            value={[
+                { label: "x", value: 10 },
+                { label: "y", value: 10 },
+                { label: "z", value: 10 },
+            ]}
+            on:change={handleChangeDimensions}
+            params={{
+                step: 1,
+                suffix: "px",
+                locked: true
+            }}
+        />
+        <Field
+            name="color"
+            value={"rgba(255, 255, 255, 0.5)"}
+        />
+         <FieldGroup name="Layout">
+        <Field
+            name="Resolution"
+            value={[1920, 1080]}
+            on:change={handleChangeDimensions}
+            params={{
+                step: 1,
+                suffix: "px",
+                locked: true
+            }}
+        />
+        <Field
+            name="vector"
+            value={[
+                { label: "x", value: 10 },
+                { label: "y", value: 10 },
+                { label: "z", value: 10 },
+            ]}
+            on:change={handleChangeDimensions}
+            params={{
+                step: 1,
+                suffix: "px",
+                locked: true
+            }}
+        />
+        <Field
+            name="color"
+            value={"rgba(255, 255, 255, 0.5)"}
+        />
+    </FieldGroup>
+    </FieldGroup>
     <Field
         name="text"
         value={"hello"}

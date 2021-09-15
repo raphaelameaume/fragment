@@ -66,7 +66,7 @@ const hasProgress = isFinite(min) && isFinite(max);
 
 </script>
 
-<div class="container {hasProgress ? "container--progress": ""}">
+<div class="number-input {hasProgress ? "number-input--with-progress": ""}">
     {#if hasProgress}
         <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={(event) => currentValue = event.detail} />
     {/if}
@@ -86,14 +86,20 @@ const hasProgress = isFinite(min) && isFinite(max);
 </div>
 
 <style>
-.container {
+.number-input {
     position: relative;
     display: grid;
     grid-template-columns: 1fr;
     column-gap: var(--columnGap);
+    align-items: center;
+    width: 100%;
 }
 
-.container--progress {
+.number-input--with-progress {
     grid-template-columns: 1fr 0.5fr;
+}
+
+:global(.xxsmall) .number-input--with-progress {
+    grid-template-columns: 1fr;
 }
 </style>

@@ -34,6 +34,8 @@ function handleMouseDown() {
     if (!isDragging) {
         isDragging = true;
 
+        document.body.style.userSelect = "none";
+
         currentRowRect = currentRow && currentRow.$element.getBoundingClientRect();
         nextRowRect = nextRow && nextRow.$element.getBoundingClientRect();
 
@@ -52,6 +54,7 @@ function handleMouseUp(event) {
     if (isDragging) {
         isDragging = false;
         visible = false;
+        document.body.style.userSelect = null;
     }
 }
 

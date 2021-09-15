@@ -54,9 +54,29 @@ function inferFromValue() {
 let type = inferFromParams() || inferFromValue();
 let input = fields[type];
 
+let offsetWidth;
+
+let sizes = [
+    ["small", 320],
+    ["xsmall", 260],
+    ["xxsmall", 200],
+];
+
+let sizeClassName = "";
+
+$: {
+    for (let i = 0; i < sizes.length; i++) {
+        const [name, size] = sizes[i];
+
+        if (offsetWidth < size) {
+            sizeClassName = name;
+        } 
+    }
+}
+
 </script>
 
-<div class="field">
+<div class="field {sizeClassName}" bind:offsetWidth={offsetWidth}>
     <div class="field__infos">
         <label class="field__label" for={name}>{name}</label>
     </div>
@@ -69,9 +89,12 @@ let input = fields[type];
 .field {
     display: grid;
     grid-template-columns: 0.5fr 1fr;
-    column-gap: 20px;
+    column-gap: 10px;
     width: 100%;
-    margin: 6px 0;
+
+    padding: 4px 0;
+    border-bottom: 1px solid #323233;
+    padding-left: calc(var(--padding) * 2);
 
     --columnGap: 3px;
     --inputHeight: 20px;
@@ -86,14 +109,19 @@ let input = fields[type];
     --color: #f0f0f0;
 }
 
+:global(.field__input .field) {
+    padding-left: 0px !important;
+}
+
 :global(.field__input .field:last-child) {
-    margin-bottom: 0;
+    border-bottom: 0px solid #323233 !important;
+    padding-bottom: 0px !important;
 }
 
 .field__infos {
     display: flex;
     align-items: center;
-    padding-left: calc(var(--padding) * 2);
+    
 }
 
 .field__label {
@@ -111,5 +139,7 @@ let input = fields[type];
 }
 
 .field__input {
+    display: flex;
+    align-items: center;
 }
 </style>

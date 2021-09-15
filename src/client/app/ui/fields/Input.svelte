@@ -1,6 +1,6 @@
 <script>
 export let name;
-export let label;
+export let label = null;
 export let value;
 
 let el;
@@ -34,6 +34,7 @@ let el;
 
     display: flex;
     height: var(--inputHeight);
+    margin: 2px 0;
 
     border-radius: var(--borderRadius);
     background-color: var(--backgroundColor);

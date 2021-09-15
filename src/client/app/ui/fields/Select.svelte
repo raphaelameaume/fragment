@@ -22,6 +22,7 @@ function handleClick() {
     position: relative;
 
     display: flex;
+    width: 100%;
     height: var(--inputHeight);
     margin-right: var(--padding);
 
