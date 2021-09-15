@@ -35,6 +35,7 @@ function handleMouseDown() {
         isDragging = true;
 
         document.body.style.userSelect = "none";
+        document.body.style.cursor = direction === DIRECTIONS.HORIZONTAL ? "ns-resize" : "ew-resize";
 
         currentRowRect = currentRow && currentRow.$element.getBoundingClientRect();
         nextRowRect = nextRow && nextRow.$element.getBoundingClientRect();
@@ -55,6 +56,7 @@ function handleMouseUp(event) {
         isDragging = false;
         visible = false;
         document.body.style.userSelect = null;
+        document.body.style.cursor = null;
     }
 }
 
