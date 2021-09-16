@@ -3,8 +3,7 @@ import { current as currentRendering } from "../stores/rendering.js";
 import Module from "../ui/Module.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import Field from "../ui/Field.svelte";
-
-
+import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
 let dimensions = [currentWidth, currentHeight];
 
@@ -26,7 +25,29 @@ $: test = 1200;
 
 </script>
 
-<Module name="Output Parameters">
+<Module name="Parameters">
+    <div slot="header-right">
+        <ModuleHeaderAction
+            value={"monitor"}
+            permanent
+            border
+            options={[
+                { value: "monitor", label: "monitor" },
+                { value: "output", label: "output" },
+            ]}
+        />
+    </div>
+    <Field
+        name="Resolution"
+        value={[1920, 1080]}
+        on:change={handleChangeDimensions}
+        params={{
+            step: 1,
+            suffix: "px",
+            locked: true,
+            triggers: false,
+        }}
+    />
     <FieldGroup name="Layout">
         <Field
             name="Resolution"
@@ -49,47 +70,24 @@ $: test = 1200;
             params={{
                 step: 1,
                 suffix: "px",
-                locked: true
+                locked: false
             }}
         />
         <Field
             name="color"
             value={"rgba(255, 255, 255, 0.5)"}
         />
-         <FieldGroup name="Layout">
-        <Field
-            name="Resolution"
-            value={[1920, 1080]}
-            on:change={handleChangeDimensions}
-            params={{
-                step: 1,
-                suffix: "px",
-                locked: true
-            }}
-        />
-        <Field
-            name="vector"
-            value={[
-                { label: "x", value: 10 },
-                { label: "y", value: 10 },
-                { label: "z", value: 10 },
-            ]}
-            on:change={handleChangeDimensions}
-            params={{
-                step: 1,
-                suffix: "px",
-                locked: true
-            }}
-        />
-        <Field
-            name="color"
-            value={"rgba(255, 255, 255, 0.5)"}
-        />
-    </FieldGroup>
     </FieldGroup>
     <Field
         name="text"
         value={"hello"}
+    />
+    <Field
+        name="text"
+        value={() => console.log("clicked")}
+        params={{
+            label: "randomize"
+        }}
     />
     <Field
         name="isChecked"
