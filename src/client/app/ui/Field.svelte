@@ -9,11 +9,16 @@ import Vec3Input from "./fields/Vec3Input.svelte";
 import TextInput from "./fields/TextInput.svelte";
 import ColorInput from "./fields/ColorInput.svelte";
 import ListInput from "./fields/ListInput.svelte";
+import ButtonInput from "./fields/ButtonInput.svelte";
 
 export let value;
 export let name;
 export let params = {};
 export let type = inferFromParams() || inferFromValue();
+
+if (params.triggers === undefined) {
+    params.triggers = true;
+}
 
 const fields = {
     "select": Select,
@@ -23,7 +28,8 @@ const fields = {
     "checkbox": CheckboxInput,
     "text": TextInput,
     "list": ListInput,
-    "color": ColorInput
+    "color": ColorInput,
+    "button": ButtonInput,
 };
 
 function inferFromParams() {
@@ -37,11 +43,12 @@ function inferFromParams() {
 function inferFromValue() {
     if (typeof value === "number") {
         return "number";
+    } else if (typeof value === "function") {
+        return "button";
     } else if (typeof value === "boolean") {
         return "checkbox";
     } else if (typeof value === "string") {
         if (colord(value).parsed) return "color";
-
         return "text";
     } else if (Array.isArray(value) && value.length === 2) {
         return "vec2";
@@ -81,7 +88,35 @@ $: {
 <div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
     <div class="field__infos">
         <label class="field__label" for={name}>{name}</label>
-        <slot name="infos"></slot>
+        <div class="field__actions">
+            {#if params.triggers && !params.disabled }
+                <button class="field__action field__action--triggers">
+                    <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"></path>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"></path>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"></path>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"></path>
+                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
+                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
+                    </svg>
+                </button>
+            {/if}
+            {#if (type === "vec2" || type === "vec3") && !params.disabled }
+                <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
+                    {#if params.locked}
+                    <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.75 11.75C5.75 11.1977 6.19772 10.75 6.75 10.75H17.25C17.8023 10.75 18.25 11.1977 18.25 11.75V17.25C18.25 18.3546 17.3546 19.25 16.25 19.25H7.75C6.64543 19.25 5.75 18.3546 5.75 17.25V11.75Z"></path>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.75 10.5V10.3427C7.75 8.78147 7.65607 7.04125 8.74646 5.9239C9.36829 5.2867 10.3745 4.75 12 4.75C13.6255 4.75 14.6317 5.2867 15.2535 5.9239C16.3439 7.04125 16.25 8.78147 16.25 10.3427V10.5"></path>
+                    </svg>
+                    {:else}
+                    <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.75 11.75C5.75 11.1977 6.19772 10.75 6.75 10.75H17.25C17.8023 10.75 18.25 11.1977 18.25 11.75V17.25C18.25 18.3546 17.3546 19.25 16.25 19.25H7.75C6.64543 19.25 5.75 18.3546 5.75 17.25V11.75Z"></path>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.75 10.5V9.84343C7.75 8.61493 7.70093 7.29883 8.42416 6.30578C8.99862 5.51699 10.0568 4.75 12 4.75C14 4.75 15.25 6.25 15.25 6.25"></path>
+                    </svg>
+                    {/if}
+                </button>
+            {/if}
+        </div>
     </div>
     <div class="field__input">
         <svelte:component this={input} value={value} {...params} on:change />
@@ -126,23 +161,43 @@ $: {
     pointer-events: none;
 }
 
-:global(.field.disabled .input) {
-    opacity: 0.4;
+.field__actions {
+    display: flex;
+    align-items: center;
+}
+
+.field__action--triggers .action__icon {
+    transform: rotate(90deg);
+}
+
+.field__action {
+    display: flex;
+    align-items: center;
+
+    background: transparent;
+    opacity: 0.5;
+    transition: opacity 0.1s ease;
+}
+
+.field__action:hover {
+    opacity: 1;
 }
 
 .field__infos {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    
+    color: #f0f0f0;
 }
 
 .field__label {
-    color: #f0f0f0;
     font-size: var(--fontSize);
     font-family: var(--fontFamily);
     user-select: none;
 
     opacity: 0.5;
-    transition: opacity 0.1s ease; 
+    transition: opacity 0.1s ease;
 }
 
 .field:hover .field__label, .field:focus-within .field__label {
@@ -152,6 +207,11 @@ $: {
 .field__input {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+:global(.field__input > div:not(:first-child)) {
+    margin-top: 3px;
 }
 </style>
