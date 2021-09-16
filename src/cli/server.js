@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from 'url';
-import { createServer } from "vite";
+import { createServer, defineConfig } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import alias from "@rollup/plugin-alias";
 
@@ -9,26 +9,40 @@ import log from "./log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function start({ options }) {
+export async function start({ options, filepath }) {
     log.warning(`Starting server...`);
     
-    const root = path.resolve(__dirname, "../client");
+    const root = path.join(__dirname, '/../..');
+    const publicDir = path.join(root, '/public');
 
-    const server = await createServer({
+    const config = defineConfig({
         configFile: false,
         root,
+        publicDir,
+        resolve: {
+            alias: [
+                { find: '@fragment/sketches', replacement: filepath },
+            ]
+        },
+        fs: {
+            allow: [".."]
+        },
         plugins: [
             svelte(),
-            alias({
-                entries: [
-                    { find: '@fragment/scenes', replacement: '../../../../scenes/_fragment/generated.js' }
-                ]
-            })
         ],
         server: {
-            port: options.port
+            port: options.port,
+        },
+        optimizeDeps: {
+            exclude: [
+                filepath,
+                path.join(process.cwd(), "sketch.js"),
+                path.join(process.cwd(), "sketch2.js"),
+            ]
         }
     });
+
+    const server = await createServer(config);
 
     await server.listen();
 
