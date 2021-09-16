@@ -101,7 +101,7 @@ async function start() {
     background-color: #202020;
     border: 1px solid #505050;
     -webkit-appearance: none;
-    color: white;
+    color: inherit;
     font-size: 10px;
     font-family: "Inter";
     /* font-weight: 600; */
