@@ -59,7 +59,7 @@ function onValueChange(index, newValue) {
 
 </script>
 
-<div class="vector-container vec{currentValue.length}">
+<div class="vector-container vec{currentValue.length}" class:locked={locked}>
 {#each currentValue as curr, index}
     <NumberInput controlled={true} min={min} max={max} step={step} label={curr.label} suffix={suffix} value={curr.value} on:change={(event) => onValueChange(index, event.detail)} />
 {/each}
@@ -70,6 +70,30 @@ function onValueChange(index, newValue) {
     display: grid;
     width: 100%;
     column-gap: var(--columnGap);
+}
+
+:global(.vector-container.locked > *:not(:last-child):after) {
+    content: '';
+
+    position: absolute;
+    top: 50%;
+    right: calc(var(--columnGap) * -1);
+    width: calc(var(--columnGap) + var(--padding));
+    height: 1px;
+
+    background-color: var(--borderColor);
+}
+
+:global(.xxsmall .vector-container.locked > *:not(:last-child):after) {
+    content: '';
+
+    position: absolute;
+    top: calc(100% - 2px);
+    left: calc(50% - var(--padding) * 0.5);
+    width: 1px;
+    height: calc(var(--padding));
+
+    /* background-color: red; */
 }
 
 .vector-container.vec2 {
