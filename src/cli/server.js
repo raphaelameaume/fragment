@@ -9,16 +9,17 @@ import log from "./log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function start({ options, filepath }) {
+export async function start({ options, filepath, entries }) {
     log.warning(`Starting server...`);
-    
-    const root = path.join(__dirname, '/../..');
-    const publicDir = path.join(root, '/public');
+
+    // const root = path.join(__dirname, '/../..');
+    const root = path.join(__dirname, '/../client');
+    // const publicDir = path.join(root, '/public');
 
     const config = defineConfig({
         configFile: false,
         root,
-        publicDir,
+        // publicDir,
         resolve: {
             alias: [
                 { find: '@fragment/sketches', replacement: filepath },
@@ -36,8 +37,7 @@ export async function start({ options, filepath }) {
         optimizeDeps: {
             exclude: [
                 filepath,
-                path.join(process.cwd(), "sketch.js"),
-                path.join(process.cwd(), "sketch2.js"),
+                ...entries.map((entry ) => path.join(process.cwd(), entry)),
             ]
         }
     });

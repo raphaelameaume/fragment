@@ -6,6 +6,8 @@ import { current as currentRendering } from "../stores/rendering.js";
 import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
+import { current as currentSketches } from "../stores/sketches.js";
+
 export let name = "monitor";
 export let grow;
 
@@ -14,6 +16,14 @@ let canvas;
 
 let index;
 let offsetWidth, offsetHeight;
+
+let options = [
+    ...Object.keys($currentSketches).map((key) => ({
+        value: key,
+        label: $currentSketches[key].name ? $currentSketches[key].name : key,
+    })),
+    { value: "output", label: "output" },
+];
 
 $: {
     if (container) {
@@ -69,11 +79,7 @@ if ($currentRendering.monitors === 0) {
             value={"output"}
             permanent
             border
-            options={[
-                { value: "sketch1", label: "sketch1.js" },
-                { value: "sketch2", label: "sketch2.js" },
-                { value: "output", label: "output" },
-            ]}
+            options={options}
         />
     </div>
     <div class="canvas__container" bind:this={container} bind:offsetWidth={offsetWidth} bind:offsetHeight={offsetHeight}>
