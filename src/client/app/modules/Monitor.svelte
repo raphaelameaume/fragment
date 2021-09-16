@@ -1,6 +1,11 @@
+<script context="module">
+let instances = 0;
+
+</script>
+
 <script>
 import { clamp } from "lemonade-math";
-import { onMount, beforeUpdate, afterUpdate } from "svelte";
+import { onMount, beforeUpdate, afterUpdate, onDestroy } from "svelte";
 import Module from "../ui/Module.svelte";
 import { current as currentRendering } from "../stores/rendering.js";
 import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
@@ -14,7 +19,6 @@ export let grow;
 let container;
 let canvas;
 
-let index;
 let offsetWidth, offsetHeight;
 
 let options = [
@@ -25,9 +29,40 @@ let options = [
     { value: "output", label: "output" },
 ];
 
+let index;
+
+$: currentSketch = options[0].value;
+
+let pristine = false;
+
+$: {
+    if (!pristine) {
+        const count = $currentRendering.monitors.length;
+
+        if ((index === 0 && count === 1) || (index === 1 && count === 2)) {
+            currentSketch = options[options.length - 1].value;
+        }
+    }
+}
+
+onMount(() => {
+    index = $currentRendering.monitors.length;
+
+    currentSketch = options[Math.min(index, options.length - 1)].value;
+
+    $currentRendering.monitors = [
+        ...$currentRendering.monitors,
+        {},
+    ];
+});
+
+onDestroy(() => {
+    $currentRendering.monitors = $currentRendering.monitors.filter((monitor, i) => index !== i);
+});
+
 $: {
     if (container) {
-        if (index === $currentRendering.monitors - 1) {
+        if (index === instances - 1) {
             canvas = $currentRendering.canvas;
         } else if (!canvas) {
             canvas = document.createElement("canvas");
@@ -50,12 +85,10 @@ $: {
     }
 }
 
-if ($currentRendering.monitors === 0) {
-    onMount(() => {
-        index = $currentRendering.monitors;
-        $currentRendering.monitors += 1;
-    });
-}
+const handleChangeSelect = (event) => {
+    currentSketch = event.currentTarget.value;
+    pristine = true;
+};
 
 </script>
 
@@ -76,9 +109,10 @@ if ($currentRendering.monitors === 0) {
             </svg> -->
         </ModuleHeaderAction>
         <ModuleHeaderAction
-            value={"output"}
+            value={currentSketch}
             permanent
             border
+            on:change={handleChangeSelect}
             options={options}
         />
     </div>
