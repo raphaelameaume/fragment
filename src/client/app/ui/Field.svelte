@@ -122,7 +122,7 @@ $: {
     padding-bottom: 0px !important;
 }
 
-.field.disabled .field__input {
+.field.disabled {
     pointer-events: none;
 }
 

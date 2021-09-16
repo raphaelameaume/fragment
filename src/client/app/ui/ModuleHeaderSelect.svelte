@@ -3,7 +3,7 @@ export let options = [];
 </script>
 
 <div class="module-header-select">
-    <select class="select">
+    <select class="select" on:change>
         {#each options as option}
             <option value={option.value}>{option.label}</option>
         {/each}
@@ -20,17 +20,14 @@ export let options = [];
     position: relative;
     
     display: flex;
-
-    border-radius: 2px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .select {
     font-family: "Jetbrains Mono";
     font-size: 10px;
     padding: 1px 15px 1px 3px;
-
-    color: rgba(255, 255, 255, 0.75);
+    
+    color: inherit;
     background: transparent;
     
     outline: 0;
