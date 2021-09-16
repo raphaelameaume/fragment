@@ -82,6 +82,10 @@ let el;
     outline: 0;
 }
 
+:global(.field.disabled) .input {
+    opacity: 0.4;
+}
+
 :global(.field:hover .container .input) {
     color: var(--color);
 }
