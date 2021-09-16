@@ -8,19 +8,38 @@ export const defaultLayouts = [
                     grow: 1,
                     cols: [
                         {
-                            grow: 2,
+                            grow: 1.36,
                             modules: [
                                 { name: "monitor", grow: 1 },
                             ]
                         }, {
+                            grow: 0.82,
+                            modules: [
+                                { name: "params" },
+                            ]
+                        }, {
+                            grow: 0.82,
+                            modules: [
+                                { name: "params" },
+                            ]
+                        }
+                    ]
+                },
+                {
+                    grow: 0.5,
+                    cols: [
+                        {
                             grow: 1,
                             modules: [
                                 { name: "mouse" },
-                                { name: "params" },
+                            ]
+                        }, {
+                            grow: 1,
+                            modules: [
                                 { name: "midi" },
                                 { name: "keyboard" },
                             ]
-                        }
+                        },
                     ]
                 }
             ]
