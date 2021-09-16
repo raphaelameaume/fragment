@@ -8,7 +8,7 @@ export const current = writable({
         width: 1920,
         height: 1080,
         dpr: 1,
-        monitors: 0,
+        monitors: [],
     }, true)
 });
 

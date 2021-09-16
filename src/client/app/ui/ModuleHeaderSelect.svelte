@@ -1,9 +1,10 @@
 <script>
+export let value;
 export let options = [];
 </script>
 
 <div class="module-header-select">
-    <select class="select" on:change>
+    <select class="select" on:change bind:value={value}>
         {#each options as option}
             <option value={option.value}>{option.label}</option>
         {/each}

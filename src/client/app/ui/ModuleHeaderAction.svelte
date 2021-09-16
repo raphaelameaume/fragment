@@ -4,15 +4,20 @@ import ModuleHeaderButton from "./ModuleHeaderButton.svelte";
 
 export let label = "";
 export let permanent = false;
+export let value;
 export let border = false;
 export let margin = true;
 export let options = [];
+
+if (options.length) {
+    console.log({ value });
+}
 
 </script>
 
 <div class="module-header-action" class:permanent={permanent} class:border={border} class:no-margin={!margin}>
     {#if options.length > 0}
-        <ModuleHeaderSelect options={options} on:change />
+        <ModuleHeaderSelect options={options} value={value} on:change />
     {:else}
         <ModuleHeaderButton label={label} on:click>
             <slot name="text">
