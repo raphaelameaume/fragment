@@ -1,5 +1,6 @@
 <script context="module">
 let instances = 0;
+let ID = 0;
 
 </script>
 
@@ -18,6 +19,10 @@ export let grow;
 
 let container;
 let canvas;
+let index;
+let pristine = false;
+
+let id = ID++;
 
 let offsetWidth, offsetHeight;
 
@@ -29,35 +34,36 @@ let options = [
     { value: "output", label: "output" },
 ];
 
-let index;
+let current = $currentRendering.monitors.find((m) => m.id === id);
 
-$: currentSketch = options[0].value;
-
-let pristine = false;
+if (!current) {
+    current = { id };
+}
 
 $: {
     if (!pristine) {
         const count = $currentRendering.monitors.length;
 
         if ((index === 0 && count === 1) || (index === 1 && count === 2)) {
-            currentSketch = options[options.length - 1].value;
+            current.value = options[options.length - 1].value;
         }
     }
 }
 
 onMount(() => {
     index = $currentRendering.monitors.length;
+    name = `${name} ${index}`;
 
-    currentSketch = options[Math.min(index, options.length - 1)].value;
+    current.value = options[Math.min(index, options.length - 1)].value;
 
     $currentRendering.monitors = [
         ...$currentRendering.monitors,
-        {},
+        current,
     ];
 });
 
 onDestroy(() => {
-    $currentRendering.monitors = $currentRendering.monitors.filter((monitor, i) => index !== i);
+    $currentRendering.monitors = $currentRendering.monitors.filter((monitor, i) => monitor.id !== id);
 });
 
 $: {
@@ -86,13 +92,23 @@ $: {
 }
 
 const handleChangeSelect = (event) => {
-    currentSketch = event.currentTarget.value;
+    $currentRendering = {
+        ...$currentRendering,
+        monitors: $currentRendering.monitors.map((monitor) => {
+            return monitor.id !== id ? monitor : 
+                {
+                    ...monitor,
+                    value: event.currentTarget.value
+                }
+        })
+    };
+
     pristine = true;
 };
 
 </script>
 
-<Module name={name} grow={grow}>
+<Module name={`${name}`} grow={grow}>
     <div slot="header-right">
         <ModuleHeaderAction border label="Pause">
             pause
@@ -109,7 +125,7 @@ const handleChangeSelect = (event) => {
             </svg> -->
         </ModuleHeaderAction>
         <ModuleHeaderAction
-            value={currentSketch}
+            value={current.value}
             permanent
             border
             on:change={handleChangeSelect}

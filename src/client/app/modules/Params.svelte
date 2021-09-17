@@ -1,5 +1,6 @@
 <script>
 import { current as currentRendering } from "../stores/rendering.js";
+import { current as currentSketches } from "../stores/sketches.js";
 import Module from "../ui/Module.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import Field from "../ui/Field.svelte";
@@ -7,58 +8,62 @@ import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
 let dimensions = [currentWidth, currentHeight];
 
+let pristine = false;
+let sketch;
+
 $: currentWidth = $currentRendering.width;
 $: currentHeight = $currentRendering.height;
+$: options = [
+    ...$currentRendering.monitors.map((monitor, index) => {
+        return { value: index, label: `monitor ${index} `}
+    }),
+    { value: "output", label: "output" },
+];
 
-function handleChangeDimensions(event) {
-    console.log("handle change dimensions", event.detail);
-    // $currentRendering.width = width;
-    // $currentRendering.height = height;
-    // dimensions[0] = width;
-    // dimensions[1] = height;
+$: monitorIndex = options[0].value;
 
-    // currentWidth = width;
-    // currentHeight = height;
+$: {
+    let monitor = $currentRendering.monitors[monitorIndex];
+
+    if (monitor) {
+        let { value: key } = monitor;
+        
+        sketch = $currentSketches[key]
+    }
 }
 
-$: test = 1200;
+function handleChangeSelect(event) {
+    monitorIndex = event.currentTarget.value;
+}
 
 </script>
 
 <Module name="Parameters">
     <div slot="header-right">
         <ModuleHeaderAction
-            value={"monitor"}
+            value={monitorIndex}
             permanent
             border
-            options={[
-                { value: "monitor", label: "monitor" },
-                { value: "output", label: "output" },
-            ]}
+            on:change={handleChangeSelect}
+            options={options}
         />
     </div>
-    <Field
-        name="Resolution"
-        value={[1920, 1080]}
-        on:change={handleChangeDimensions}
-        params={{
-            step: 1,
-            suffix: "px",
-            locked: true,
-            triggers: false,
-        }}
-    />
+    {#if sketch }
+        {#if typeof sketch.props === "object"}
+            {#each Object.keys(sketch.props) as key, i}
+                <Field
+                    name={key}
+                    value={sketch.props[key].value}
+                    params={(() => {
+                        const { value, ...params } = sketch.props[key];
+
+                        return params;
+                    })()}
+                />
+            {/each}
+        {/if}
+    {/if}
     <FieldGroup name="Layout">
-        <Field
-            name="Resolution"
-            value={[1920, 1080]}
-            on:change={handleChangeDimensions}
-            params={{
-                step: 1,
-                suffix: "px",
-                locked: true
-            }}
-        />
         <Field
             name="vector"
             value={[
@@ -66,7 +71,6 @@ $: test = 1200;
                 { label: "y", value: 10 },
                 { label: "z", value: 10 },
             ]}
-            on:change={handleChangeDimensions}
             params={{
                 step: 1,
                 suffix: "px",
