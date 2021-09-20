@@ -9,10 +9,6 @@ export let border = false;
 export let margin = true;
 export let options = [];
 
-if (options.length) {
-    console.log({ value });
-}
-
 </script>
 
 <div class="module-header-action" class:permanent={permanent} class:border={border} class:no-margin={!margin}>
