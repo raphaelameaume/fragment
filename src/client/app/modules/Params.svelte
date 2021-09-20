@@ -1,4 +1,10 @@
+<script context="module">
+let instances = 0;
+</script>
+
 <script>
+import { getContext, onMount } from "svelte";
+import { current as currentLayout } from "../stores/layout.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentSketches } from "../stores/sketches.js";
 import Module from "../ui/Module.svelte";
@@ -9,39 +15,72 @@ import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 let pristine = false;
 let sketch;
 
-let monitorIndex, options;
+let index = instances;
+instances++;
+
+let options = [];
+
+let currentModule = getContext("currentModule");
+let selected;
 
 $: {
+    const monitors = [];
+    $currentLayout.rows.forEach(row => {
+        const { cols = [] } = row;
+        
+        cols.forEach(col => {
+            const { modules = [] } = col;
+
+            modules.forEach((m) => {
+                if (m.name === "monitor") {
+                    monitors.push(m);
+                }
+            })
+        });
+    });
+
     options = [
-        ...$currentRendering.monitors.map((monitor, index) => {
-            return { value: index, label: `monitor ${index} `}
+        ...monitors.map((monitor, index) => {
+            return { value: `${index}`, label: `monitor ${index}`}
         }),
         { value: "output", label: "output" },
     ];
 
-    if (!pristine) {
-        monitorIndex = options[0].value;
-    }
+    selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
 
-    const monitor = $currentRendering.monitors[monitorIndex];
+    const monitor = monitors[Number(selected)];
 
-    if (monitor) {
-        let { value: key } = monitor;
-        
-        sketch = $currentSketches[key]
+    if (monitor && monitor.params) {
+        let { selected: selectedSketch } = monitor.params;
+
+        sketch = $currentSketches[selectedSketch];
     }
 }
 
+onMount(() => {
+    if (!selected) {
+        selected = options[Math.min(index, options.length - 1)].value;
+        $currentModule.params.selected = selected;
+    }
+});
+
 function handleChangeSelect(event) {
-    monitorIndex = event.currentTarget.value;
+    selected = event.currentTarget.value;
+    $currentModule.params.selected = selected;
+
     pristine = true;
 }
 
 function handleChangeDimensions(event) {
     const [width, height] = event.detail;
 
-    $currentRendering.width = width;
-    $currentRendering.height = height;
+    currentRendering.update((curr) => {
+        return {
+            ...curr,
+            width,
+            height
+        }
+    });
 }
 
 </script>
@@ -49,7 +88,7 @@ function handleChangeDimensions(event) {
 <Module name="Parameters">
     <div slot="header-right">
         <ModuleHeaderAction
-            value={monitorIndex}
+            value={$currentModule.params.selected}
             permanent
             border
             on:change={handleChangeSelect}

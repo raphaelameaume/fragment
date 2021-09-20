@@ -5,21 +5,19 @@ let ID = 0;
 </script>
 
 <script>
-import { clamp } from "lemonade-math";
 import { onMount, beforeUpdate, afterUpdate, onDestroy, getContext } from "svelte";
 import { derived } from "svelte/store";
-import Module from "../ui/Module.svelte";
+import { clamp } from "lemonade-math";
+import { current as currentSketches, renderable as renderableSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentLayout } from "../stores/layout.js";
+import Module from "../ui/Module.svelte";
 import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
-import { current as currentSketches } from "../stores/sketches.js";
-
 export let name = "monitor";
 
-let container, canvas;
-let id = ID++;
+let container, canvas, context;
 let pristine = false;
 
 instances++;
@@ -35,6 +33,7 @@ let options = [
 ];
 
 let currentModule = getContext("currentModule");
+let needsUpdate = true;
 let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
 
 let current;
@@ -43,6 +42,7 @@ onMount(() => {
 
     if (!selected) {
         selected = options[Math.min(index, options.length - 1)].value;
+        $currentModule.params.selected = selected;
     }
 });
 
@@ -51,34 +51,68 @@ onDestroy(() => {
 });
 
 $: {
-    if (container) {
-        if (index === instances - 1) {
-            canvas = $currentRendering.canvas;
-        } else if (!canvas) {
-            canvas = document.createElement("canvas");
-        }
-
-        if (canvas !== $currentRendering.canvas) {
-            canvas.width = $currentRendering.width;
-            canvas.height = $currentRendering.height;
-        }
-
-        canvas.style.cssText = `
-            max-width: 100%;
-            max-height: 100%;
-
-            background-color: red;
-        `;
-
-        if (!canvas.parentNode) {
-            container.appendChild(canvas);
-        }
+    if (index === instances - 1) {
+        canvas = $currentRendering.canvas;
+    } else if (!canvas || canvas === $currentRendering.canvas) {
+        canvas = document.createElement("canvas");
     }
+
+    if (canvas !== $currentRendering.canvas) {
+        canvas.width = $currentRendering.width;
+        canvas.height = $currentRendering.height;
+
+        context = canvas.getContext("2d");
+    }
+
+    canvas.style.cssText = `
+        max-width: 100%;
+        max-height: 100%;
+
+        // background-color: red;
+    `;
+
+    if (container && !canvas.parentNode) {
+        container.appendChild(canvas);
+    }
+
+    // if (needsUpdate) {
+        const sketch = $currentSketches[selected];
+
+        if (sketch) {
+            const init = sketch.setup || sketch.init;
+
+            console.log(`Monitor ${index} :: render to`, context);
+
+            if (typeof init === "function") {
+                init({});
+            }
+
+            const draw = sketch.draw || sketch.update || sketch.render;
+
+            if (typeof draw === "function") {
+                const renderer = {
+                    ...$currentRendering.renderer,
+                    context: canvas === $currentRendering.canvas ? $currentRendering.renderer.context : context,
+                };
+
+                draw({
+                    renderer,
+                    context: renderer.context,
+                    width: $currentRendering.width,
+                    height: $currentRendering.height,
+                });
+            }
+        }
+// 
+        needsUpdate = false;
+    // }
 }
 
 function handleChangeSelect(event) {
-    $currentModule.params.selected = event.currentTarget.value;
-    selected = $currentModule.params.selected;
+    selected = event.currentTarget.value;
+    $currentModule.params.selected = selected;
+
+    needsUpdate = selected !== $currentModule.params.selected;
     pristine = true;
 };
 

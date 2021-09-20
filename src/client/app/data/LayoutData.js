@@ -5,43 +5,46 @@ export const defaultLayouts = [
         data: {
             rows: [
                 {
-                    grow: 1,
+                    grow: 1.3,
                     cols: [
                         {
-                            grow: 1.36,
+                            grow: 1,
                             modules: [
-                                { name: "monitor", grow: 1 },
+                                { name: "monitor", grow: 0 },
+                                { name: "params", grow: 0 },
                             ]
                         }, {
-                            grow: 0.82,
+                            grow: 1,
                             modules: [
-                                { name: "params" },
+                                { name: "monitor", grow: 0 },
+                                { name: "params", grow: 0 },
                             ]
                         }, {
-                            grow: 0.82,
+                            grow: 1,
                             modules: [
-                                { name: "params" },
+                                { name: "monitor", grow: 0 },
+                                { name: "params", grow: 0 },
                             ]
                         }
                     ]
                 },
-                {
-                    grow: 0.5,
-                    cols: [
-                        {
-                            grow: 1,
-                            modules: [
-                                { name: "mouse" },
-                            ]
-                        }, {
-                            grow: 1,
-                            modules: [
-                                { name: "midi" },
-                                { name: "keyboard" },
-                            ]
-                        },
-                    ]
-                }
+                // {
+                //     grow: 0.7,
+                //     cols: [
+                //         // {
+                //         //     grow: 1,
+                //         //     modules: [
+                //         //         { name: "mouse" },
+                //         //     ]
+                //         // }, {
+                //         //     grow: 1,
+                //         //     modules: [
+                //         //         { name: "midi" },
+                //         //         { name: "keyboard" },
+                //         //     ]
+                //         // },
+                //     ]
+                // }
             ]
         }
     },
