@@ -6,7 +6,8 @@
  * @returns {any} result
  */
 export const rehydrate = (key, defaultValue, override = false) => {
-    const value = (override ? defaultValue : localStorage.getItem(key)) || defaultValue;
+    const storedValue = localStorage.getItem(key);
+    const value = (storedValue && !override) ? JSON.parse(storedValue) : defaultValue;
 
     try {
         const result = typeof value === "string" ? JSON.parse(value) : value;
@@ -32,6 +33,6 @@ export const save = (key, value) => {
  */
 export const keepInSync = (key) => {
     return (value) => {
-        // save(key, value);
+        save(key, value);
     };
 };
