@@ -7,6 +7,7 @@ const key = `layout.current`;
 export const current = writable({
     ...rehydrate(key, defaultLayouts[0].data, true),
     editable: false,
+    resizable: false,
 });
 
 export const addRow = () => {

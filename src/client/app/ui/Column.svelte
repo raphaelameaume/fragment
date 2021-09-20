@@ -1,10 +1,34 @@
 <script>
+import { setContext, getContext } from 'svelte';
 import { current as currentLayout } from "../stores/layout.js";
+
 export let grow = 1;
+export let index;
 export let node;
+
+let style = "";
+
+let rowIndex = getContext("rowIndex");
+setContext("colIndex", index);
+
+$: {
+    const { resizing } = $currentLayout.rows[rowIndex].cols[index];
+
+    if (resizing) {
+        style = `flex: ${grow}`;
+    } else {
+        const total = $currentLayout.rows[rowIndex].cols.reduce((t, col) => {
+            return t + col.grow;
+        }, 0);
+        const width = $currentLayout.rows[rowIndex].cols[index].grow / total;
+
+        style = `flex: 0 0 auto; width: ${width * 100}%`;
+    }
+}
+
 </script>
 
-<div class="column" style="flex: {grow}" bind:this={node}>
+<div class="column" style={style} bind:this={node}>
     {#if $currentLayout.editable }
       <header class="header">
           <button>Add module</button>
@@ -21,7 +45,6 @@ export let node;
     position: relative;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
     justify-content: stretch;
 }
 
@@ -51,8 +74,8 @@ export let node;
 
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
     width: 100%;
+    height: 100%;
 }
 
 .container::-webkit-scrollbar {

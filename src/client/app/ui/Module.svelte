@@ -1,15 +1,50 @@
 <script>
+import { getContext } from "svelte";
+import { current as currentLayout } from "../stores/layout.js";
 import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
 import ModuleHeaderSelect from "./ModuleHeaderSelect.svelte";
+
+
 export let name;
 export let grow;
 export let container;
 
 let minimized = false;
 
+let style = "";
+
+let rowIndex = getContext("rowIndex");
+let colIndex = getContext("colIndex");
+let index = getContext("moduleIndex");
+
+let current = $currentLayout.rows[rowIndex].cols[colIndex].modules[index];
+
+$: {
+    if (current.resizing) {
+        style = `flex: ${current.grow}`;
+    } else {
+        const modulesInCol = $currentLayout.rows[rowIndex].cols[colIndex].modules;
+
+        if (modulesInCol && modulesInCol.length > 0) {
+            const total = modulesInCol.reduce((t, m) => {
+                return t + m.grow;
+            }, 0);
+            const height = grow / total;
+
+            style = `flex: 0 0 auto;`;
+
+            if (height > 0) {
+                style += `height: ${height * 100}%`;
+            } else {
+                style += `height: ${100 / modulesInCol.length}%`;
+            }
+        }
+    }
+}
+
 </script>
 
-<div class="module module--{name} {minimized ? "minimized": ""}" style="flex: {grow}">
+<div class="module module--{name}" class:minimized={minimized} style={style}>
     {#if name}
         <header class="module__header">
             <div class="header__col">
@@ -94,6 +129,8 @@ let minimized = false;
 }
 
 .module__title {
+    user-select: none;
+
     color: white;
     font-size: 10px;
     text-transform: capitalize;
@@ -101,8 +138,12 @@ let minimized = false;
 
 .module__container {
     display: flex;
-    flex-grow: 1;
     flex-direction: column;
+    flex-grow: 1;
+
+    max-height: calc(100% - 25px);
+
+    /* background-color: red; */
 }
 
 .module.minimized .module__container {

@@ -1,4 +1,5 @@
 <script>
+import { getContext } from "svelte";
 import { map, clamp } from "lemonade-math";
 import { current as currentLayout } from "../stores/layout.js";
 
@@ -7,11 +8,12 @@ const DIRECTIONS = {
     VERTICAL: "vertical",
 };
 
-
-export let rowIndex;
-export let colIndex = -1;
 export let direction = DIRECTIONS.HORIZONTAL;
 
+export let rowIndex = -1;
+export let colIndex = -1;
+
+console.log({ rowIndex, colIndex });
 let isDragging = false;
 
 $: currentRow = $currentLayout.rows[rowIndex];
@@ -34,6 +36,8 @@ function handleMouseDown() {
     if (!isDragging) {
         isDragging = true;
 
+        $currentLayout.resizable = true;
+
         document.body.style.userSelect = "none";
         document.body.style.cursor = direction === DIRECTIONS.HORIZONTAL ? "ns-resize" : "ew-resize";
 
@@ -42,12 +46,30 @@ function handleMouseDown() {
 
         totalRowGrow = (currentRow ? currentRow.grow : 0) + (nextRow ? nextRow.grow : 0);
 
-        if (direction === DIRECTIONS.VERTICAL && currentCol && nextCol) {
-            totalColGrow = currentCol.grow + nextCol.grow;
+        if (direction === DIRECTIONS.VERTICAL) {
+            if (currentCol && nextCol) {
+                totalColGrow = currentCol.grow + nextCol.grow;
 
-            currentColRect = currentCol.$element.getBoundingClientRect();
-            nextColRect = nextCol.$element.getBoundingClientRect();
+                currentColRect = currentCol.$element.getBoundingClientRect();
+                nextColRect = nextCol.$element.getBoundingClientRect();
+
+                currentCol.resizing = true;
+                nextCol.resizing = true;
+
+                visible = currentCol.grow === nextCol.grow;
+            }
+        } else {
+            if (currentRow) {
+                currentRow.resizing = true;
+            }
+
+            if (nextRow) {
+                nextRow.resizing = true;
+            }
+
+            visible = currentRow.grow === nextRow.grow;
         }
+
     }
 }
 
@@ -57,6 +79,19 @@ function handleMouseUp(event) {
         visible = false;
         document.body.style.userSelect = null;
         document.body.style.cursor = null;
+
+        $currentLayout.resizable = false;
+
+        currentRow.resizing = false;
+
+        if (nextRow) {
+            nextRow.resizing = false;
+        }
+
+        if (direction === DIRECTIONS.VERTICAL) {
+            currentCol.resizing = false;
+            nextCol.resizing = false;
+        }
     }
 }
 
@@ -68,8 +103,13 @@ function handleMouseMove(event) {
 
             const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
 
-            const prevGrow = Math.round(map(y, top, bottom, 0, totalRowGrow) * 100) / 100;
-            const nextGrow = Math.round(map(y, bottom, top, 0, totalRowGrow) * 100) / 100;
+            let prevGrow = Math.round(map(y, top, bottom, 0, totalRowGrow) * 100) / 100;
+            let nextGrow = Math.round(map(y, bottom, top, 0, totalRowGrow) * 100) / 100;
+
+            if (Math.abs(nextGrow - prevGrow) < 0.05) {
+                prevGrow = totalRowGrow * 0.5;
+                nextGrow = totalRowGrow * 0.5;
+            }
 
             visible = prevGrow === nextGrow;
             
@@ -89,8 +129,13 @@ function handleMouseMove(event) {
             const right = nextColRect.right;
 
             const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-            const prevGrow = Math.round(map(x, left, right, 0, totalColGrow) * 100) / 100;
-            const nextGrow = Math.round(map(x, right, left, 0, totalColGrow) * 100) / 100;
+            let prevGrow = Math.round(map(x, left, right, 0, totalColGrow) * 100) / 100;
+            let nextGrow = Math.round(map(x, right, left, 0, totalColGrow) * 100) / 100;
+
+            if (Math.abs(nextGrow - prevGrow) < 0.05) {
+                prevGrow = totalColGrow * 0.5;
+                nextGrow = totalColGrow * 0.5;
+            }
 
             visible = prevGrow === nextGrow;
 
@@ -117,8 +162,8 @@ function handleMouseMove(event) {
 
 </script>
 
-<div class="resizer resizer--{direction}">
-    <div class="resizer-hover {visible ? "visible" : ""}" on:mousedown={handleMouseDown}></div>
+<div class="resizer resizer--{direction}" class:dragging={isDragging}>
+    <div class="resizer-hover" class:visible={visible} on:mousedown={handleMouseDown}></div>
 </div>
 
 <svelte:body on:mouseup={handleMouseUp} on:mousemove={handleMouseMove} />
@@ -144,13 +189,22 @@ function handleMouseMove(event) {
 
     width: 2px;
     height: 100%;
-
-    background-color: #177bd0;
+    
+    background-color: white;
     opacity: 0;
 }
 
-.resizer-hover.visible:before {
+.resizer-hover:hover:before {
+    opacity: 0.25;
+}
+
+.resizer.dragging .resizer-hover:before {
+    opacity: 0.5;
+}
+
+.resizer.dragging .resizer-hover.visible:before {
     opacity: 1;
+    background-color: #177bd0;
 }
 
 .resizer--horizontal {

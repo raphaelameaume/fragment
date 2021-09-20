@@ -29,10 +29,10 @@ function addRow() {
             <Row grow={row.grow} index={rowIndex} bind:node={row.$element}>
                 {#if row.cols && row.cols.length >0 }
                     {#each row.cols as col, colIndex}
-                        <Column grow={col.grow} bind:node={col.$element}>
+                        <Column index={colIndex} grow={col.grow} bind:node={col.$element}>
                             {#if col.modules && col.modules.length > 0}
-                                {#each col.modules as module}
-                                    <ModuleRenderer module={module} />
+                                {#each col.modules as module, moduleIndex}
+                                    <ModuleRenderer module={module} index={moduleIndex} />
                                 {/each}
                             {/if}
                         </Column>
@@ -70,7 +70,8 @@ function addRow() {
 .content {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    height: 100%;
+    max-height: 100%;
 }
 
 </style>
