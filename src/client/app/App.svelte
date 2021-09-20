@@ -81,6 +81,8 @@ async function start() {
 :global(:root) {
     --fontFamily: "Inter", system-ui, sans-serif;
     --backgroundColor: #242425;
+    --activeColor: #177bd0;
+    --topBarHeight: 24px;
 }
 
 :global(body) {

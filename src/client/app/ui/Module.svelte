@@ -142,8 +142,20 @@ $: {
     flex-grow: 1;
 
     max-height: calc(100% - 25px);
+    overflow-y: auto;
+}
 
-    /* background-color: red; */
+.module__container::-webkit-scrollbar {
+    width: 5px;               /* width of the entire scrollbar */
+}
+
+.module__container::-webkit-scrollbar-track {
+    background: transparent;        /* color of the tracking area */
+}
+
+.module__container::-webkit-scrollbar-thumb {
+    background-color: var(--activeColor);    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
 }
 
 .module.minimized .module__container {

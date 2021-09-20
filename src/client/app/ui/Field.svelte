@@ -138,7 +138,6 @@ $: {
     --columnGap: 3px;
     --inputHeight: 20px;
     --padding: 6px;
-    --activeColor: #177bd0;
     --borderRadius: 3px;
     --borderWidth: 1px;
     --borderColor: #000000;
