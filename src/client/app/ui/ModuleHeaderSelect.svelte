@@ -4,9 +4,9 @@ export let options = [];
 </script>
 
 <div class="module-header-select">
-    <select class="select" on:change bind:value={value}>
+    <select class="select" on:change>
         {#each options as option}
-            <option value={option.value}>{option.label}</option>
+            <option value={option.value} selected={value === option.value}>{option.label}</option>
         {/each}
     </select>
     <div class="chevrons">
@@ -32,6 +32,7 @@ export let options = [];
     background: transparent;
     
     outline: 0;
+    user-select: none;
 }
 
 .chevrons {
