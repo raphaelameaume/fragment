@@ -23,8 +23,10 @@ let options = [];
 let currentModule = getContext("currentModule");
 let selected;
 
+let monitors;
+
 $: {
-    const monitors = [];
+    monitors = [];
     $currentLayout.rows.forEach(row => {
         const { cols = [] } = row;
         
@@ -43,7 +45,6 @@ $: {
         ...monitors.map((monitor, index) => {
             return { value: `${index}`, label: `monitor ${index}`}
         }),
-        { value: "output", label: "output" },
     ];
 
     selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
@@ -97,10 +98,14 @@ function handleChangeDimensions(event) {
     </div>
     {#if sketch }
         {#if typeof sketch.props === "object"}
+            <FieldGroup name="Settings" collapsed={true} >
+                <Field name="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
+            </FieldGroup>
             {#each Object.keys(sketch.props) as key, i}
                 <Field
                     name={key}
                     value={sketch.props[key].value}
+                    on:change={(value) => sketch.props[key].value === value}
                     params={(() => {
                         const { value, ...params } = sketch.props[key];
 
@@ -110,7 +115,7 @@ function handleChangeDimensions(event) {
             {/each}
         {/if}
     {/if}
-    <FieldGroup name="Layout">
+    {#if Number(selected) === monitors.length - 1}
         <Field
             name="dimensions"
             value={[
@@ -124,32 +129,5 @@ function handleChangeDimensions(event) {
                 locked: false
             }}
         />
-        <Field
-            name="color"
-            value={"rgba(255, 255, 255, 0.5)"}
-        />
-    </FieldGroup>
-    <Field
-        name="text"
-        value={"hello"}
-    />
-    <Field
-        name="text"
-        value={() => console.log("clicked")}
-        params={{
-            label: "randomize"
-        }}
-    />
-    <Field
-        name="isChecked"
-        value={true}
-    />
-    <Field
-        name="z"
-        value={10}
-        params={{
-            min: 0,
-            max: 100,
-        }}
-    />
+    {/if}
 </Module>
