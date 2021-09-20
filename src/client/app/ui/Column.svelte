@@ -77,17 +77,4 @@ $: {
     width: 100%;
     height: 100%;
 }
-
-.container::-webkit-scrollbar {
-    width: 5px;               /* width of the entire scrollbar */
-}
-
-.container::-webkit-scrollbar-track {
-    background: transparent;        /* color of the tracking area */
-}
-
-.container::-webkit-scrollbar-thumb {
-    background-color: rgb(174, 174, 185);    /* color of the scroll thumb */
-    border-radius: 20px;       /* roundness of the scroll thumb */
-}
 </style>
