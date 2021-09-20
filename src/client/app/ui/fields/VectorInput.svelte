@@ -31,6 +31,10 @@ function sanitize(value, type) {
 }
 
 function desanitize(updated) {
+    if (Array.isArray(value)) {
+        return updated.map((v) => v.value);
+    }
+
     return updated;
 }
 

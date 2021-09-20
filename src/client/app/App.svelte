@@ -3,20 +3,18 @@ import { onMount, tick } from "svelte";
 import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
+
 export let rendering;
 
 async function loadRenderer(renderer) {
-    return import("./renderers/THREERenderer.js");
+    return import("./renderers/2DRenderer.js");
 };
 
 async function start() {
     const { init, resize, update, render } = await loadRenderer(rendering);
 
-    init();
-    resize({
-        width: $currentRendering.width,
-        height: $currentRendering.height,
-    });
+    init($currentRendering);
+    resize($currentRendering);
 
     const { renderer, canvas } = await loadRenderer();
 
@@ -28,9 +26,11 @@ async function start() {
 
     await tick();
 
-    render({ renderer });
+    currentRendering.subscribe(({ width, height }) => {
+        resize($currentRendering);
+    });
 
-    console.log("started");
+    // render({ renderer });
 }
 
 </script>

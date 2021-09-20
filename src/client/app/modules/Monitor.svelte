@@ -69,6 +69,9 @@ $: {
             canvas = $currentRendering.canvas;
         } else if (!canvas) {
             canvas = document.createElement("canvas");
+        }
+
+        if (canvas !== $currentRendering.canvas) {
             canvas.width = $currentRendering.width;
             canvas.height = $currentRendering.height;
         }
@@ -76,9 +79,13 @@ $: {
         canvas.style.cssText = `
             max-width: 100%;
             max-height: 100%;
+
+            background-color: red;
         `;
 
-        container.appendChild(canvas);
+        if (!canvas.parentNode) {
+            container.appendChild(canvas);
+        }
     }
 }
 
@@ -127,13 +134,5 @@ function handleChangeSelect(event) {
     align-items: center;
 
     background-color: #0E0E0E;
-    /* background-color: red; */
-}
-
-.canvas {
-    max-width: 100%;
-    max-height: 100%;
-
-    background-color: red;
 }
 </style>

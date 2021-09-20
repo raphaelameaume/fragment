@@ -6,24 +6,24 @@ import FieldGroup from "../ui/FieldGroup.svelte";
 import Field from "../ui/Field.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
-let dimensions = [currentWidth, currentHeight];
-
 let pristine = false;
 let sketch;
 
-$: currentWidth = $currentRendering.width;
-$: currentHeight = $currentRendering.height;
-$: options = [
-    ...$currentRendering.monitors.map((monitor, index) => {
-        return { value: index, label: `monitor ${index} `}
-    }),
-    { value: "output", label: "output" },
-];
-
-$: monitorIndex = options[0].value;
+let monitorIndex, options;
 
 $: {
-    let monitor = $currentRendering.monitors[monitorIndex];
+    options = [
+        ...$currentRendering.monitors.map((monitor, index) => {
+            return { value: index, label: `monitor ${index} `}
+        }),
+        { value: "output", label: "output" },
+    ];
+
+    if (!pristine) {
+        monitorIndex = options[0].value;
+    }
+
+    const monitor = $currentRendering.monitors[monitorIndex];
 
     if (monitor) {
         let { value: key } = monitor;
@@ -34,6 +34,14 @@ $: {
 
 function handleChangeSelect(event) {
     monitorIndex = event.currentTarget.value;
+    pristine = true;
+}
+
+function handleChangeDimensions(event) {
+    const [width, height] = event.detail;
+
+    $currentRendering.width = width;
+    $currentRendering.height = height;
 }
 
 </script>
@@ -65,12 +73,12 @@ function handleChangeSelect(event) {
     {/if}
     <FieldGroup name="Layout">
         <Field
-            name="vector"
+            name="dimensions"
             value={[
-                { label: "x", value: 10 },
-                { label: "y", value: 10 },
-                { label: "z", value: 10 },
+                $currentRendering.width,
+                $currentRendering.height,
             ]}
+            on:change={handleChangeDimensions}
             params={{
                 step: 1,
                 suffix: "px",
