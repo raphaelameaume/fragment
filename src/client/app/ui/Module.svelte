@@ -1,5 +1,5 @@
 <script>
-import { getContext } from "svelte";
+import { getContext, setContext } from "svelte";
 import { current as currentLayout } from "../stores/layout.js";
 import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
 import ModuleHeaderSelect from "./ModuleHeaderSelect.svelte";
@@ -17,10 +17,10 @@ let rowIndex = getContext("rowIndex");
 let colIndex = getContext("colIndex");
 let index = getContext("moduleIndex");
 
-let current = $currentLayout.rows[rowIndex].cols[colIndex].modules[index];
+let current = getContext("currentModule");
 
 $: {
-    if (current.resizing) {
+    if ($current.resizing) {
         style = `flex: ${current.grow}`;
     } else {
         const modulesInCol = $currentLayout.rows[rowIndex].cols[colIndex].modules;

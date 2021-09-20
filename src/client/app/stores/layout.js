@@ -5,10 +5,12 @@ import { keepInSync, rehydrate } from "./utils";
 const key = `layout.current`;
 
 export const current = writable({
-    ...rehydrate(key, defaultLayouts[0].data, true),
+    ...rehydrate(key, defaultLayouts[0].data, false),
     editable: false,
     resizable: false,
 });
+
+current.subscribe(keepInSync(key));
 
 export const addRow = () => {
     current.update((current) => {
@@ -78,5 +80,3 @@ export const edit = () => {
         };
     })
 }
-
-current.subscribe(keepInSync(key));
