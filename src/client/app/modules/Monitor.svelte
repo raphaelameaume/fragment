@@ -10,6 +10,7 @@ import { clamp } from "lemonade-math";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentLayout } from "../stores/layout.js";
+import { current as currentTime } from "../stores/time.js";
 import Module from "../ui/Module.svelte";
 import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
@@ -92,6 +93,7 @@ function createSketch(sketch) {
                 context: renderer.context,
                 width: $currentRendering.width,
                 height: $currentRendering.height,
+                ...$currentTime,
             });
         }
     }
