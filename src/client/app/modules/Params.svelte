@@ -84,6 +84,10 @@ function handleChangeDimensions(event) {
     });
 }
 
+function handleChange(event, key) {
+    sketch.props[key].value = event.detail;
+}
+
 </script>
 
 <Module name="Parameters">
@@ -105,7 +109,7 @@ function handleChangeDimensions(event) {
                 <Field
                     name={key}
                     value={sketch.props[key].value}
-                    on:change={(value) => sketch.props[key].value === value}
+                    on:change={(event) => handleChange(event, key)}
                     params={(() => {
                         const { value, ...params } = sketch.props[key];
 

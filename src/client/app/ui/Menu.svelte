@@ -11,11 +11,13 @@ function handleClickItem(index) {
 }
 
 function handleClickOutside(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    if (hoverable) {
+        event.preventDefault();
+        event.stopPropagation();
 
-    hoverable = false;
-    selectedIndex = -1;
+        hoverable = false;
+        selectedIndex = -1;
+    }
 }
 
 </script>

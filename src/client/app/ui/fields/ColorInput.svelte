@@ -1,9 +1,12 @@
 <script>
+import { createEventDispatcher } from "svelte";
 import { colord } from "colord"; 
 import TextInput from "./TextInput.svelte";
 import Field from "../Field.svelte";
 
 export let value;
+
+const dispatch = createEventDispatcher();
 
 let color = colord(value);
 let hasAlpha = false;
@@ -17,12 +20,17 @@ if (color.toRgbString().includes("rgba")) {
 $: textValue = hasAlpha ? colord(`rgb(${color.rgba.r}, ${color.rgba.g}, ${color.rgba.b})`).toHex() : color.toHex();
 $: inputValue = colord(textValue).toHex();
 
-function handleChangeColor() {
+function handleChangeColor(event) {
+    textValue = event.currentTarget.value;
+    inputValue = event.currentTarget.value;
 
+    dispatch('change', event.currentTarget.value);
 }
 
 function onChangeText(event) {
     textValue = event.currentTarget.value;
+
+    dispatch('change', event.currentTarget.value);
 }
 
 </script>
@@ -31,7 +39,7 @@ function onChangeText(event) {
     <div class="layout">
         <div class="mirror" style="--backgroundColor: {textValue}">
             <!-- svelte-ignore -->
-            <input class="input" type="color" value={inputValue} on:change={handleChangeColor} />
+            <input class="input" type="color" value={inputValue} on:input={handleChangeColor} />
         </div>
         <TextInput value={textValue} on:input={onChangeText} on:change={onChangeText} />
     </div>

@@ -64,11 +64,16 @@ function onKeyPress(event) {
 
 const hasProgress = isFinite(min) && isFinite(max);
 
+function handleChangeProgress(event) {
+    currentValue = event.detail;
+    dispatch('change', event.detail);
+}
+
 </script>
 
 <div class="number-input {hasProgress ? "number-input--with-progress": ""}">
     {#if hasProgress}
-        <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={(event) => currentValue = event.detail} />
+        <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={handleChangeProgress} />
     {/if}
         <Input 
             class="input"
