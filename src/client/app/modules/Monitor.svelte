@@ -1,6 +1,5 @@
 <script context="module">
 let instances = 0;
-let ID = 0;
 
 </script>
 
@@ -8,7 +7,7 @@ let ID = 0;
 import { onMount, beforeUpdate, afterUpdate, onDestroy, getContext } from "svelte";
 import { derived } from "svelte/store";
 import { clamp } from "lemonade-math";
-import { current as currentSketches, renderable as renderableSketches } from "../stores/sketches.js";
+import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentLayout } from "../stores/layout.js";
 import Module from "../ui/Module.svelte";
@@ -19,10 +18,9 @@ export let name = "monitor";
 
 let container, canvas, context;
 let pristine = false;
-
+let index = instances;
 instances++;
-
-let index = instances - 1;
+$currentRendering.monitors = instances;
 
 let options = [
     ...Object.keys($currentSketches).map((key) => ({
@@ -33,14 +31,27 @@ let options = [
 ];
 
 let currentModule = getContext("currentModule");
-let needsUpdate = true;
+let needsUpdate = false;
 let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
 
 let current;
+let _raf;
+let _draw = () => {};
+
+function render() {
+    _draw();
+
+    _raf = requestAnimationFrame(render);
+}
+
 onMount(() => {
     name = `${name} ${index}`;
 
-    if (!selected) {
+    render();
+
+    console.log("Monitor :: onMount");
+
+    if (!selected && options.length) {
         selected = options[Math.min(index, options.length - 1)].value;
         $currentModule.params.selected = selected;
     }
@@ -48,64 +59,54 @@ onMount(() => {
 
 onDestroy(() => {
     instances--;
+
+    cancelAnimationFrame(_raf);
 });
 
 $: {
-    if (index === instances - 1) {
-        canvas = $currentRendering.canvas;
-    } else if (!canvas || canvas === $currentRendering.canvas) {
-        canvas = document.createElement("canvas");
+    if (needsUpdate && _raf) {
+        cancelAnimationFrame(_raf);
+        needsUpdate = false;
+    }
+}
+
+function createSketch(sketch) {
+    const init = sketch.setup || sketch.init;
+
+    if (typeof init === "function") {
+        init({});
     }
 
-    if (canvas !== $currentRendering.canvas) {
-        canvas.width = $currentRendering.width;
-        canvas.height = $currentRendering.height;
+    const draw = sketch.draw || sketch.update || sketch.render;
 
-        context = canvas.getContext("2d");
+    if (typeof draw === "function") {
+        const renderer = {
+            ...$currentRendering.renderer,
+            context: canvas === $currentRendering.canvas ? $currentRendering.renderer.context : context,
+        };
+
+        _draw = () => {
+            draw({
+                renderer,
+                props: sketch.props || {},
+                context: renderer.context,
+                width: $currentRendering.width,
+                height: $currentRendering.height,
+            });
+        }
     }
+}
 
-    canvas.style.cssText = `
-        max-width: 100%;
-        max-height: 100%;
-
-        // background-color: red;
-    `;
-
-    if (container && !canvas.parentNode) {
-        container.appendChild(canvas);
-    }
-
-    // if (needsUpdate) {
+$: {
+    if (canvas) {
         const sketch = $currentSketches[selected];
 
+        context = canvas.getContext("2d");
+
         if (sketch) {
-            const init = sketch.setup || sketch.init;
-
-            console.log(`Monitor ${index} :: render to`, context);
-
-            if (typeof init === "function") {
-                init({});
-            }
-
-            const draw = sketch.draw || sketch.update || sketch.render;
-
-            if (typeof draw === "function") {
-                const renderer = {
-                    ...$currentRendering.renderer,
-                    context: canvas === $currentRendering.canvas ? $currentRendering.renderer.context : context,
-                };
-
-                draw({
-                    renderer,
-                    context: renderer.context,
-                    width: $currentRendering.width,
-                    height: $currentRendering.height,
-                });
-            }
+            createSketch(sketch);
         }
-// 
-        needsUpdate = false;
-    // }
+    }
 }
 
 function handleChangeSelect(event) {
@@ -131,8 +132,11 @@ function handleChangeSelect(event) {
         />
     </div>
     <div class="canvas__container" bind:this={container}>
-        <!-- {canvas} -->
-        <!-- <canvas class="canvas" width="500" height="1500"></canvas> -->
+        {#if index === ($currentRendering.monitors - 1)}
+            <p></p>
+        {:else}
+            <canvas width={$currentRendering.width} height={$currentRendering.height} style="max-width: 100%; max-height: 100%; background: red;" bind:this={canvas}></canvas>
+        {/if}
     </div>
 </Module>
 
