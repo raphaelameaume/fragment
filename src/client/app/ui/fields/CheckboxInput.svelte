@@ -1,11 +1,19 @@
 <script>
+import { createEventDispatcher } from "svelte";
+
 export let name;
 export let value;
+
+const dispatch = createEventDispatcher();
+
+function handleChange() {
+    dispatch("change", value);
+}
 
 </script>
 
 <div class="checkbox">
-    <input class="input" checked={value} type="checkbox" />
+    <input class="input" bind:checked={value} type="checkbox" on:change={handleChange} />
     <div class="checked">
     </div>
 </div>
