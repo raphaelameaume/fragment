@@ -2,6 +2,7 @@
 import { onMount, tick } from "svelte";
 import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
+import TriggersSetup from "./ui/TriggersSetup.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
 
 export let rendering;
@@ -29,8 +30,6 @@ async function start() {
     currentRendering.subscribe(({ width, height }) => {
         resize($currentRendering);
     });
-
-    // render({ renderer });
 }
 
 </script>
@@ -38,6 +37,7 @@ async function start() {
 {#await start() }
     <Loading />
 {:then}
+    <TriggersSetup />
     <Layout />
 {/await}
 

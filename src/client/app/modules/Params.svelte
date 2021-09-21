@@ -3,7 +3,7 @@ let instances = 0;
 </script>
 
 <script>
-import { getContext, onMount } from "svelte";
+import { getContext, onMount, setContext } from "svelte";
 import { current as currentLayout } from "../stores/layout.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentSketches } from "../stores/sketches.js";
@@ -22,6 +22,7 @@ let options = [];
 
 let currentModule = getContext("currentModule");
 let selected;
+let selectedSketch;
 
 let monitors;
 
@@ -52,8 +53,7 @@ $: {
     const monitor = monitors[Number(selected)];
 
     if (monitor && monitor.params) {
-        let { selected: selectedSketch } = monitor.params;
-
+        selectedSketch = monitor.params.selected;
         sketch = $currentSketches[selectedSketch];
     }
 }

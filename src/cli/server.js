@@ -2,7 +2,6 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import alias from "@rollup/plugin-alias";
 
 import log from "./log.js";
 
@@ -19,10 +18,10 @@ export async function start({ options, filepath, entries }) {
     const config = defineConfig({
         configFile: false,
         root,
-        // publicDir,
         resolve: {
             alias: [
                 { find: '@fragment/sketches', replacement: filepath },
+                { find: '@fragment', replacement: path.join(root, 'app') },
             ]
         },
         fs: {

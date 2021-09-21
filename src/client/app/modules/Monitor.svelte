@@ -11,6 +11,7 @@ import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentLayout } from "../stores/layout.js";
 import { current as currentTime } from "../stores/time.js";
+import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, reset } from "../triggers/Mouse.js";
 import Module from "../ui/Module.svelte";
 import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
@@ -20,6 +21,7 @@ export let name = "monitor";
 let container, canvas, context;
 let pristine = false;
 let index = instances;
+let paused = false;
 instances++;
 $currentRendering.monitors = instances;
 
@@ -32,7 +34,6 @@ let options = [
 ];
 
 let currentModule = getContext("currentModule");
-let needsUpdate = false;
 let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
 
 let current;
@@ -40,7 +41,9 @@ let _raf;
 let _draw = () => {};
 
 function render() {
-    _draw();
+    if (!paused) {
+        _draw();
+    }
 
     _raf = requestAnimationFrame(render);
 }
@@ -49,8 +52,6 @@ onMount(() => {
     name = `${name} ${index}`;
 
     render();
-
-    console.log("Monitor :: onMount");
 
     if (!selected && options.length) {
         selected = options[Math.min(index, options.length - 1)].value;
@@ -64,14 +65,9 @@ onDestroy(() => {
     cancelAnimationFrame(_raf);
 });
 
-$: {
-    if (needsUpdate && _raf) {
-        cancelAnimationFrame(_raf);
-        needsUpdate = false;
-    }
-}
-
 function createSketch(sketch) {
+    reset(selected);
+
     const init = sketch.setup || sketch.init;
 
     if (typeof init === "function") {
@@ -115,16 +111,19 @@ $: {
         context = canvas.getContext("2d");
 
         if (sketch) {
+            console.log("createSketch");
             createSketch(sketch);
         }
     }
 }
 
 function handleChangeSelect(event) {
+    // remove previous events registered
+    reset(selected);
+
     selected = event.currentTarget.value;
     $currentModule.params.selected = selected;
 
-    needsUpdate = selected !== $currentModule.params.selected;
     pristine = true;
 };
 
@@ -132,7 +131,7 @@ function handleChangeSelect(event) {
 
 <Module name={`${name}`}>
     <div slot="header-right">
-        <ModuleHeaderAction border label="Pause">pause</ModuleHeaderAction>
+        <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Open in another window">open</ModuleHeaderAction>
         <ModuleHeaderAction
             value={selected}
@@ -146,7 +145,15 @@ function handleChangeSelect(event) {
         {#if index === ($currentRendering.monitors - 1)}
             <p></p>
         {:else}
-            <canvas width={$currentRendering.width} height={$currentRendering.height} style="max-width: 100%; max-height: 100%; background: red;" bind:this={canvas}></canvas>
+            <canvas
+                width={$currentRendering.width}
+                height={$currentRendering.height}
+                bind:this={canvas}
+                style="max-width: 100%; max-height: 100%; background: red;"
+                on:mousedown={(event) => checkForTriggersDown(event, selected) }
+                on:mouseup={(event) => checkForTriggersUp(event, selected) }
+                on:mousemove={(event) => checkForTriggersMove(event, selected) }
+            ></canvas>
         {/if}
     </div>
 </Module>

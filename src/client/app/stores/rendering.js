@@ -5,10 +5,10 @@ const key = "rendering";
 
 export const current = writable({
     ...rehydrate(key, {
-        width: 1920,
-        height: 1080,
+        width: 500,
+        height: 250,
         dpr: 1,
-        monitors: [],
+        monitors: 0,
     }, true)
 });
 

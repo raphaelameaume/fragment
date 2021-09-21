@@ -20,9 +20,9 @@ class Trigger {
         this.enabled = false;
     }
 
-    run() {
+    run(...args) {
         if (this.enabled) {
-            this.fn();
+            this.fn(...args);
         }
     }
 }
