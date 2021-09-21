@@ -78,6 +78,7 @@ function createSketch(sketch) {
         init({});
     }
 
+    const framerate = sketch.fps || 60;
     const draw = sketch.draw || sketch.update || sketch.render;
 
     if (typeof draw === "function") {
@@ -86,15 +87,23 @@ function createSketch(sketch) {
             context: canvas === $currentRendering.canvas ? $currentRendering.renderer.context : context,
         };
 
+        let elapsed = 0;
+
         _draw = () => {
-            draw({
-                renderer,
-                props: sketch.props || {},
-                context: renderer.context,
-                width: $currentRendering.width,
-                height: $currentRendering.height,
-                ...$currentTime,
-            });
+            elapsed += $currentTime.deltaTime;
+
+            if (elapsed >= ((1 / framerate) * 1000)) {
+                elapsed = 0;
+
+                draw({
+                    renderer,
+                    props: sketch.props || {},
+                    context: renderer.context,
+                    width: $currentRendering.width,
+                    height: $currentRendering.height,
+                    ...$currentTime,
+                });
+            }
         }
     }
 }
