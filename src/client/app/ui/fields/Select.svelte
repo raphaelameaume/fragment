@@ -1,30 +1,64 @@
 <script>
+import { createEventDispatcher } from "svelte";
+
 export let options = [];
+export let value;
+
+const dispatch = createEventDispatcher();
 
 let node;
+let sanitizedOptions = [];
 
-function handleClick() {
-    node.click();
+for (let i = 0; i < options.length; i++) {
+    const { value, label } = options[i];
+
+    if (value) {
+        sanitizedOptions[i] = {
+            value: value,
+            label: label ? label : value,
+        }
+    } else {
+        sanitizedOptions[i] = {
+            value: options[i],
+            label: options[i],
+        };
+    }
+}
+
+function handleChange() {
+    dispatch('change', event.currentTarget.value);
 }
 
 </script>
 
-<div class="container" on:click={handleClick}>
-    <select class="select" bind:this={node}>
-        {#each options as option}
-            <option value={option.value}>{option.label}</option>
-        {/each}
-    </select>
+<div class="select-input">
+    <div class="container">
+        <select class="select" bind:this={node} on:change={handleChange}>
+            {#each sanitizedOptions as option}
+                <option value={option.value} selected={value === option.value}>{option.label}</option>
+            {/each}
+        </select>
+        <div class="chevrons">
+            <svg class="chevron chevron-bottom" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.25 10.75L12 14.25L8.75 10.75"></path>
+            </svg>
+        </div>
+    </div>
 </div>
 
 <style>
+.select-input {
+    width: 100%;
+}
+
 .container {
     position: relative;
 
     display: flex;
-    width: 100%;
     height: var(--inputHeight);
     margin-right: var(--padding);
+
+    color: rgba(255, 255, 255, 0.5);
 
     box-shadow: inset 0 0 0 1px var(--borderColor);
     border-radius: var(--borderRadius);
@@ -45,7 +79,8 @@ function handleClick() {
     padding: 0 var(--padding) 0 var(--padding);
 
     width: 100%;
-    color: rgba(255, 255, 255, 0.5);
+    
+    color: inherit;
     font-size: var(--fontSize);
     font-family: var(--fontFamily);
 
@@ -54,12 +89,25 @@ function handleClick() {
     cursor: pointer;
 }
 
-:global(.field:hover .select) {
+:global(.field:hover .container) {
     color: var(--color);
 }
 
 .select:focus {
     color: var(--color);
+}
+
+.chevrons {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    width: 20px;
+
+    /* color: rgba(255, 255, 255, 0.5); */
+    pointer-events: none;
 }
 
 </style>
