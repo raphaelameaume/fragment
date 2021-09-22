@@ -10,17 +10,13 @@ export let init = () => {
     renderer = {
         context,
     };
-
-    console.log("2DRenderer :: init");
 };
 
-export let resize = ({ width, height, dpr }) => {
-    console.log("2DRenderer :: resize", width, height);
-    
+export let resize = ({ width, height, dpr, sketches = [] }) => {
     canvas.width = width * dpr;
     canvas.height = height * dpr;
 };
 
-export let render = () => {
+export let render = ({ sketches = [] }) => {
 
 };

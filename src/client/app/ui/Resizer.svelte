@@ -13,7 +13,6 @@ export let direction = DIRECTIONS.HORIZONTAL;
 export let rowIndex = -1;
 export let colIndex = -1;
 
-console.log({ rowIndex, colIndex });
 let isDragging = false;
 
 $: currentRow = $currentLayout.rows[rowIndex];
