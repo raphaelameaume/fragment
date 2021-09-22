@@ -65,13 +65,28 @@ onDestroy(() => {
     cancelAnimationFrame(_raf);
 });
 
+function proxyProps(props = {}) {
+    const proxy = new Proxy(props, {
+        get: (obj, prop) => {
+            return prop in obj ? obj[prop].value : undefined
+        }
+    });
+
+    return proxy;
+}
+
 function createSketch(sketch) {
     reset(selected);
 
     const init = sketch.setup || sketch.init;
+    const proxiedProps = proxyProps(sketch.props);
 
     if (typeof init === "function") {
-        init({});
+        init({
+            width: $currentRendering.width,
+            height: $currentRendering.height,
+            props: proxiedProps,
+        });
     }
 
     const framerate = sketch.fps || 60;
@@ -93,7 +108,7 @@ function createSketch(sketch) {
 
                 draw({
                     renderer,
-                    props: sketch.props || {},
+                    props: proxiedProps,
                     context: renderer.context,
                     width: $currentRendering.width,
                     height: $currentRendering.height,
