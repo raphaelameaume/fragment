@@ -7,6 +7,7 @@ let instances = 0;
 import { onMount, beforeUpdate, afterUpdate, onDestroy, getContext } from "svelte";
 import { derived } from "svelte/store";
 import { clamp } from "lemonade-math";
+import { exportCanvas, saveDataURL } from "../utils/canvas.utils.js";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentLayout } from "../stores/layout.js";
@@ -142,12 +143,34 @@ function handleChangeSelect(event) {
     pristine = true;
 };
 
+async function screenshot() {
+    paused = true;
+    const { extension, type, dataURL } = exportCanvas(canvas);
+    
+    const now = new Date();
+
+    const year = now.toLocaleString('default', { year: 'numeric' });
+    const month = now.toLocaleString('default', { month: 'numeric' });
+    const day = now.toLocaleString('default', { day: 'numeric' });
+    const hours = now.toLocaleString('default', { hour: 'numeric' }).split(' ')[0];
+    const minutes = now.toLocaleString('default', { minute: 'numeric' });
+    const seconds = now.toLocaleString('default', { second: 'numeric' });
+
+    const prefix = `${selected}.`;
+    const date = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
+    const filename = `${prefix}${date}${extension}`;
+
+    await saveDataURL(dataURL, { filename });
+    
+    paused = false;
+}
+
 </script>
 
 <Module name={`${name}`}>
     <div slot="header-right">
         <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
-        <ModuleHeaderAction border label="Open in another window">open</ModuleHeaderAction>
+        <ModuleHeaderAction border label="Save" on:click={() => screenshot(canvas)}>save</ModuleHeaderAction>
         <ModuleHeaderAction
             value={selected}
             permanent
