@@ -4,7 +4,7 @@ import ModuleHeaderButton from "./ModuleHeaderButton.svelte";
 
 export let label = "";
 export let permanent = false;
-export let value;
+export let value = null;
 export let border = false;
 export let margin = true;
 export let options = [];

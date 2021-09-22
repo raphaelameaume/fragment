@@ -10,9 +10,11 @@ import TextInput from "./fields/TextInput.svelte";
 import ColorInput from "./fields/ColorInput.svelte";
 import ListInput from "./fields/ListInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
+import FieldSection from "./FieldSection.svelte";
+import FieldTriggers from "./FieldTriggers.svelte";
 
 export let value;
-export let name;
+export let name = '';
 export let params = {};
 export let type = inferFromParams() || inferFromValue();
 
@@ -64,6 +66,7 @@ function inferFromValue() {
 let input = fields[type];
 
 let offsetWidth;
+let secondaryVisible = false;
 
 let sizes = [
     ["small", 320],
@@ -86,10 +89,9 @@ $: {
 </script>
 
 <div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
-    <div class="field__infos">
-        <label class="field__label" for={name}>{name}</label>
-        <div class="field__actions">
-            {#if params.triggers && !params.disabled }
+    <FieldSection {name} label={name} onClickLabel={() => secondaryVisible = !secondaryVisible}>
+        <div slot="infos" class="field__actions">
+            {#if params.triggers && params.triggers.length && !params.disabled }
                 <button class="field__action field__action--triggers">
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"></path>
@@ -117,24 +119,15 @@ $: {
                 </button>
             {/if}
         </div>
-    </div>
-    <div class="field__input">
         <svelte:component this={input} {value} {name} {...params} on:change />
-        <slot name="input"></slot>
-    </div>
+    </FieldSection>
+    <FieldSection visible={secondaryVisible} secondary label="triggers">
+        <FieldTriggers />
+    </FieldSection>
 </div>
 
 <style>
 .field {
-    display: grid;
-    grid-template-columns: 0.5fr 1fr;
-    column-gap: 10px;
-    width: 100%;
-
-    padding: 4px 0;
-    border-bottom: 1px solid #323233;
-    padding-left: calc(var(--padding) * 2);
-
     --columnGap: 3px;
     --inputHeight: 20px;
     --padding: 6px;
@@ -142,9 +135,24 @@ $: {
     --borderWidth: 1px;
     --borderColor: #000000;
     --backgroundColor: #1d1d1e;
+    --spacingColor: #323233;
     --fontSize: 11px;
     --fontFamily: "Jetbrains Mono";
     --color: #f0f0f0;
+
+    width: 100%;
+
+    padding: 4px 0;
+    border-bottom: 1px solid var(--spacingColor);
+    padding-left: calc(var(--padding) * 2);
+}
+
+.field__section {
+    position: relative;
+    
+    display: grid;
+    grid-template-columns: 0.5fr 1fr;
+    column-gap: 10px;
 }
 
 :global(.field__input .field) {
@@ -183,6 +191,8 @@ $: {
 }
 
 .field__infos {
+    position: relative;
+
     display: flex;
     align-items: center;
     justify-content: space-between;

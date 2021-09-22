@@ -6,8 +6,6 @@ import ModuleHeaderSelect from "./ModuleHeaderSelect.svelte";
 
 
 export let name;
-export let grow;
-export let container;
 
 let minimized = false;
 
@@ -29,7 +27,7 @@ $: {
             const total = modulesInCol.reduce((t, m) => {
                 return t + m.grow;
             }, 0);
-            const height = grow / total;
+            const height = current.grow / total;
 
             style = `flex: 0 0 auto;`;
 
@@ -87,7 +85,7 @@ $: {
             </div>
         </header>
     {/if}
-    <div class="module__container" bind:this={container}>
+    <div class="module__container">
         <slot></slot>
     </div>
 </div>
@@ -105,7 +103,7 @@ $: {
     align-items: center;
     font-family: "Jetbrains Mono";
 
-    background: #0E0E0E;
+    background-color: #0E0E0E;
 }
 
 :global(.slot > div) {

@@ -1,7 +1,6 @@
 <script>
-export let value;
 export let label;
-export let disabled;
+export let disabled = false;
 
 </script>
 
