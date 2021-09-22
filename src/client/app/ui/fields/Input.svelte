@@ -2,12 +2,13 @@
 export let name;
 export let label = null;
 export let value;
+export let disabled = false;
 
 let el;
 
 </script>
 
-<div class="container">
+<div class="input-container" class:disabled={disabled}>
     {#if label }
         <span class="label">{label}</span>
     {/if}
@@ -22,17 +23,19 @@ let el;
         on:keydown
         on:focus
         on:blur
+        {disabled}
         autocomplete="off"
         spellcheck="false"
     />
 </div>
 
 <style>
-.container {
+.input-container {
     position: relative;
 
     display: flex;
     height: var(--inputHeight);
+    margin: 2px 0;
 
     border-radius: var(--borderRadius);
     background-color: var(--backgroundColor);
@@ -41,11 +44,11 @@ let el;
     margin-right: calc(var(--padding));
 }
 
-.container:hover {
+.input-container:not(.disabled):hover {
     box-shadow: inset 0 0 0 1px var(--activeColor);
 }
 
-.container:focus-within {
+.input-container:focus-within {
     box-shadow: 0 0 0 2px var(--activeColor);
 }
 
@@ -67,6 +70,10 @@ let el;
     opacity: 0.35;
 }
 
+.input-container.disabled .label {
+    opacity: 0.15;
+}
+
 .input {
     width: 100%;
     height: 100%;
@@ -84,7 +91,7 @@ let el;
     opacity: 0.4;
 }
 
-:global(.field:hover .container .input) {
+:global(.field__section:hover .container .input) {
     color: var(--color);
 }
 

@@ -4,11 +4,12 @@ import Input from "./Input.svelte";
 export let value;
 export let label = "";
 export let name;
+export let disabled = false;
 
 </script>
 
 <div class="text-input">
-    <Input {value} {name} {label} on:change on:input/>
+    <Input {value} {name} {label} {disabled} on:change on:input/>
 </div>
 
 <style>

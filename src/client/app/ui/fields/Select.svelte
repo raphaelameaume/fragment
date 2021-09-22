@@ -5,6 +5,7 @@ export let options = [];
 export let name;
 export let value;
 export let triggers = [];
+export let disabled = false;
 
 const dispatch = createEventDispatcher();
 
@@ -12,17 +13,19 @@ let node;
 let sanitizedOptions = [];
 
 for (let i = 0; i < options.length; i++) {
-    const { value, label } = options[i];
+    const { value, label, disabled } = options[i];
 
     if (value) {
         sanitizedOptions[i] = {
             value: value,
             label: label ? label : value,
+            disabled,
         }
     } else {
         sanitizedOptions[i] = {
             value: options[i],
             label: options[i],
+            disabled,
         };
     }
 }
@@ -33,11 +36,11 @@ function handleChange() {
 
 </script>
 
-<div class="select-input">
+<div class="select-input" class:disabled={disabled}>
     <div class="container">
-        <select class="select" bind:this={node} on:change={handleChange} {name}>
+        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled}>
             {#each sanitizedOptions as option}
-                <option value={option.value} selected={value === option.value}>{option.label}</option>
+                <option value={option.value} selected={value === option.value} disabled={option.disabled}>{option.label}</option>
             {/each}
         </select>
         <div class="chevrons">
@@ -58,6 +61,7 @@ function handleChange() {
 
     display: flex;
     height: var(--inputHeight);
+    margin: 2px 0;
     margin-right: var(--padding);
 
     color: rgba(255, 255, 255, 0.5);
@@ -65,11 +69,9 @@ function handleChange() {
     box-shadow: inset 0 0 0 1px var(--borderColor);
     border-radius: var(--borderRadius);
     background-color: var(--backgroundColor);
-
-    cursor: pointer;
 }
 
-.container:hover {
+.select-input:not(.disabled) .container:hover {
     box-shadow: inset 0 0 0 1px var(--activeColor);
 }
 
@@ -88,14 +90,17 @@ function handleChange() {
 
     outline: 0;
     background-color: transparent;
+}
+
+.select-input:not(.disabled) .select {
     cursor: pointer;
 }
 
-:global(.field:hover .container) {
+:global(.field__section:hover .select-input:not(.disabled) .container) {
     color: var(--color);
 }
 
-.select:focus {
+.select-input:not(.disabled) .select:focus {
     color: var(--color);
 }
 
@@ -108,8 +113,11 @@ function handleChange() {
     align-items: center;
     width: 20px;
 
-    /* color: rgba(255, 255, 255, 0.5); */
     pointer-events: none;
+}
+
+.select-input.disabled .chevrons {
+    opacity: 0.5;
 }
 
 </style>

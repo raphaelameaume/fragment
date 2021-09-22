@@ -14,11 +14,11 @@ function createEventListener(collection) {
             ...(collection.has(key) ? collection.get(key) : []),
             ...(collection.has(wildcard) ? collection.get(wildcard) : []),
         ];
-        
+
         triggers.forEach(trigger => {
             if (!Keyboard.enabled) return;
             
-            trigger.run();
+            trigger.run(event);
         });
     };
 }

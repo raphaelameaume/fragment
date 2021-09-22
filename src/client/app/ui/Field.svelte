@@ -200,19 +200,6 @@ $: {
     color: #f0f0f0;
 }
 
-.field__label {
-    font-size: var(--fontSize);
-    font-family: var(--fontFamily);
-    user-select: none;
-
-    opacity: 0.5;
-    transition: opacity 0.1s ease;
-}
-
-.field:hover .field__label, .field:focus-within .field__label {
-    opacity: 1;
-}
-
 .field__input {
     display: flex;
     flex-direction: column;

@@ -9,9 +9,9 @@ export let onClickLabel = () => {};
 </script>
 
 <div class="field__section" class:visible={visible} class:secondary={secondary}>
-    <div class="field__infos">
+    <div class="field__infos" on:click={onClickLabel}>
         {#if name !== ""}
-            <label class="field__label" for={name} on:click={onClickLabel}>{label}</label>
+            <label class="field__label" for={name}>{label}</label>
         {:else}
             <span class="field__label" on:click={onClickLabel}>{label}</span>
         {/if}
@@ -29,6 +29,10 @@ export let onClickLabel = () => {};
     display: grid;
     grid-template-columns: 0.5fr 1fr;
     column-gap: 10px;
+}
+
+.field__section:hover .field__label, .field__section:focus-within .field__label {
+    opacity: 1;
 }
 
 .field__section:not(.visible) {
@@ -50,7 +54,7 @@ export let onClickLabel = () => {};
     top: calc(var(--margin) * -1);
 
     width: 1px;
-    height: calc(7px + var(--margin));
+    height: calc(10px + var(--margin));
     
     background-color: var(--spacingColor);
 }
@@ -83,8 +87,8 @@ export let onClickLabel = () => {};
     position: relative;
 
     padding-left: 5px;
+    padding-top: 3px;
 
-    opacity: 1;
     background-color: #242425;
 }
 
@@ -92,7 +96,7 @@ export let onClickLabel = () => {};
     content: '';
 
     position: absolute;
-    top: 7px;
+    top: 10px;
     left: 10px;
     height: 1px;
     width: calc(100% - 15px);
