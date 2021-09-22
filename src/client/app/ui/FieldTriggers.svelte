@@ -1,8 +1,11 @@
 <script>
+import { createEventDispatcher } from "svelte";
 import FieldTrigger from "./FieldTrigger.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 
 export let triggers = [];
+
+const dispatch = createEventDispatcher();
 
 function addTrigger() {
     triggers = [
@@ -11,15 +14,17 @@ function addTrigger() {
     ];
 }
 
-function onTriggerChange(e) {
-    const { input, event: eventName, params = {}} = e.detail;
+function onTriggerChange(e, index) {
+    const { inputType, eventName, params = {}} = e.detail;
 
-    console.log("onTriggerChange", e.detail);
+    triggers[index] = e.detail;
+
+    dispatch('triggers-change', triggers);
 }
 
 </script>
 
-{#each triggers as trigger}
-    <FieldTrigger input={trigger.input} event={trigger.event} params={trigger.params} on:change={onTriggerChange} />
+{#each triggers as trigger, index}
+    <FieldTrigger input={trigger.input} event={trigger.event} params={trigger.params} on:change={(event) => onTriggerChange(event, index)} />
 {/each}
 <ButtonInput label={"Add"} on:click={addTrigger} />

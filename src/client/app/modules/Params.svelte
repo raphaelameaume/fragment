@@ -84,14 +84,6 @@ function handleChangeDimensions(event) {
     });
 }
 
-function handleChange(event, key) {
-    sketch.props[key].value = event.detail;
-}
-
-function handleTriggersChange(event, key) {
-
-}
-
 </script>
 
 <Module name="Parameters">
@@ -111,11 +103,9 @@ function handleTriggersChange(event, key) {
             </FieldGroup>
             {#each Object.keys(sketch.props) as key, i}
                 <Field
-                    name={key}
-                    value={sketch.props[key].value}
-                    triggers={sketch.props[key].triggers}
-                    on:change={(event) => handleChange(event, key)}
-                    on:triggers-change={(event) => handleTriggersChange(event, key)}
+                    sketch={sketch}
+                    context={selectedSketch}
+                    key={key}
                     params={(() => {
                         const { value, ...params } = sketch.props[key];
 

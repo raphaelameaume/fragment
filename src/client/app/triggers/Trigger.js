@@ -8,13 +8,14 @@ class Trigger {
      * @param {function} fn 
      * @param {object} params 
      */
-    constructor(inputType, eventName, fn, params) {
+    constructor(inputType, eventName, fn, params, destroy = () => {}) {
         this.id = ID++;
         this.inputType = inputType;
         this.eventName = eventName;
         this.fn = fn;
         this.params = params;
         this.enabled = true;
+        this._destroy = destroy;
     }
 
     assign(fn) {
@@ -33,6 +34,17 @@ class Trigger {
         if (this.enabled) {
             this.fn(...args);
         }
+    }
+
+    destroy() {
+        this._destroy();
+
+        this.inputType = null;
+        this.eventName = null;
+        this.fn = null;
+        this.params = null;
+        this.enabled = null;
+        this._destroy = null;
     }
 }
 

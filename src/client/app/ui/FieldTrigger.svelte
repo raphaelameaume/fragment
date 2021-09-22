@@ -5,7 +5,7 @@ import TextInput from "./fields/TextInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 
 export let input = '-';
-export let event = '-';
+export let eventName = '-';
 export let params = {};
 
 const dispatch = createEventDispatcher();
@@ -52,14 +52,14 @@ $: eventOptions = inputType === '-' ? ['-'] : [
 ]
 
 function dispatchEvent() {
-    dispatch('change', { input: inputType, event, params });
+    dispatch('change', { inputType, eventName, params });
 }
 
 function onInputChange(e) {
     const needsDispatch = inputType !== e.detail && inputType !== '-';
 
     inputType = e.detail;
-    event = '-';
+    eventName = '-';
 
     if (needsDispatch) {
         dispatchEvent();
@@ -67,7 +67,7 @@ function onInputChange(e) {
 }
 
 function onEventChange(e) {
-    event = e.detail;
+    eventName = e.detail;
 
     const isKeyboard = inputType === 'Keyboard';
 
@@ -97,7 +97,7 @@ function onTextChange(e) {
     />
     <Select
         options={eventOptions}
-        value={event}
+        value={eventName}
         on:change={onEventChange}
         disabled={inputType === '-'}
         name="trigger-event"

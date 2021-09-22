@@ -43,52 +43,61 @@ const checkForTriggers = (collection, event, scope) => {
  * @returns 
  */
 const createTrigger = (eventName, collection) => {
-    return (fn, { scope = wildcard } = {}) => {
-        const trigger = new Trigger('Mouse', eventName, fn, { scope });
-
+    return (fn, { context } = {}) => {
         try {
-            const { stack } = new Error();
-            const { url } = import.meta;
+            if (!context) {
+                const { stack } = new Error();
+                const { url } = import.meta;
 
-            const callstack = stack.split('\n');
-            const index = callstack.findIndex((call) => call.includes(url));
+                const callstack = stack.split('\n');
+                const index = callstack.findIndex((call) => call.includes(url));
 
-            if (index >= 0) {
-                callstack.splice(0, index + 1);
-            }
+                if (index >= 0) {
+                    callstack.splice(0, index + 1);
+                }
 
-            let scope = wildcard;
+                for (let i = 0; i < callstack.length; i++) {
+                    for (let j = 0; j < sketchFiles.length; j++) {
+                        const sketchFile = sketchFiles[j];
 
-            for (let i = 0; i < callstack.length; i++) {
-                for (let j = 0; j < sketchFiles.length; j++) {
-                    const sketchFile = sketchFiles[j];
-
-                    if (callstack[i].includes(sketchFile)) {
-                        scope = sketchFile;
-                        break;
+                        if (callstack[i].includes(sketchFile)) {
+                            context = sketchFile;
+                            break;
+                        }
                     }
+                }
+
+                if (!context) {
+                    context = wildcard;
                 }
             }
 
-            if (!collection.has(scope)) {
-                collection.set(scope, []);
+            if (!collection.has(context)) {
+                collection.set(context, []);
             }
 
-            collection.set(scope, [...collection.get(scope), trigger]);
+            const trigger = new Trigger('Mouse', eventName, fn, { context }, () => {
+                const items = collection.get(context);
+                const index = items.findIndex((item) => item.id === trigger.id);
 
-            console.log(collection);
+                collection.set(context, [...items].splice(index, 1));
+            });
+
+            collection.set(context, [...collection.get(context), trigger]);
+
+            return trigger;
         } catch(error) {
             console.error(error);
+            
+            return null;
         }
-
-        return trigger;
     }
 };
 
-export const checkForTriggersDown = (event, scope) => checkForTriggers(downs, event, scope);
-export const checkForTriggersMove = (event, scope) => checkForTriggers(moves, event, scope);
-export const checkForTriggersUp = (event, scope) => checkForTriggers(ups, event, scope);
-export const checkForTriggersClick = (event, scope) => checkForTriggers(clicks, event, scope);
+export const checkForTriggersDown = (event, context) => checkForTriggers(downs, event, context);
+export const checkForTriggersMove = (event, context) => checkForTriggers(moves, event, context);
+export const checkForTriggersUp = (event, context) => checkForTriggers(ups, event, context);
+export const checkForTriggersClick = (event, context) => checkForTriggers(clicks, event, context);
 
 export const onMouseDown = createTrigger('onMouseDown', downs);
 export const onMouseUp = createTrigger('onMouseUp', ups);

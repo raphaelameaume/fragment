@@ -13,12 +13,16 @@ import ListInput from "./fields/ListInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
+import * as triggersMap from "../triggers/index.js";
 
-export let value;
-export let name = '';
+export let sketch;
+export let key = '';
+export let value = sketch.props[key].value;
 export let params = {};
+export let context;
 export let type = inferFromParams() || inferFromValue();
-export let triggers = [];
+// export let triggers = [];
+
 
 const fields = {
     "select": Select,
@@ -62,6 +66,7 @@ function inferFromValue() {
 }
 
 let input = fields[type];
+let isTriggerable = ["button", "checkbox"].includes(type);
 
 let offsetWidth;
 let secondaryVisible = true;
@@ -84,10 +89,43 @@ $: {
     }
 }
 
+function handleChange(event) {
+    sketch.props[key].value = event.detail;
+}
+
+function handleTriggersChange(event) {
+    const { triggers: currentTriggers = [] } = sketch.props[key];
+
+    if (currentTriggers.length) {
+        currentTriggers
+            .filter(trigger => trigger !== null)
+            .forEach((trigger) => trigger.destroy());
+    }
+
+    const newTriggers = event.detail
+        .map(({ eventName }) => {
+            const trigger = triggersMap[eventName];
+
+            if (trigger) {
+                const onTrigger = type === 'checkbox' ? () => {
+                    value = !value;
+                } : () => {
+                    value();
+                };
+                
+                return trigger(onTrigger, { context });
+            } else {
+                return null;
+            }
+        });
+
+    sketch.props[key].triggers = newTriggers;
+}
+
 </script>
 
 <div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
-    <FieldSection {name} label={name} onClickLabel={() => secondaryVisible = !secondaryVisible}>
+    <FieldSection name={key} label={key} onClickLabel={() => secondaryVisible = !secondaryVisible}>
         <div slot="infos" class="field__actions">
             {#if params.triggers && params.triggers.length && !params.disabled }
                 <button class="field__action field__action--triggers">
@@ -117,11 +155,20 @@ $: {
                 </button>
             {/if}
         </div>
-        <svelte:component this={input} {value} {name} {...params} on:change />
+        <svelte:component
+            this={input}
+            {value}
+            name={key}
+            {...params}
+            on:change={handleChange}
+            on:click={() => value()}
+        />
     </FieldSection>
+    {#if isTriggerable}
     <FieldSection visible={secondaryVisible} secondary label="triggers">
-        <FieldTriggers />
+        <FieldTriggers on:triggers-change={handleTriggersChange} />
     </FieldSection>
+    {/if}
 </div>
 
 <style>

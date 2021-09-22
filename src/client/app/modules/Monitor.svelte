@@ -11,7 +11,7 @@ import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentLayout } from "../stores/layout.js";
 import { current as currentTime } from "../stores/time.js";
-import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, reset } from "../triggers/Mouse.js";
+import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick, reset } from "../triggers/Mouse.js";
 import Module from "../ui/Module.svelte";
 import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
@@ -151,6 +151,7 @@ function handleChangeSelect(event) {
                 bind:this={canvas}
                 style="max-width: 100%; max-height: 100%; background: red;"
                 on:mousedown={(event) => checkForTriggersDown(event, selected) }
+                on:click={(event) => checkForTriggersClick(event, selected) }
                 on:mouseup={(event) => checkForTriggersUp(event, selected) }
                 on:mousemove={(event) => checkForTriggersMove(event, selected) }
             ></canvas>
