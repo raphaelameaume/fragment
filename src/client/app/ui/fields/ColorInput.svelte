@@ -5,6 +5,8 @@ import TextInput from "./TextInput.svelte";
 import Field from "../Field.svelte";
 
 export let value;
+export let name;
+export let triggers = [];
 
 const dispatch = createEventDispatcher();
 
@@ -39,9 +41,9 @@ function onChangeText(event) {
     <div class="layout">
         <div class="mirror" style="--backgroundColor: {textValue}">
             <!-- svelte-ignore -->
-            <input class="input" type="color" value={inputValue} on:input={handleChangeColor} />
+            <input class="input" type="color" value={inputValue} {name} on:input={handleChangeColor} />
         </div>
-        <TextInput value={textValue} on:input={onChangeText} on:change={onChangeText} />
+        <TextInput value={textValue} on:input={onChangeText} {name} on:change={onChangeText} />
     </div>
     {#if hasAlpha }
         <Field name="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}}></Field>

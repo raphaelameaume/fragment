@@ -13,7 +13,6 @@ let el;
     {/if}
     <input
         class="input"
-        type="text"
         bind:this={el}
         bind:value={value}
         name={name}

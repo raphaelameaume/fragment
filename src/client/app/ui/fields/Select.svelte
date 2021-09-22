@@ -2,7 +2,9 @@
 import { createEventDispatcher } from "svelte";
 
 export let options = [];
+export let name;
 export let value;
+export let triggers = [];
 
 const dispatch = createEventDispatcher();
 
@@ -33,7 +35,7 @@ function handleChange() {
 
 <div class="select-input">
     <div class="container">
-        <select class="select" bind:this={node} on:change={handleChange}>
+        <select class="select" bind:this={node} on:change={handleChange} {name}>
             {#each sanitizedOptions as option}
                 <option value={option.value} selected={value === option.value}>{option.label}</option>
             {/each}

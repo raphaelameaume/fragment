@@ -10,12 +10,15 @@ function round(value, step) {
 }
 
 export let value;
-export let label;
+export let name;
+export let label = "";
 export let step = 1;
 export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
 export let controlled = false;
+export let disabled = false;
+export let triggers = [];
 
 let node;
 let isFocused = false;
@@ -76,17 +79,14 @@ function handleChangeProgress(event) {
         <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={handleChangeProgress} />
     {/if}
         <Input 
-            class="input"
             bind:this={node}
-            type="text"
-            label={label}
+            {name}
+            {label}
             on:keypress={onKeyPress}
             on:keydown={onKeyDown}
             on:focus={() => isFocused = true}
             on:blur={() => isFocused = false}
             value={composedValue}
-            autocomplete="off"
-            spellcheck="false"
         />
 </div>
 

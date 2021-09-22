@@ -3,11 +3,13 @@ import { createEventDispatcher } from "svelte";
 import NumberInput from "./NumberInput.svelte";
 
 export let value;
-export let suffix;
+export let name;
+export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
+export let triggers = [];
 
 function sanitize(value, type) {
     if (Array.isArray(value)) {
@@ -65,7 +67,17 @@ function onValueChange(index, newValue) {
 
 <div class="vector-container vec{currentValue.length}" class:locked={locked}>
 {#each currentValue as curr, index}
-    <NumberInput controlled={true} min={min} max={max} step={step} label={curr.label} suffix={suffix} value={curr.value} on:change={(event) => onValueChange(index, event.detail)} />
+    <NumberInput
+        controlled
+        {min}
+        {max}
+        {step}
+        {suffix}
+        {name}
+        label={curr.label}
+        value={curr.value}
+        on:change={(event) => onValueChange(index, event.detail)}
+    />
 {/each}
 </div>
 

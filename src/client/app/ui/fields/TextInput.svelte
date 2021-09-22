@@ -2,11 +2,12 @@
 import Input from "./Input.svelte";
 
 export let value;
+export let name;
 
 </script>
 
 <div class="text-input">
-    <Input value={value} on:change on:input/>
+    <Input {value} {name} on:change on:input/>
 </div>
 
 <style>

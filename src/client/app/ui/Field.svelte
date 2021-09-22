@@ -119,7 +119,7 @@ $: {
         </div>
     </div>
     <div class="field__input">
-        <svelte:component this={input} value={value} {...params} on:change />
+        <svelte:component this={input} {value} {name} {...params} on:change />
         <slot name="input"></slot>
     </div>
 </div>
