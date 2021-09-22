@@ -189,25 +189,4 @@ $: {
 .field__action:hover {
     opacity: 1;
 }
-
-.field__infos {
-    position: relative;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    
-    color: #f0f0f0;
-}
-
-.field__input {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-:global(.field__input > div:not(:first-child)) {
-    margin-top: 3px;
-}
 </style>

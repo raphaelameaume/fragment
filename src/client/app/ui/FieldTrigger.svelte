@@ -1,4 +1,5 @@
 <script>
+import { createEventDispatcher } from "svelte";
 import Select from "./fields/Select.svelte";
 import TextInput from "./fields/TextInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
@@ -6,6 +7,8 @@ import ButtonInput from "./fields/ButtonInput.svelte";
 export let input = '-';
 export let event = '-';
 export let params = {};
+
+const dispatch = createEventDispatcher();
 
 let inputType = input;
 
@@ -43,49 +46,54 @@ let inputOptions = [
     }))
 ];
 
-let events = (inputType && inputs[inputType]) ? inputs[inputType].events : [];
-let eventOptions = [
-    { value: "-", disabled: true },
-    ...events.map((e) => ({ value: e }))
-];
-
-function onChangeType(e) {
-    input = e.detail;
+function onEventChange() {
+    if (inputType !== 'Keyboard') {
+        dispatch('change', { input, event });
+    }
 }
 
-
-$: {
-    console.log("render", input, eventOptions);
+function onTextChange(e) {
+    dispatch('change', { input, event, params: {
+        key: e.currentTarget.value
+    }});
 }
 
 </script>
 
-<div class="field-triggers__trigger">
+<div class="field-triggers__trigger" class:mouse={inputType === "Mouse"} class:keyboard={inputType === "Keyboard"}>
     <Select
         name="trigger-input"
-        value={input}
+        value={inputType}
         options={inputOptions}
-        on:change={onChangeType}
+        on:change={(e) => inputType = e.detail}
     />
     <Select
-        options={eventOptions}
+        options={inputType === '-' ? ['-'] : inputs[inputType].events}
         value={event}
         on:change={(e) => event = e.detail}
-        disabled={input === '-'}
+        disabled={inputType === '-'}
         name="trigger-event"
     />
-    <TextInput
-        name="trigger-custom"
-        value=""
-        disabled={true}
-        label="key"
-    />
+    {#if inputType === 'Keyboard'}
+        <TextInput
+            name="trigger-custom"
+            value={params.key ? params.key : ""}
+            label="key"
+            on:input={onTextChange}
+        />
+    {/if}
 </div>
 
 <style>
 
 .field-triggers__trigger {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    grid-template-columns: 0.75fr 2fr;
+}
+
+.field-triggers__trigger.keyboard {
+    display: grid;
+    grid-template-columns: 0.75fr 1fr 1fr;
 }
 </style>

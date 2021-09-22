@@ -12,23 +12,26 @@ const dispatch = createEventDispatcher();
 let node;
 let sanitizedOptions = [];
 
-for (let i = 0; i < options.length; i++) {
-    const { value, label, disabled } = options[i];
+$: {
+    for (let i = 0; i < options.length; i++) {
+        const { value, label, disabled } = options[i];
 
-    if (value) {
-        sanitizedOptions[i] = {
-            value: value,
-            label: label ? label : value,
-            disabled,
+        if (value) {
+            sanitizedOptions[i] = {
+                value: value,
+                label: label ? label : value,
+                disabled,
+            }
+        } else {
+            sanitizedOptions[i] = {
+                value: options[i],
+                label: options[i],
+                disabled,
+            };
         }
-    } else {
-        sanitizedOptions[i] = {
-            value: options[i],
-            label: options[i],
-            disabled,
-        };
     }
 }
+
 
 function handleChange() {
     dispatch('change', event.currentTarget.value);
