@@ -4,8 +4,8 @@ export let disabled = false;
 
 </script>
 
-<div class="button-container">
-    <button class="button" on:click>
+<div class="button-container" class:disabled={disabled}>
+    <button class="button" {disabled} on:click>
         {label}
     </button>
 </div>

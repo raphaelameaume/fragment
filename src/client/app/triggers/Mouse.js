@@ -1,6 +1,7 @@
 import { get } from "svelte/store";
 import Trigger from "./Trigger";
 import Mouse from "../inputs/Mouse";
+import { addToMapArray, removeFromMapArray } from "../utils";
 
 window.mouseIsPressed = false;
 window.mouseX = 0;
@@ -72,18 +73,11 @@ const createTrigger = (eventName, collection) => {
                 }
             }
 
-            if (!collection.has(context)) {
-                collection.set(context, []);
-            }
-
             const trigger = new Trigger('Mouse', eventName, fn, { context }, () => {
-                const items = collection.get(context);
-                const index = items.findIndex((item) => item.id === trigger.id);
-
-                collection.set(context, [...items].splice(index, 1));
+                removeFromMapArray(collection, context, (item) => item.id === trigger.id);
             });
 
-            collection.set(context, [...collection.get(context), trigger]);
+            addToMapArray(collection, context, trigger);
 
             return trigger;
         } catch(error) {

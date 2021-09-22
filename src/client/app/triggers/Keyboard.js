@@ -1,5 +1,6 @@
 import Trigger from "./Trigger";
 import Keyboard from "../inputs/Keyboard";
+import { addToMapArray, removeFromMapArray } from "../utils";
 
 const wildcard = "*";
 const pressedKeys = new Map();
@@ -24,35 +25,34 @@ function createEventListener(collection) {
 }
 
 function createTrigger(eventName, collection) {
-    const defaultOptions = {
-        caseSensitive: true,
-    };
-
-    return (key, fn, options = defaultOptions) => {
+    return (key, fn, options = {}) => {
         if (typeof key === "function") {
+            if (typeof fn === "object") {
+                options = {
+                    ...options,
+                    ...fn,
+                };
+            }
+
             fn = key;
             key = "*";
+
+            if (typeof options.key === 'string') {
+                key = options.key;
+            }
         }
 
-        if (typeof fn === "object") {
-            options = {
-                ...defaultOptions,
-                ...fn,
-            };
-        }
-
-        let keys = options.caseSensitive ? [key] : [key.toLowerCase(), key.toUpperCase()];
-
+        let keys = key.split('').includes(',') ? key.split(',') : [key];
+        keys = keys.filter((k) => k !== '');
+        
         const trigger = new Trigger('Keyboard', eventName, fn, {...options, key }, () => {
-            // dispose
+            keys.forEach((k) => {
+                removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+            });
         });
 
         keys.forEach(k => {
-            if (collection.has(k)) {
-                collection.set(k, [...collection.get(k), trigger]);
-            } else {
-                collection.set(k, [trigger]);
-            }
+            addToMapArray(collection, k, trigger);
         });
 
         return trigger;

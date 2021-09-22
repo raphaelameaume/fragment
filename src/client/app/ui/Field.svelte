@@ -15,11 +15,11 @@ import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import * as triggersMap from "../triggers/index.js";
 
-export let sketch;
+export let sketch = null;
 export let key = '';
-export let value = sketch.props[key].value;
+export let value = sketch && sketch.props[key] ? sketch.props[key].value : null;
 export let params = {};
-export let context;
+export let context = null;
 export let type = inferFromParams() || inferFromValue();
 // export let triggers = [];
 
@@ -103,8 +103,10 @@ function handleTriggersChange(event) {
     }
 
     const newTriggers = event.detail
-        .map(({ eventName }) => {
+        .map(({ eventName, params }) => {
             const trigger = triggersMap[eventName];
+
+            console.log(eventName, params);
 
             if (trigger) {
                 const onTrigger = type === 'checkbox' ? () => {
@@ -113,11 +115,13 @@ function handleTriggersChange(event) {
                     value();
                 };
                 
-                return trigger(onTrigger, { context });
+                return trigger(onTrigger, { context, ...params });
             } else {
                 return null;
             }
         });
+
+    console.log(newTriggers);
 
     sketch.props[key].triggers = newTriggers;
 }

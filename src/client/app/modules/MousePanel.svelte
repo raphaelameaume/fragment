@@ -21,7 +21,7 @@ function handleClickClear(event) {
 
 <Module name="Mouse" {...$$props}>
     <Field
-        name="screen"
+        key="screen"
         value={screen}
         params={{
             step: 1,
@@ -29,7 +29,7 @@ function handleClickClear(event) {
         }}
     />
     <Field
-        name="normalized"
+        key="normalized"
         value={normalized}
         params={{
             step: 0.0001,
@@ -38,7 +38,7 @@ function handleClickClear(event) {
         }}
     />
     <Field
-        name="orthographic"
+        key="orthographic"
         value={ortho}
         params={{
             step: 0.0001,
@@ -47,7 +47,7 @@ function handleClickClear(event) {
         }}
     />
     <Field
-        name="events"
+        key="events"
         value={[
             "19:58:32 – mouseup",
             "19:58:32 – mousedown",

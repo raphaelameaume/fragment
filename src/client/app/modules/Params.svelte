@@ -99,7 +99,7 @@ function handleChangeDimensions(event) {
     {#if sketch }
         {#if typeof sketch.props === "object"}
             <FieldGroup name="Settings" collapsed={true} >
-                <Field name="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
+                <Field key="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
             </FieldGroup>
             {#each Object.keys(sketch.props) as key, i}
                 <Field
@@ -117,7 +117,7 @@ function handleChangeDimensions(event) {
     {/if}
     {#if Number(selected) === monitors.length - 1}
         <Field
-            name="dimensions"
+            key="dimensions"
             value={[
                 $currentRendering.width,
                 $currentRendering.height,

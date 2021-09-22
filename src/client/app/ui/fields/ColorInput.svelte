@@ -6,7 +6,6 @@ import Field from "../Field.svelte";
 
 export let value;
 export let name;
-export let triggers = [];
 
 const dispatch = createEventDispatcher();
 
@@ -46,7 +45,7 @@ function onChangeText(event) {
         <TextInput value={textValue} on:input={onChangeText} {name} on:change={onChangeText} />
     </div>
     {#if hasAlpha }
-        <Field name="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}}></Field>
+        <Field key="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}}></Field>
     {/if }
 </div>
 

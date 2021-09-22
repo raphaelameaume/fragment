@@ -25,6 +25,11 @@ function onTriggerChange(e, index) {
 </script>
 
 {#each triggers as trigger, index}
-    <FieldTrigger input={trigger.input} event={trigger.event} params={trigger.params} on:change={(event) => onTriggerChange(event, index)} />
+    <FieldTrigger
+        input={trigger.inputType}
+        eventName={trigger.eventName}
+        params={trigger.params}
+        on:change={(event) => onTriggerChange(event, index)}
+    />
 {/each}
 <ButtonInput label={"Add"} on:click={addTrigger} />
