@@ -17,12 +17,11 @@ import * as triggersMap from "../triggers/index.js";
 
 export let sketch = null;
 export let key = '';
-export let value = sketch && sketch.props[key] ? sketch.props[key].value : null;
+export let value = (sketch && sketch.props[key]) ? sketch.props[key].value : null;
 export let params = {};
 export let context = null;
 export let type = inferFromParams() || inferFromValue();
-// export let triggers = [];
-
+export let triggers = (sketch && sketch.props[key] && sketch.props[key].triggers) ? sketch.props[key].triggers : [];
 
 const fields = {
     "select": Select,
@@ -35,6 +34,27 @@ const fields = {
     "color": ColorInput,
     "button": ButtonInput,
 };
+
+const onTriggers = {
+    'checkbox': () => {
+        value = !value;
+
+        if (sketch && sketch.props[key]) {
+            sketch.props[key].value = value;
+        }
+    },
+    'button': () => {
+        value()
+    },
+};
+
+const onTrigger = onTriggers[type];
+
+triggers.forEach((trigger) => {
+    if (trigger.fn === undefined && onTrigger) {
+        trigger.fn = onTrigger;
+    }
+});
 
 function inferFromParams() {
     if (params.options && Array.isArray(params.options)) {
@@ -66,7 +86,7 @@ function inferFromValue() {
 }
 
 let input = fields[type];
-let isTriggerable = ["button", "checkbox"].includes(type);
+let isTriggerable = Object.keys(onTriggers).includes(type);
 
 let offsetWidth;
 let secondaryVisible = true;
@@ -106,22 +126,12 @@ function handleTriggersChange(event) {
         .map(({ eventName, params }) => {
             const trigger = triggersMap[eventName];
 
-            console.log(eventName, params);
-
-            if (trigger) {
-                const onTrigger = type === 'checkbox' ? () => {
-                    value = !value;
-                } : () => {
-                    value();
-                };
-                
+            if (trigger && onTrigger) {
                 return trigger(onTrigger, { context, ...params });
             } else {
                 return null;
             }
         });
-
-    console.log(newTriggers);
 
     sketch.props[key].triggers = newTriggers;
 }
@@ -170,7 +180,10 @@ function handleTriggersChange(event) {
     </FieldSection>
     {#if isTriggerable}
     <FieldSection visible={secondaryVisible} secondary label="triggers">
-        <FieldTriggers on:triggers-change={handleTriggersChange} />
+        <FieldTriggers
+            {triggers}
+            on:triggers-change={handleTriggersChange}
+        />
     </FieldSection>
     {/if}
 </div>

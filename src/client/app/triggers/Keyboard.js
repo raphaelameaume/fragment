@@ -9,18 +9,20 @@ const downKeys = new Map();
 
 function createEventListener(collection) {
     return (event) => {
-        const { key } = event;
+        const { key, target } = event;
 
-        const triggers = [
-            ...(collection.has(key) ? collection.get(key) : []),
-            ...(collection.has(wildcard) ? collection.get(wildcard) : []),
-        ];
+        if (!target.classList.contains('input')) {
+            const triggers = [
+                ...(collection.has(key) ? collection.get(key) : []),
+                ...(collection.has(wildcard) ? collection.get(wildcard) : []),
+            ];
 
-        triggers.forEach(trigger => {
-            if (!Keyboard.enabled) return;
-            
-            trigger.run(event);
-        });
+            triggers.forEach(trigger => {
+                if (!Keyboard.enabled) return;
+                
+                trigger.run(event);
+            });
+        }
     };
 }
 
