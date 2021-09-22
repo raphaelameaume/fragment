@@ -89,7 +89,7 @@ let input = fields[type];
 let isTriggerable = Object.keys(onTriggers).includes(type);
 
 let offsetWidth;
-let secondaryVisible = true;
+let secondaryVisible = false;
 
 let sizes = [
     ["small", 320],
