@@ -46,16 +46,44 @@ let inputOptions = [
     }))
 ];
 
-function onEventChange() {
-    if (inputType !== 'Keyboard') {
-        dispatch('change', { input, event });
+$: eventOptions = inputType === '-' ? ['-'] : [
+    { value: '-', disabled: true },
+    ...inputs[inputType].events.map(e => ({ value: e }))
+]
+
+function dispatchEvent() {
+    dispatch('change', { input: inputType, event, params });
+}
+
+function onInputChange(e) {
+    const needsDispatch = inputType !== e.detail && inputType !== '-';
+
+    inputType = e.detail;
+    event = '-';
+
+    if (needsDispatch) {
+        dispatchEvent();
+    }
+}
+
+function onEventChange(e) {
+    event = e.detail;
+
+    const isKeyboard = inputType === 'Keyboard';
+
+    if (!isKeyboard) {
+        params = {};
+    }
+
+    if (!isKeyboard || (isKeyboard && (params.key && params.key !== ''))) {
+        dispatchEvent();
     }
 }
 
 function onTextChange(e) {
-    dispatch('change', { input, event, params: {
-        key: e.currentTarget.value
-    }});
+    params.key = e.currentTarget.value;
+
+    dispatchEvent();
 }
 
 </script>
@@ -65,12 +93,12 @@ function onTextChange(e) {
         name="trigger-input"
         value={inputType}
         options={inputOptions}
-        on:change={(e) => inputType = e.detail}
+        on:change={onInputChange}
     />
     <Select
-        options={inputType === '-' ? ['-'] : inputs[inputType].events}
+        options={eventOptions}
         value={event}
-        on:change={(e) => event = e.detail}
+        on:change={onEventChange}
         disabled={inputType === '-'}
         name="trigger-event"
     />

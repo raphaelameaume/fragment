@@ -88,6 +88,10 @@ function handleChange(event, key) {
     sketch.props[key].value = event.detail;
 }
 
+function handleTriggersChange(event, key) {
+
+}
+
 </script>
 
 <Module name="Parameters">
@@ -109,7 +113,9 @@ function handleChange(event, key) {
                 <Field
                     name={key}
                     value={sketch.props[key].value}
+                    triggers={sketch.props[key].triggers}
                     on:change={(event) => handleChange(event, key)}
+                    on:triggers-change={(event) => handleTriggersChange(event, key)}
                     params={(() => {
                         const { value, ...params } = sketch.props[key];
 

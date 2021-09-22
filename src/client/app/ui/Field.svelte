@@ -1,4 +1,5 @@
 <script>
+import { createEventDispatcher } from "svelte";
 import { colord } from "colord";
 
 import Select from "./fields/Select.svelte";
@@ -17,10 +18,7 @@ export let value;
 export let name = '';
 export let params = {};
 export let type = inferFromParams() || inferFromValue();
-
-if (params.triggers === undefined) {
-    params.triggers = true;
-}
+export let triggers = [];
 
 const fields = {
     "select": Select,
@@ -66,7 +64,7 @@ function inferFromValue() {
 let input = fields[type];
 
 let offsetWidth;
-let secondaryVisible = false;
+let secondaryVisible = true;
 
 let sizes = [
     ["small", 320],

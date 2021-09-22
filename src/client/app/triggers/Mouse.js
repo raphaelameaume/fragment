@@ -42,9 +42,9 @@ const checkForTriggers = (collection, event, scope) => {
  * @param {Map} collection 
  * @returns 
  */
-const createTrigger = (collection) => {
+const createTrigger = (eventName, collection) => {
     return (fn, { scope = wildcard } = {}) => {
-        const trigger = new Trigger(fn, { scope });
+        const trigger = new Trigger('Mouse', eventName, fn, { scope });
 
         try {
             const { stack } = new Error();
@@ -90,7 +90,7 @@ export const checkForTriggersMove = (event, scope) => checkForTriggers(moves, ev
 export const checkForTriggersUp = (event, scope) => checkForTriggers(ups, event, scope);
 export const checkForTriggersClick = (event, scope) => checkForTriggers(clicks, event, scope);
 
-export const onMouseDown = createTrigger(downs);
-export const onMouseUp = createTrigger(ups);
-export const onMouseMove = createTrigger(moves);
-export const onClick = createTrigger(clicks);
+export const onMouseDown = createTrigger('onMouseDown', downs);
+export const onMouseUp = createTrigger('onMouseUp', ups);
+export const onMouseMove = createTrigger('onMouseMove', moves);
+export const onClick = createTrigger('onClick', clicks);

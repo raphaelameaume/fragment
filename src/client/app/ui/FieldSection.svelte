@@ -87,7 +87,7 @@ export let onClickLabel = () => {};
     position: relative;
 
     padding-left: 5px;
-    padding-top: 3px;
+    padding-top: 5px;
 
     background-color: #242425;
 }

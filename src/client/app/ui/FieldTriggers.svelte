@@ -11,9 +11,15 @@ function addTrigger() {
     ];
 }
 
+function onTriggerChange(e) {
+    const { input, event: eventName, params = {}} = e.detail;
+
+    console.log("onTriggerChange", e.detail);
+}
+
 </script>
 
 {#each triggers as trigger}
-    <FieldTrigger input={trigger.input} event={trigger.event} params={trigger.params} on:change />
+    <FieldTrigger input={trigger.input} event={trigger.event} params={trigger.params} on:change={onTriggerChange} />
 {/each}
 <ButtonInput label={"Add"} on:click={addTrigger} />

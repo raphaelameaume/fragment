@@ -23,7 +23,7 @@ function createEventListener(collection) {
     };
 }
 
-function createTrigger(collection) {
+function createTrigger(eventName, collection) {
     const defaultOptions = {
         caseSensitive: true,
     };
@@ -43,7 +43,7 @@ function createTrigger(collection) {
 
         let keys = options.caseSensitive ? [key] : [key.toLowerCase(), key.toUpperCase()];
 
-        const trigger = new Trigger(fn, {...options, key }, () => {
+        const trigger = new Trigger('Keyboard', eventName, fn, {...options, key }, () => {
             // dispose
         });
 
@@ -63,6 +63,6 @@ window.addEventListener("keypress", createEventListener(pressedKeys));
 window.addEventListener("keyup", createEventListener(upKeys));
 window.addEventListener("keydown", createEventListener(downKeys));
 
-export const onKeyPress = createTrigger(pressedKeys);
-export const onKeyDown = createTrigger(downKeys); 
-export const onKeyUp = createTrigger(upKeys);
+export const onKeyPress = createTrigger('onKeyPress', pressedKeys);
+export const onKeyDown = createTrigger('onKeyDown', downKeys); 
+export const onKeyUp = createTrigger('onKeyUp', upKeys);
