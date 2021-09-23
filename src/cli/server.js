@@ -13,6 +13,7 @@ export async function start({ options, filepath, entries }) {
 
     // const root = path.join(__dirname, '/../..');
     const root = path.join(__dirname, '/../client');
+    const cwd = process.cwd();
     // const publicDir = path.join(root, '/public');
 
     const config = defineConfig({
@@ -29,9 +30,22 @@ export async function start({ options, filepath, entries }) {
         },
         plugins: [
             svelte(),
+            {
+                name: 'configure-response-headers',
+                configureServer: (server) => {
+                    server.middlewares.use((_req, res, next) => {
+                        res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+                        res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+                        next();
+                    });
+                }
+            }
         ],
         server: {
             port: options.port,
+        },
+        define: {
+            '__CWD__': `'${cwd}'`
         },
         optimizeDeps: {
             exclude: [
