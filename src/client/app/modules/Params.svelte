@@ -106,6 +106,7 @@ function handleChangeDimensions(event) {
                     sketch={sketch}
                     context={selectedSketch}
                     key={key}
+                    type={sketch.props[key].type}
                     params={(() => {
                         const { value, ...params } = sketch.props[key];
 

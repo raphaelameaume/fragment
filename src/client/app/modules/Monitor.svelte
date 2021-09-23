@@ -23,6 +23,7 @@ let container, canvas, context;
 let pristine = false;
 let index = instances;
 let paused = false;
+let recording = false;
 instances++;
 $currentRendering.monitors = instances;
 
@@ -76,6 +77,8 @@ function proxyProps(props = {}) {
     return proxy;
 }
 
+
+let framerate = 60;
 function createSketch(sketch) {
     reset(selected);
 
@@ -90,7 +93,7 @@ function createSketch(sketch) {
         });
     }
 
-    const framerate = sketch.fps || 60;
+    framerate = sketch.fps || 60;
     const draw = sketch.draw || sketch.update || sketch.render;
 
     if (typeof draw === "function") {
@@ -101,8 +104,8 @@ function createSketch(sketch) {
 
         let elapsed = 0;
 
-        _draw = () => {
-            elapsed += $currentTime.deltaTime;
+        _draw = ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
+            elapsed += deltaTime;
 
             if (elapsed >= ((1 / framerate) * 1000)) {
                 elapsed = 0;
@@ -113,7 +116,8 @@ function createSketch(sketch) {
                     context: renderer.context,
                     width: $currentRendering.width,
                     height: $currentRendering.height,
-                    ...$currentTime,
+                    time,
+                    deltaTime,
                 });
             }
         }
@@ -161,14 +165,74 @@ async function screenshot() {
     const filename = `${prefix}${date}${extension}`;
 
     await saveDataURL(dataURL, { filename });
-    
+
     paused = false;
+}
+
+function record() {
+    recording = !recording;
+    
+    if (recording) {
+        paused = true;
+
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        const ffmpeg = createFFmpeg({ log: true });
+        ffmpeg.setProgress(({ ratio }) => {
+            if (ratio === 1) {
+                console.log(ratio);
+                // encodingProgress.setAttribute("width", "180");
+            }
+        });
+        ffmpeg.setLogger(({ type, message }) => {
+            if (type === 'fferr' && /^frame=\s*\d+/.test(message)) {
+                const frame = parseInt(message.match(/^frame=\s*(\d+)/)[1]);
+            }
+        });
+
+        let deltaTime = 0;
+        let time = 0;
+        let frameCount = 0;
+        let duration = 5;
+
+        function tick() {
+            _draw({ time, deltaTime });
+
+            deltaTime = (1000 / framerate);
+            time += deltaTime;
+
+            canvas.toBlob(async function(blob) {
+                const fn = `frame_${frameCount.toString().padStart(4, '0')}.png`;
+                ffmpeg.FS('writeFile', fn, new Uint8Array(await blob.arrayBuffer()));
+                frameCount++;
+
+                console.log(`ffmpeg write frame`);
+
+                if (frameCount < framerate * duration) {
+                    requestAnimationFrame(tick);
+                } else {
+                    console.log("Done");
+                    console.log("running ffmpeg");
+                    await ffmpeg.run(...('-r 60 -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.mp4'.split(' ')));
+                    const data = ffmpeg.FS('readFile', 'output.mp4');
+                    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));	
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = document.title + '.mp4'
+                    a.click();
+                    paused = false;
+                }
+            });
+        }
+
+        ffmpeg.load().then(tick);
+    }
 }
 
 </script>
 
 <Module name={`${name}`}>
     <div slot="header-right">
+        <ModuleHeaderAction border label="Record" on:click={record}>record</ModuleHeaderAction>
         <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Save" on:click={() => screenshot(canvas)}>save</ModuleHeaderAction>
         <ModuleHeaderAction
