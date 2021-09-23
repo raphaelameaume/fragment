@@ -46,7 +46,7 @@ $: {
     width: 100%;
     height: 100%;
 
-    border-top: 2px solid #0E0E0E;
+    border-top: 2px solid var(--borderColor);
     /* border: 1px solid #505050;
     border-radius: 2px; */
 
