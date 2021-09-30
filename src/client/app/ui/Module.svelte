@@ -90,7 +90,7 @@ $: {
     grid-template-columns: 1fr 1fr 1fr;
     height: 25px;
     align-items: center;
-    font-family: "Jetbrains Mono";
+    font-family: var(--fontFamily);
 
     background-color: #0E0E0E;
 }

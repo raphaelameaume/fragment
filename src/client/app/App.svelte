@@ -102,7 +102,7 @@ async function start() {
 }
 
 :global(body) {
-	position: relative;
+	position: fixed;
 
 	width: 100%;
 	height: 100%;
