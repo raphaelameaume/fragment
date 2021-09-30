@@ -3,6 +3,7 @@ import { setContext, getContext } from "svelte";
 import { writable } from "svelte/store";
 import { current as currentLayout } from "../stores/layout.js";
 import Monitor from "../modules/Monitor.svelte";
+import Console from "../modules/Console.svelte";
 import Params from "../modules/Params.svelte";
 import MousePanel from "../modules/MousePanel.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
@@ -16,7 +17,8 @@ const moduleList = {
     "params": Params,
     "mouse": MousePanel,
     "midi": MidiPanel,
-    "keyboard": KeyboardPanel
+    "keyboard": KeyboardPanel,
+    "console": Console,
 };
 
 const component = moduleList[module.name];

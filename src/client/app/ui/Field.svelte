@@ -23,6 +23,7 @@ export let context = null;
 export let type = inferFromParams() || inferFromValue();
 export let triggers = (sketch && sketch.props[key] && sketch.props[key].triggers) ? sketch.props[key].triggers : [];
 
+const dispatch = createEventDispatcher();
 const fields = {
     "select": Select,
     "number": NumberInput,
@@ -110,7 +111,13 @@ $: {
 }
 
 function handleChange(event) {
-    sketch.props[key].value = event.detail;
+    if (sketch) {
+        sketch.props[key].value = event.detail;
+    }
+
+    console.log("Field :: ", key, event.detail)
+    
+    dispatch('change', event.detail);
 }
 
 function handleTriggersChange(event) {
@@ -191,16 +198,7 @@ function handleTriggersChange(event) {
 <style>
 .field {
     --columnGap: 3px;
-    --inputHeight: 20px;
     --padding: 6px;
-    --borderRadius: 3px;
-    --borderWidth: 1px;
-    --borderColor: #000000;
-    --backgroundColor: #1d1d1e;
-    --spacingColor: #323233;
-    --fontSize: 11px;
-    --fontFamily: "Jetbrains Mono";
-    --color: #f0f0f0;
 
     width: 100%;
 

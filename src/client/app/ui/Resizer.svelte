@@ -23,8 +23,8 @@ $: nextCol = currentCol ? currentRow.cols[colIndex + 1] : null;
 
 let currentRowRect, nextRowRect;
 let currentColRect, nextColRect;
-let totalRowGrow = 0;
-let totalColGrow = 0;
+let totalRowFlex = 0;
+let totalColFlex = 0;
 
 let visible = false;
 
@@ -43,11 +43,11 @@ function handleMouseDown() {
         currentRowRect = currentRow && currentRow.$element.getBoundingClientRect();
         nextRowRect = nextRow && nextRow.$element.getBoundingClientRect();
 
-        totalRowGrow = (currentRow ? currentRow.grow : 0) + (nextRow ? nextRow.grow : 0);
+        totalRowFlex = (currentRow ? currentRow.flex : 0) + (nextRow ? nextRow.flex : 0);
 
         if (direction === DIRECTIONS.VERTICAL) {
             if (currentCol && nextCol) {
-                totalColGrow = currentCol.grow + nextCol.grow;
+                totalColFlex = currentCol.flex + nextCol.flex;
 
                 currentColRect = currentCol.$element.getBoundingClientRect();
                 nextColRect = nextCol.$element.getBoundingClientRect();
@@ -55,7 +55,7 @@ function handleMouseDown() {
                 currentCol.resizing = true;
                 nextCol.resizing = true;
 
-                visible = currentCol.grow === nextCol.grow;
+                visible = currentCol.flex === nextCol.flex;
             }
         } else {
             if (currentRow) {
@@ -66,7 +66,7 @@ function handleMouseDown() {
                 nextRow.resizing = true;
             }
 
-            visible = currentRow.grow === nextRow.grow;
+            visible = currentRow.flex === nextRow.flex;
         }
 
     }
@@ -102,22 +102,22 @@ function handleMouseMove(event) {
 
             const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
 
-            let prevGrow = Math.round(map(y, top, bottom, 0, totalRowGrow) * 100) / 100;
-            let nextGrow = Math.round(map(y, bottom, top, 0, totalRowGrow) * 100) / 100;
+            let prevFlex = Math.round(map(y, top, bottom, 0, totalRowFlex) * 100) / 100;
+            let nextFlex = Math.round(map(y, bottom, top, 0, totalRowFlex) * 100) / 100;
 
-            if (Math.abs(nextGrow - prevGrow) < 0.05) {
-                prevGrow = totalRowGrow * 0.5;
-                nextGrow = totalRowGrow * 0.5;
+            if (Math.abs(nextFlex - prevFlex) < 0.05) {
+                prevFlex = totalRowFlex * 0.5;
+                nextFlex = totalRowFlex * 0.5;
             }
 
-            visible = prevGrow === nextGrow;
-            
+            visible = prevFlex === nextFlex;
+
             currentLayout.update((current) => {
                 const updated = {
                     ...current,
                     rows:  current.rows.map((row, index) => {
-                        return index === rowIndex ? {...row, grow: prevGrow } :
-                            index === (rowIndex + 1 ) ? {...row, grow: nextGrow} : row
+                        return index === rowIndex ? {...row, flex: prevFlex } :
+                            index === (rowIndex + 1 ) ? {...row, flex: nextFlex} : row
                     })
                 };
 
@@ -128,15 +128,15 @@ function handleMouseMove(event) {
             const right = nextColRect.right;
 
             const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-            let prevGrow = Math.round(map(x, left, right, 0, totalColGrow) * 100) / 100;
-            let nextGrow = Math.round(map(x, right, left, 0, totalColGrow) * 100) / 100;
+            let prevFlex = Math.round(map(x, left, right, 0, totalColFlex) * 100) / 100;
+            let nextFlex = Math.round(map(x, right, left, 0, totalColFlex) * 100) / 100;
 
-            if (Math.abs(nextGrow - prevGrow) < 0.05) {
-                prevGrow = totalColGrow * 0.5;
-                nextGrow = totalColGrow * 0.5;
+            if (Math.abs(nextFlex - prevFlex) < 0.05) {
+                prevFlex = totalColFlex * 0.5;
+                nextFlex = totalColFlex * 0.5;
             }
 
-            visible = prevGrow === nextGrow;
+            visible = prevFlex === nextFlex;
 
             currentLayout.update((current) => {
                 const updated = {
@@ -146,8 +146,8 @@ function handleMouseMove(event) {
                             {
                                 ...row,
                                 cols: row.cols.map((col, j) => {
-                                    return j === colIndex ? {...col, grow: prevGrow } :
-                                        j === (colIndex + 1) ? {...col, grow: nextGrow } : col;
+                                    return j === colIndex ? {...col, flex: prevFlex } :
+                                        j === (colIndex + 1) ? {...col, flex: nextFlex } : col;
                                 })
                             }
                     })

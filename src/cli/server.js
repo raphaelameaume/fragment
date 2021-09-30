@@ -8,7 +8,7 @@ import log from "./log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function start({ options, filepath, entries }) {
+export async function start({ options, filepaths, entries }) {
     log.warning(`Starting server...`);
 
     // const root = path.join(__dirname, '/../..');
@@ -21,7 +21,8 @@ export async function start({ options, filepath, entries }) {
         root,
         resolve: {
             alias: [
-                { find: '@fragment/sketches', replacement: filepath },
+                { find: '@fragment/sketches', replacement: filepaths[0] },
+                { find: '@fragment/props', replacement: filepaths[1] },
                 { find: '@fragment', replacement: path.join(root, 'app') },
             ]
         },
@@ -49,7 +50,7 @@ export async function start({ options, filepath, entries }) {
         },
         optimizeDeps: {
             exclude: [
-                filepath,
+                ...filepaths,
                 ...entries.map((entry ) => path.join(process.cwd(), entry)),
             ]
         }

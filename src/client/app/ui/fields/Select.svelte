@@ -69,9 +69,9 @@ function handleChange() {
 
     color: rgba(255, 255, 255, 0.5);
 
-    box-shadow: inset 0 0 0 1px var(--borderColor);
-    border-radius: var(--borderRadius);
-    background-color: var(--backgroundColor);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    border-radius: var(--inputBorderRadius);
+    background-color: var(--inputBackgroundColor);
 }
 
 .select-input:not(.disabled) .container:hover {
@@ -88,7 +88,7 @@ function handleChange() {
     width: 100%;
     
     color: inherit;
-    font-size: var(--fontSize);
+    font-size: var(--inputFontSize);
     font-family: var(--fontFamily);
 
     outline: 0;
@@ -100,11 +100,11 @@ function handleChange() {
 }
 
 :global(.field__section:hover .select-input:not(.disabled) .container) {
-    color: var(--color);
+    color: var(--inputColor);
 }
 
 .select-input:not(.disabled) .select:focus {
-    color: var(--color);
+    color: var(--inputColor);
 }
 
 .chevrons {

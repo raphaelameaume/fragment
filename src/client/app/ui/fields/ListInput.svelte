@@ -25,9 +25,9 @@ export let value;
     margin-right: var(--padding);
     padding: 1px 0;
 
-    background-color: var(--backgroundColor);
-    border-radius: var(--borderRadius);
-    box-shadow: inset 0 0 0 1px var(--borderColor);
+    background-color: #1d1d1e;
+    border-radius: var(--inputBorderRadius);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
 
     pointer-events: auto;
 }
@@ -59,7 +59,7 @@ export let value;
 
     margin: 0;
     padding: 0 3px;
-    color: var(--color);
+    color: var(--inputColor);
     font-size: 10px;
     font-family: var(--fontFamily);
 

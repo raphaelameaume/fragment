@@ -55,10 +55,10 @@ function handleMouseUp() {
     position: relative;
     
     height: var(--inputHeight);
-    border-radius: var(--borderRadius);
-    box-shadow: inset 0 0 0 1px var(--borderColor);
+    border-radius: var(--inputBorderRadius);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
 
-    background: var(--backgroundColor);
+    background: var(--inputBackgroundColor);
     cursor: ew-resize;
     margin-right: var(--padding);
 }
@@ -81,7 +81,7 @@ function handleMouseUp() {
 
     background: grey;
     transform-origin: 0 50%;
-    border-radius: calc(var(--borderRadius) * 0.5);
+    border-radius: calc(var(--inputBorderRadius) * 0.5);
 
     background-color: var(--activeColor);
 }

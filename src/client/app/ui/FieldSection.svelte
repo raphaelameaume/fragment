@@ -70,7 +70,7 @@ export let onClickLabel = () => {};
 }
 
 .field__label {
-    font-size: var(--fontSize);
+    font-size: var(--inputFontSize);
     font-family: var(--fontFamily);
     user-select: none;
 

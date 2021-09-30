@@ -6,30 +6,35 @@ import TriggersSetup from "./ui/TriggersSetup.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
 
 export let rendering;
+export let sketchesCount = 0;
 
-async function loadRenderer(renderer) {
+async function loadRenderer() {
+	if (rendering === "2d") {
 		return import("./renderers/2DRenderer.js");
+	}
+
+	return import("./renderers/2DRenderer.js");
 };
 
 async function start() {
-		const { init, resize, update, render } = await loadRenderer(rendering);
+	const { init, resize, update, render } = await loadRenderer();
 
-		init($currentRendering);
+	init($currentRendering);
+	resize($currentRendering);
+
+	const { renderer, canvas } = await loadRenderer();
+
+	currentRendering.update((rendering) => ({
+			...rendering,
+			renderer,
+			canvas,
+	}));
+
+	await tick();
+
+	currentRendering.subscribe(({ width, height }) => {
 		resize($currentRendering);
-
-		const { renderer, canvas } = await loadRenderer();
-
-		currentRendering.update((rendering) => ({
-				...rendering,
-				renderer,
-				canvas,
-		}));
-
-		await tick();
-
-		currentRendering.subscribe(({ width, height }) => {
-				resize($currentRendering);
-		});
+	});
 }
 
 </script>
@@ -79,11 +84,21 @@ async function start() {
 }
 
 :global(:root) {
-	--fontFamily: "Inter", system-ui, sans-serif;
+	--fontFamily: "Jetbrains Mono", system-ui, sans-serif;
 	--backgroundColor: #242425;
 	--activeColor: #177bd0;
 	--topBarHeight: 24px;
 	--borderColor: #0E0E0E;
+
+    --inputColor: #f0f0f0;
+	--inputHeight: 20px;
+    --inputBorderRadius: 3px;
+    --inputBorderWidth: 1px;
+    --inputBorderColor: #000000;
+    --inputBackgroundColor: #1d1d1e;
+    --spacingColor: #323233;
+    --inputFontSize: 11px;
+    --inputFontFamily: "Jetbrains Mono";
 }
 
 :global(body) {

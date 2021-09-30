@@ -37,9 +37,9 @@ let el;
     height: var(--inputHeight);
     margin: 2px 0;
 
-    border-radius: var(--borderRadius);
-    background-color: var(--backgroundColor);
-    box-shadow: inset 0 0 0 1px var(--borderColor);
+    border-radius: var(--inputBorderRadius);
+    background-color: var(--inputBackgroundColor);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
 
     margin-right: calc(var(--padding));
 }
@@ -62,9 +62,8 @@ let el;
     align-items: center;
     padding: var(--padding);
 
-    color: var(--color);
-    font-size: var(--fontSize);
-    font-family: var(--fontFamily);
+    color: var(--inputColor);
+    font-size: var(--inputFontSize);
     font-weight: 600;
     pointer-events: none;
     opacity: 0.35;
@@ -80,7 +79,7 @@ let el;
     padding: 0 var(--padding);
 
     color: rgba(255, 255, 255, 0.5);
-    font-size: var(--fontSize);
+    font-size: var(--inputFontSize);
     text-align: right;
 
     background: transparent;
@@ -92,11 +91,11 @@ let el;
 }
 
 :global(.field__section:hover .container .input) {
-    color: var(--color);
+    color: var(--inputColor);
 }
 
 input:focus {
-    color: var(--color);
+    color: var(--inputColor);
 }
 
 /* .input:focus {

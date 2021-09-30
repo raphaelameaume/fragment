@@ -26,10 +26,10 @@ function handleChange() {
     width: var(--inputHeight);
     height: var(--inputHeight);
     margin-right: calc(var(--padding));
-    box-shadow: inset 0 0 0 1px var(--borderColor);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
 
-    border-radius: var(--borderRadius);
-    background-color: var(--backgroundColor);
+    border-radius: var(--inputBorderRadius);
+    background-color: var(--inputBackgroundColor);
 }
 
 .checkbox:hover {
@@ -44,7 +44,7 @@ function handleChange() {
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: var(--borderRadius);
+    border-radius: var(--inputBorderRadius);
     background-color: transparent;
 }
 
@@ -59,7 +59,7 @@ function handleChange() {
     bottom: 3px;
     right: 3px;
 
-    border-radius: calc(var(--borderRadius) * 0.5);
+    border-radius: calc(var(--inputBorderRadius) * 0.5);
     background-color: var(--activeColor);
 
     opacity: 0;

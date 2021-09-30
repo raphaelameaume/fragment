@@ -26,10 +26,10 @@ function addRow() {
 <div class="layout">
     <div class="content">
         {#each $currentLayout.rows as row, rowIndex}
-            <Row grow={row.grow} index={rowIndex} bind:node={row.$element}>
+            <Row current={row} index={rowIndex}>
                 {#if row.cols && row.cols.length >0 }
                     {#each row.cols as col, colIndex}
-                        <Column index={colIndex} grow={col.grow} bind:node={col.$element}>
+                        <Column current={col} index={colIndex}>
                             {#if col.modules && col.modules.length > 0}
                                 {#each col.modules as module, moduleIndex}
                                     <ModuleRenderer module={module} index={moduleIndex} />

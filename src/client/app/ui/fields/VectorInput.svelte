@@ -97,7 +97,7 @@ function onValueChange(index, newValue) {
     width: calc(var(--columnGap) + var(--padding));
     height: 1px;
 
-    background-color: var(--borderColor);
+    background-color: var(--inputBorderColor);
 }
 
 :global(.xxsmall .vector-container.locked > *:not(:last-child):after) {

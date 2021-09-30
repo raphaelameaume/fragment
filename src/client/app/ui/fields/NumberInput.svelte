@@ -48,6 +48,7 @@ function onKeyDown(event) {
 
         if (!controlled) {
             currentValue = newValue;
+            dispatch('change', currentValue);
         } else {
             dispatch('change', newValue);
         }
@@ -59,6 +60,8 @@ function onKeyPress(event) {
         if (!controlled) {
             currentValue = sanitize(event.currentTarget.value);
             composedValue = composeValue(currentValue);
+
+            dispatch('change', currentValue);
         } else {
             dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value))));
         }

@@ -98,9 +98,7 @@ function handleChangeDimensions(event) {
     </div>
     {#if sketch }
         {#if typeof sketch.props === "object"}
-            <FieldGroup name="Settings" collapsed={true} >
-                <Field key="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
-            </FieldGroup>
+            <Field key="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
             {#each Object.keys(sketch.props) as key, i}
                 <Field
                     sketch={sketch}
@@ -128,6 +126,14 @@ function handleChangeDimensions(event) {
                 step: 1,
                 suffix: "px",
                 locked: false
+            }}
+        />
+        <Field
+            key="pixelRatio"
+            value={$currentRendering.dpr}
+            on:change={(event) => $currentRendering.dpr = event.detail }
+            params={{
+                step: 0.1,
             }}
         />
     {/if}

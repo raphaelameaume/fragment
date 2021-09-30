@@ -2,33 +2,17 @@
 import { setContext, getContext } from 'svelte';
 import { current as currentLayout } from "../stores/layout.js";
 
-export let grow = 1;
 export let index;
-export let node;
-
-let style = "";
+export let current;
 
 let rowIndex = getContext("rowIndex");
 setContext("colIndex", index);
 
-$: {
-    const { resizing } = $currentLayout.rows[rowIndex].cols[index];
-
-    if (resizing) {
-        style = `flex: ${grow}`;
-    } else {
-        const total = $currentLayout.rows[rowIndex].cols.reduce((t, col) => {
-            return t + col.grow;
-        }, 0);
-        const width = $currentLayout.rows[rowIndex].cols[index].grow / total;
-
-        style = `flex: 0 0 auto; width: ${width * 100}%`;
-    }
-}
+$: style = `flex: ${current.flex}`;
 
 </script>
 
-<div class="column" style={style} bind:this={node}>
+<div class="column" style={style} bind:this={current.$element}>
     {#if $currentLayout.editable }
       <header class="header">
           <button>Add module</button>

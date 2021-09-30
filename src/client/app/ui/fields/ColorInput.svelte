@@ -38,7 +38,7 @@ function onChangeText(event) {
 
 <div class="color-input">
     <div class="layout">
-        <div class="mirror" style="--backgroundColor: {textValue}">
+        <div class="mirror" style="--currentColor: {textValue}">
             <!-- svelte-ignore -->
             <input class="input" type="color" value={inputValue} {name} on:input={handleChangeColor} />
         </div>
@@ -67,8 +67,8 @@ function onChangeText(event) {
     
     height: var(--inputHeight);
 
-    border-radius: var(--borderRadius);
-    box-shadow: inset 0 0 0 1px var(--borderColor);
+    border-radius: var(--inputBorderRadius);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
 }
 
 .mirror:before {
@@ -81,8 +81,8 @@ function onChangeText(event) {
     right: var(--gap);
     bottom: var(--gap);
 
-    background-color: var(--backgroundColor);
-    border-radius: calc(var(--borderRadius) * 0.5);
+    background-color: var(--currentColor);
+    border-radius: calc(var(--inputBorderRadius) * 0.5);
 }
 
 .mirror:hover {

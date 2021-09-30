@@ -4,18 +4,16 @@ let instances = 0;
 </script>
 
 <script>
-import { onMount, beforeUpdate, afterUpdate, onDestroy, getContext } from "svelte";
-import { derived } from "svelte/store";
-import { clamp } from "lemonade-math";
+import { onMount, onDestroy, getContext } from "svelte";
 import { exportCanvas, saveDataURL } from "../utils/canvas.utils.js";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
-import { current as currentLayout } from "../stores/layout.js";
 import { current as currentTime } from "../stores/time.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick, reset } from "../triggers/Mouse.js";
 import Module from "../ui/Module.svelte";
-import ModuleHeaderSelect from "../ui/ModuleHeaderSelect.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
+import FieldGroup from "../ui/FieldGroup.svelte";
+import Field from "../ui/Field.svelte";
 
 export let name = "monitor";
 
@@ -32,8 +30,14 @@ let options = [
         value: key,
         label: $currentSketches[key].name ? $currentSketches[key].name : key,
     })),
-    { value: "output", label: "output" },
 ];
+
+if ($currentSketches.length > 1) {
+    options = [
+        ...options,
+        { value: "output", label: "output" },
+    ];
+}
 
 let currentModule = getContext("currentModule");
 let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
@@ -110,12 +114,14 @@ function createSketch(sketch) {
             if (elapsed >= ((1 / framerate) * 1000)) {
                 elapsed = 0;
 
+                const { width, height } = $currentRendering;
+
                 draw({
                     renderer,
                     props: proxiedProps,
                     context: renderer.context,
-                    width: $currentRendering.width,
-                    height: $currentRendering.height,
+                    width,
+                    height,
                     time,
                     deltaTime,
                 });
@@ -131,7 +137,6 @@ $: {
         context = canvas.getContext("2d");
 
         if (sketch) {
-            console.log("createSketch");
             createSketch(sketch);
         }
     }
@@ -228,13 +233,24 @@ function record() {
     }
 }
 
+$: {
+    if (index === ($currentRendering.monitors - 1) && container) {
+        $currentRendering.canvas.style.cssText= "max-width: 100%; max-height: 100%; background: red;";
+        container.appendChild($currentRendering.canvas);
+
+        canvas = $currentRendering.canvas;
+    }
+}
+
 </script>
 
 <Module name={`${name}`}>
-    <div slot="header-right">
+    <div slot="header-left">
         <ModuleHeaderAction border label="Record" on:click={record}>record</ModuleHeaderAction>
         <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Save" on:click={() => screenshot(canvas)}>save</ModuleHeaderAction>
+    </div>
+    <div slot="header-right">
         <ModuleHeaderAction
             value={selected}
             permanent
@@ -244,12 +260,10 @@ function record() {
         />
     </div>
     <div class="canvas__container" bind:this={container}>
-        {#if index === ($currentRendering.monitors - 1)}
-            <p></p>
-        {:else}
+        {#if index !== ($currentRendering.monitors - 1)}
             <canvas
-                width={$currentRendering.width}
-                height={$currentRendering.height}
+                width={$currentRendering.width * $currentRendering.dpr}
+                height={$currentRendering.height * $currentRendering.dpr}
                 bind:this={canvas}
                 style="max-width: 100%; max-height: 100%; background: red;"
                 on:mousedown={(event) => checkForTriggersDown(event, selected) }
@@ -259,6 +273,14 @@ function record() {
             ></canvas>
         {/if}
     </div>
+    <FieldGroup name="recording">
+        <Field key="duration" value={10} params={{suffix: 's'}} />
+        <Field key="extension" params={{options: [".mp4", ".gif"]}} />
+        <Field key="usePlayhead" value={false} />
+    </FieldGroup>
+    <FieldGroup name="screenshot">
+        <Field key="extension" params={{options: [".jpg", ".png", ".webp"]}} />
+    </FieldGroup>
 </Module>
 
 <style>

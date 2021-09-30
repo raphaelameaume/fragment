@@ -58,7 +58,6 @@ function handleSubMouseEnter(index) {
     font-size: 12px;
     padding: 0 8px;
     font-weight: 600;
-    font-family: "Inter", system-ui, sans-serif;
     border: none;
     background: none;
     user-select: none;

@@ -1,11 +1,14 @@
 import { writable } from "svelte/store";
+import { sketchesCount } from "@fragment/props";
 import { defaultLayouts } from "../data/LayoutData";
 import { keepInSync, rehydrate } from "./utils";
 
-const key = `layout.current`;
+const isMany = sketchesCount > 1;
+const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
+const defaultLayout = defaultLayouts.filter((layout) => layout.isMany === isMany)[0];
 
 export const current = writable({
-    ...rehydrate(key, defaultLayouts[0].data, false),
+    ...rehydrate(key, defaultLayout.data, true),
     editable: false,
     resizable: false,
 });

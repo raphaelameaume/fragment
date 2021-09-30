@@ -24,10 +24,11 @@ export let disabled = false;
     align-items: center;
 
     color: rgba(255, 255, 255, 0.5);
+    font-size: var(--inputFontSize);
     
-    border-radius: var(--borderRadius);
-    background-color: var(--backgroundColor);
-    box-shadow: inset 0 0 0 1px var(--borderColor);
+    border-radius: var(--inputBorderRadius);
+    background-color: var(--inputBackgroundColor);
+    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
     margin-right: calc(var(--padding));
 }
 
@@ -36,7 +37,7 @@ export let disabled = false;
 }
 
 .button:hover {
-    color: var(--color);
+    color: var(--inputColor);
 
     box-shadow: inset 0 0 0 1px var(--activeColor);
 }

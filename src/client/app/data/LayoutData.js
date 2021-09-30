@@ -1,108 +1,56 @@
 export const savedLayouts = [];
 export const defaultLayouts = [
     {
-        name: "Single",
+        name: "VJing",
+        isMany: true,
         data: {
             rows: [
                 {
-                    grow: 1.3,
+                    flex: 1,
                     cols: [
                         {
-                            grow: 1,
+                            flex: 1,
                             modules: [
-                                { name: "monitor", grow: 0 },
-                                { name: "params", grow: 0 },
+                                { name: "monitor", flex: 1 },
+                                { name: "params", flex: 1 },
                             ]
                         }, {
-                            grow: 1,
+                            flex: 1,
                             modules: [
-                                { name: "monitor", grow: 0 },
-                                { name: "params", grow: 0 },
+                                { name: "monitor", flex: 1 },
+                                { name: "params", flex: 1 },
                             ]
                         }, {
-                            grow: 1,
+                            flex: 1,
                             modules: [
-                                { name: "monitor", grow: 0 },
-                                { name: "params", grow: 0 },
+                                { name: "monitor", flex: 1 },
+                                { name: "params", flex: 1 },
                             ]
                         }
                     ]
                 },
-                // {
-                //     grow: 0.7,
-                //     cols: [
-                //         // {
-                //         //     grow: 1,
-                //         //     modules: [
-                //         //         { name: "mouse" },
-                //         //     ]
-                //         // }, {
-                //         //     grow: 1,
-                //         //     modules: [
-                //         //         { name: "midi" },
-                //         //         { name: "keyboard" },
-                //         //     ]
-                //         // },
-                //     ]
-                // }
             ]
         }
     },
     {
-        name: "VJ",
+        name: "Sketching",
+        isMany: false,
         data: {
             rows: [
                 {
-                    grow: 1.3,
+                    flex: 1,
                     cols: [
                         {
-                            grow: 1,
+                            flex: 1.4,
                             modules: [
-                                {
-                                    name: "monitor",
-                                    grow: 0,
-                                    params: {},
-                                },
-                                { 
-                                    name: "stage-selector",
-                                    grow: 0,
-                                }
+                                { name: "monitor", flex: 1, grow: true },
                             ]
                         },
                         { 
-                            grow: 1,
+                            flex: 0.6,
                             modules: [
-                                {
-                                    name: "monitor",
-                                    grow: 0,
-                                    params: {},
-                                },
-                                { 
-                                    name: "stage-selector",
-                                    grow: 0,
-                                }
-                            ]
-                        },
-                        {
-                            grow: 1,
-                            modules: [
-                                {
-                                    name: "output-monitor",
-                                    grow: 0,
-                                    params: {},
-                                }
-                            ]
-                        },
-                    ]
-                },
-                {
-                    grow: 0.7,
-                    cols: [
-                        { grow: 1 },
-                        {
-                            grow: 1,
-                            modules: [
-                                
+                                { name: "params", flex: 1 },
+                                { name: "params", flex: 1 },
                             ]
                         },
                     ]
