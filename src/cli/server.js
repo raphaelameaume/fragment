@@ -44,6 +44,7 @@ export async function start({ options, filepaths, entries }) {
         ],
         server: {
             port: options.port,
+            host: true
         },
         define: {
             '__CWD__': `'${cwd}'`
