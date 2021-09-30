@@ -21,7 +21,7 @@ export const addRow = () => {
             ...current,
             rows: [
                 ...current.rows,
-                { grow: 1, cols: [] }
+                { flex: 1, cols: [] }
             ]
         };
     });
@@ -48,7 +48,7 @@ export const addColumn = (index) => {
                     cols: [
                         ...row.cols,
                         {
-                            grow: 1,
+                            flex: 1,
                             modules: []
                         }
                     ]

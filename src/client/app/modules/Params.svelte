@@ -4,11 +4,14 @@ let instances = 0;
 
 <script>
 import { getContext, onMount, setContext } from "svelte";
+import { sketchesCount } from "@fragment/props";
 import { current as currentLayout } from "../stores/layout.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentSketches } from "../stores/sketches.js";
+
 import Module from "../ui/Module.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
+import FieldSpace from "../ui/FieldSpace.svelte";
 import Field from "../ui/Field.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
@@ -88,6 +91,7 @@ function handleChangeDimensions(event) {
 
 <Module name="Parameters">
     <div slot="header-right">
+        {#if monitors.length > 1 }
         <ModuleHeaderAction
             value={$currentModule.params.selected}
             permanent
@@ -95,7 +99,32 @@ function handleChangeDimensions(event) {
             on:change={handleChangeSelect}
             options={options}
         />
+        {/if }
     </div>
+    {#if Number(selected) === monitors.length - 1 && sketchesCount === 1}
+        <Field
+            key="dimensions"
+            value={[
+                $currentRendering.width,
+                $currentRendering.height,
+            ]}
+            on:change={handleChangeDimensions}
+            params={{
+                step: 1,
+                suffix: "px",
+                locked: false
+            }}
+        />
+        <Field
+            key="pixelRatio"
+            value={$currentRendering.dpr}
+            on:change={(event) => $currentRendering.dpr = event.detail }
+            params={{
+                step: 0.1,
+            }}
+        />
+    {/if}
+
     {#if sketch }
         {#if typeof sketch.props === "object"}
             <Field key="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
@@ -114,7 +143,7 @@ function handleChangeDimensions(event) {
             {/each}
         {/if}
     {/if}
-    {#if Number(selected) === monitors.length - 1}
+    {#if Number(selected) === monitors.length - 1 && sketchesCount > 1}
         <Field
             key="dimensions"
             value={[

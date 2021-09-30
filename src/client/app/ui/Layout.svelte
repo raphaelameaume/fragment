@@ -54,7 +54,7 @@ function addRow() {
             {/if}
         {/each}
         {#if $currentLayout.editable }
-            <RowToolBar style="bottom: 0" />
+            <RowToolBar />
         {/if }
     </div>
 </div>

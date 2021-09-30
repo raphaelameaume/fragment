@@ -11,19 +11,19 @@ export const defaultLayouts = [
                         {
                             flex: 1,
                             modules: [
-                                { name: "monitor", flex: 1 },
+                                { name: "monitor", flex: 0 },
                                 { name: "params", flex: 1 },
                             ]
                         }, {
                             flex: 1,
                             modules: [
-                                { name: "monitor", flex: 1 },
+                                { name: "monitor", flex: 0 },
                                 { name: "params", flex: 1 },
                             ]
                         }, {
                             flex: 1,
                             modules: [
-                                { name: "monitor", flex: 1 },
+                                { name: "monitor", flex: 0 },
                                 { name: "params", flex: 1 },
                             ]
                         }
@@ -49,8 +49,7 @@ export const defaultLayouts = [
                         { 
                             flex: 0.6,
                             modules: [
-                                { name: "params", flex: 1 },
-                                { name: "params", flex: 1 },
+                                { name: "params", flex: 0 },
                             ]
                         },
                     ]

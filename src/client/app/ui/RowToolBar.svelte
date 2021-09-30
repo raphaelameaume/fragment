@@ -66,8 +66,6 @@ function handleMoveDown() {
 
 <style>
 .header {
-    position: absolute;
-    left: 0;
     z-index: 2;
 
     display: flex;

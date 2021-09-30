@@ -5,6 +5,7 @@ let instances = 0;
 
 <script>
 import { onMount, onDestroy, getContext } from "svelte";
+import { sketchesCount } from "@fragment/props";
 import { exportCanvas, saveDataURL } from "../utils/canvas.utils.js";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
@@ -32,7 +33,7 @@ let options = [
     })),
 ];
 
-if ($currentSketches.length > 1) {
+if (sketchesCount > 1) {
     options = [
         ...options,
         { value: "output", label: "output" },
@@ -273,14 +274,14 @@ $: {
             ></canvas>
         {/if}
     </div>
-    <FieldGroup name="recording">
+    <!-- <FieldGroup name="recording">
         <Field key="duration" value={10} params={{suffix: 's'}} />
         <Field key="extension" params={{options: [".mp4", ".gif"]}} />
         <Field key="usePlayhead" value={false} />
     </FieldGroup>
     <FieldGroup name="screenshot">
         <Field key="extension" params={{options: [".jpg", ".png", ".webp"]}} />
-    </FieldGroup>
+    </FieldGroup> -->
 </Module>
 
 <style>
