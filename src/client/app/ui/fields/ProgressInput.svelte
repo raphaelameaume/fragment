@@ -47,7 +47,7 @@ function handleMouseUp() {
 </script>
 
 <div class="progress {isDragging ? "dragging": ""} " bind:this={node} on:mousedown={handleMouseDown}>
-    <div class="fill" style="opacity: {value > 0 ? 1 : 0}; transform: scaleX({map(value, min, max, 0, 1)})"></div>
+    <div class="fill" style="opacity: {value > 0 ? 1 : 0}; transform: scaleX({clamp(map(value, min, max, 0, 1), 0, 1)})"></div>
 </div>
 
 <style>
