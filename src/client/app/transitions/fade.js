@@ -5,9 +5,13 @@ export let props = {};
 export let fragment = /* glsl */`
 precision highp float;
 
+uniform sampler2D uSampler0;
+uniform sampler2D uSampler1;
 uniform float threshold;
 
+varying vec2 vUv;
+
 void main() {
-    gl_FragColor = mix(vec4(1., 0., 0., 1.), vec4(1., 0., 1., 1.), threshold);
+    gl_FragColor = mix(texture2D(uSampler0, vUv), texture2D(uSampler1, vUv), threshold);
 }
-`;
+`;  

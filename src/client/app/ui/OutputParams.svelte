@@ -30,7 +30,7 @@ let transitionOptions = Object.keys(transitions).map((key) => {
 
 if (!$currentRendering.transition) {
     $currentRendering.transition = transitionOptions[0].value;
-    // emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
+    emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
 }
 
 function handleChangeTransition(event) {

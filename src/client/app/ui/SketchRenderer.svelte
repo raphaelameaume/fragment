@@ -45,8 +45,6 @@ function createRenderLoop() {
     const draw = sketch.draw || sketch.update;
     const context = canvas.getContext("2d");
 
-    console.log("renderloop", { width, height });
-
     let elapsed = 0;
 
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
