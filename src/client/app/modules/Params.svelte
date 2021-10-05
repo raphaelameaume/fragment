@@ -103,27 +103,7 @@ function handleChangeDimensions(event) {
         {/if }
     </div>
     {#if Number(selected) === monitors.length - 1 && sketchesCount === 1}
-        <Field
-            key="dimensions"
-            value={[
-                $currentRendering.width,
-                $currentRendering.height,
-            ]}
-            on:change={handleChangeDimensions}
-            params={{
-                step: 1,
-                suffix: "px",
-                locked: false
-            }}
-        />
-        <Field
-            key="pixelRatio"
-            value={$currentRendering.dpr}
-            on:change={(event) => $currentRendering.dpr = event.detail }
-            params={{
-                step: 0.1,
-            }}
-        />
+        <OutputParams />
     {/if}
 
     {#if sketch }
@@ -135,6 +115,9 @@ function handleChangeDimensions(event) {
                     context={selectedSketch}
                     key={key}
                     type={sketch.props[key].type}
+                    on:change={(event) => {
+                        sketch.props[key].value = event.detail;
+                    }}
                     params={(() => {
                         const { value, ...params } = sketch.props[key];
 

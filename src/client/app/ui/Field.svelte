@@ -110,13 +110,6 @@ $: {
     }
 }
 
-function handleChange(event) {
-    if (sketch) {
-        sketch.props[key].value = event.detail;
-    }
-
-    dispatch('change', event.detail);
-}
 
 function handleTriggersChange(event) {
     const { triggers: currentTriggers = [] } = sketch.props[key];
@@ -179,7 +172,7 @@ function handleTriggersChange(event) {
             {value}
             name={key}
             {...params}
-            on:change={handleChange}
+            on:change={(event) => dispatch('change', event.detail)}
             on:click={() => value()}
         />
     </FieldSection>
