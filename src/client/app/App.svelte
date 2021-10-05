@@ -4,6 +4,7 @@ import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
 import TriggersSetup from "./ui/TriggersSetup.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
+import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "./events";
 
 export let rendering;
 export let sketchesCount = 0;
@@ -17,12 +18,34 @@ async function loadRenderer() {
 };
 
 async function start() {
-	const { init, resize, update, render } = await loadRenderer();
+	let canvas = document.createElement('canvas');
+	let renderer = await loadRenderer();
+	let events = [
+        { name: "onTransitionChange", event: TRANSITION_CHANGE },
+        { name: "onMountPreview", event: PREVIEW_MOUNT },
+        { name: "onBeforeUpdatePreview", event: PREVIEW_BEFORE_UPDATE },
+        { name: "onAfterUpdatePreview", event: PREVIEW_AFTER_UPDATE },
+    ];
 
-	init($currentRendering);
-	resize($currentRendering);
+    events.forEach(({ name, event }) => {
+        if (typeof renderer[`${name}`] === "function") {
+            on(event, (event) => {
+                renderer[`${name}`](event);
+            });
+        }
+    });
 
-	const { renderer, canvas } = await loadRenderer();
+	const { pixelRatio, width, height } = $currentRendering;
+
+	renderer.init({ canvas, pixelRatio, width, height });
+
+	currentRendering.subscribe((current) => {
+		renderer.resize({
+			width: current.width,
+			height: current.height,
+			pixelRatio: current.pixelRatio,
+		});
+	});
 
 	currentRendering.update((rendering) => ({
 			...rendering,
@@ -31,10 +54,6 @@ async function start() {
 	}));
 
 	await tick();
-
-	currentRendering.subscribe(({ width, height }) => {
-		resize($currentRendering);
-	});
 }
 
 </script>

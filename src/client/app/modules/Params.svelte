@@ -13,6 +13,7 @@ import Module from "../ui/Module.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import FieldSpace from "../ui/FieldSpace.svelte";
 import Field from "../ui/Field.svelte";
+import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
 let pristine = false;
@@ -144,26 +145,6 @@ function handleChangeDimensions(event) {
         {/if}
     {/if}
     {#if Number(selected) === monitors.length - 1 && sketchesCount > 1}
-        <Field
-            key="dimensions"
-            value={[
-                $currentRendering.width,
-                $currentRendering.height,
-            ]}
-            on:change={handleChangeDimensions}
-            params={{
-                step: 1,
-                suffix: "px",
-                locked: false
-            }}
-        />
-        <Field
-            key="pixelRatio"
-            value={$currentRendering.dpr}
-            on:change={(event) => $currentRendering.dpr = event.detail }
-            params={{
-                step: 0.1,
-            }}
-        />
+        <OutputParams />
     {/if}
 </Module>

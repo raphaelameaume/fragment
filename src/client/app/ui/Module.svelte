@@ -95,7 +95,7 @@ $: {
     background-color: #0E0E0E;
 }
 
-:global(.slot > div) {
+.slot {
     display: flex;
     align-items: center;
 }

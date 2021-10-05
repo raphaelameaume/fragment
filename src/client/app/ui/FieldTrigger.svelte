@@ -21,6 +21,24 @@ let inputs = {
             "onClick",
         ]
     },
+    "Touch": {
+        events: [
+            "onTouchStart",
+            "onTouchEnd",
+            "onTouchMove",
+            "onClick",
+        ],
+        disabled: true,
+    },
+    "Pointer": {
+        events: [
+            "onDown",
+            "onUp",
+            "onMove",
+            "onClick",
+        ],
+        disabled: true,
+    },
     "Keyboard": {
         events: [
             "onKeyDown",

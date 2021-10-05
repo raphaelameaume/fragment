@@ -106,7 +106,7 @@ $: {
 
         if (offsetWidth < size) {
             sizeClassName = name;
-        } 
+        }
     }
 }
 
@@ -115,8 +115,6 @@ function handleChange(event) {
         sketch.props[key].value = event.detail;
     }
 
-    console.log("Field :: ", key, event.detail)
-    
     dispatch('change', event.detail);
 }
 

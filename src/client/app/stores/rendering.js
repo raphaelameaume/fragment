@@ -7,7 +7,7 @@ export const current = writable({
     ...rehydrate(key, {
         width: 500,
         height: 250,
-        dpr: 1,
+        pixelRatio: 1,
         monitors: 0,
     }, true)
 });
