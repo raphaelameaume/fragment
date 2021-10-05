@@ -1,6 +1,7 @@
 <script>
 import { emit, TRANSITION_CHANGE } from "../events";
 import { current as currentRendering } from "../stores/rendering.js";
+import { current as currentSketches } from "../stores/sketches.js";
 import Field from "./Field.svelte";
 import { transitions } from "../transitions/index.js";
 
@@ -64,6 +65,7 @@ function handleChangeTransition(event) {
     }}
 />
 
+{#if $currentSketches.length > 1 }
 <Field
     key="threshold"
     value={$currentRendering.threshold}
@@ -74,7 +76,6 @@ function handleChangeTransition(event) {
         max: 1,
     }}
 />
-
 <Field
     key="transition"
     value={transition}
@@ -83,3 +84,4 @@ function handleChangeTransition(event) {
         options: transitionOptions,
     }}
 />
+{/if}
