@@ -26,6 +26,7 @@ function createSketch(key) {
     if (!sketch) return;
 
     props = proxyProps(sketch.props);
+
     framerate = sketch.fps ? sketch.fps : 60;
 
     const init = sketch.setup || sketch.init;
@@ -108,16 +109,17 @@ onDestroy(() => {
 </script>
 
 <div class="sketch-renderer">
-    <canvas
-        width={$currentRendering.width * $currentRendering.pixelRatio}
-        height={$currentRendering.height * $currentRendering.pixelRatio}
-        bind:this={canvas}
-        style="max-width: 100%; max-height: 100%; background: red;"
-        on:mousedown={(event) => checkForTriggersDown(event, key) }
-        on:click={(event) => checkForTriggersClick(event, key) }
-        on:mouseup={(event) => checkForTriggersUp(event, key) }
-        on:mousemove={(event) => checkForTriggersMove(event, key) }
-    ></canvas>
+    <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
+        <canvas class="canvas"
+            width={$currentRendering.width * $currentRendering.pixelRatio}
+            height={$currentRendering.height * $currentRendering.pixelRatio}
+            bind:this={canvas}
+            on:mousedown={(event) => checkForTriggersDown(event, key) }
+            on:click={(event) => checkForTriggersClick(event, key) }
+            on:mouseup={(event) => checkForTriggersUp(event, key) }
+            on:mousemove={(event) => checkForTriggersMove(event, key) }
+        ></canvas>
+    </div>
 </div>
 
 <style>
@@ -127,8 +129,20 @@ onDestroy(() => {
     width: 100%;
     height: 100%;
     justify-content: center;
-    align-items: center;
 
     background-color: #0E0E0E;
+}
+
+.canvas-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-height: 100%;
+}
+
+.canvas {
+    max-width: 100%;
+    max-height: 100%;
 }
 </style>
