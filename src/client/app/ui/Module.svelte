@@ -18,10 +18,12 @@ let index = getContext("moduleIndex");
 let current = getContext("currentModule");
 
 $: {
+    let modulesInCol = $currentLayout.rows[rowIndex].cols[colIndex].modules.length;
+
     if ($current.grow) {
         style = 'flex-grow: 1';
     } else {
-        style = `flex: ${$current.flex}`;
+        style = `flex: ${$current.flex}; max-height: ${100/modulesInCol}%`;
     }
 }
 
