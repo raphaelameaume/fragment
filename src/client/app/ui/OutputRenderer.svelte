@@ -1,7 +1,6 @@
 <script>
-import { onDestroy, onMount } from "svelte";
+import { getContext, onDestroy, onMount } from "svelte";
 import { current as currentRendering, threshold } from "../stores/rendering.js";
-import * as renderer from "../renderers/THREERenderer";
 import { transitions } from "../transitions/index";
 import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "../events/index.js";
 
@@ -9,6 +8,8 @@ export let paused = false;
 
 let container;
 let _raf;
+
+let renderer = getContext('renderer');
 
 function render() {
     if (!paused) {
@@ -19,8 +20,6 @@ function render() {
 }
 
 onMount(() => {
-    console.log("OutputRenderer :: mount");
-
     const { canvas } = $currentRendering;
 
     container.appendChild(canvas);

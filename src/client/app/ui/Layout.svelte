@@ -9,6 +9,11 @@ import Menu from "./Menu.svelte";
 import Resizer from "./Resizer.svelte";
 
 import { current as currentLayout } from "../stores/layout.js";
+import { setContext } from "svelte";
+
+export let renderer;
+
+setContext("renderer", renderer);
 
 function addRow() {
     currentLayout.update((current) => {

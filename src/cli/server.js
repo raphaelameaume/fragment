@@ -16,6 +16,13 @@ export async function start({ options, filepaths, entries }) {
     const cwd = process.cwd();
     // const publicDir = path.join(root, '/public');
 
+    const renderings = {
+        "2d": './renderers/2DRenderer.js',
+        "three-webgl": './renderers/THREERenderer.js',
+    };
+
+    const renderer = renderings[options.rendering];
+
     const config = defineConfig({
         configFile: false,
         root,
@@ -47,7 +54,8 @@ export async function start({ options, filepaths, entries }) {
             host: true
         },
         define: {
-            '__CWD__': `'${cwd}'`
+            '__CWD__': `'${cwd}'`,
+            '__RENDERER__': JSON.stringify(renderer),
         },
         optimizeDeps: {
             exclude: [

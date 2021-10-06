@@ -1,25 +1,22 @@
 <script>
-import { onMount, tick } from "svelte";
+import { onMount, setContext, tick } from "svelte";
 import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
 import TriggersSetup from "./ui/TriggersSetup.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
 import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "./events";
 
-export let rendering;
 export let sketchesCount = 0;
 
-async function loadRenderer() {
-	if (rendering === "2d") {
-		return import("./renderers/2DRenderer.js");
-	}
+let renderer;
 
-	return import("./renderers/THREERenderer.js");
+async function loadRenderer() {
+	return import(/* @vite-ignore */__RENDERER__);
 };
 
 async function start() {
 	let canvas = document.createElement('canvas');
-	let renderer = await loadRenderer();
+	renderer = await loadRenderer();
 	let events = [
         { name: "onTransitionChange", event: TRANSITION_CHANGE },
         { name: "onMountPreview", event: PREVIEW_MOUNT },
@@ -70,7 +67,7 @@ async function start() {
 	<Loading />
 {:then}
 	<TriggersSetup />
-	<Layout />
+	<Layout {renderer}/>
 {/await}
 
 <style>
