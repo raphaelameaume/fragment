@@ -13,7 +13,7 @@ let color = colord(value);
 let hasAlpha = false;
 let alpha = 0;
 
-if (color.toRgbString().includes("rgba")) {
+if (value.includes("rgba")) {
     hasAlpha = true;
     alpha = color.alpha();
 }
