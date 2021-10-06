@@ -24,13 +24,13 @@ function handleClickOutside(event) {
 
 <div class="menu">
     <ul class="menu__list">
-        <MenuItem index={0} selected={selectedIndex === 0} hoverable={hoverable} onClick={handleClickItem} label="Layout" actions={[
+        <MenuItem index={1} selected={selectedIndex === 1} {hoverable} onClick={handleClickItem} label="Layout" actions={[
             { label: $currentLayout.editable ? "Quit Edit mode" : "Edit", handler: editLayout },
             { label: "Save current as...", handler: () => {} },
             { label: "Switch to", actions: [] },
             { label: "Add row", handler: addLayoutRow },
         ]} />
-        <MenuItem index={1} selected={selectedIndex === 1} hoverable={hoverable} onClick={handleClickItem} label="Inputs" actions={[
+        <MenuItem index={2} selected={selectedIndex === 2} {hoverable} onClick={handleClickItem} label="Inputs" actions={[
             {
                 label: "Mouse",
                 actions: [

@@ -151,7 +151,9 @@ export const sketches = {
 
 export let rendering = "${options.rendering}";
 export let sketchesCount = ${entries.length};
+export let sketchFiles = [${entries.map((entry, index) => {
+        return `"${entry}"`;
+    }).join(',')}];
 `);
-
     return [filepath, filepathProps];
 }

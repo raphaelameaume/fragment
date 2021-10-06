@@ -28,32 +28,13 @@ let vertex = /* glsl */`
 let fragment = /* glsl */`
     precision highp float;
 
-    uniform float threshold;
     uniform sampler2D uSampler;
-    uniform vec2 uResolution;
 
     varying vec2 vUv;
 
     void main() {
-        vec2 uv = vec2(0.);
-
-        float aspect = uResolution.y / uResolution.x;
-
-        float division = 12.0;
-
-        float v0 = step(fract(vUv.x * division), 0.5);
-        float v1 = step(fract(vUv.x * division + 0.5), 0.5);
-
-        float h0 = step(fract(vUv.y * division * aspect), 0.5);
-        float h1 = step(fract(vUv.y * division * aspect + 0.5), 0.5);
-        
-        float p0 = step(v0 * h1, 0.5);
-        float p1 = step(1. - v1 * h0, 0.5);
-
-        vec3 color = vec3(p0 - p1);
-        color.rgb += 0.9;
-
-        gl_FragColor = vec4(color, 1.);
+        vec3 mapTexel = texture2D(uSampler, vUv).rgb;
+        gl_FragColor = vec4(mapTexel, 1.);
     }
 `;
 
@@ -84,7 +65,6 @@ export let init = ({ canvas, width, height, pixelRatio }) => {
 
     return {
         renderer,
-        update,
     };
 };
 
@@ -93,7 +73,7 @@ export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
         canvas,
         pixelRatio,
     });
-    
+
     let { gl } = r; 
 
     let geometry = createGeometry(gl, {
@@ -104,7 +84,7 @@ export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
     });
 
     let texture = createGLTexture(gl, {
-        image: renderer.canvas,
+        image: renderer.domElement,
     });
 
     let program = createProgram(gl, {
@@ -133,6 +113,8 @@ export let onTransitionChange = ({ name, fragment }) => {
     }
 
     mesh.material = transitionMaterials[name];
+
+    console.log("THREERenderer:")
 }
 
 export let onBeforeUpdatePreview = ({ index }) => {
@@ -147,6 +129,7 @@ export let onAfterUpdatePreview = ({ index }) => {
     const { renderer: glRenderer, geometry, program, texture } = previews[index];
 
     uniforms.threshold.value = index === 0 ? 0 : 1;
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
 
     texture.needsUpdate = true;
@@ -162,7 +145,7 @@ export let resize = ({ renderer, width, height, pixelRatio }) => {
         const { renderer: glRenderer } = previews[i];
         
         glRenderer.setPixelRatio(pixelRatio);
-        glRenderer.setSize(width, height);
+        glRenderer.setSize({ width, height });
     }
 
     for (let i = 0; i < renderTargets.length; i++) {

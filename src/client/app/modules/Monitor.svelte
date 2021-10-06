@@ -7,12 +7,13 @@ let instances = 0;
 import { onMount, onDestroy, getContext } from "svelte";
 import { sketchesCount } from "@fragment/props";
 import { screenshotCanvas } from "../utils/canvas.utils.js";
-import { current as currentSketches } from "../stores/sketches.js";
+// import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import Module from "../ui/Module.svelte";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
+import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import Field from "../ui/Field.svelte";
 import { reset } from "../triggers/Mouse.js";
@@ -25,31 +26,33 @@ let index = instances;
 instances++;
 
 let paused = false;
-let pristine = false;
+// let pristine = false;
 let recording = false;
 $currentRendering.monitors = instances;
 
-let options = [
-    ...Object.keys($currentSketches).map((key) => ({
-        value: key,
-        label: $currentSketches[key].name ? $currentSketches[key].name : key,
-    })),
-];
+// let options = [
+//     ...Object.keys($currentSketches).map((key) => ({
+//         value: key,
+//         label: $currentSketches[key].name ? $currentSketches[key].name : key,
+//     })),
+// ];
 
-if (sketchesCount > 1) {
-    options = [
-        ...options,
-        { value: "output", label: "output" },
-    ];
-}
+// if (sketchesCount > 1) {
+//     options = [
+//         ...options,
+//         { value: "output", label: "output" },
+//     ];
+// }
 
-let currentModule = getContext("currentModule");
-let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
+// let currentModule = getContext("currentModule");
+// let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
 
-if (!pristine && !selected && options.length) {
-    selected = options[Math.min(index, options.length - 1)].value;
-    $currentModule.params.selected = selected;
-}
+// if (!pristine && !selected && options.length) {
+//     selected = options[Math.min(index, options.length - 1)].value;
+//     $currentModule.params.selected = selected;
+// }
+
+let selected;
 
 onMount(() => {
     name = `${name} ${index}`;
@@ -59,15 +62,6 @@ onDestroy(() => {
     instances--;
 });
 
-function handleChangeSelect(event) {
-    // remove previous events registered
-    reset(selected);
-
-    selected = event.currentTarget.value;
-    $currentModule.params.selected = selected;
-
-    pristine = true;
-};
 
 async function screenshot() {
     paused = true;
@@ -136,6 +130,11 @@ function record() {
     }
 }
 
+function handleSketchChange(event) {
+    console.log("Monitor :: handleSketchChange", event.detail);
+    selected = event.detail;
+}
+
 </script>
 
 <Module name={`${name}`}>
@@ -145,17 +144,14 @@ function record() {
         <ModuleHeaderAction border label="Save" on:click={() => screenshot(canvas)}>save</ModuleHeaderAction>
     </svelte:fragment>
     <svelte:fragment slot="header-right">
-        <ModuleHeaderAction
-            value={selected}
-            permanent
-            border
-            on:change={handleChangeSelect}
-            options={options}
+        <ModuleHeaderSelectSketch
+            {index}
+            on:change={handleSketchChange}
         />
     </svelte:fragment>
-    {#if selected !== "output"}
+    {#if selected && selected !== "output"}
         <SketchRenderer key={selected} {index} {paused} />
-    {:else }
+    {:else if selected }
         <OutputRenderer {paused} />
     {/if}
     <!-- <FieldGroup name="recording">

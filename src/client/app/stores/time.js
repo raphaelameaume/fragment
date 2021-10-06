@@ -2,7 +2,7 @@ import { readable } from "svelte/store";
 
 export const current = readable({ time: 0, deltaTime: 0 }, set => {
     let _raf;
-    let lastTime;
+    let lastTime = performance.now();
 
     function update() {
         let currentTime = performance.now();

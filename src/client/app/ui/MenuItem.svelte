@@ -57,7 +57,7 @@ function handleSubMouseEnter(index) {
     color: #f0f0f0;
     font-size: 12px;
     padding: 0 8px;
-    font-weight: 600;
+    /* font-weight: 600; */
     border: none;
     background: none;
     user-select: none;

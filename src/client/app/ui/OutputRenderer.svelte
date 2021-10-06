@@ -1,6 +1,7 @@
 <script>
 import { onDestroy, onMount } from "svelte";
-import { current as currentRendering } from "../stores/rendering.js";
+import { current as currentRendering, threshold } from "../stores/rendering.js";
+import * as renderer from "../renderers/THREERenderer";
 import { transitions } from "../transitions/index";
 import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "../events/index.js";
 
@@ -10,18 +11,18 @@ let container;
 let _raf;
 
 function render() {
-    const { threshold, renderer } = $currentRendering;
-
     if (!paused) {
-        console.log(renderer);
-        renderer.update({ threshold });
+        renderer.update({ threshold: $threshold });
     }
 
     _raf = requestAnimationFrame(render);
 }
 
 onMount(() => {
+    console.log("OutputRenderer :: mount");
+
     const { canvas } = $currentRendering;
+
     container.appendChild(canvas);
 
     render();
@@ -37,7 +38,11 @@ onDestroy(() => {
 
 </script>
 
-<div class="output-renderer" bind:this={container}></div>
+<div class="output-renderer">
+    <div class="canvas-container" bind:this={container} style="max-width: {$currentRendering.width}px;">
+    
+    </div>
+</div>
 
 <style>
 .output-renderer {
@@ -46,7 +51,6 @@ onDestroy(() => {
     width: 100%;
     height: 100%;
     justify-content: center;
-    align-items: center;
 
     background-color: #0E0E0E;
 }
@@ -55,5 +59,16 @@ onDestroy(() => {
     max-width: 100%;
     max-height: 100%;
     background: green;
+
+    width: auto !important;
+    height: auto !important;
+}
+
+.canvas-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-height: 100%;
 }
 </style>

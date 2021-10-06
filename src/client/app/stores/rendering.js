@@ -13,3 +13,6 @@ export const current = writable({
 });
 
 current.subscribe(keepInSync(key));
+
+export const threshold = writable(rehydrate("threshold", 0, true));
+threshold.subscribe(keepInSync("threshold"));

@@ -14,6 +14,7 @@ export let paused = false;
 let framerate = 60;
 let canvas;
 let _raf;
+let _key = key;
 let _renderSketch = () => {};
 
 let sketch, props;
@@ -30,7 +31,8 @@ function createSketch(key) {
     framerate = sketch.fps ? sketch.fps : 60;
 
     const init = sketch.setup || sketch.init;
-    const { width, height } = $currentRendering;
+    const resize = sketch.resize || (() => {});
+    const { width, height, pixelRatio } = $currentRendering;
 
     init({
         width,
@@ -38,7 +40,11 @@ function createSketch(key) {
         props,
     });
 
+    resize({ width, height, pixelRatio });
+
     _renderSketch = createRenderLoop();
+
+    _renderSketch();
 }
 
 function createRenderLoop() {
@@ -77,7 +83,9 @@ function render() {
 }
 
 $: {
-    if (canvas) {
+    if (canvas && _key !== key) {
+        _key = key;
+        sketch = null;
         createSketch(key);
     }
 }
@@ -89,13 +97,11 @@ currentRendering.subscribe((current) => {
             height: current.height,
             pixelRatio: current.pixelRatio,
         });
-
-        _renderSketch = createRenderLoop();
     }
 });
 
-
 onMount(() => {
+    console.log("SketchRenderer :: mount", index);
     emit(PREVIEW_MOUNT, { index, canvas });
 
     createSketch(key);
@@ -107,13 +113,16 @@ onDestroy(() => {
     cancelAnimationFrame(_raf);
 })
 
+$: canvasWidth = $currentRendering.width * $currentRendering.pixelRatio;
+$: canvasHeight = $currentRendering.height * $currentRendering.pixelRatio;
+
 </script>
 
 <div class="sketch-renderer">
     <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
         <canvas class="canvas"
-            width={$currentRendering.width * $currentRendering.pixelRatio}
-            height={$currentRendering.height * $currentRendering.pixelRatio}
+            width={canvasWidth}
+            height={canvasHeight}
             bind:this={canvas}
             on:mousedown={(event) => checkForTriggersDown(event, key) }
             on:click={(event) => checkForTriggersClick(event, key) }
