@@ -175,6 +175,7 @@ function handleTriggersChange(event) {
             on:change={(event) => dispatch('change', event.detail)}
             on:click={() => value()}
         />
+        <slot></slot>
     </FieldSection>
     {#if isTriggerable}
     <FieldSection visible={secondaryVisible} secondary label="triggers">
@@ -184,6 +185,7 @@ function handleTriggersChange(event) {
         />
     </FieldSection>
     {/if}
+    
 </div>
 
 <style>
