@@ -1,7 +1,6 @@
 <script>
 import { onDestroy, onMount } from "svelte";
 import { current as currentRendering } from "../stores/rendering.js";
-import * as renderer from "../renderers/2DRenderer";
 import { transitions } from "../transitions/index";
 import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "../events/index.js";
 
@@ -11,9 +10,10 @@ let container;
 let _raf;
 
 function render() {
-    const { threshold } = $currentRendering;
+    const { threshold, renderer } = $currentRendering;
 
     if (!paused) {
+        console.log(renderer);
         renderer.update({ threshold });
     }
 

@@ -53,6 +53,8 @@ let fragment = /* glsl */`
     }
 `;
 
+let context;
+
 export let init = ({ canvas, pixelRatio }) => {
     renderer = createGLRenderer({
         canvas,

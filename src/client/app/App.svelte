@@ -14,7 +14,7 @@ async function loadRenderer() {
 		return import("./renderers/2DRenderer.js");
 	}
 
-	return import("./renderers/2DRenderer.js");
+	return import("./renderers/THREERenderer.js");
 };
 
 async function start() {
@@ -30,26 +30,34 @@ async function start() {
     events.forEach(({ name, event }) => {
         if (typeof renderer[`${name}`] === "function") {
             on(event, (event) => {
-                renderer[`${name}`](event);
+				const { pixelRatio, width, height } = $currentRendering;
+
+                renderer[`${name}`]({
+					...event,
+					width,
+					height,
+					pixelRatio,
+				});
             });
         }
     });
 
 	const { pixelRatio, width, height } = $currentRendering;
 
-	renderer.init({ canvas, pixelRatio, width, height });
+	const r = renderer.init({ canvas, pixelRatio, width, height });
 
 	currentRendering.subscribe((current) => {
 		renderer.resize({
 			width: current.width,
 			height: current.height,
 			pixelRatio: current.pixelRatio,
+			...r,
 		});
 	});
 
 	currentRendering.update((rendering) => ({
 			...rendering,
-			renderer,
+			renderer: r || {},
 			canvas,
 	}));
 

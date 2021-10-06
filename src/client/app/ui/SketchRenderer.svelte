@@ -44,18 +44,19 @@ function createSketch(key) {
 function createRenderLoop() {
     const { width, height, pixelRatio, renderer } = $currentRendering;
     const draw = sketch.draw || sketch.update;
-    const context = canvas.getContext("2d");
 
     let elapsed = 0;
+
+    const context = canvas.getContext("2d");
 
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
         elapsed += deltaTime;
 
         if (elapsed >= ((1 / framerate) * 1000)) {
             draw({
-                renderer,
-                props,
+                ...renderer,
                 context,
+                props,
                 width: width * pixelRatio,
                 height: height * pixelRatio,
                 time,
