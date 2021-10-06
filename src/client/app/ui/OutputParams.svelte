@@ -3,6 +3,7 @@ import { emit, TRANSITION_CHANGE } from "../events";
 import { current as currentRendering, threshold } from "../stores/rendering.js";
 import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
+import FieldGroup from "./FieldGroup.svelte";
 import { transitions } from "../transitions/index.js";
 
 function handleChangeDimensions(event) {
@@ -66,23 +67,33 @@ function handleChangeTransition(event) {
 />
 
 {#if sketchesCount > 1 }
-<Field
-    key="threshold"
-    value={$threshold}
-    on:change={(event) => $threshold = event.detail }
-    params={{
-        step: 0.01,
-        min: 0,
-        max: 1,
-    }}
-/>
-<Field
-    key="transition"
-    value={transition}
-    on:change={handleChangeTransition}
-    params={{
-        options: transitionOptions,
-    }}
-/>
+<FieldGroup name="transition">
+    <Field
+        key="threshold"
+        value={$threshold}
+        on:change={(event) => $threshold = event.detail }
+        params={{
+            step: 0.01,
+            min: 0,
+            max: 1,
+        }}
+    >
+        <Field
+            key="switch"
+            value={() => $threshold = 1 - Math.round($threshold)}
+            params={{
+                label: "switch"
+            }}
+        />
+    </Field>
+    <Field
+        key="type"
+        value={transition}
+        on:change={handleChangeTransition}
+        params={{
+            options: transitionOptions,
+        }}
+    />
+</FieldGroup>
 
 {/if}
