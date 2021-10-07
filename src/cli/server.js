@@ -2,6 +2,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+import hotShaderReload from "./plugins/hot-shader-reload.js";
 
 import log from "./log.js";
 
@@ -31,6 +32,7 @@ export async function start({ options, filepaths, entries, fragment }) {
         },
         plugins: [
             svelte(),
+            hotShaderReload({ wss: fragment.server }),
             {
                 name: 'configure-response-headers',
                 configureServer: (server) => {

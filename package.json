@@ -27,6 +27,7 @@
     "@rollup/plugin-alias": "^3.1.5",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.22",
     "colord": "^2.7.0",
+    "glslify": "^7.1.1",
     "kleur": "^4.1.4",
     "lemonade-math": "^1.0.2",
     "svelte": "^3.42.4",
