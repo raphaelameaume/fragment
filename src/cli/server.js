@@ -8,7 +8,7 @@ import log from "./log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function start({ options, filepaths, entries }) {
+export async function start({ options, filepaths, entries, fragment }) {
     log.warning(`Starting server...`);
 
     const root = path.join(__dirname, '/../client');
@@ -48,6 +48,7 @@ export async function start({ options, filepaths, entries }) {
         },
         define: {
             '__CWD__': `'${cwd}'`,
+            '__FRAGMENT_PORT__': fragment.server.port,
         },
         optimizeDeps: {
             exclude: [

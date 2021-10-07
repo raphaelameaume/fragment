@@ -1,4 +1,4 @@
-import { WebSocketServer } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 
 export async function start({
     port = 1234
@@ -7,10 +7,10 @@ export async function start({
 
     wss.on('connection', (socket) => {
         socket.send(JSON.stringify({ type: 'connected' }))
-        if (bufferedError) {
-            socket.send(JSON.stringify(bufferedError))
-            bufferedError = null
-        }
+        // if (bufferedError) {
+        //     socket.send(JSON.stringify(bufferedError))
+        //     bufferedError = null
+        // }
     });
 
     wss.on('error', (e) => {
@@ -20,6 +20,8 @@ export async function start({
     });
 
     return {
+        port,
+
         send: (payload) => {
             const stringified = JSON.stringify(payload);
 

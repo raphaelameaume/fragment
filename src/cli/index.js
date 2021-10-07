@@ -29,14 +29,17 @@ export const run = async (entry, options) => {
         if (entries.length > 0) {
             const filepaths = await generateFiles(entries, options);
 
-            const viteServer = await startViteServer({
+            wsServer = await startWebSocketServer();
+
+            await startViteServer({
                 options,
                 timestamp,
                 filepaths,
                 entries,
+                fragment: {
+                    server: wsServer,
+                }
             });
-
-            wsServer = await startWebSocketServer();
         }
     } catch(error) {
         console.log(error);
