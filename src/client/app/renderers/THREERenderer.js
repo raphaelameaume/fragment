@@ -1,5 +1,5 @@
 import { WebGLRenderer, WebGLMultisampleRenderTarget, OrthographicCamera, Scene, BufferGeometry, Mesh, RawShaderMaterial, Vector2, Float32BufferAttribute } from "three";
-import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "../utils/canvas.utils";
+import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "@fragment/utils/canvas.utils";
 
 let renderer, scene, camera, mesh;
 

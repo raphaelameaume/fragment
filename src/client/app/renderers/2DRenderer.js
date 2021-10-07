@@ -1,4 +1,4 @@
-import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "../utils/canvas.utils";
+import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "@fragment/utils/canvas.utils";
 
 let uniforms = {
     threshold: { value: 0, type: "float" },

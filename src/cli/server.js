@@ -11,9 +11,9 @@ const __dirname = path.dirname(__filename);
 export async function start({ options, filepaths, entries }) {
     log.warning(`Starting server...`);
 
-    // const root = path.join(__dirname, '/../..');
     const root = path.join(__dirname, '/../client');
     const cwd = process.cwd();
+    const app = path.join(root, 'app');
 
     const config = defineConfig({
         configFile: false,
@@ -22,7 +22,8 @@ export async function start({ options, filepaths, entries }) {
             alias: [
                 { find: '@fragment/sketches', replacement: filepaths[0] },
                 { find: '@fragment/props', replacement: filepaths[1] },
-                { find: '@fragment', replacement: path.join(root, 'app') },
+                { find: '@fragment/renderer', replacement: filepaths[2] },
+                { find: '@fragment', replacement: app },
             ]
         },
         fs: {
@@ -60,5 +61,5 @@ export async function start({ options, filepaths, entries }) {
 
     await server.listen();
 
-    // log.success(`Server started at localhost:${options.port}`);
+    return server;
 }

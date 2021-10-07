@@ -11,7 +11,7 @@ let renderer;
 
 async function loadRenderer() {
 	if (rendering === "three-webgl") {
-		return import("./renderers/THREERenderer.js");
+		return import(/* @vite-ignore */"@fragment/renderer");
 	}
 
 	return import("./renderers/2DRenderer.js");
