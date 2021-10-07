@@ -14,14 +14,6 @@ export async function start({ options, filepaths, entries }) {
     // const root = path.join(__dirname, '/../..');
     const root = path.join(__dirname, '/../client');
     const cwd = process.cwd();
-    // const publicDir = path.join(root, '/public');
-
-    const renderings = {
-        "2d": './renderers/2DRenderer.js',
-        "three-webgl": './renderers/THREERenderer.js',
-    };
-
-    const renderer = renderings[options.rendering];
 
     const config = defineConfig({
         configFile: false,
@@ -55,7 +47,6 @@ export async function start({ options, filepaths, entries }) {
         },
         define: {
             '__CWD__': `'${cwd}'`,
-            '__RENDERER__': JSON.stringify(renderer),
         },
         optimizeDeps: {
             exclude: [

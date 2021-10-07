@@ -1,17 +1,20 @@
 <script>
 import { onMount, setContext, tick } from "svelte";
+import { rendering } from "@fragment/props";
 import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
 import TriggersSetup from "./ui/TriggersSetup.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
 import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "./events";
 
-export let sketchesCount = 0;
-
 let renderer;
 
 async function loadRenderer() {
-	return import(/* @vite-ignore */__RENDERER__);
+	if (rendering === "three-webgl") {
+		return import("./renderers/THREERenderer.js");
+	}
+
+	return import("./renderers/2DRenderer.js");
 };
 
 async function start() {

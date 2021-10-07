@@ -101,7 +101,6 @@ currentRendering.subscribe((current) => {
 });
 
 onMount(() => {
-    console.log("SketchRenderer :: mount", index);
     emit(PREVIEW_MOUNT, { index, canvas });
 
     createSketch(key);

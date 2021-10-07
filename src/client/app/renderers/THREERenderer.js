@@ -113,8 +113,6 @@ export let onTransitionChange = ({ name, fragment }) => {
     }
 
     mesh.material = transitionMaterials[name];
-
-    console.log("THREERenderer:")
 }
 
 export let onBeforeUpdatePreview = ({ index }) => {
