@@ -1,14 +1,12 @@
 import * as THREE from "three";
 
-let scene, camera;
+let camera;
 
-export let init = ({ width, height }) => {
-    scene = new THREE.Scene();
-
+export let init = ({ scene, width, height }) => {
     camera = new THREE.OrthographicCamera(1, 1, 1, 1, 1, 1000);
 };
 
-export let update = ({ renderer, time, deltaTime }) => {
+export let update = ({ renderer, scene, time, deltaTime }) => {
     renderer.render(scene, camera);
 };
 
