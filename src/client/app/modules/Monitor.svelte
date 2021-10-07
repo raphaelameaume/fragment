@@ -131,7 +131,6 @@ function record() {
 }
 
 function handleSketchChange(event) {
-    console.log("Monitor :: handleSketchChange", event.detail);
     selected = event.detail;
 }
 

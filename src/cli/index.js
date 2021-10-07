@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { watch } from "chokidar";
 import log from "./log.js";
 import { start as startViteServer } from "./server.js";
 import { start as startWebSocketServer } from "./ws.js";
@@ -186,6 +187,12 @@ export let sketchFiles = [${entries.map((entry, index) => {
     const filepathRenderer = path.join(dirpath, 'renderer.js');
 
     await fs.writeFile(filepathRenderer, rendererContent);
+
+    const watcher = watch(rendererPath);
+    watcher.on('change', async () => {
+        const content = await fs.readFile(rendererPath);
+        await fs.writeFile(filepathRenderer, content);
+    });
 
     return [filepath, filepathProps, filepathRenderer];
 }

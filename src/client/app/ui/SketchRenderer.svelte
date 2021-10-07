@@ -1,11 +1,11 @@
 <script>
-import { onDestroy, onMount } from "svelte";
+import { getContext, onDestroy, onMount } from "svelte";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { proxyProps } from "../utils/props.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
-import { emit, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT } from "../events/index.js";
+// import { emit, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT } from "../events/index.js";
 
 export let key;
 export let index;
@@ -18,6 +18,14 @@ let _key = key;
 let _renderSketch = () => {};
 
 let sketch, props;
+let renderer = getContext("renderer");
+let noop = () => {};
+
+let onMountPreview = renderer.onMountPreview || noop;
+let onBeforeUpdatePreview = renderer.onBeforeUpdatePreview || noop;
+let onAfterUpdatePreview = renderer.onAfterUpdatePreview || noop;
+
+let params = {};
 
 function createSketch(key) {
     if (!key) return;
@@ -38,6 +46,7 @@ function createSketch(key) {
         width,
         height,
         props,
+        ...params,
     });
 
     resize({ width, height, pixelRatio });
@@ -61,6 +70,7 @@ function createRenderLoop() {
         if (elapsed >= ((1 / framerate) * 1000)) {
             draw({
                 ...renderer,
+                ...params,
                 context,
                 props,
                 width: width * pixelRatio,
@@ -74,9 +84,10 @@ function createRenderLoop() {
 
 function render() {
     if (!paused) {
-        emit(PREVIEW_BEFORE_UPDATE, { index, canvas });
+        onBeforeUpdatePreview({ index, canvas });
         _renderSketch();
-        emit(PREVIEW_AFTER_UPDATE, { index, canvas });
+        onAfterUpdatePreview({ index, canvas });
+        // emit(PREVIEW_AFTER_UPDATE, { index, canvas });
     }
 
     _raf = requestAnimationFrame(render);
@@ -101,7 +112,12 @@ currentRendering.subscribe((current) => {
 });
 
 onMount(() => {
-    emit(PREVIEW_MOUNT, { index, canvas });
+    const mountParams = onMountPreview({ index, canvas });
+
+    params = {
+        ...params,
+        ...mountParams
+    };
 
     createSketch(key);
 

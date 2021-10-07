@@ -1,5 +1,6 @@
 import { WebGLRenderer, WebGLMultisampleRenderTarget, OrthographicCamera, Scene, BufferGeometry, Mesh, RawShaderMaterial, Vector2, Float32BufferAttribute } from "three";
 import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "@fragment/utils/canvas.utils";
+import { client } from "@fragment/client";
 
 let renderer, scene, camera, mesh;
 
@@ -38,6 +39,53 @@ let fragment = /* glsl */`
     }
 `;
 
+
+
+client.on('shader-update', (data) => {
+    const { filepath, source } = data;
+
+    function getShaderPath(shader) {
+        const match = shader.match(/<filepath:\/\/(.*)>/);
+        
+        if (match && match.length > 1) {
+            return match[1];
+        }
+
+        return null;
+    }
+
+    for (let i = 0; i < previews.length; i++) {
+        const { scene } = previews[i];
+
+        const materials = [];
+
+        scene.traverse((child) => {
+            if (child.isMesh) {
+                const { material } = child;
+
+                if (material.isShaderMaterial || material.isRawShaderMaterial) {
+                    materials.push(material);
+                }
+            }
+        })
+
+        materials.forEach(material => {
+            const { vertexShader, fragmentShader } = material;
+
+            Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
+                const shader = material[key];
+                const shaderPath = getShaderPath(shader);
+
+                if (shaderPath === filepath) {
+                    console.log(`[fragment] HotShaderReload : ${shaderPath.replace(__CWD__, "")}`);
+                    material[key] = source;
+                    material.needsUpdate = true;
+                }
+            });
+        })
+    }
+});
+
 export let init = ({ canvas, width, height, pixelRatio }) => {
     renderer = new WebGLRenderer({ canvas });
     scene = new Scene();
@@ -74,7 +122,9 @@ export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
         pixelRatio,
     });
 
-    let { gl } = r; 
+    let { gl } = r;
+
+    // let scene = new THREE.Scene();
 
     let geometry = createGeometry(gl, {
         attributes: {
@@ -95,11 +145,19 @@ export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
         },
     });
 
+    let scene = new Scene();
+
     previews[index] = {
         renderer: r,
+        scene,
         geometry,
         program,
         texture,
+    };
+
+    return {
+        scene,
+        renderer,
     };
 };
 

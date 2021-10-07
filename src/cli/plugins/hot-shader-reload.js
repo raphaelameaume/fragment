@@ -3,6 +3,18 @@ import glslify from "glslify";
 
 export default function hotShaderReload({ wss }) {
     const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/
+
+    function addShaderFilepath(shader, id) {
+        let keyword = `void`;
+        let shaderParts = shader.split(keyword);
+        let hint = `// <filepath://${id}>`;
+
+        return `
+${shaderParts[0]}
+${hint}
+${keyword}${shaderParts[1]}
+        `;
+    }
     
     return {
         name: 'hot-shader-reload',
@@ -10,6 +22,7 @@ export default function hotShaderReload({ wss }) {
             if (fileRegex.test(file)) {
                 let src = await read();
                 let source = glslify(src);
+                source = addShaderFilepath(source, file);
 
                 wss.send({
                     type: 'custom',
@@ -26,16 +39,7 @@ export default function hotShaderReload({ wss }) {
         transform: (src, id) => {
             if (fileRegex.test(id)) {
                 let source = glslify(src);
-
-                let keyword = `void`;
-                let shaderParts = source.split(keyword);
-                let hint = `// <filepath://${id}>`
-
-                source = `
-${shaderParts[0]}
-${hint}
-${keyword}${shaderParts[1]}
-                `;
+                source = addShaderFilepath(source, id);
 
                 return {
                     code: `export default ${JSON.stringify(source)}`,
