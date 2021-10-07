@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import fragmentShader from "[./fragment.fs]";
+import fragmentShader from "./fragment.fs";
 
 let camera;
 let uniforms = {
@@ -10,9 +10,9 @@ let uniforms = {
 export let init = ({ scene, width, height }) => {
     camera = new THREE.OrthographicCamera(1, 1, 1, 1, 1, 1000);
 
-    let geometry = new BufferGeometry();
-    geometry.setAttribute('position', new Float32BufferAttribute([-1, 3, 0, -1, -1, 0, 3, -1, 0], 3));
-    geometry.setAttribute('uv', new Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
+    let geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute([-1, 3, 0, -1, -1, 0, 3, -1, 0], 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
 
     let mesh = new THREE.Mesh(geometry, new THREE.RawShaderMaterial({
         vertexShader: `
@@ -29,6 +29,8 @@ export let init = ({ scene, width, height }) => {
         fragmentShader,
         uniforms,
     }));
+
+    scene.add(mesh);
 };
 
 export let update = ({ renderer, scene, time, deltaTime }) => {

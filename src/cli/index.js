@@ -59,18 +59,34 @@ async function createEntries(entry, options) {
 
     async function createEntryFile(entryPath) {
         const templates = {
-            "2d": "./templates/2d.js",
-            "three/orthographic": "./templates/three-orthographic.js",
-            "three/perspective": "./templates/three-perspective.js",
-            "ogl/orthographic": "./templates/ogl-orthographic.js",
-            "ogl/perspective": "./templates/ogl-perspective.js",
-            "default": "./templates/default.js",
+            "2d": [
+                "./templates/2d.js"
+            ],
+            "three/orthographic": [
+                "./templates/three-orthographic.js"
+            ],
+            "three/fragment": [
+                "./templates/three-fragment.js",
+                "./templates/fragment.fs"
+            ],
+            "three/perspective": [
+                "./templates/three-perspective.js"
+            ],
+            "ogl/orthographic": [
+                "./templates/ogl-orthographic.js"
+            ],
+            "ogl/perspective": [
+                "./templates/ogl-perspective.js"
+            ],
+            "default": [
+                "./templates/default.js"
+            ],
         };
 
         const createFromTemplate = typeof options.template === "string";
-        const template = createFromTemplate ? templates[options.template] : templates.default;
+        const templateFiles = createFromTemplate ? templates[options.template] : templates.default;
 
-        if (!template) {
+        if (!templateFiles) {
             log.error(`Wrong argument value.`);
             console.log(`Template ${options.template} doesn't exist.\nPossible values are:`);
             Object.keys(templates).forEach((key) => {
@@ -79,12 +95,29 @@ async function createEntries(entry, options) {
             return;
         }
 
-        const templatePath = path.join(__dirname, template);
-        const templateContent = await fs.readFile(templatePath);
+        const entryName = path.basename(entryPath, path.extname(entryPath));
 
-        await fs.writeFile(entryPath, templateContent);
+        for (let i = 0; i < templateFiles.length; i++) {
+            const filepath = path.join(__dirname, templateFiles[i]);
+            const ext = path.extname(filepath);
+            let fileContent = (await fs.readFile(filepath)).toString();
 
-        console.log(`${log.prefix} Created ${entry} on disk.`);
+            const destPath = i === 0 ? entryPath :
+                path.join(process.cwd(), `${entryName}${ext}`);
+            const destName = path.basename(destPath);
+
+            const filepaths = templateFiles
+                .filter((file, index) => index !== i)
+                .map((file) => path.basename(file));
+
+            for (let i = 0; i < filepaths.length; i++) {
+                fileContent = fileContent.replace(new RegExp(filepaths[i], 'g'), `${entryName}${path.extname(filepaths[i])}`);
+            }
+
+            await fs.writeFile(destPath, Buffer.from(fileContent));
+            
+            console.log(`${log.prefix} Created ${path.relative(process.cwd(), destPath)} on disk.`);
+        }
     }
 
     const entryPath = path.join(process.cwd(), entry);
@@ -180,9 +213,17 @@ export let sketchFiles = [${entries.map((entry, index) => {
     const renderings = {
         "2d": "../client/app/renderers/2DRenderer.js",
         "three-webgl": "../client/app/renderers/THREERenderer.js"
+    };
+
+    const rendering = renderings[options.rendering];
+
+    if (!rendering) {
+        log.error(`${options.rendering} is not a valid value.`);
+        Object.keys(renderings).forEach(rendering => console.log(rendering));
+        return;
     }
 
-    const rendererPath = path.join(__dirname, renderings[options.rendering]);
+    const rendererPath = path.join(__dirname, rendering);
     const rendererContent = await fs.readFile(rendererPath);
     const filepathRenderer = path.join(dirpath, 'renderer.js');
 
