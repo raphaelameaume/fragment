@@ -5,6 +5,7 @@ import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { proxyProps } from "../utils/props.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
+import { client } from "../client";
 // import { emit, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT } from "../events/index.js";
 
 export let key;
@@ -36,7 +37,7 @@ function createSketch(key) {
 
     props = proxyProps(sketch.props);
 
-    framerate = sketch.fps ? sketch.fps : 60;
+    framerate = isFinite(sketch.fps) ? sketch.fps : 60;
 
     const init = sketch.setup || sketch.init;
     const resize = sketch.resize || (() => {});
@@ -60,34 +61,34 @@ function createRenderLoop() {
     const { width, height, pixelRatio, renderer } = $currentRendering;
     const draw = sketch.draw || sketch.update;
 
-    let elapsed = 0;
-
     const context = canvas.getContext("2d");
 
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
-        elapsed += deltaTime;
-
-        if (elapsed >= ((1 / framerate) * 1000)) {
-            draw({
-                ...renderer,
-                ...params,
-                context,
-                props,
-                width: width * pixelRatio,
-                height: height * pixelRatio,
-                time,
-                deltaTime,
-            });
-        }
+        console.log("Sketch :: render");
+        onBeforeUpdatePreview({ index, canvas });
+        draw({
+            ...renderer,
+            ...params,
+            context,
+            props,
+            width: width * pixelRatio,
+            height: height * pixelRatio,
+            time,
+            deltaTime,
+        });
+        onAfterUpdatePreview({ index, canvas });
     };
 }
 
+let elapsed = 0;
+
 function render() {
     if (!paused) {
-        onBeforeUpdatePreview({ index, canvas });
-        _renderSketch();
-        onAfterUpdatePreview({ index, canvas });
-        // emit(PREVIEW_AFTER_UPDATE, { index, canvas });
+        elapsed += $currentTime.deltaTime;
+
+        if (elapsed >= ((1 / framerate) * 1000)) {
+            _renderSketch();
+        }
     }
 
     _raf = requestAnimationFrame(render);
@@ -120,6 +121,12 @@ onMount(() => {
     };
 
     createSketch(key);
+
+    client.on('shader-update', () => {
+        if (framerate === 0) {
+            _renderSketch();
+        }
+    });
 
     render();
 })
