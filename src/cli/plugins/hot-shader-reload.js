@@ -5,12 +5,11 @@ export default function hotShaderReload({ wss }) {
     const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/
 
     function addShaderFilepath(shader, id) {
-        let keyword = `void`;
+        let keyword = `void main`;
         let shaderParts = shader.split(keyword);
         let hint = `// <filepath://${id}>`;
 
-        return `
-${shaderParts[0]}
+        return `${shaderParts[0]}
 ${hint}
 ${keyword}${shaderParts[1]}
         `;
