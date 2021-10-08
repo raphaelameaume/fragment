@@ -109,6 +109,8 @@ currentRendering.subscribe((current) => {
             height: current.height,
             pixelRatio: current.pixelRatio,
         });
+
+        _renderSketch();
     }
 });
 
