@@ -80,9 +80,9 @@ function saveBlob(blob, { filename }) {
     });
 }
 
-export async function screenshotCanvas(canvas) {
+export async function screenshotCanvas(canvas, name) {
     const { extension, type, dataURL } = exportCanvas(canvas);
-    
+
     const now = new Date();
 
     const year = now.toLocaleString('default', { year: 'numeric' });
@@ -92,7 +92,7 @@ export async function screenshotCanvas(canvas) {
     const minutes = now.toLocaleString('default', { minute: 'numeric' });
     const seconds = now.toLocaleString('default', { second: 'numeric' });
 
-    const prefix = `${selected}.`;
+    const prefix = `${name}.`;
     const date = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
     const filename = `${prefix}${date}${extension}`;
 

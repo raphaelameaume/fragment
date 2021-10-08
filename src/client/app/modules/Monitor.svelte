@@ -4,11 +4,9 @@ let instances = 0;
 </script>
 
 <script>
-import { onMount, onDestroy, getContext } from "svelte";
-import { sketchesCount } from "@fragment/props";
+import { onMount, onDestroy } from "svelte";
 import { screenshotCanvas } from "../utils/canvas.utils.js";
-// import { current as currentSketches } from "../stores/sketches.js";
-import { current as currentRendering } from "../stores/rendering.js";
+import { current as currentRendering, threshold } from "../stores/rendering.js";
 import Module from "../ui/Module.svelte";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
@@ -16,7 +14,6 @@ import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import Field from "../ui/Field.svelte";
-import { reset } from "../triggers/Mouse.js";
 
 export let name = "monitor";
 
@@ -29,28 +26,6 @@ let paused = false;
 // let pristine = false;
 let recording = false;
 $currentRendering.monitors = instances;
-
-// let options = [
-//     ...Object.keys($currentSketches).map((key) => ({
-//         value: key,
-//         label: $currentSketches[key].name ? $currentSketches[key].name : key,
-//     })),
-// ];
-
-// if (sketchesCount > 1) {
-//     options = [
-//         ...options,
-//         { value: "output", label: "output" },
-//     ];
-// }
-
-// let currentModule = getContext("currentModule");
-// let selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
-
-// if (!pristine && !selected && options.length) {
-//     selected = options[Math.min(index, options.length - 1)].value;
-//     $currentModule.params.selected = selected;
-// }
 
 let selected;
 
@@ -66,7 +41,7 @@ onDestroy(() => {
 async function screenshot() {
     paused = true;
 
-    await screenshotCanvas(canvas);
+    await screenshotCanvas($currentRendering.canvas, selected);
 
     paused = false;
 }
