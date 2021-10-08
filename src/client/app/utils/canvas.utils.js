@@ -80,9 +80,7 @@ function saveBlob(blob, { filename }) {
     });
 }
 
-export async function screenshotCanvas(canvas, name) {
-    const { extension, type, dataURL } = exportCanvas(canvas);
-
+function getFileNameSuffix() {
     const now = new Date();
 
     const year = now.toLocaleString('default', { year: 'numeric' });
@@ -92,12 +90,108 @@ export async function screenshotCanvas(canvas, name) {
     const minutes = now.toLocaleString('default', { minute: 'numeric' });
     const seconds = now.toLocaleString('default', { second: 'numeric' });
 
-    const prefix = `${name}.`;
     const date = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
-    const filename = `${prefix}${date}${extension}`;
+
+    return date;
+}
+
+export async function screenshotCanvas(canvas, name) {
+    const { extension, type, dataURL } = exportCanvas(canvas);
+
+    const prefix = `${name}.`;
+    const suffix = getFileNameSuffix();
+    const filename = `${prefix}${suffix}${extension}`;
 
     await saveDataURL(dataURL, { filename });
 }
+
+let ffmpeg;
+
+export function recordCanvas(canvas, {
+    name = 'output',
+    extension = 'mp4',
+    framerate = 25,
+    duration = Infinity,
+    onTick = () => {},
+    onComplete = () => {}
+} = {}) {
+    let time = 0;
+    let deltaTime = 0;
+    let stopped = false;
+    let frameCount = 0;
+
+    if (!ffmpeg) {
+        const { createFFmpeg } = FFmpeg;
+
+        ffmpeg = createFFmpeg({ log: false });
+    }
+
+    async function onEnd() {
+        if (frameCount > 1) {
+            console.log(`[fragment] record canvas - compile ${frameCount} frames...`);
+
+            const filename = `${name}.${getFileNameSuffix()}.${extension}`;
+
+            await ffmpeg.run(...(`-r 60 -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.${extension}`.split(' ')));
+            const data = ffmpeg.FS('readFile', `output.${extension}`);
+            const url = URL.createObjectURL(new Blob([data.buffer], { type: `video/${extension}` }));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}`;
+            a.click();
+        } else {
+            console.log(`[fragment] record canvas - stopped before rendering started.`);
+        }
+    }
+
+    function tick() {
+        if (stopped) {
+            return onEnd();
+        }
+
+        onTick({ time, deltaTime });
+
+        deltaTime = (1000 / framerate);
+        time += deltaTime;
+
+        canvas.toBlob(async function(blob) {
+            const fn = `frame_${frameCount.toString().padStart(4, '0')}.png`;
+            ffmpeg.FS('writeFile', fn, new Uint8Array(await blob.arrayBuffer()));
+
+            frameCount++;
+
+            console.log(`[fragment] recording canvas - render frame ${frameCount}`);
+
+            if (frameCount < framerate * duration) {
+                requestAnimationFrame(tick);
+            } else {
+                await onEnd();
+                onComplete();
+                
+                paused = false;
+            }
+        });
+    }
+
+    let promise = Promise.resolve();
+    
+    if (!ffmpeg.isLoaded()) {
+        console.log(`[fragment] loading ffmpeg...`);
+        promise = ffmpeg.load().then(() => {
+            console.log(`[fragment] loaded ffmpeg`);
+        })
+    }
+
+    promise.then(() => {
+        tick();
+    });
+
+    return {
+        stop: () => {
+            stopped = true;
+        }
+    }
+};
 
 export function createGLRenderer({
     canvas = document.createElement('canvas'),

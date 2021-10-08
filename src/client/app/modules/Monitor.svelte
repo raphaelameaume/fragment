@@ -5,6 +5,7 @@ let instances = 0;
 
 <script>
 import { onMount, onDestroy } from "svelte";
+import { writable } from "svelte/store";
 import { screenshotCanvas } from "../utils/canvas.utils.js";
 import { current as currentRendering, threshold } from "../stores/rendering.js";
 import Module from "../ui/Module.svelte";
@@ -24,7 +25,7 @@ instances++;
 
 let paused = false;
 // let pristine = false;
-let recording = false;
+let recording = writable(false);
 $currentRendering.monitors = instances;
 
 let selected;
@@ -47,62 +48,63 @@ async function screenshot() {
 }
 
 function record() {
-    recording = !recording;
+    $recording = !$recording;
+    paused = $recording;
     
-    if (recording) {
-        paused = true;
+    // if (recording) {
+    //     paused = true;
 
-        const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: true });
-        ffmpeg.setProgress(({ ratio }) => {
-            if (ratio === 1) {
-                console.log(ratio);
-                // encodingProgress.setAttribute("width", "180");
-            }
-        });
-        ffmpeg.setLogger(({ type, message }) => {
-            if (type === 'fferr' && /^frame=\s*\d+/.test(message)) {
-                const frame = parseInt(message.match(/^frame=\s*(\d+)/)[1]);
-            }
-        });
+    //     const { createFFmpeg, fetchFile } = FFmpeg;
+    //     const ffmpeg = createFFmpeg({ log: true });
+    //     ffmpeg.setProgress(({ ratio }) => {
+    //         if (ratio === 1) {
+    //             console.log(ratio);
+    //             // encodingProgress.setAttribute("width", "180");
+    //         }
+    //     });
+    //     ffmpeg.setLogger(({ type, message }) => {
+    //         if (type === 'fferr' && /^frame=\s*\d+/.test(message)) {
+    //             const frame = parseInt(message.match(/^frame=\s*(\d+)/)[1]);
+    //         }
+    //     });
 
-        let deltaTime = 0;
-        let time = 0;
-        let frameCount = 0;
-        let duration = 5;
+    //     let deltaTime = 0;
+    //     let time = 0;
+    //     let frameCount = 0;
+    //     let duration = 5;
 
-        function tick() {
-            _draw({ time, deltaTime });
+    //     function tick() {
+    //         _draw({ time, deltaTime });
 
-            deltaTime = (1000 / framerate);
-            time += deltaTime;
+    //         deltaTime = (1000 / framerate);
+    //         time += deltaTime;
 
-            canvas.toBlob(async function(blob) {
-                const fn = `frame_${frameCount.toString().padStart(4, '0')}.png`;
-                ffmpeg.FS('writeFile', fn, new Uint8Array(await blob.arrayBuffer()));
-                frameCount++;
+    //         canvas.toBlob(async function(blob) {
+    //             const fn = `frame_${frameCount.toString().padStart(4, '0')}.png`;
+    //             ffmpeg.FS('writeFile', fn, new Uint8Array(await blob.arrayBuffer()));
+    //             frameCount++;
 
-                console.log(`ffmpeg write frame`);
+    //             console.log(`ffmpeg write frame`);
 
-                if (frameCount < framerate * duration) {
-                    requestAnimationFrame(tick);
-                } else {
-                    console.log("Done");
-                    console.log("running ffmpeg");
-                    await ffmpeg.run(...('-r 60 -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.mp4'.split(' ')));
-                    const data = ffmpeg.FS('readFile', 'output.mp4');
-                    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));	
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = document.title + '.mp4'
-                    a.click();
-                    paused = false;
-                }
-            });
-        }
+    //             if (frameCount < framerate * duration) {
+    //                 requestAnimationFrame(tick);
+    //             } else {
+    //                 console.log("Done");
+    //                 console.log("running ffmpeg");
+    //                 await ffmpeg.run(...('-r 60 -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.mp4'.split(' ')));
+    //                 const data = ffmpeg.FS('readFile', 'output.mp4');
+    //                 const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));	
+    //                 const a = document.createElement('a');
+    //                 a.href = url;
+    //                 a.download = document.title + '.mp4'
+    //                 a.click();
+    //                 paused = false;
+    //             }
+    //         });
+    //     }
 
-        ffmpeg.load().then(tick);
-    }
+    //     ffmpeg.load().then(tick);
+    // }
 }
 
 function handleSketchChange(event) {
@@ -113,7 +115,7 @@ function handleSketchChange(event) {
 
 <Module name={`${name}`}>
     <svelte:fragment slot="header-left">
-        <ModuleHeaderAction border label="Record" on:click={record}>record</ModuleHeaderAction>
+        <ModuleHeaderAction border label="Record" on:click={record}>{$recording ? 'stop' : 'record'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Save" on:click={() => screenshot(canvas)}>save</ModuleHeaderAction>
     </svelte:fragment>
@@ -124,7 +126,7 @@ function handleSketchChange(event) {
         />
     </svelte:fragment>
     {#if selected && selected !== "output"}
-        <SketchRenderer key={selected} {index} {paused} />
+        <SketchRenderer key={selected} {index} {paused} {recording}/>
     {:else if selected }
         <OutputRenderer {paused} />
     {/if}

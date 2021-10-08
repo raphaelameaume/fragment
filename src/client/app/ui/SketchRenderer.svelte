@@ -6,11 +6,13 @@ import { current as currentTime } from "../stores/time.js";
 import { proxyProps } from "../utils/props.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
+import { recordCanvas } from "../utils/canvas.utils.js";
 // import { emit, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT } from "../events/index.js";
 
 export let key;
 export let index;
 export let paused = false;
+export let recording;
 
 let framerate = 60;
 let canvas;
@@ -57,6 +59,27 @@ function createSketch(key) {
     _renderSketch();
 }
 
+let record = $recording;
+
+$: {
+    if ($recording && !record) {
+        record = recordCanvas($currentRendering.canvas, {
+            name: key,
+            onTick: _renderSketch,
+            onComplete: () => {
+                $recording = false;
+                record = null;
+            }
+        });
+    }
+
+    if (record && !$recording) {
+        record.stop();
+        $recording = false;
+        record = null;
+    }
+}
+
 function createRenderLoop() {
     const { width, height, pixelRatio, renderer } = $currentRendering;
     const draw = sketch.draw || sketch.update;
@@ -64,7 +87,6 @@ function createRenderLoop() {
     const context = canvas.getContext("2d");
 
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
-        console.log("Sketch :: render");
         onBeforeUpdatePreview({ index, canvas });
         draw({
             ...renderer,
