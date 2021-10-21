@@ -50,6 +50,7 @@ export const defaultLayouts = [
                             flex: 0.6,
                             modules: [
                                 { name: "params", flex: 0 },
+                                { name: "midi", flex: 0 },
                             ]
                         },
                     ]
