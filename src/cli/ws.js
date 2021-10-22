@@ -6,6 +6,7 @@ export async function start({
     let wss = new WebSocketServer({ port });
 
     wss.on('connection', (socket) => {
+        console.log("[fragment] client connected.");
         socket.send(JSON.stringify({ type: 'connected' }))
         // if (bufferedError) {
         //     socket.send(JSON.stringify(bufferedError))

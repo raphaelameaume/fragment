@@ -160,7 +160,7 @@ export function recordCanvas(canvas, {
 
             frameCount++;
 
-            console.log(`[fragment] recording canvas - render frame ${frameCount}`);
+            console.log(`[fragment] recording canvas - render frame ${frameCount} - duration ${time}ms`);
 
             if (frameCount < framerate * duration) {
                 requestAnimationFrame(tick);

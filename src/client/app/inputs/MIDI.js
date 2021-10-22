@@ -1,5 +1,13 @@
 import Input from "./Input";
 
+const commands = {
+	0x8: "noteoff",
+	0x9: "noteon",
+	0xB: "controlchange",
+};
+
+const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
 class MIDI extends Input {
 
 	constructor() {
@@ -19,8 +27,6 @@ class MIDI extends Input {
 	}
 
 	start() {
-		console.log("Midi :: start");
-
 		this.access.onstatechange = (event) => this.onStateChange(event);
 
 		this.inputs.forEach(entry => {
@@ -39,7 +45,25 @@ class MIDI extends Input {
 	}
 
 	onMessage(event) {
-		console.log(event);
+		let command = event.data[0] >> 4;
+		let type = commands[command];
+
+		let channel = (event.data[0] & 0xf) + 1;
+    	let data1 = event.data[1]
+		let data2 = event.data[2];
+
+		let note = {
+			number: data1,
+			name: notes[data1 % 12],
+		};
+		
+		let velocity = data2 / 127;
+		let rawVelocity = data2;
+
+		let number = data1;
+		let value = data2;
+
+		console.log({ type, channel, note, velocity, rawVelocity, number, value });
 	}
 
 	onStateChange(e) {

@@ -55,8 +55,6 @@ onMount(async () => {
     refresh();
 });
 
-console.log("hello");
-
 </script>
 
 <Module name="MIDI" {...$$props}>

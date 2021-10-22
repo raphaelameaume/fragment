@@ -2,7 +2,6 @@
 import { createEventDispatcher } from "svelte";
 import Select from "./fields/Select.svelte";
 import TextInput from "./fields/TextInput.svelte";
-import ButtonInput from "./fields/ButtonInput.svelte";
 
 export let input = '-';
 export let eventName = '-';
@@ -47,8 +46,12 @@ let inputs = {
         ]
     },
     "MIDI": {
-        events: [],
-        disabled: true,
+        events: [
+            "onNoteOn",
+            "onNoteOff",
+            "onControlChange"
+        ],
+        disabled: false,
     },
     "Audio": {
         events: [],
@@ -106,7 +109,7 @@ function onTextChange(e) {
 
 </script>
 
-<div class="field-triggers__trigger" class:mouse={inputType === "Mouse"} class:keyboard={inputType === "Keyboard"}>
+<div class="field-triggers__trigger {inputType.toLowerCase()}">
     <Select
         name="trigger-input"
         value={inputType}
@@ -128,6 +131,14 @@ function onTextChange(e) {
             on:input={onTextChange}
         />
     {/if}
+    {#if inputType === 'MIDI'}
+        <TextInput
+            name="trigger-custom"
+            value={params.key ? params.key : ""}
+            label="note"
+            on:input={onTextChange}
+        />
+    {/if}
 </div>
 
 <style>
@@ -138,7 +149,7 @@ function onTextChange(e) {
     grid-template-columns: 0.75fr 2fr;
 }
 
-.field-triggers__trigger.keyboard {
+.field-triggers__trigger.keyboard, .field-triggers__trigger.midi {
     display: grid;
     grid-template-columns: 0.75fr 1fr 1fr;
 }
