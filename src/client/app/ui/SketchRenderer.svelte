@@ -83,16 +83,29 @@ $: {
 function createRenderLoop() {
     const { width, height, pixelRatio, renderer } = $currentRendering;
     const draw = sketch.draw || sketch.update;
+    const { duration } = sketch;
 
     const context = canvas.getContext("2d");
 
+    let elapsed = 0;
+    let playhead = 0;
+    let hasDuration = isFinite(duration);
+
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
         onBeforeUpdatePreview({ index, canvas });
+
+        elapsed += deltaTime;
+
+        if (hasDuration) {
+            playhead = (((elapsed / 1000)) / duration) % 1;
+        }
+
         draw({
             ...renderer,
             ...params,
             context,
             props,
+            playhead,
             width: width * pixelRatio,
             height: height * pixelRatio,
             time,

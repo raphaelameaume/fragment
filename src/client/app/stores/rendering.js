@@ -6,9 +6,8 @@ const key = "rendering";
 export const current = writable({
     ...rehydrate(key, {
         width: 500,
-        height: 250,
+        height: 500,
         pixelRatio: 1,
-        monitors: 0,
     }, true)
 });
 
@@ -16,3 +15,5 @@ current.subscribe(keepInSync(key));
 
 export const threshold = writable(rehydrate("threshold", 0, true));
 threshold.subscribe(keepInSync("threshold"));
+
+export const monitors = writable(0);

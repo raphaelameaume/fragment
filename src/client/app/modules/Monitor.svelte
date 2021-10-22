@@ -7,7 +7,7 @@ let instances = 0;
 import { onMount, onDestroy } from "svelte";
 import { writable } from "svelte/store";
 import { screenshotCanvas } from "../utils/canvas.utils.js";
-import { current as currentRendering, threshold } from "../stores/rendering.js";
+import { current as currentRendering, threshold, monitors } from "../stores/rendering.js";
 import Module from "../ui/Module.svelte";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
@@ -26,7 +26,7 @@ instances++;
 let paused = false;
 // let pristine = false;
 let recording = writable(false);
-$currentRendering.monitors = instances;
+$monitors = instances;
 
 let selected;
 
