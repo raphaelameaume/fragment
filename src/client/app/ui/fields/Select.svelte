@@ -13,6 +13,8 @@ let node;
 let sanitizedOptions = [];
 
 $: {
+    sanitizedOptions = [];
+    
     for (let i = 0; i < options.length; i++) {
         const { value, label, disabled } = options[i];
 
@@ -33,7 +35,7 @@ $: {
 }
 
 
-function handleChange() {
+function handleChange(event) {
     dispatch('change', event.currentTarget.value);
 }
 
