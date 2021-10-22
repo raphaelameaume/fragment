@@ -3,6 +3,7 @@ const socketHost = `${location.hostname}:${__FRAGMENT_PORT__}`;
 
 const socket = new WebSocket(`${socketProtocol}://${socketHost}`);
 
+console.log("[fragment] connecting...");
 
 let listeners = {};
 
@@ -40,5 +41,9 @@ function on(event, cb) {
         listeners[event] = filtered;
     }
 }
+
+socket.addEventListener("open", () => {
+    console.log("[fragment] connected.");
+});
 
 export const client = { on, off };
