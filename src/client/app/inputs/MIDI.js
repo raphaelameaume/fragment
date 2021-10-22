@@ -6,14 +6,20 @@ class MIDI extends Input {
 		super();
 
 		this.access = null;
-		this.inputs = null;
-		this.outputs = null;
+
+		this.listeners = new Map();
+	}
+
+	get inputs() {
+		return this.access ? this.access.inputs : new Map();
+	}
+
+	get outputs() {
+		return this.access ? this.access.outputs : new Map();
 	}
 
 	start() {
-		console.log("Midi :: startt");
-		this.inputs = this.access.inputs;
-		this.outputs = this.access.outputs;
+		console.log("Midi :: start");
 
 		this.access.onstatechange = (event) => this.onStateChange(event);
 
@@ -24,12 +30,26 @@ class MIDI extends Input {
 		})
 	}
 
+	addEventListener(eventName, fn) {
+		if (!this.listeners.has(eventName)) {
+			this.listeners.set(eventName, []);
+		}
+
+		this.listeners.set(eventName, [...this.listeners.get(eventName), fn]);
+	}
+
 	onMessage(event) {
 		console.log(event);
 	}
 
 	onStateChange(e) {
-		console.log(e.port.name, e.port.manufacturer, e.port.state);
+		const event = e.port.state;
+
+		if (this.listeners.has(event)) {
+			const listeners = this.listeners.get(event);
+
+			listeners.forEach(listener => listener(e));
+		}
 	}
 
 	handleError(error) {
@@ -38,8 +58,10 @@ class MIDI extends Input {
 
 	async request() {
 		try {
-			this.access = await navigator.requestMIDIAccess()
-			this.start();
+			if (!this.access) {
+				this.access = await navigator.requestMIDIAccess()
+				this.start();
+			}
 		} catch(error) {
 			this.handleError(error);
 		}

@@ -4,23 +4,8 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import MIDI from "../inputs/MIDI.js";
 
-let inputs = [];
-let outputs = [];
-
-if (inputs.length === 0) {
-    inputs = [
-        { value: "none", label: "No device detected."}
-    ];
-}
-
-if (outputs.length === 0) {
-    outputs = [
-        { value: "none", label: "No device detected."}
-    ];
-}
-
-let input = inputs[0].value;
-let output = outputs[0].value;
+let input, output;
+let inputs = [], outputs = [];
 
 function createDeviceOptions(deviceMap = new Map()) {
     let options = [];
@@ -45,20 +30,40 @@ function createDeviceOptions(deviceMap = new Map()) {
     return options;
 }
 
+let prevInput = "";
+let prevOutput = "";
+
 onMount(async () => {
     await MIDI.request();
 
-    console.log(MIDI.inputs);
+    function refresh() {
+        inputs = createDeviceOptions(MIDI.inputs);
+        outputs = createDeviceOptions(MIDI.outputs);
 
-    inputs = createDeviceOptions(MIDI.inputs);
-    outputs = createDeviceOptions(MIDI.outputs);
+        input = prevInput ? prevInput : inputs[0].value;
+        output = prevOutput ? prevOutput : outputs[0].value;
+    }
+
+    MIDI.addEventListener("connected", refresh);
+    MIDI.addEventListener("disconnected", () => {
+        prevInput = input;
+        prevOutput = output;
+
+        refresh();
+    });
+
+    refresh();
 });
+
+console.log("hello");
+
 </script>
 
 <Module name="MIDI" {...$$props}>
     <Field
         key="inputs"
         value={input}
+        on:change={(event) => input = event.detail}
         params={{
             options: inputs,
         }}
@@ -66,6 +71,7 @@ onMount(async () => {
     <Field
         key="outputs"
         value={output}
+        on:change={(event) => output = event.detail}
         params={{
             options: outputs,
         }}
