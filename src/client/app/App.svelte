@@ -7,6 +7,7 @@ import TriggersSetup from "./ui/TriggersSetup.svelte";
 import { current as currentRendering } from "./stores/rendering.js";
 import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "./events";
 import "./client";
+import Clone from "./ui/Clone.svelte";
 
 let renderer;
 
@@ -71,7 +72,11 @@ async function start() {
 	<Loading />
 {:then}
 	<TriggersSetup />
+	{#if window.location.search.includes("clone")}
+		<Clone {renderer}/>
+	{:else}
 	<Layout {renderer}/>
+	{/if}
 {/await}
 
 <style>

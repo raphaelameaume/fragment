@@ -12,3 +12,4 @@ Concepts
 
 Guide
 - [Keep things in sync](./GUIDE.md#keep-things-in-sync)
+- [Hot Shader Reload](./GUIDE.md#hot-shader-reload)

@@ -7,7 +7,6 @@ import { proxyProps } from "../utils/props.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { recordCanvas } from "../utils/canvas.utils.js";
-// import { emit, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT } from "../events/index.js";
 
 export let key;
 export let index;
