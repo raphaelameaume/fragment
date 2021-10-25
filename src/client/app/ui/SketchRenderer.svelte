@@ -119,13 +119,13 @@ let elapsed = $currentTime.time;
 
 function render() {
     if (!paused) {
-        elapsed += $currentTime.deltaTime;
-
         if ((elapsed) >= ((1 / framerate) * 1000)) {
             elapsed = 0;
 
             _renderSketch();
         }
+
+        elapsed += $currentTime.deltaTime;
     }
 
     _raf = requestAnimationFrame(render);
