@@ -12,17 +12,18 @@ const controlchanges = new Map();
 function createEventListener(collection, getKey = (event) => event.key) {
     return (event) => {
         const key = getKey(event);
+		const { id } = event.srcElement;
 
 		const triggers = [
 			...(collection.has(key) ? collection.get(key) : []),
 			...(collection.has(wildcard) ? collection.get(wildcard) : []),
 		];
 
-		triggers.forEach(trigger => {
-			if (!MIDI.enabled) return;
-			
-			trigger.run(event);
-		});
+		if (MIDI.enabled && id === MIDI.selectedInputID) {
+			triggers.forEach(trigger => {
+				trigger.run(event);
+			});
+		}
     };
 }
 

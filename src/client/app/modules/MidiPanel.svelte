@@ -35,6 +35,15 @@ let prevOutput = "";
 
 let messages = [];
 
+$: {
+    MIDI.selectedInputID = input;
+    console.log(MIDI.selectedInputID);
+}
+
+$: {
+    MIDI.selectedOutputID = output;
+}
+
 onMount(async () => {
     await MIDI.request();
 
@@ -61,10 +70,10 @@ onMount(async () => {
 
         let noteLog = ["noteon", "noteoff"].includes(type) ? ` note:${note.name}` : ``; 
 
-        messages = [
-            ...messages,
-            `${time} ${type} number:${note.number}${noteLog}`,
-        ]
+        // messages = [
+        //     ...messages,
+        //     `${time} ${type} number:${note.number}${noteLog}`,
+        // ]
     });
 
     refresh();

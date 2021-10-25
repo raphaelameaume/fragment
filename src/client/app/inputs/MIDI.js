@@ -16,6 +16,8 @@ class MIDI extends Input {
 		this.access = null;
 
 		this.listeners = new Map();
+		this.selectedInputID = null;
+		this.selectedOutputID = null;
 	}
 
 	get inputs() {
