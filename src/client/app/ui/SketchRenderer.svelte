@@ -115,13 +115,15 @@ function createRenderLoop() {
     };
 }
 
-let elapsed = 0;
+let elapsed = $currentTime.time;
 
 function render() {
     if (!paused) {
         elapsed += $currentTime.deltaTime;
 
-        if (elapsed >= ((1 / framerate) * 1000)) {
+        if ((elapsed) >= ((1 / framerate) * 1000)) {
+            elapsed = 0;
+
             _renderSketch();
         }
     }

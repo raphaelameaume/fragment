@@ -3,6 +3,7 @@ import { readable } from "svelte/store";
 export const current = readable({ time: 0, deltaTime: 0 }, set => {
     let _raf;
     let lastTime = performance.now();
+    let time = Date.now() - __START_TIME__;
 
     function update() {
         let currentTime = performance.now();
@@ -10,7 +11,9 @@ export const current = readable({ time: 0, deltaTime: 0 }, set => {
 
         lastTime = currentTime;
 
-        set({ time: currentTime, deltaTime });
+        time += deltaTime;
+
+        set({ time, deltaTime });
 
         _raf = requestAnimationFrame(update)
     }
