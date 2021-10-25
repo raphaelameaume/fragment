@@ -1,5 +1,5 @@
 <script>
-import { createEventDispatcher } from "svelte";
+import { createEventDispatcher, onMount } from "svelte";
 import { colord } from "colord";
 import { map } from "lemonade-math";
 
@@ -15,6 +15,7 @@ import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import * as triggersMap from "../triggers/index.js";
+import { client } from "../client";
 
 export let sketch = null;
 export let key = '';
@@ -46,9 +47,13 @@ const onTriggers = {
         if (sketch && sketch.props[key]) {
             sketch.props[key].value = value;
         }
+
+        sync(value);
     },
     'button': (event) => {
-        value(event)
+        value(event);
+
+        sync(null);
     },
     'number': (event = {}) => {
         const isValueInRange = event.value >= 0 && event.value <= 1;
@@ -58,9 +63,8 @@ const onTriggers = {
 
             value = Math.round(v * (1 / prop.step)) / (1 / prop.step);
 
-            if (sketch && sketch.props[key]) {
-                sketch.props[key].value = value;
-            }
+            sync(value);
+            bubble(value);
         }
     },
 };
@@ -126,7 +130,6 @@ $: {
     }
 }
 
-
 function handleTriggersChange(event) {
     const { triggers: currentTriggers = [] } = sketch.props[key];
 
@@ -150,7 +153,33 @@ function handleTriggersChange(event) {
     sketch.props[key].triggers = newTriggers;
 }
 
+function sync(value) {
+    client.emit('prop-change', {
+        key,
+        value,
+    });
+}
+
+function bubble(value) {
+    dispatch('change', value);
+}
+
+function handleChange(event) {
+    sync(event.detail);
+    bubble(event.detail);
+}
+
 let label = params.label !== undefined ? params.label : key;
+
+onMount(() => {
+    client.on('prop-change', (event) => {
+        if (event.key === key) {
+            value = event.value;
+
+            dispatch('change', event.value);
+        }
+    });
+});
 
 </script>
 
@@ -190,8 +219,8 @@ let label = params.label !== undefined ? params.label : key;
             {value}
             name={key}
             {...params}
-            on:change={(event) => dispatch('change', event.detail)}
-            on:click={() => value()}
+            on:change={handleChange}
+            on:click={onTrigger}
         />
         <slot></slot>
     </FieldSection>

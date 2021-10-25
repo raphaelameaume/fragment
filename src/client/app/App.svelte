@@ -57,9 +57,9 @@ async function start() {
 	});
 
 	currentRendering.update((rendering) => ({
-			...rendering,
-			renderer: r || {},
-			canvas,
+		...rendering,
+		renderer: r || {},
+		canvas,
 	}));
 
 	await tick();

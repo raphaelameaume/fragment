@@ -8,7 +8,7 @@ console.log("[fragment] connecting...");
 let listeners = {};
 
 function handleMessage(payload) {
-    const { event, data } = payload;
+    const { event, data = {} } = payload;
     const callbacks = listeners[event];
 
     if (callbacks && callbacks.length) {
@@ -16,8 +16,10 @@ function handleMessage(payload) {
     }
 }
 
-socket.addEventListener('message', async ({ data }) => {
-    handleMessage(JSON.parse(data))
+socket.addEventListener('message', async (message) => {
+    const { data } = message;
+
+    handleMessage(JSON.parse(data));
 });
 
 function on(event, cb) {
@@ -42,8 +44,15 @@ function on(event, cb) {
     }
 }
 
+function emit(event, data) {
+    socket.send(JSON.stringify({
+        event,
+        data,
+    }));
+}
+
 socket.addEventListener("open", () => {
     console.log("[fragment] connected.");
 });
 
-export const client = { on, off };
+export const client = { on, off, emit };

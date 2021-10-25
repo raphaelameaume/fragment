@@ -7,7 +7,12 @@ export async function start({
 
     wss.on('connection', (socket) => {
         console.log("[fragment] client connected.");
-        socket.send(JSON.stringify({ type: 'connected' }))
+        socket.on('message', (message) => {
+            send(JSON.parse(message), {
+                sender: socket
+            });
+        });
+
         // if (bufferedError) {
         //     socket.send(JSON.stringify(bufferedError))
         //     bufferedError = null
@@ -20,18 +25,19 @@ export async function start({
         }
     });
 
+    function send(payload, { transform = true, sender = null }) {
+        const stringified = transform ? JSON.stringify(payload) : payload;
+
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN && client !== sender) {
+                client.send(stringified);
+            }
+        });
+    }
+
     return {
         port,
-
-        send: (payload) => {
-            const stringified = JSON.stringify(payload);
-
-            wss.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(stringified);
-                }
-            });
-        },
+        send,
         close: () => {
             return new Promise((resolve, reject) => {
                 wss.close((err) => {
