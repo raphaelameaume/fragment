@@ -32,4 +32,4 @@ export let update = ({ time }) => {
 };
 ```
 
-If you are using random number generations, you should use a seed and provide the variable __SEED__ available globally.
+If you are using random number generations, you should use a seed and provide the variable `__SEED__` available globally.

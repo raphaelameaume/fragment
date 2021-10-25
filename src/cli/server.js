@@ -51,7 +51,8 @@ export async function start({ options, filepaths, entries, fragment }) {
         define: {
             '__CWD__': `'${cwd}'`,
             '__FRAGMENT_PORT__': fragment.server.port,
-            '__START_TIME__': Date.now()
+            '__START_TIME__': Date.now(),
+            '__SEED__': Date.now()
         },
         optimizeDeps: {
             exclude: [
