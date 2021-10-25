@@ -174,16 +174,19 @@ let label = params.label !== undefined ? params.label : key;
 onMount(() => {
     client.on('prop-change', (event) => {
         if (event.key === key) {
-            value = event.value;
-
-            dispatch('change', event.value);
+            if (type === "button") {
+                value();
+            } else {
+                value = event.value;
+                bubble(event.value);
+            }
         }
     });
 });
 
 </script>
 
-<div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
+<div class="field {sizeClassName} {params.disabled ? "disabled": ""}">
     <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
         <div slot="infos" class="field__actions">
             {#if params.triggers && params.triggers.length && !params.disabled }

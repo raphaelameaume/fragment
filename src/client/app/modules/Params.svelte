@@ -114,7 +114,6 @@ function handleChangeDimensions(event) {
                     sketch={sketch}
                     context={selectedSketch}
                     key={key}
-                    type={sketch.props[key].type}
                     on:change={(event) => {
                         sketch.props[key].value = event.detail;
                     }}
