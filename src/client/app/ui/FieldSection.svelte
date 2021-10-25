@@ -5,15 +5,16 @@ export let secondary = false;
 export let label = "";
 export let name = "";
 export let onClickLabel = () => {};
-
 </script>
 
-<div class="field__section" class:visible={visible} class:secondary={secondary}>
+<div class="field__section" class:visible={visible} class:secondary={secondary} class:no-label={label === null}>
     <div class="field__infos" on:click={onClickLabel}>
-        {#if name !== ""}
-            <label class="field__label" for={name}>{label}</label>
-        {:else}
-            <span class="field__label" on:click={onClickLabel}>{label}</span>
+        {#if label !== null }
+            {#if name !== ""}
+                <label class="field__label" for={name}>{label}</label>
+            {:else}
+                <span class="field__label">{label}</span>
+            {/if}
         {/if}
         <slot name="infos"></slot>
     </div>
@@ -29,6 +30,10 @@ export let onClickLabel = () => {};
     display: grid;
     grid-template-columns: 0.5fr 1fr;
     column-gap: 10px;
+}
+
+.field__section.no-label {
+    grid-template-columns: 1fr;
 }
 
 .field__section:hover .field__label, .field__section:focus-within .field__label {

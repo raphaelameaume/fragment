@@ -33,6 +33,8 @@ function createDeviceOptions(deviceMap = new Map()) {
 let prevInput = "";
 let prevOutput = "";
 
+let messages = [];
+
 onMount(async () => {
     await MIDI.request();
 
@@ -50,6 +52,19 @@ onMount(async () => {
         prevOutput = output;
 
         refresh();
+    });
+
+    MIDI.addEventListener("message", (event) => {
+        const { type, note, channel, value } = event;
+        let date = new Date();
+        let time = `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+
+        let noteLog = ["noteon", "noteoff"].includes(type) ? ` note:${note.name}` : ``; 
+
+        messages = [
+            ...messages,
+            `${time} ${type} number:${note.number}${noteLog}`,
+        ]
     });
 
     refresh();
@@ -72,6 +87,14 @@ onMount(async () => {
         on:change={(event) => output = event.detail}
         params={{
             options: outputs,
+        }}
+    />
+    <Field
+        key="messages"
+        value={messages}
+        type="list"
+        params={{
+            disabled: true
         }}
     />
 </Module>

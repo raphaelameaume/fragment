@@ -49,6 +49,8 @@ let inputs = {
         events: [
             "onNoteOn",
             "onNoteOff",
+            "onNumberOn",
+            "onNumberOff",
             "onControlChange"
         ],
         disabled: false,
@@ -88,15 +90,23 @@ function onInputChange(e) {
 }
 
 function onEventChange(e) {
+    let prevEventName = eventName;
+
     eventName = e.detail;
 
-    const isKeyboard = inputType === 'Keyboard';
+    const keepParams = (
+        inputType === 'Keyboard' ||
+        inputType === "MIDI" && (
+            (["onNoteOn", "onNoteOff"].includes(prevEventName) && ["onNoteOn", "onNoteOff"].includes(eventName)) ||
+            (["onNumberOn", "onNumberOff"].includes(prevEventName) && ["onNumberOn", "onNumberOff"].includes(eventName))
+        )
+    );
 
-    if (!isKeyboard) {
+    if (!keepParams) {
         params = {};
     }
 
-    if (!isKeyboard || (isKeyboard && (params.key && params.key !== ''))) {
+    if (!keepParams || (keepParams && (params.key && params.key !== ''))) {
         dispatchEvent();
     }
 }
@@ -135,7 +145,7 @@ function onTextChange(e) {
         <TextInput
             name="trigger-custom"
             value={params.key ? params.key : ""}
-            label="note"
+            label={["onNoteOn", "onNoteOff"].includes(eventName) ? "note" : "number"}
             on:input={onTextChange}
         />
     {/if}

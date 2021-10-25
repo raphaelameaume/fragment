@@ -44,8 +44,8 @@ const onTriggers = {
             sketch.props[key].value = value;
         }
     },
-    'button': () => {
-        value()
+    'button': (event) => {
+        value(event)
     },
 };
 
@@ -134,10 +134,12 @@ function handleTriggersChange(event) {
     sketch.props[key].triggers = newTriggers;
 }
 
+let label = params.label !== undefined ? params.label : key;
+
 </script>
 
 <div class="field {sizeClassName} {params.disabled ? "disabled": ""}" bind:offsetWidth={offsetWidth}>
-    <FieldSection name={key} label={key} onClickLabel={() => secondaryVisible = !secondaryVisible}>
+    <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
         <div slot="infos" class="field__actions">
             {#if params.triggers && params.triggers.length && !params.disabled }
                 <button class="field__action field__action--triggers">

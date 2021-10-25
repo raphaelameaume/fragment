@@ -21,9 +21,18 @@ export const addToMapArray = (map, key, item) => {
 export const removeFromMapArray = (map, key, findIndex) => {
     if (map.has(key)) {
         const items = map.get(key);
-        const index = items.findIndex(find);
+        const index = items.findIndex(findIndex);
 
-        map.set(key, [...items].slice(index, 1));
+        if (index >= 0) {
+            const newItems = [...items];
+            newItems.splice(index, 1);
+
+            if (newItems.length > 0) {
+                map.set(key, newItems);
+            } else {
+                map.delete(key);
+            }
+        }
     } else {
         console.error(`removeFromMapArray: key ${key} doesn't exist in Map.`, map);
     }

@@ -1,35 +1,49 @@
 <script>
+import { afterUpdate } from "svelte";
+
 export let disabled;
 export let value;
+
+let container;
+
+afterUpdate(() => {
+    container.scrollTo(0, container.scrollHeight);
+});
+
 </script>
 
 <div class="list {disabled ? "disabled" : ""}">
-    <ul class="ul">
-        {#each value as item, index}
-            <li class="item">
-                {#if disabled }
-                    <span class="label">{item}</span>
-                {:else}
-                    <button class="label">{item}</button>
-                {/if}
-            </li>
-        {/each}
-    </ul>
+    <div class="container" bind:this={container}>
+        <ul class="ul">
+            {#each value as item, index}
+                <li class="item">
+                    {#if disabled }
+                        <span class="label">{item}</span>
+                    {:else}
+                        <button class="label">{item}</button>
+                    {/if}
+                </li>
+            {/each}
+        </ul>
+    </div>
 </div>
 
 <style>
 .list {
-    display: flex;
     width: 100%;
-    height: 80px;
+
+    pointer-events: auto;
+}
+
+.container {
     margin-right: var(--padding);
     padding: 1px 0;
+    height: 80px;
 
     background-color: #1d1d1e;
     border-radius: var(--inputBorderRadius);
     box-shadow: inset 0 0 0 1px var(--inputBorderColor);
-
-    pointer-events: auto;
+    overflow-y: scroll;
 }
 
 .ul {
@@ -37,18 +51,18 @@ export let value;
     flex-direction: column;
     width: 100%;
     padding: 2px 0;
-    overflow-y: scroll;
+    
 }
 
-.ul::-webkit-scrollbar {
+.container::-webkit-scrollbar {
     width: 5px;               /* width of the entire scrollbar */
 }
 
-.ul::-webkit-scrollbar-track {
+.container::-webkit-scrollbar-track {
     background: #0E0E0E;        /* color of the tracking area */
 }
 
-.ul::-webkit-scrollbar-thumb {
+.container::-webkit-scrollbar-thumb {
     background-color: var(--activeColor);    /* color of the scroll thumb */
     border-radius: 20px;       /* roundness of the scroll thumb */
 }

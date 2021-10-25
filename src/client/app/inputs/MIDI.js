@@ -28,7 +28,10 @@ class MIDI extends Input {
 
 	start() {
 		this.access.onstatechange = (event) => this.onStateChange(event);
+		this.attachListeners();
+	}
 
+	attachListeners() {
 		this.inputs.forEach(entry => {
 			entry.onmidimessage = (event) => {
 				this.onMessage(event);
@@ -60,19 +63,37 @@ class MIDI extends Input {
 		let velocity = data2 / 127;
 		let rawVelocity = data2;
 
-		let number = data1;
-		let value = data2;
+		let controller = event.target;
 
-		console.log({ type, channel, note, velocity, rawVelocity, number, value });
+		let data = {
+			type,
+			note,
+			channel,
+			velocity,
+			rawVelocity,
+			value: velocity,
+			rawValue: rawVelocity,
+			currentTarget: controller,
+			target: controller,
+			srcElement: controller,
+		};
+
+		this.emit('message', data);
+		this.emit(type, data);
 	}
 
 	onStateChange(e) {
 		const event = e.port.state;
 
-		if (this.listeners.has(event)) {
-			const listeners = this.listeners.get(event);
+		this.emit(event, e);
+		this.attachListeners();
+	}
 
-			listeners.forEach(listener => listener(e));
+	emit(eventName, data) {
+		if (this.listeners.has(eventName)) {
+			const listeners = this.listeners.get(eventName);
+
+			listeners.forEach(listener => listener(data));
 		}
 	}
 
