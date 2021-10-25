@@ -1,6 +1,7 @@
 <script>
 import { createEventDispatcher } from "svelte";
 import { colord } from "colord";
+import { map } from "lemonade-math";
 
 import Select from "./fields/Select.svelte";
 import NumberInput from "./fields/NumberInput.svelte";
@@ -22,6 +23,8 @@ export let params = {};
 export let context = null;
 export let type = inferFromParams() || inferFromValue();
 export let triggers = (sketch && sketch.props[key] && sketch.props[key].triggers) ? sketch.props[key].triggers : [];
+
+let prop = sketch && sketch.props[key];
 
 const dispatch = createEventDispatcher();
 const fields = {
@@ -46,6 +49,19 @@ const onTriggers = {
     },
     'button': (event) => {
         value(event)
+    },
+    'number': (event = {}) => {
+        const isValueInRange = event.value >= 0 && event.value <= 1;
+
+        if (isValueInRange && isFinite(prop.min) && isFinite(prop.max)) {
+            let v = map(event.value, 0, 1, prop.min, prop.max);
+
+            value = Math.round(v * (1 / prop.step)) / (1 / prop.step);
+
+            if (sketch && sketch.props[key]) {
+                sketch.props[key].value = value;
+            }
+        }
     },
 };
 
