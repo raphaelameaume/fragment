@@ -25,7 +25,7 @@ export async function start({
         }
     });
 
-    function send(payload, { transform = true, sender = null }) {
+    function send(payload, { transform = true, sender = null } = {}) {
         const stringified = transform ? JSON.stringify(payload) : payload;
 
         wss.clients.forEach((client) => {
