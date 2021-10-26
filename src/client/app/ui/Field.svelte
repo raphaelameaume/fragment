@@ -15,17 +15,14 @@ import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import * as triggersMap from "../triggers/index.js";
-import { client } from "../client";
+import { inferFromParams, inferFromValue } from "../core/Prop";
 
-export let sketch = null;
 export let key = '';
-export let value = (sketch && sketch.props[key]) ? sketch.props[key].value : null;
-export let params = {};
+export let value = null;
 export let context = null;
-export let type = inferFromParams() || inferFromValue();
-export let triggers = (sketch && sketch.props[key] && sketch.props[key].triggers) ? sketch.props[key].triggers : [];
-
-let prop = sketch && sketch.props[key];
+export let params = {};
+export let type = inferFromParams(params) || inferFromValue(value);
+export let triggers = [];
 
 const dispatch = createEventDispatcher();
 const fields = {
@@ -42,13 +39,9 @@ const fields = {
 
 const onTriggers = {
     'checkbox': () => {
-        value = !value;
+        prop.value = !prop.value;
 
-        if (sketch && sketch.props[key]) {
-            sketch.props[key].value = value;
-        }
-
-        sync(value);
+        bubble(value);
     },
     'button': (event) => {
         value(event);
@@ -61,9 +54,8 @@ const onTriggers = {
         if (isValueInRange && isFinite(prop.min) && isFinite(prop.max)) {
             let v = map(event.value, 0, 1, prop.min, prop.max);
 
-            value = Math.round(v * (1 / prop.step)) / (1 / prop.step);
+            prop.value = Math.round(v * (1 / prop.step)) / (1 / prop.step);
 
-            sync(value);
             bubble(value);
         }
     },
@@ -77,34 +69,7 @@ triggers.forEach((trigger) => {
     }
 });
 
-function inferFromParams() {
-    if (params.options && Array.isArray(params.options)) {
-        return "select";
-    }
 
-    return null;
-}
-
-function inferFromValue() {
-    if (typeof value === "number") {
-        return "number";
-    } else if (typeof value === "function") {
-        return "button";
-    } else if (typeof value === "boolean") {
-        return "checkbox";
-    } else if (typeof value === "string") {
-        if (colord(value).parsed) return "color";
-        return "text";
-    } else if (Array.isArray(value) && value.length === 2) {
-        return "vec2";
-    } else if (Array.isArray(value) && value.length === 3) {
-        return "vec3";
-    } else if (typeof value === "object" && Object.keys(value).length === 3) {
-        return "vec3";
-    } else if (typeof value === "object" && Object.keys(value).length === 2) {
-        return "vec2";
-    }
-}
 
 let input = fields[type];
 let isTriggerable = Object.keys(onTriggers).includes(type);
@@ -131,7 +96,7 @@ $: {
 }
 
 function handleTriggersChange(event) {
-    const { triggers: currentTriggers = [] } = sketch.props[key];
+    const currentTriggers = [...triggers];
 
     if (currentTriggers.length) {
         currentTriggers
@@ -150,14 +115,7 @@ function handleTriggersChange(event) {
             }
         });
 
-    sketch.props[key].triggers = newTriggers;
-}
-
-function sync(value) {
-    client.emit('prop-change', {
-        key,
-        value,
-    });
+    triggers = newTriggers;
 }
 
 function bubble(value) {
@@ -165,23 +123,22 @@ function bubble(value) {
 }
 
 function handleChange(event) {
-    sync(event.detail);
     bubble(event.detail);
 }
 
 let label = params.label !== undefined ? params.label : key;
 
 onMount(() => {
-    client.on('prop-change', (event) => {
-        if (event.key === key) {
-            if (type === "button") {
-                value();
-            } else {
-                value = event.value;
-                bubble(event.value);
-            }
-        }
-    });
+    // client.on('prop-change', (event) => {
+    //     if (event.key === key) {
+    //         if (type === "button") {
+    //             value();
+    //         } else {
+    //             value = event.value;
+    //             bubble(event.value);
+    //         }
+    //     }
+    // });
 });
 
 </script>
@@ -231,7 +188,7 @@ onMount(() => {
     <FieldSection visible={secondaryVisible} secondary label="triggers">
         <FieldTriggers
             {triggers}
-            on:triggers-change={handleTriggersChange}
+            on:triggers-change
         />
     </FieldSection>
     {/if}

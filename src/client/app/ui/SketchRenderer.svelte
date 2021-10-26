@@ -5,6 +5,8 @@ import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { proxyProps } from "../utils/props.js";
+import { current as currentProps } from "../stores/props";
+import Prop from "../core/Prop";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { emit, TRANSITION_CHANGE } from "../events";
@@ -32,6 +34,19 @@ let onAfterUpdatePreview = renderer.onAfterUpdatePreview || noop;
 
 let params = {};
 
+function createProps(props = []) {
+    let keys = Object.keys(props);
+    let result = {};
+
+    if (props) {
+        keys.forEach((propKey) => {
+            result[propKey] = new Prop(propKey, {...props[propKey] });
+        });
+    }
+
+    return result;
+}
+
 function createSketch(key) {
     if (!key) return;
 
@@ -39,7 +54,14 @@ function createSketch(key) {
 
     if (!sketch) return;
 
-    props = proxyProps(sketch.props);
+    if (!$currentProps[key]) {
+        $currentProps = {
+            ...$currentProps,
+            [`${key}`]: createProps(sketch.props)
+        };
+    }
+
+    props = $currentProps[key];
 
     framerate = isFinite(sketch.fps) ? sketch.fps : 60;
 
@@ -173,7 +195,7 @@ onMount(() => {
         let transitionOptions = Object.keys(transitions);
         $currentRendering.transition = transitionOptions[0];
     }
-
+    
     emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
 
     render();
