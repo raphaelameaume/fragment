@@ -172,8 +172,9 @@ onMount(() => {
     if (!$currentRendering.transition) {
         let transitionOptions = Object.keys(transitions);
         $currentRendering.transition = transitionOptions[0];
-        emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
     }
+
+    emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
 
     render();
 })

@@ -8,7 +8,7 @@ export const current = writable({
         width: 500,
         height: 500,
         pixelRatio: 1,
-    }, true)
+    }, false)
 });
 
 current.subscribe(keepInSync(key));
