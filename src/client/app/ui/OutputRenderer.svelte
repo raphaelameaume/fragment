@@ -51,7 +51,7 @@ onDestroy(() => {
     height: 100%;
     justify-content: center;
 
-    background-color: #0E0E0E;
+    background-color: var(--color-lightblack);
 }
 
 .output-renderer :global(canvas) {

@@ -37,7 +37,6 @@ let messages = [];
 
 $: {
     MIDI.selectedInputID = input;
-    console.log(MIDI.selectedInputID);
 }
 
 $: {

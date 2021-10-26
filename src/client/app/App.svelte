@@ -121,7 +121,8 @@ async function start() {
 	--backgroundColor: #242425;
 	--activeColor: #177bd0;
 	--topBarHeight: 24px;
-	--borderColor: #0E0E0E;
+	--color-lightblack: #0E0E0E;
+	--borderColor: var(--color-lightblack);
 
     --inputColor: #f0f0f0;
 	--inputHeight: 20px;

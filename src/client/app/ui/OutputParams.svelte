@@ -26,10 +26,10 @@ let transitionOptions = Object.keys(transitions).map((key) => {
     return { value: key, label };
 });
 
-if (!$currentRendering.transition) {
-    $currentRendering.transition = transitionOptions[0].value;
-    emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
-}
+// if (!$currentRendering.transition) {
+//     $currentRendering.transition = transitionOptions[0].value;
+//     emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
+// }
 
 function handleChangeTransition(event) {
     transition = event.detail;

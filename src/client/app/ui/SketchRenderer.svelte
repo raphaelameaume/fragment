@@ -1,17 +1,20 @@
 <script>
 import { getContext, onDestroy, onMount } from "svelte";
+import { writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { proxyProps } from "../utils/props.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
+import { emit, TRANSITION_CHANGE } from "../events";
 import { recordCanvas } from "../utils/canvas.utils.js";
+import { transitions } from "../transitions/index.js";
 
 export let key;
-export let index;
+export let index = 0;
 export let paused = false;
-export let recording;
+export let recording = writable(false);
 
 let framerate = 60;
 let canvas;
@@ -33,7 +36,7 @@ function createSketch(key) {
     if (!key) return;
 
     sketch = $currentSketches[key];
-    
+
     if (!sketch) return;
 
     props = proxyProps(sketch.props);
@@ -166,6 +169,12 @@ onMount(() => {
         }
     });
 
+    if (!$currentRendering.transition) {
+        let transitionOptions = Object.keys(transitions);
+        $currentRendering.transition = transitionOptions[0];
+        emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
+    }
+
     render();
 })
 
@@ -200,7 +209,7 @@ $: canvasHeight = $currentRendering.height * $currentRendering.pixelRatio;
     height: 100%;
     justify-content: center;
 
-    background-color: #0E0E0E;
+    background-color: var(--color-lightblack);
 }
 
 .canvas-container {

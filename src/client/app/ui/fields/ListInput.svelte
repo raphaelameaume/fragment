@@ -59,7 +59,7 @@ afterUpdate(() => {
 }
 
 .container::-webkit-scrollbar-track {
-    background: #0E0E0E;        /* color of the tracking area */
+    background-color: var(--color-lightblack);        /* color of the tracking area */
 }
 
 .container::-webkit-scrollbar-thumb {

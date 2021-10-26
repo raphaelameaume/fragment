@@ -124,8 +124,6 @@ export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
 
     let { gl } = r;
 
-    // let scene = new THREE.Scene();
-
     let geometry = createGeometry(gl, {
         attributes: {
             position: { data: [-1, -1, 3, -1, -1, 3] },

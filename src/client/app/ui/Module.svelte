@@ -94,7 +94,7 @@ $: {
     align-items: center;
     font-family: var(--fontFamily);
 
-    background-color: #0E0E0E;
+    background-color: var(--color-lightblack);
 }
 
 .slot {

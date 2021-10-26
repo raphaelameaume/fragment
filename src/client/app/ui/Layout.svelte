@@ -15,16 +15,6 @@ export let renderer;
 
 setContext("renderer", renderer);
 
-function addRow() {
-    currentLayout.update((current) => {
-        const updated = {
-            rows: [...current.rows, { grow: 1, cols: [] }]
-        };
-
-        return updated;
-    })
-}
-
 </script>
 
 <Menu />

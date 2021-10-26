@@ -33,11 +33,11 @@ $: style = `flex: ${current.flex}`;
 }
 
 .column:not(:last-child) {
-    border-right: 1px solid #0E0E0E;
+    border-right: 1px solid var(--color-lightblack);
 }
 
 .column:not(:first-child) {
-    border-left: 1px solid #0E0E0E;
+    border-left: 1px solid var(--color-lightblack);
 }
 
 .header {
