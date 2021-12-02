@@ -1,8 +1,11 @@
+import getPort from 'get-port';
 import WebSocket, { WebSocketServer } from 'ws';
 
 export async function start({
     port = 1234
 } = {}) {
+    port = await getPort({ port });
+
     let wss = new WebSocketServer({ port });
 
     wss.on('connection', (socket) => {
