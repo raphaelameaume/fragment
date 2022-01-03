@@ -6,7 +6,7 @@ let instances = 0;
 import { getContext, onMount, setContext } from "svelte";
 import { sketchesCount } from "@fragment/props";
 import { current as currentLayout } from "../stores/layout.js";
-import { current as props } from "../stores/props.js";
+import { props } from "../stores";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentSketches } from "../stores/sketches.js";
 
@@ -61,6 +61,26 @@ $: {
     if (monitor && monitor.params) {
         selectedSketch = monitor.params.selected;
         sketch = $currentSketches[selectedSketch];
+
+        if (sketch.props) {
+            Object.keys(sketch.props).forEach(key => {
+                let prop = sketch.props[key];
+
+                prop._listeners = [];
+
+                prop.onChange = (fn) => {
+                    prop._listeners.push(fn);
+
+                    return () => {
+                        let index = prop._listeners.findIndex((listener) => listener === fn);
+
+                        if (index >= 0) {
+                            prop._listeners.splice(index, 1);
+                        }
+                    };
+                };
+            });
+        }
     }
 }
 
@@ -123,6 +143,21 @@ $: sketchProps = $props[selectedSketch] || {};
                     triggers={sketchProps[key].triggers}
                     on:change={(event) => {
                         sketchProps[key].value = event.detail;
+                        sketch.props[key].value = event.detail;
+
+                        if (sketch.props._listeners.length > 0) {
+                            sketch.props._listeners.forEach((listener) => listener(event.detail));
+                        }
+                        // props.update((current) => ({
+                        //     ...current,
+                        //     [`${selectedSketch}`]: {
+                        //         ...current[`${selectedSketch}`],
+                        //         [`${key}`]: {
+                        //             ...current[`${selectedSketch}`][key],
+                        //             value: event.detail,
+                        //         }
+                        //     }
+                        // }));
                     }}
                     on:triggers-change={(event) => {
                         const currentTriggers = sketchProps[key].triggers;

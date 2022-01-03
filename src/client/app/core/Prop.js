@@ -37,25 +37,10 @@ class Prop {
 		this.type = inferFromParams(params) || inferFromValue(value);
 		this.params = params;
 		this.triggers = [];
-
-		client.on('prop-change', (event) => {
-			if (event.key === this.key) {
-				if (this.type === "button") {
-                	this._value();
-            	} else {
-					this._value = event.value;
-				}
-			}
-		});
 	}
 
 	set value(v) {
 		this._value = v;
-
-		client.emit('prop-change', {
-			key: this.key,
-			value: v,
-		});
 	}
 
 	get value() {
@@ -68,7 +53,11 @@ class Prop {
 
 	toJSON() {
 		return {
+			key: this.key,
+			type: this.type,
 			value: this.value,
+			params: this.params,
+			triggers: this.triggers,
 		}
 	}
 }

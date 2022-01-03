@@ -87,7 +87,7 @@ client.on('shader-update', (data) => {
 });
 
 export let init = ({ canvas, width, height, pixelRatio }) => {
-    renderer = new WebGLRenderer({ canvas });
+    renderer = new WebGLRenderer({ canvas, antialias: true });
     scene = new Scene();
     camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 

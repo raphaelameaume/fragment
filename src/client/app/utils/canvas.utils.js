@@ -167,8 +167,6 @@ export function recordCanvas(canvas, {
             } else {
                 await onEnd();
                 onComplete();
-                
-                paused = false;
             }
         });
     }

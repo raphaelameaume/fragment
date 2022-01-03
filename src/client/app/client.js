@@ -44,15 +44,19 @@ function on(event, cb) {
     }
 }
 
+let opened = false;
 function emit(event, data) {
-    socket.send(JSON.stringify({
-        event,
-        data,
-    }));
+    if (opened) {
+        socket.send(JSON.stringify({
+            event,
+            data,
+        }));
+    }
 }
 
 socket.addEventListener("open", () => {
     console.log("[fragment] connected.");
+    opened = true;
 });
 
 export const client = { on, off, emit };

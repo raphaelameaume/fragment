@@ -1,10 +1,11 @@
 import { writable } from "svelte/store";
 import { keepInSync, rehydrate } from "./utils";
 
-let key = "fragment.props";
+export let syncable = true;
+export let key = "fragment.props";
 
-export const current = writable({
+export const store = writable({
 	...rehydrate(key, {}, true)
 });
 
-current.subscribe(keepInSync(key));
+store.subscribe(keepInSync(key));

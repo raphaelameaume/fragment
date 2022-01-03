@@ -5,7 +5,7 @@ import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { proxyProps } from "../utils/props.js";
-import { current as currentProps } from "../stores/props";
+import { store as currentProps } from "../stores/props";
 import Prop from "../core/Prop";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
@@ -87,14 +87,21 @@ let record = $recording;
 
 $: {
     if ($recording && !record) {
-        record = recordCanvas($currentRendering.canvas, {
+        let recordOptions = {
             name: key,
             onTick: _renderSketch,
+            framerate: 60,
             onComplete: () => {
                 $recording = false;
                 record = null;
             }
-        });
+        };
+
+        if (sketch && sketch.duration) {
+            recordOptions.duration = sketch.duration;
+        }
+
+        record = recordCanvas(canvas, recordOptions);
     }
 
     if (record && !$recording) {
@@ -180,7 +187,8 @@ onMount(() => {
 
     params = {
         ...params,
-        ...mountParams
+        ...mountParams,
+        canvas,
     };
 
     createSketch(key);
