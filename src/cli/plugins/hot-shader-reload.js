@@ -14,10 +14,12 @@ ${hint}
 ${keyword}${shaderParts[1]}
         `;
     }
+
+    let modulesToReload = [];
     
     return {
         name: 'hot-shader-reload',
-        handleHotUpdate: async ({ file, read }) => {
+        handleHotUpdate: async ({ modules, file, read }) => {
             if (fileRegex.test(file)) {
                 let src = await read();
                 let source = glslify(src);
@@ -32,7 +34,22 @@ ${keyword}${shaderParts[1]}
                     },
                 });
 
+                // save modules that were handled 
+                modulesToReload.push(...modules);
+
                 return [];
+            }
+            
+            // add previous modules that were handled to the list of modules to avoid shader invalidation
+            if (modulesToReload.length > 0) {
+                const all = [
+                    ...modules,
+                    ...modulesToReload,
+                ];
+
+                modulesToReload = [];
+
+                return all;
             }
         },
         transform: (src, id) => {
