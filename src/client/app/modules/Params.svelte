@@ -62,7 +62,7 @@ $: {
         selectedSketch = monitor.params.selected;
         sketch = $currentSketches[selectedSketch];
 
-        if (sketch.props) {
+        if (sketch && sketch.props) {
             Object.keys(sketch.props).forEach(key => {
                 let prop = sketch.props[key];
 

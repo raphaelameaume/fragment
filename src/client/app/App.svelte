@@ -1,6 +1,5 @@
 <script>
 import { tick } from "svelte";
-import { rendering } from "@fragment/props";
 import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
 import TriggersSetup from "./ui/TriggersSetup.svelte";

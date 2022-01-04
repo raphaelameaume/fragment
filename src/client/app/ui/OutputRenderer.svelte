@@ -1,45 +1,33 @@
 <script>
-import { getContext, onDestroy, onMount } from "svelte";
-import { current as currentRendering, threshold } from "../stores/rendering.js";
-import { transitions } from "../transitions/index";
-import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "../events/index.js";
+import { onDestroy, onMount } from "svelte";
+import { current as currentRendering } from "../stores/rendering.js";
 
 export let paused = false;
 
-let container;
 let _raf;
-
-let renderer = getContext('renderer');
+let canvas;
 
 function render() {
     if (!paused) {
-        renderer.update({ threshold: $threshold });
+        // render
     }
 
     _raf = requestAnimationFrame(render);
 }
 
 onMount(() => {
-    const { canvas } = $currentRendering;
-
-    container.appendChild(canvas);
-
     render();
 });
 
 onDestroy(() => {
-    const { canvas } = $currentRendering;
-
-    canvas.parentNode.removeChild(canvas);
-
     cancelAnimationFrame(_raf);
 });
 
 </script>
 
 <div class="output-renderer">
-    <div class="canvas-container" bind:this={container} style="max-width: {$currentRendering.width}px;">
-    
+    <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
+        <canvas bind:this={canvas}></canvas>
     </div>
 </div>
 

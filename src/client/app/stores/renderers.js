@@ -8,7 +8,7 @@ function loadRenderer(rendering) {
 		return import(/* @vite-ignore */"../renderers/THREERenderer.js");
 	}
 
-	return import("../renderers/2DRenderer.js");
+	return import(/* @vite-ignore */"../renderers/2DRenderer.js");
 }
 
 export async function findRenderer(rendering) {
