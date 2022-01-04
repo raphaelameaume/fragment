@@ -1,3 +1,5 @@
+export let props = {};
+
 export let init = ({ width, height }) => {
 
 };

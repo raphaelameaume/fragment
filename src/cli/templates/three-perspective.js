@@ -16,3 +16,5 @@ export let resize = ({ width, height }) => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 };
+
+export let rendering = "three";
