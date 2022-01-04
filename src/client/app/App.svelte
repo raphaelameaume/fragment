@@ -1,62 +1,13 @@
 <script>
-import { onMount, setContext, tick } from "svelte";
+import { tick } from "svelte";
 import { rendering } from "@fragment/props";
 import Loading from "./ui/Loading.svelte";
 import Layout from "./ui/Layout.svelte";
 import TriggersSetup from "./ui/TriggersSetup.svelte";
-import { current as currentRendering } from "./stores/rendering.js";
-import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "./events";
 import "./client";
 import Clone from "./ui/Clone.svelte";
 
-let renderer;
-
-async function loadRenderer() {
-	if (rendering === "three-webgl") {
-		return import(/* @vite-ignore */"@fragment/renderer");
-	}
-
-	return import("./renderers/2DRenderer.js");
-};
-
 async function start() {
-	let canvas = document.createElement('canvas');
-	renderer = await loadRenderer();
-	let events = [
-        { name: "onTransitionChange", event: TRANSITION_CHANGE },
-        { name: "onMountPreview", event: PREVIEW_MOUNT },
-        { name: "onBeforeUpdatePreview", event: PREVIEW_BEFORE_UPDATE },
-        { name: "onAfterUpdatePreview", event: PREVIEW_AFTER_UPDATE },
-    ];
-
-    events.forEach(({ name, event }) => {
-        if (typeof renderer[`${name}`] === "function") {
-            on(event, (event) => {
-				const { pixelRatio, width, height } = $currentRendering;
-
-                renderer[`${name}`]({
-					...event,
-					width,
-					height,
-					pixelRatio,
-				});
-            });
-        }
-    });
-
-	const { pixelRatio, width, height } = $currentRendering;
-
-	const r = renderer.init({ canvas, pixelRatio, width, height });
-
-	currentRendering.subscribe((current) => {
-		renderer.resize({
-			width: current.width,
-			height: current.height,
-			pixelRatio: current.pixelRatio,
-			...r,
-		});
-	});
-
 	await tick();
 }
 
@@ -67,9 +18,9 @@ async function start() {
 {:then}
 	<TriggersSetup />
 	{#if window.location.search.includes("clone")}
-		<Clone {renderer}/>
+		<Clone />
 	{:else}
-	<Layout {renderer}/>
+	<Layout />
 	{/if}
 {/await}
 

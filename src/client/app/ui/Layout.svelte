@@ -1,6 +1,4 @@
 <script>
-import { map, clamp } from "lemonade-math";
-
 import Row from "./Row.svelte";
 import RowToolBar from "./RowToolBar.svelte";
 import Column from "./Column.svelte";
@@ -9,11 +7,6 @@ import Menu from "./Menu.svelte";
 import Resizer from "./Resizer.svelte";
 
 import { current as currentLayout } from "../stores/layout.js";
-import { setContext } from "svelte";
-
-export let renderer;
-
-setContext("renderer", renderer);
 
 </script>
 

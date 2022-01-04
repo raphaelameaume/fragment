@@ -1,10 +1,9 @@
 <script>
-import { getContext, onDestroy, onMount } from "svelte";
+import { onDestroy, onMount } from "svelte";
 import { writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
-import { proxyProps } from "../utils/props.js";
 import { store as currentProps } from "../stores/props";
 import Prop from "../core/Prop";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
@@ -12,6 +11,7 @@ import { client } from "../client";
 import { emit, TRANSITION_CHANGE } from "../events";
 import { recordCanvas } from "../utils/canvas.utils.js";
 import { transitions } from "../transitions/index.js";
+import { findRenderer } from "../stores/renderers";
 
 export let key;
 export let index = 0;
@@ -25,12 +25,8 @@ let _key = key;
 let _renderSketch = () => {};
 
 let sketch, props;
-let renderer = getContext("renderer");
+let renderer;
 let noop = () => {};
-
-let onMountPreview = renderer.onMountPreview || noop;
-let onBeforeUpdatePreview = renderer.onBeforeUpdatePreview || noop;
-let onAfterUpdatePreview = renderer.onAfterUpdatePreview || noop;
 
 let params = {};
 
@@ -47,12 +43,22 @@ function createProps(props = []) {
     return result;
 }
 
-function createSketch(key) {
+async function createSketch(key) {
     if (!key) return;
 
     sketch = $currentSketches[key];
 
     if (!sketch) return;
+
+    renderer = await findRenderer(sketch.rendering);
+
+    let mountParams = renderer.onMountPreview({ index, canvas });
+
+    params = {
+        ...params,
+        ...mountParams,
+        canvas,
+    };
 
     if (!$currentProps[key]) {
         $currentProps = {
@@ -112,7 +118,7 @@ $: {
 }
 
 function createRenderLoop() {
-    const { width, height, pixelRatio, renderer } = $currentRendering;
+    const { width, height, pixelRatio } = $currentRendering;
     const draw = sketch.draw || sketch.update;
     const { duration } = sketch;
 
@@ -121,6 +127,9 @@ function createRenderLoop() {
     let elapsed = 0;
     let playhead = 0;
     let hasDuration = isFinite(duration);
+
+    let onBeforeUpdatePreview = renderer.onBeforeUpdatePreview || noop;
+    let onAfterUpdatePreview = renderer.onAfterUpdatePreview || noop;
 
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
         onBeforeUpdatePreview({ index, canvas });
@@ -182,16 +191,8 @@ currentRendering.subscribe((current) => {
     }
 });
 
-onMount(() => {
-    const mountParams = onMountPreview({ index, canvas });
-
-    params = {
-        ...params,
-        ...mountParams,
-        canvas,
-    };
-
-    createSketch(key);
+onMount(async () => {
+    await createSketch(key);
 
     client.on('shader-update', () => {
         if (framerate === 0) {
