@@ -19,14 +19,15 @@ export let paused = false;
 export let recording = writable(false);
 
 let framerate = 60;
+let elapsedRenderingTime = 0;
 let canvas;
 let _raf;
 let _key = key;
-let _renderSketch = () => {};
 
 let sketch, props;
 let renderer;
 let noop = () => {};
+let _renderSketch = noop;
 
 let params = {};
 
@@ -55,7 +56,6 @@ async function createSketch(key) {
     let mountParams = renderer.onMountPreview({ index, canvas });
 
     params = {
-        ...params,
         ...mountParams,
         canvas,
     };
@@ -97,6 +97,9 @@ $: {
             name: key,
             onTick: _renderSketch,
             framerate: 60,
+            onStart: () => {
+                elapsedRenderingTime = 0;
+            },
             onComplete: () => {
                 $recording = false;
                 record = null;
@@ -124,8 +127,9 @@ function createRenderLoop() {
 
     const context = canvas.getContext("2d");
 
-    let elapsed = 0;
+    
     let playhead = 0;
+    let playcount = 0;
     let hasDuration = isFinite(duration);
 
     let onBeforeUpdatePreview = renderer.onBeforeUpdatePreview || noop;
@@ -134,10 +138,11 @@ function createRenderLoop() {
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
         onBeforeUpdatePreview({ index, canvas });
 
-        elapsed += deltaTime;
+        elapsedRenderingTime += deltaTime;
 
         if (hasDuration) {
-            playhead = (((elapsed / 1000)) / duration) % 1;
+            playhead = (((elapsedRenderingTime / 1000)) / duration) % 1;
+            playcount = Math.floor((((elapsedRenderingTime / 1000)) / duration));
         }
 
         draw({
@@ -146,6 +151,7 @@ function createRenderLoop() {
             context,
             props,
             playhead,
+            playcount,
             width: width * pixelRatio,
             height: height * pixelRatio,
             time,

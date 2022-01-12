@@ -112,6 +112,7 @@ export function recordCanvas(canvas, {
     extension = 'mp4',
     framerate = 25,
     duration = Infinity,
+    onStart = () => {},
     onTick = () => {},
     onComplete = () => {}
 } = {}) {
@@ -181,6 +182,7 @@ export function recordCanvas(canvas, {
     }
 
     promise.then(() => {
+        onStart();
         tick();
     });
 
