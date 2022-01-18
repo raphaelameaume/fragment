@@ -8,6 +8,7 @@ import Params from "../modules/Params.svelte";
 import MousePanel from "../modules/MousePanel.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
 import KeyboardPanel from "../modules/KeyboardPanel.svelte";
+import Recorder from "../modules/Recorder.svelte";
 
 export let module;
 export let index;
@@ -19,6 +20,7 @@ const moduleList = {
     "midi": MidiPanel,
     "keyboard": KeyboardPanel,
     "console": Console,
+    "recorder": Recorder,
 };
 
 const component = moduleList[module.name];
