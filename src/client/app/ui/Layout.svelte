@@ -10,7 +10,6 @@ import { current as currentLayout } from "../stores/layout.js";
 
 </script>
 
-<Menu />
 <div class="layout">
     <div class="content">
         {#each $currentLayout.rows as row, rowIndex}
@@ -52,7 +51,8 @@ import { current as currentLayout } from "../stores/layout.js";
     position: relative;
     display: flex;
     width: 100%;
-    height: calc(100% - var(--topBarHeight));
+    /* height: calc(100% - var(--topBarHeight)); */
+    height: 100%;
     flex-direction: column;
 }
 
