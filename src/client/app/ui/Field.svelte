@@ -16,6 +16,7 @@ import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import * as triggersMap from "../triggers/index.js";
 import { inferFromParams, inferFromValue } from "../core/Prop";
+import Trigger from "../triggers/Trigger";
 
 export let key = '';
 export let value = null;
@@ -46,7 +47,7 @@ const onTriggers = {
     'button': (event) => {
         value(event);
 
-        sync(null);
+        // sync(null);
     },
     'number': (event = {}) => {
         const isValueInRange = event.value >= 0 && event.value <= 1;
@@ -63,13 +64,13 @@ const onTriggers = {
 
 const onTrigger = onTriggers[type];
 
-triggers.forEach((trigger) => {
-    if (trigger.fn === undefined && onTrigger) {
-        trigger.fn = onTrigger;
-    }
-});
-
-
+// triggers.forEach((trigger, index) => {
+    
+//     const trigger = triggersMap[eventName];
+//     if (trigger.fn === undefined && onTrigger) {
+//         trigger.fn = onTrigger;
+//     }
+// });
 
 let input = fields[type];
 let isTriggerable = Object.keys(onTriggers).includes(type);
@@ -101,7 +102,9 @@ function handleTriggersChange(event) {
     if (currentTriggers.length) {
         currentTriggers
             .filter(trigger => trigger !== null)
-            .forEach((trigger) => trigger.destroy());
+            .forEach((trigger) => {
+                trigger.destroy()
+            });
     }
 
     const newTriggers = event.detail
@@ -111,7 +114,7 @@ function handleTriggersChange(event) {
             if (trigger && onTrigger) {
                 return trigger(onTrigger, { context, ...params });
             } else {
-                return null;
+                return new Trigger();
             }
         });
 
@@ -126,7 +129,7 @@ function handleChange(event) {
     bubble(event.detail);
 }
 
-let label = params.label !== undefined ? params.label : key;
+let label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 
 onMount(() => {
     // client.on('prop-change', (event) => {
@@ -188,7 +191,7 @@ onMount(() => {
     <FieldSection visible={secondaryVisible} secondary label="triggers">
         <FieldTriggers
             {triggers}
-            on:triggers-change
+            on:triggers-change={handleTriggersChange}
         />
     </FieldSection>
     {/if}

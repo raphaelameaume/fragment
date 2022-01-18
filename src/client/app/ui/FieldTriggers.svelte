@@ -8,18 +8,32 @@ export let triggers = [];
 const dispatch = createEventDispatcher();
 
 function addTrigger() {
-    triggers = [
+    dispatch('triggers-change', [
         ...triggers,
-        { input: undefined, event: undefined, params: undefined },
-    ];
+        { inputType: undefined, eventName: undefined, params: {} },
+    ]);
 }
 
 function onTriggerChange(e, index) {
     const { inputType, eventName, params = {}} = e.detail;
 
-    triggers[index] = e.detail;
+    const newTriggers = triggers.map((trigger, i) => {
+        if (index === i) {
+            return {
+                inputType,
+                eventName,
+                params,
+            };
+        } else {
+            return {
+                inputType: trigger.inputType,
+                eventName: trigger.eventName,
+                params: trigger.params,
+            };
+        }
+    });
 
-    dispatch('triggers-change', triggers);
+    dispatch('triggers-change', newTriggers);
 }
 
 </script>
