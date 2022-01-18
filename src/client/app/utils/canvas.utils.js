@@ -133,7 +133,7 @@ export function recordCanvas(canvas, {
 
             const filename = `${name}.${getFileNameSuffix()}.${extension}`;
 
-            await ffmpeg.run(...(`-r 60 -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.${extension}`.split(' ')));
+            await ffmpeg.run(...(`-r ${framerate} -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.${extension}`.split(' ')));
             const data = ffmpeg.FS('readFile', `output.${extension}`);
             const url = URL.createObjectURL(new Blob([data.buffer], { type: `video/${extension}` }));
             const a = document.createElement('a');

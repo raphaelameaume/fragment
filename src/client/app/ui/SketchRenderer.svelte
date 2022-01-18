@@ -96,7 +96,7 @@ $: {
         let recordOptions = {
             name: key,
             onTick: _renderSketch,
-            framerate: 60,
+            framerate: 30,
             onStart: () => {
                 elapsedRenderingTime = 0;
             },
@@ -107,7 +107,7 @@ $: {
         };
 
         if (sketch && sketch.duration) {
-            recordOptions.duration = sketch.duration;
+            recordOptions.duration = sketch.duration * 4;
         }
 
         record = recordCanvas(canvas, recordOptions);
