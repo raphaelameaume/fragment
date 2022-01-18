@@ -58,10 +58,10 @@ function handleChangeTransition(event) {
         step: 0.1,
     }}
 />
-<Field
+<!-- <Field
     key="optimize"
     value={false}
-/>
+/> -->
 
 {#if sketchesCount > 1 }
 <FieldGroup name="transition">
