@@ -69,10 +69,10 @@ onMount(async () => {
 
         let noteLog = ["noteon", "noteoff"].includes(type) ? ` note:${note.name}` : ``; 
 
-        // messages = [
-        //     ...messages,
-        //     `${time} ${type} number:${note.number}${noteLog}`,
-        // ]
+        messages = [
+            ...messages,
+            `${time} ${type} number:${note.number}${noteLog}`,
+        ]
     });
 
     refresh();

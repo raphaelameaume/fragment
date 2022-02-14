@@ -8,7 +8,7 @@ const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
 const defaultLayout = defaultLayouts.filter((layout) => layout.isMany === isMany)[0];
 
 export const current = writable({
-    ...rehydrate(key, defaultLayout.data, true),
+    ...rehydrate(key, defaultLayout.data, false),
     editable: false,
     resizable: false,
 });

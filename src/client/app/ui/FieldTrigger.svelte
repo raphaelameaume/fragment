@@ -94,13 +94,15 @@ function onEventChange(e) {
 
     eventName = e.detail;
 
-    const keepParams = (
+    let keepParams = (
         inputType === 'Keyboard' ||
         inputType === "MIDI" && (
             (["onNoteOn", "onNoteOff"].includes(prevEventName) && ["onNoteOn", "onNoteOff"].includes(eventName)) ||
             (["onNumberOn", "onNumberOff"].includes(prevEventName) && ["onNumberOn", "onNumberOff"].includes(eventName))
         )
     );
+
+    keepParams = false;
 
     if (!keepParams) {
         params = {};

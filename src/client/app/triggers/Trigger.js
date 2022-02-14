@@ -8,7 +8,7 @@ class Trigger {
      * @param {function} fn 
      * @param {object} params 
      */
-    constructor(inputType, eventName, fn, params, destroy = () => {}) {
+    constructor(inputType, eventName, fn, params = {}, destroy = () => {}) {
         this.id = ID++;
         this.inputType = inputType;
         this.eventName = eventName;

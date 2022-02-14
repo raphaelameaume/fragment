@@ -42,7 +42,7 @@ onDestroy(() => {
 async function screenshot() {
     paused = true;
 
-    await screenshotCanvas($currentRendering.canvas, selected);
+    await screenshotCanvas(canvas, selected);
 
     paused = false;
 }

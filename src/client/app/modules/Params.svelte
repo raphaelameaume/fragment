@@ -62,7 +62,7 @@ $: {
         selectedSketch = monitor.params.selected;
         sketch = $currentSketches[selectedSketch];
 
-        if (sketch.props) {
+        if (sketch && sketch.props) {
             Object.keys(sketch.props).forEach(key => {
                 let prop = sketch.props[key];
 
@@ -133,6 +133,9 @@ $: sketchProps = $props[selectedSketch] || {};
     {#if sketch }
         {#if typeof props === "object"}
             <Field key="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
+            {#if sketch.duration && sketch.duration > 0 }
+                <Field key="duration" value={sketch.duration} params={{disabled: true, suffix: "s"}}/>
+            {/if }
             {#each Object.keys(sketchProps) as key, i}
                 <Field
                     context={selectedSketch}
@@ -145,9 +148,9 @@ $: sketchProps = $props[selectedSketch] || {};
                         sketchProps[key].value = event.detail;
                         sketch.props[key].value = event.detail;
 
-                        if (sketch.props._listeners.length > 0) {
-                            sketch.props._listeners.forEach((listener) => listener(event.detail));
-                        }
+                        // if (sketch.props._listeners.length > 0) {
+                        //     sketch.props._listeners.forEach((listener) => listener(event.detail));
+                        // }
                         // props.update((current) => ({
                         //     ...current,
                         //     [`${selectedSketch}`]: {
@@ -158,28 +161,6 @@ $: sketchProps = $props[selectedSketch] || {};
                         //         }
                         //     }
                         // }));
-                    }}
-                    on:triggers-change={(event) => {
-                        const currentTriggers = sketchProps[key].triggers;
-
-                        if (currentTriggers.length) {
-                            currentTriggers
-                                .filter(trigger => trigger !== null)
-                                .forEach((trigger) => trigger.destroy());
-                        }
-
-                        const newTriggers = event.detail
-                            .map(({ eventName, params }) => {
-                                const trigger = triggersMap[eventName];
-
-                                if (trigger && onTrigger) {
-                                    return trigger(onTrigger, { context, ...params });
-                                } else {
-                                    return null;
-                                }
-                            });
-
-                        sketchProps[key].triggers = newTriggers;
                     }}
                 />
             {/each}

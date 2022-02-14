@@ -23,8 +23,8 @@ export async function start({ options, filepaths, entries, fragment }) {
             alias: [
                 { find: '@fragment/sketches', replacement: filepaths[0] },
                 { find: '@fragment/props', replacement: filepaths[1] },
-                { find: '@fragment/renderer', replacement: filepaths[2] },
                 { find: '@fragment', replacement: app },
+                { find: 'three', replacement: path.join(process.cwd(), 'node_modules/three') },
             ]
         },
         fs: {

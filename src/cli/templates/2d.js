@@ -1,8 +1,10 @@
+export let props = {};
+
 export let init = ({ context, width, height }) => {
 
 };
 
-export let update = ({ time, deltaTime }) => {
+export let update = ({ context, width, height, time, deltaTime }) => {
     
 };
 

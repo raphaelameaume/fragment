@@ -1,6 +1,4 @@
 <script>
-import { map, clamp } from "lemonade-math";
-
 import Row from "./Row.svelte";
 import RowToolBar from "./RowToolBar.svelte";
 import Column from "./Column.svelte";
@@ -9,16 +7,11 @@ import Menu from "./Menu.svelte";
 import Resizer from "./Resizer.svelte";
 
 import { current as currentLayout } from "../stores/layout.js";
-import { setContext } from "svelte";
-
-export let renderer;
-
-setContext("renderer", renderer);
 
 </script>
 
-<Menu />
 <div class="layout">
+    <Menu></Menu>
     <div class="content">
         {#each $currentLayout.rows as row, rowIndex}
             <Row current={row} index={rowIndex}>
@@ -59,7 +52,8 @@ setContext("renderer", renderer);
     position: relative;
     display: flex;
     width: 100%;
-    height: calc(100% - var(--topBarHeight));
+    /* height: calc(100% - var(--topBarHeight)); */
+    height: 100%;
     flex-direction: column;
 }
 

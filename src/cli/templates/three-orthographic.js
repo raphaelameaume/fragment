@@ -18,3 +18,5 @@ export let resize = ({ width, height }) => {
 
     camera.updateProjectionMatrix();
 };
+
+export let rendering = "three";

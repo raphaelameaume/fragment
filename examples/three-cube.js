@@ -20,10 +20,15 @@ export let init = ({ scene, width, height }) => {
 };
 
 export let update = ({ renderer, scene, time, deltaTime }) => {
+	mesh.rotation.y += 0.01;
     renderer.render(scene, camera);
 };
 
 export let resize = ({ width, height }) => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+
+	console.log("THREECube :: resize", width, height);
 };
+
+export let rendering = "three";
