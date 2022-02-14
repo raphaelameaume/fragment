@@ -148,6 +148,7 @@ async function createEntries(entry, options) {
         if (error.code === "ENOENT") {
             if (shouldCreateFile) {
                 await createEntryFile(entryPath);
+                run(entry, options);
             } else {
                 log.error(`Missing file: ${entry} doesn't exist.`)
                 console.log("Use --new flag to create the file automatically");
