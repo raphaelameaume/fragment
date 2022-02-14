@@ -1,8 +1,11 @@
+import fs from "fs";
+import path from "path";
 import getPort from 'get-port';
 import WebSocket, { WebSocketServer } from 'ws';
 
 export async function start({
-    port = 1234
+    port = 1234,
+    cwd = "",
 } = {}) {
     port = await getPort({ port });
 
@@ -11,7 +14,16 @@ export async function start({
     wss.on('connection', (socket) => {
         console.log("[fragment] client connected.");
         socket.on('message', (message) => {
-            send(JSON.parse(message), {
+            const json = JSON.parse(message);
+            const { event, data } = json;
+            
+            if (event === "screenshot") {
+                fs.writeFile(path.join(cwd, data.filename), Buffer.from(data.content.replace(/^data:image\/\w+;base64,/, ''), 'base64'), (error) => {
+                    console.log(error);
+                });
+            }
+
+            send(json, {
                 sender: socket
             });
         });

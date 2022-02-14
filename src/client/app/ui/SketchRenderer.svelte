@@ -9,9 +9,10 @@ import Prop from "../core/Prop";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { emit, TRANSITION_CHANGE } from "../events";
-import { recordCanvas } from "../utils/canvas.utils.js";
+import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
 import { transitions } from "../transitions/index.js";
 import { findRenderer } from "../stores/renderers";
+import { onKeyDown } from "../triggers/Keyboard.js";
 
 export let key;
 export let index = 0;
@@ -125,9 +126,6 @@ function createRenderLoop() {
     const draw = sketch.draw || sketch.update;
     const { duration } = sketch;
 
-    const context = canvas.getContext("2d");
-
-    
     let playhead = 0;
     let playcount = 0;
     let hasDuration = isFinite(duration);
@@ -148,7 +146,6 @@ function createRenderLoop() {
         draw({
             ...renderer,
             ...params,
-            context,
             props,
             playhead,
             playcount,
@@ -197,6 +194,15 @@ currentRendering.subscribe((current) => {
     }
 });
 
+async function save() {
+    paused = true;
+
+    await screenshotCanvas(canvas, key);
+    paused = false;
+}
+
+let offKeyboardShortcutSave;
+
 onMount(async () => {
     await createSketch(key);
 
@@ -214,10 +220,27 @@ onMount(async () => {
     emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
 
     render();
+
+    if (offKeyboardShortcutSave) {
+        offKeyboardShortcutSave();
+        offKeyboardShortcutSave = null;
+    }
+
+    offKeyboardShortcutSave = onKeyDown('s', (event) => {
+        if (event.metaKey || event.ctrlKey) {
+            event.preventDefault();
+            save();
+        }
+    });
 })
 
 onDestroy(() => {
     cancelAnimationFrame(_raf);
+
+    if (offKeyboardShortcutSave) {
+        offKeyboardShortcutSave.destroy();
+        offKeyboardShortcutSave = null;
+    }
 })
 
 $: canvasWidth = $currentRendering.width * $currentRendering.pixelRatio;

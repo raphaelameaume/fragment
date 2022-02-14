@@ -2,6 +2,8 @@
 https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad843fb7688/lib/save.js
 */
 
+import { client } from "../client";
+
 const supportedEncodings = [
     'image/png',
     'image/jpeg',
@@ -16,14 +18,21 @@ export function exportCanvas (canvas, { encoding = 'image/png', encodingQuality 
         extension = `.${extension}`.toLowerCase();
     }
 
+    let dataURL = canvas.toDataURL(encoding, encodingQuality); 
+
     return {
         extension,
         type: encoding,
-        dataURL: canvas.toDataURL(encoding, encodingQuality)
+        dataURL
     };
 }
 
 export async function saveDataURL(dataURL, options) {
+    client.emit("screenshot", {
+        content: dataURL,
+        ...options,
+    });
+
     const blob = await createBlobFromDataURL(dataURL);
     await saveBlob(blob, options);
 };
@@ -196,7 +205,7 @@ export function recordCanvas(canvas, {
 export function createGLRenderer({
     canvas = document.createElement('canvas'),
     antialias = false,
-    alpha = false,
+    alpha = true,
     depth = false,
     stencil = false,
     premultipliedAlpha = false,
@@ -209,6 +218,7 @@ export function createGLRenderer({
         antialias,
         alpha,
         premultipliedAlpha,
+        preserveDrawingBuffer: true
     };
 
     let gl;
