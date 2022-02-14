@@ -11,6 +11,7 @@ import { current as currentLayout } from "../stores/layout.js";
 </script>
 
 <div class="layout">
+    <Menu></Menu>
     <div class="content">
         {#each $currentLayout.rows as row, rowIndex}
             <Row current={row} index={rowIndex}>
