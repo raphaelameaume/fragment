@@ -31,7 +31,7 @@ $: {
 
 <div class="module module--{name}" class:minimized={minimized} style={style}>
     {#if name}
-        <header class="module__header">
+        <header class="module__header" >
             <div class="header__col">
                 {#if $currentLayout.editable }
                 <ModuleHeaderAction permanent margin={false} label="Close" on:click={() => minimized = !minimized }>
@@ -66,7 +66,7 @@ $: {
                 {/if}
             </div>
             <div class="header__col">
-                <h3 class="module__title">{name}</h3>
+                <h3 class="module__title" on:click={() => minimized = !minimized }>{name}</h3>
             </div>
             <div class="header__col">
                 <div class="slot slot--right">
@@ -123,6 +123,7 @@ $: {
     color: white;
     font-size: 10px;
     text-transform: capitalize;
+    cursor: pointer;
 }
 
 .module__container {
