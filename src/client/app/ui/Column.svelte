@@ -19,9 +19,7 @@ $: style = `flex: ${current.flex}`;
           <button>X</button>
       </header>
     {/if}
-    <div class="container">
-        <slot></slot>
-    </div>
+    <slot></slot>
 </div>
 
 <style>
@@ -51,15 +49,5 @@ $: style = `flex: ${current.flex}`;
     padding: 5px;
     flex-grow: 0;
     height: 24px;
-}
-
-.container {
-    position: relative;
-
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    justify-content: flex-start;
 }
 </style>

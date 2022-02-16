@@ -6,6 +6,7 @@ import ModuleHeaderSelect from "./ModuleHeaderSelect.svelte";
 
 
 export let name;
+export let scrollable = true;
 
 let minimized = false;
 
@@ -20,16 +21,12 @@ let current = getContext("currentModule");
 $: {
     let modulesInCol = $currentLayout.rows[rowIndex].cols[colIndex].modules.length;
 
-    if ($current.grow) {
-        style = 'flex-grow: 1';
-    } else {
-        style = `flex: ${$current.flex}; max-height: ${100/modulesInCol}%`;
-    }
+    style = minimized ? `height: 25px;` : `height: ${100/modulesInCol}%; flex-shrink: 0; flex-grow: 0;`;
 }
 
 </script>
 
-<div class="module module--{name}" class:minimized={minimized} style={style}>
+<div class="module module--{name}" class:minimized={minimized} style={style} class:scrollable={scrollable}>
     {#if name}
         <header class="module__header" >
             <div class="header__col">
@@ -82,15 +79,14 @@ $: {
 
 <style>
 .module {
-    display: flex;
-    flex-direction: column;
-    max-height: 100%;
+    height: 100%;
 }
 
 .module__header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     height: 25px;
+    flex-shrink: 0;
     align-items: center;
     font-family: var(--fontFamily);
 
@@ -129,9 +125,10 @@ $: {
 .module__container {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    height: calc(100% - 25px);
+}
 
-    max-height: calc(100% - 25px);
+.module.scrollable .module__container {
     overflow-y: auto;
 }
 
