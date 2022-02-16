@@ -1,3 +1,4 @@
+import "./app/stores/console";
 import App from './app/App.svelte';
 import "./app/global.css";
 

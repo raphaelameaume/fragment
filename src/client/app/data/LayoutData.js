@@ -49,8 +49,9 @@ export const defaultLayouts = [
                         { 
                             flex: 0.6,
                             modules: [
-                                { name: "recorder", flex: 0 },
+                                { name: "exports", flex: 0 },
                                 { name: "midi", flex: 0 },
+                                { name: "console", flex: 0 },
                                 { name: "params", grow: true },
                             ]
                         },
