@@ -19,6 +19,7 @@ export let index = 0;
 export let paused = false;
 export let recording = writable(false);
 
+let node;
 let framerate = 60;
 let elapsedRenderingTime = 0;
 let canvas;
@@ -136,7 +137,7 @@ function createRenderLoop() {
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
         onBeforeUpdatePreview({ index, canvas });
 
-        elapsedRenderingTime += deltaTime;
+        elapsedRenderingTime += deltaTime * 60 / framerate;
 
         if (hasDuration) {
             playhead = (((elapsedRenderingTime / 1000)) / duration) % 1;
@@ -201,7 +202,7 @@ async function save() {
     paused = false;
 }
 
-let offKeyboardShortcutSave;
+let offKeyboardShortcutSave, offKeyboardShortcutPause;
 
 onMount(async () => {
     await createSketch(key);
@@ -232,6 +233,13 @@ onMount(async () => {
             save();
         }
     });
+
+    offKeyboardShortcutPause = onKeyDown(' ', (event) => {
+        if (!event.metaKey || !event.ctrlKey) {
+            event.preventDefault();
+            paused = !paused;
+        }
+    });
 })
 
 onDestroy(() => {
@@ -241,6 +249,11 @@ onDestroy(() => {
         offKeyboardShortcutSave.destroy();
         offKeyboardShortcutSave = null;
     }
+
+    if (offKeyboardShortcutPause) {
+        offKeyboardShortcutPause.destroy();
+        offKeyboardShortcutPause = null;
+    }
 })
 
 $: canvasWidth = $currentRendering.width * $currentRendering.pixelRatio;
@@ -248,7 +261,7 @@ $: canvasHeight = $currentRendering.height * $currentRendering.pixelRatio;
 
 </script>
 
-<div class="sketch-renderer">
+<div class="sketch-renderer" bind:this={node}>
     <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
         <canvas class="canvas"
             width={canvasWidth}
