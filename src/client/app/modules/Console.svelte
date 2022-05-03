@@ -4,68 +4,67 @@ import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import { current as currentLogs } from "../stores/console";
 import ConsoleLine from "./Console/ConsoleLine.svelte";
 
-// let logs = [
-//     { level: "", args: ["hello world"], count: 4 },
-//     { level: "", args: [{"key": "value"}]},
-//     { level: "", args: [["hello", "world", "hello"]]},
-//     { level: "", args: ["hello world"]},
-//     { level: "error", args: ["Uncaughted promise"]},
-// ];
-
 $: logs = $currentLogs;
 
 function clear() {
     $currentLogs = [];
 }
 
-// let log = console.log;
-
-// console.log = (...args) => {
-//     logs = [...logs, { level: "", args }];
-
-//     log(...args);
-// };
-
 </script>
 
-<Module name="Console">
+<Module name="Console" scrollable={false}>
     <svelte:fragment slot="header-right">
         <ModuleHeaderAction border label="Clear" on:click={() => clear()}>clear</ModuleHeaderAction>
     </svelte:fragment>
     <div class="container">
         <div class="list">
-            {#each logs as log}
-                <ConsoleLine {log} />
-            {/each}        
+            <div class="scroll">
+                {#each logs as log}
+                    <ConsoleLine {log} />
+                {/each}
+            </div>
         </div>
     </div>
 </Module>
 
 <style>
 .container {
+    position: relative;
+    
+    height: 100%;
+    max-height: 100%;
     padding: 4px;
 }
 
 .list {
+    position: relative;
+
     margin-right: var(--padding);
     padding: 1px 1px;
-    height: 120px;
+
+    height: 100%;
+    max-height: 100%;
 
     background-color: #1d1d1e;
     border-radius: var(--inputBorderRadius);
     box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+}
+
+.scroll {
+    height: 100%;
+    overflow-x: hidden;
     overflow-y: scroll;
 }
 
-.list::-webkit-scrollbar {
+.scroll::-webkit-scrollbar {
     width: 5px;               /* width of the entire scrollbar */
 }
 
-.list::-webkit-scrollbar-track {
+.scroll::-webkit-scrollbar-track {
     background-color: var(--color-lightblack);        /* color of the tracking area */
 }
 
-.list::-webkit-scrollbar-thumb {
+.scroll::-webkit-scrollbar-thumb {
     background-color: var(--activeColor);    /* color of the scroll thumb */
     border-radius: 20px;       /* roundness of the scroll thumb */
 }

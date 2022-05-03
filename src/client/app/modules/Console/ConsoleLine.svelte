@@ -135,6 +135,7 @@
 	.log :global(.String) {
 		white-space: pre-wrap;
 	}
+
 	.console-trace, .console-assert {
 		border-bottom: none;
 	}

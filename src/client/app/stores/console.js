@@ -9,7 +9,7 @@ export const current = writable([
     // { level: "error", args: ["Uncaughted promise"]},
 ]);
 
-let mirrored = ["log", "warn", "error"];
+let mirrored = ["log", "warn", "error", "dir"];
 
 mirrored.forEach((key) => {
 	let temp = console[`${key}`];
@@ -19,7 +19,7 @@ mirrored.forEach((key) => {
 
 		current.update((logs) => {
 			if (logs.length > 0 && arraySame(logs[logs.length - 1].args, args)) {
-				lastLog.count++;
+				logs[logs.length - 1].count++;
 
 				return logs;
 			}
@@ -48,47 +48,9 @@ function arraySame(prev, next) {
 	return isSame;
 }
 
-// console.log = (...args) => {
-//     current.update((logs) => {
-// 		let lastLog = logs[logs.length - 1];
+let clear = console.clear;
 
-// 		if (arraySame(lastLog.args, args)) {
-// 			lastLog.count++;
-
-// 			return logs;
-// 		}
-
-// 		return [
-// 			...logs,
-// 			{ level: "", args, count: 1 },
-// 		];
-// 	});
-
-//     log(...args);
-// };
-
-// let error = console.error;
-
-// console.error = (...args) => {
-// 	current.update((logs) => {
-// 		error(...args);
-
-// 		return [
-// 			...logs,
-// 			{ level: "error", args, count: 1 },
-// 		]
-// 	});
-// };
-
-// let warn = console.warn;
-
-// console.warn = (...args) => {
-// 	current.update((logs) => {
-// 		warn(...args);
-
-// 		return [
-// 			...logs,
-// 			{ level: "warn", args, count: 1 },
-// 		]
-// 	});
-// };
+console.clear = () => {
+	clear();
+	current.update(() => []);
+};
