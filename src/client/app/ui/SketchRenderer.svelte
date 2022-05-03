@@ -77,18 +77,23 @@ async function createSketch(key) {
     const resize = sketch.resize || (() => {});
     const { width, height, pixelRatio } = $currentRendering;
 
-    init({
-        width,
-        height,
-        props,
-        ...params,
-    });
+    try {
+        init({
+            width,
+            height,
+            props,
+            ...params,
+        });
 
-    resize({ width, height, pixelRatio });
+        resize({ width, height, pixelRatio });
 
-    _renderSketch = createRenderLoop();
+        _renderSketch = createRenderLoop();
 
-    _renderSketch();
+        _renderSketch();
+    } catch(error) {
+        console.error(error);
+    }
+    
 }
 
 let record = $recording;
