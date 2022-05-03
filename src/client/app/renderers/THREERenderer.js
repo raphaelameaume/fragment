@@ -1,4 +1,4 @@
-import { WebGLRenderer, WebGLMultisampleRenderTarget, OrthographicCamera, Scene, BufferGeometry, Mesh, RawShaderMaterial, Vector2, Float32BufferAttribute } from "three";
+import { WebGLRenderer, WebGLRenderTarget, OrthographicCamera, Scene, BufferGeometry, Mesh, RawShaderMaterial, Vector2, Float32BufferAttribute } from "three";
 import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "@fragment/utils/canvas.utils";
 import { client } from "@fragment/client";
 
@@ -91,8 +91,8 @@ export let init = ({ canvas, width, height, pixelRatio }) => {
     scene = new Scene();
     camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-    renderTargets[0] = new WebGLMultisampleRenderTarget(width * pixelRatio, height * pixelRatio);
-    renderTargets[1] = new WebGLMultisampleRenderTarget(width * pixelRatio, height * pixelRatio);
+    renderTargets[0] = new WebGLRenderTarget(width * pixelRatio, height * pixelRatio);
+    renderTargets[1] = new WebGLRenderTarget(width * pixelRatio, height * pixelRatio);
 
     uniforms[`uSampler0`] = { value: renderTargets[0].texture };
     uniforms[`uSampler1`] = { value: renderTargets[1].texture };
