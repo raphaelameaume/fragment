@@ -1,21 +1,30 @@
 <script>
 import { emit, TRANSITION_CHANGE } from "../events";
-import { current as currentRendering, threshold } from "../stores/rendering.js";
+import { current as currentRendering, SIZES, threshold } from "../stores/rendering.js";
 import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
 import FieldGroup from "./FieldGroup.svelte";
 import { transitions } from "../transitions/index.js";
 
+let canvasWidth = $currentRendering.width;
+let canvasHeight = $currentRendering.height;
+
 function handleChangeDimensions(event) {
     const [width, height] = event.detail;
+    const needsUpdate = canvasWidth !== width || canvasHeight !== height;
 
-    currentRendering.update((curr) => {
-        return {
-            ...curr,
-            width,
-            height
-        }
-    });
+    if (needsUpdate) {
+        canvasWidth = width;
+        canvasHeight = height;
+
+        currentRendering.update((curr) => {
+            return {
+                ...curr,
+                width,
+                height
+            }
+        });
+    }
 }
 
 let transition = $threshold;
@@ -26,8 +35,6 @@ let transitionOptions = Object.keys(transitions).map((key) => {
     return { value: key, label };
 });
 
-
-
 function handleChangeTransition(event) {
     transition = event.detail;
     $currentRendering.transition = transition;
@@ -35,8 +42,33 @@ function handleChangeTransition(event) {
     emit(TRANSITION_CHANGE, transitions[transition]);
 }
 
+let sizes = Object.values(SIZES);
+$: dimensionsEnabled = $currentRendering.resizing === "fixed";
+
 </script>
 
+<Field
+    key="canvasSize"
+    value={$currentRendering.resizing}
+    on:change={(event) => {
+        $currentRendering.resizing = event.detail;
+    }}
+    params={{
+        options: sizes,
+    }}
+/>
+{#if $currentRendering.resizing === "aspect-ratio"}
+<Field
+    key="aspectRatio"
+    value={$currentRendering.aspectRatio}
+    on:change={(event) => {
+        $currentRendering.aspectRatio = event.detail;
+    }}
+    params={{
+        step: 0.1,
+    }}
+/>
+{/if}
 <Field
     key="dimensions"
     value={[
@@ -47,7 +79,8 @@ function handleChangeTransition(event) {
     params={{
         step: 1,
         suffix: "px",
-        locked: false
+        locked: false,
+        disabled: !dimensionsEnabled,
     }}
 />
 <Field
@@ -58,11 +91,6 @@ function handleChangeTransition(event) {
         step: 0.1,
     }}
 />
-<!-- <Field
-    key="optimize"
-    value={false}
-/> -->
-
 {#if sketchesCount > 1 }
 <FieldGroup name="transition">
     <Field

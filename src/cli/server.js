@@ -35,13 +35,11 @@ export async function start({ options, filepaths, entries, fragment }) {
         },
         plugins: [
             svelte({
-                // configFile: false,
-                // compilerOptions: {
-                //     dev: false,
-                // },
-                // onwarn: (warning, handler) => {
-                //     handler(warning);
-                // }
+                configFile: false,
+                onwarn: (warning, handler) => {
+                    // return;
+                    handler(warning);
+                }
             }),
             hotSketchReload({
                 cwd,

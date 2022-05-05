@@ -5,10 +5,9 @@ export default function hotSketchReload({ cwd }) {
     return {
         name: 'hot-sketch-reload',
         handleHotUpdate: async ({ server, modules, file, read }) => {
-
 			if (file.includes(cwd)) {
 				const filepath = path.relative(cwd, file);
-				console.log(`${log.prefix} hot updated: ${filepath}`);
+                console.log(`${log.prefix} hot updated: ${filepath}`);
 			
 				server.ws.send({
 					type: 'custom',
@@ -18,9 +17,9 @@ export default function hotSketchReload({ cwd }) {
 						filepath,
 						cwd,
 					}
-				})
-			}
+				});
 
+			}
 
 			return modules;
         },

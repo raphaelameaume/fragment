@@ -191,7 +191,7 @@ export let onAfterUpdatePreview = ({ index }) => {
     glRenderer.render({ geometry, program });
 };
 
-export let resize = ({ renderer, width, height, pixelRatio }) => {
+export let resize = ({ width, height, pixelRatio }) => {
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height);
 

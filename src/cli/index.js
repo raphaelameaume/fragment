@@ -190,7 +190,22 @@ export const sketches = {
         return `"${entry}": sketch${index}`
     }).join(',')
     }
-};`;
+};
+
+export const onSketchReload = (fn) => {
+    if (import.meta.hot) {
+        import.meta.hot.data.onSketchChange = fn;
+    }
+};
+
+if (import.meta.hot) {
+    import.meta.hot.accept((m) => {
+        if (typeof import.meta.hot.data.onSketchChange === "function") {
+            import.meta.hot.data.onSketchChange(m);
+        }
+    })
+}
+`;
 
     const filepath = path.join(dirpath, filename);
 

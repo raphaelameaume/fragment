@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from "svelte";
 import { writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
-import { current as currentRendering } from "../stores/rendering.js";
+import { current as currentRendering, SIZES } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { store as currentProps } from "../stores/props";
 import Prop from "../core/Prop";
@@ -27,9 +27,51 @@ let _raf;
 let _key = key;
 
 let sketch, props;
+let _created = false;
 let renderer;
 let noop = () => {};
 let _renderSketch = noop;
+
+function checkForResize() {
+    if (!node) return;
+
+    let needsUpdate = $currentRendering.resizing === SIZES.MONITOR || $currentRendering.resizing === SIZES.ASPECT_RATIO;
+
+    let newWidth, newHeight;
+
+    if ($currentRendering.resizing === SIZES.MONITOR) {
+        newWidth = node.offsetWidth;
+        newHeight = node.offsetHeight;
+    } else if ($currentRendering.resizing === SIZES.ASPECT_RATIO) {
+        const { offsetWidth, offsetHeight } = node;
+        const aspectRatio = $currentRendering.aspectRatio;
+        const monitorRatio = offsetWidth / offsetHeight;
+
+        if (aspectRatio < monitorRatio) {
+            newHeight = offsetHeight;
+            newWidth = newHeight * aspectRatio;
+        } else {
+            newWidth = offsetWidth;
+            newHeight = newWidth / aspectRatio;
+        }
+    }
+
+    needsUpdate = needsUpdate && (newWidth !== $currentRendering.width || newHeight !== $currentRendering.height);
+
+    if (needsUpdate) {
+        currentRendering.update(curr => {
+            return {
+                ...curr,
+                width: newWidth,
+                height: newHeight,
+            }
+        });
+    }
+}
+
+let resizeObserver = new ResizeObserver(() => {
+    checkForResize();
+});
 
 let params = {};
 
@@ -78,6 +120,7 @@ async function createSketch(key) {
     const { width, height, pixelRatio } = $currentRendering;
 
     try {
+        _created = false;
         init({
             width,
             height,
@@ -90,6 +133,7 @@ async function createSketch(key) {
         _renderSketch = createRenderLoop();
 
         _renderSketch();
+        _created = true;
     } catch(error) {
         console.error(error);
     }
@@ -189,7 +233,7 @@ $: {
 }
 
 currentRendering.subscribe((current) => {
-    if (canvas && sketch) {
+    if (canvas && _created) {
         sketch.resize({ 
             width: current.width,
             height: current.height,
@@ -199,6 +243,8 @@ currentRendering.subscribe((current) => {
         _renderSketch();
     }
 });
+
+
 
 async function save() {
     paused = true;
@@ -211,6 +257,10 @@ let offKeyboardShortcutSave, offKeyboardShortcutPause;
 
 onMount(async () => {
     await createSketch(key);
+
+    currentSketches.subscribe(() => {
+        createSketch(key);
+    });
 
     client.on('shader-update', () => {
         if (framerate === 0) {
@@ -245,9 +295,12 @@ onMount(async () => {
             paused = !paused;
         }
     });
+
+    resizeObserver.observe(node);
 })
 
 onDestroy(() => {
+    resizeObserver.unobserve(node);
     cancelAnimationFrame(_raf);
 
     if (offKeyboardShortcutSave) {
@@ -259,10 +312,25 @@ onDestroy(() => {
         offKeyboardShortcutPause.destroy();
         offKeyboardShortcutPause = null;
     }
-})
+});
 
-$: canvasWidth = $currentRendering.width * $currentRendering.pixelRatio;
-$: canvasHeight = $currentRendering.height * $currentRendering.pixelRatio;
+let canvasWidth, canvasHeight;
+
+$: {
+    checkForResize();
+
+    const pixelRatio = $currentRendering.pixelRatio;
+
+    canvasWidth = $currentRendering.width * pixelRatio;
+    canvasHeight = $currentRendering.height * pixelRatio;
+}
+
+// currentRendering.subscribe(({ width, height, pixelRatio }) => {
+//     checkForResize();
+
+//     canvasWidth = width * pixelRatio;
+//     canvasHeight = height * pixelRatio;
+// });
 
 </script>
 

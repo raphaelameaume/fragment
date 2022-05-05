@@ -1,5 +1,9 @@
 import { writable } from "svelte/store";
-import { sketches } from "@fragment/sketches";
+import { sketches, onSketchReload } from "@fragment/sketches";
 
 export const current = writable(sketches);
 export const names = Object.keys(sketches);
+
+onSketchReload(({ sketches }) => {
+	current.update(() => sketches);
+});

@@ -63,23 +63,23 @@ $: {
         sketch = $currentSketches[selectedSketch];
 
         if (sketch && sketch.props) {
-            Object.keys(sketch.props).forEach(key => {
-                let prop = sketch.props[key];
+            // Object.keys(sketch.props).forEach(key => {
+            //     let prop = sketch.props[key];
 
-                prop._listeners = [];
+            //     prop._listeners = [];
 
-                prop.onChange = (fn) => {
-                    prop._listeners.push(fn);
+            //     prop.onChange = (fn) => {
+            //         prop._listeners.push(fn);
 
-                    return () => {
-                        let index = prop._listeners.findIndex((listener) => listener === fn);
+            //         return () => {
+            //             let index = prop._listeners.findIndex((listener) => listener === fn);
 
-                        if (index >= 0) {
-                            prop._listeners.splice(index, 1);
-                        }
-                    };
-                };
-            });
+            //             if (index >= 0) {
+            //                 prop._listeners.splice(index, 1);
+            //             }
+            //         };
+            //     };
+            // });
         }
     }
 }
