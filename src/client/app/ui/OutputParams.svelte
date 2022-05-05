@@ -5,9 +5,11 @@ import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
 import FieldGroup from "./FieldGroup.svelte";
 import { transitions } from "../transitions/index.js";
+import presets, { getDimensionsForPreset } from "../lib/presets";
 
 let canvasWidth = $currentRendering.width;
 let canvasHeight = $currentRendering.height;
+
 
 function handleChangeDimensions(event) {
     const [width, height] = event.detail;
@@ -45,15 +47,45 @@ function handleChangeTransition(event) {
 let sizes = Object.values(SIZES);
 $: dimensionsEnabled = $currentRendering.resizing === "fixed";
 
+$: {
+    if ($currentRendering.resizing === SIZES.PRESET) {
+        const { preset, pixelsPerInch } = $currentRendering;
+        const [ width, height ] = getDimensionsForPreset(preset, { pixelsPerInch });
+
+        currentRendering.update((curr) => {
+            return {
+                ...curr,
+                width,
+                height,
+            };
+        });
+    }
+}
+
 </script>
 
+<Field
+    key="dimensions"
+    value={[
+        $currentRendering.width,
+        $currentRendering.height,
+    ]}
+    on:change={handleChangeDimensions}
+    params={{
+        step: 1,
+        suffix: "px",
+        locked: false,
+        disabled: !dimensionsEnabled,
+    }}
+/>
 <Field
     key="canvasSize"
     value={$currentRendering.resizing}
     on:change={(event) => {
+        const resizing = event.detail;
         let aspectRatio = 1;
 
-        if (event.detail === SIZES.ASPECT_RATIO) {
+        if (resizing === SIZES.ASPECT_RATIO) {
             // compute aspect ratio based on previous props
             aspectRatio = $currentRendering.width / $currentRendering.height;
         }
@@ -61,7 +93,7 @@ $: dimensionsEnabled = $currentRendering.resizing === "fixed";
         currentRendering.update((curr) => {
             return {
                 ...curr,
-                resizing: event.detail,
+                resizing,
                 aspectRatio,
             }
         });
@@ -82,20 +114,31 @@ $: dimensionsEnabled = $currentRendering.resizing === "fixed";
     }}
 />
 {/if}
+{#if $currentRendering.resizing === SIZES.PRESET}
 <Field
-    key="dimensions"
-    value={[
-        $currentRendering.width,
-        $currentRendering.height,
-    ]}
-    on:change={handleChangeDimensions}
+    key="preset"
+    value={$currentRendering.preset}
+    on:change={(event) => {
+        $currentRendering.preset = event.detail;
+    }}
     params={{
-        step: 1,
-        suffix: "px",
-        locked: false,
-        disabled: !dimensionsEnabled,
+        options: presets,
     }}
 />
+<Field
+    key="pixelsPerInch"
+    value={$currentRendering.pixelsPerInch}
+    on:change={(event) => {
+        $currentRendering.pixelsPerInch = event.detail;
+    }}
+    params={{
+        step: 0.01,
+        suffix: "ppi"
+    }}
+/>
+{/if}
+
+{#if $currentRendering.resizing !== SIZES.PRESET }
 <Field
     key="pixelRatio"
     value={$currentRendering.pixelRatio}
@@ -104,6 +147,7 @@ $: dimensionsEnabled = $currentRendering.resizing === "fixed";
         step: 0.1,
     }}
 />
+{/if}
 {#if sketchesCount > 1 }
 <FieldGroup name="transition">
     <Field
