@@ -51,7 +51,20 @@ $: dimensionsEnabled = $currentRendering.resizing === "fixed";
     key="canvasSize"
     value={$currentRendering.resizing}
     on:change={(event) => {
-        $currentRendering.resizing = event.detail;
+        let aspectRatio = 1;
+
+        if (event.detail === SIZES.ASPECT_RATIO) {
+            // compute aspect ratio based on previous props
+            aspectRatio = $currentRendering.width / $currentRendering.height;
+        }
+
+        currentRendering.update((curr) => {
+            return {
+                ...curr,
+                resizing: event.detail,
+                aspectRatio,
+            }
+        });
     }}
     params={{
         options: sizes,
@@ -65,7 +78,7 @@ $: dimensionsEnabled = $currentRendering.resizing === "fixed";
         $currentRendering.aspectRatio = event.detail;
     }}
     params={{
-        step: 0.1,
+        step: 0.01,
     }}
 />
 {/if}
