@@ -59,4 +59,10 @@ socket.addEventListener("open", () => {
     opened = true;
 });
 
+if (import.meta.hot) {
+    import.meta.hot.on('sketch-update', (data) => {
+        console.log(`[fragment] hot updated: ${data.filepath}`);
+    })
+}
+
 export const client = { on, off, emit };

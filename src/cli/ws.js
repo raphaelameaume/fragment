@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import getPort from 'get-port';
+import log from "./log.js";
 import WebSocket, { WebSocketServer } from 'ws';
 
 export async function start({
@@ -12,7 +13,7 @@ export async function start({
     let wss = new WebSocketServer({ port });
 
     wss.on('connection', (socket) => {
-        console.log("[fragment] client connected.");
+        log.warning("Client connected");
         socket.on('message', (message) => {
             const json = JSON.parse(message);
             const { event, data } = json;

@@ -1,8 +1,10 @@
 import path from "path";
+import os from 'os';
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import hotShaderReload from "./plugins/hot-shader-reload.js";
+import hotSketchReload from "./plugins/hot-sketch-reload.js";
 
 import log from "./log.js";
 
@@ -19,6 +21,7 @@ export async function start({ options, filepaths, entries, fragment }) {
     const config = defineConfig({
         configFile: false,
         root,
+        logLevel: "silent",
         resolve: {
             alias: [
                 { find: '@fragment/sketches', replacement: filepaths[0] },
@@ -31,7 +34,18 @@ export async function start({ options, filepaths, entries, fragment }) {
             allow: [".."]
         },
         plugins: [
-            svelte(),
+            svelte({
+                // configFile: false,
+                // compilerOptions: {
+                //     dev: false,
+                // },
+                // onwarn: (warning, handler) => {
+                //     handler(warning);
+                // }
+            }),
+            hotSketchReload({
+                cwd,
+            }),
             hotShaderReload({ wss: fragment.server }),
             {
                 name: 'configure-response-headers',
@@ -65,6 +79,33 @@ export async function start({ options, filepaths, entries, fragment }) {
     const server = await createServer(config);
 
     await server.listen();
+    log.success(`Server started at:`);
+
+
+    Object.values(os.networkInterfaces())
+        .flatMap((nInterface) => nInterface ?? [])
+        .filter((detail) => detail && detail.address && (detail.family === 'IPv4' || detail.family === 4 ))
+        .forEach((detail) => {
+            const type = detail.address.includes('127.0.0.1')
+            ? 'Local:   '
+            : 'Network: '
+            const host = detail.address.replace('127.0.0.1', 'localhost');
+            const url = `http://${host}:${server.config.server.port}`;
+            console.log(`   ${type} ${url}`);
+        })
+
+    // Object.values(os.networkInterfaces())
+    //     .flatMap((nInterface) => nInterface ?? [])
+    //     .filter((detail) => detail && detail.address && detail.family === 'IPv4')
+    //     .map((detail) => {
+    //         const type = detail.address.includes('127.0.0.1')
+    //         ? 'Local:   '
+    //         : 'Network: '
+    //         const host = detail.address.replace('127.0.0.1', 'localhost')
+    //         const url = `http://${host}:`
+    //         return `${type} ${url}`;
+    //     })
+    //     .forEach((msg) => console.log(msg));
 
     return server;
 }
