@@ -234,17 +234,17 @@ $: {
 
 currentRendering.subscribe((current) => {
     if (canvas && _created) {
+        const { width, height, pixelRatio } = current;
         sketch.resize({ 
-            width: current.width,
-            height: current.height,
-            pixelRatio: current.pixelRatio,
+            width,
+            height,
+            pixelRatio,
         });
 
+        _renderSketch = createRenderLoop();
         _renderSketch();
     }
 });
-
-
 
 async function save() {
     paused = true;
@@ -314,7 +314,8 @@ onDestroy(() => {
     }
 });
 
-let canvasWidth, canvasHeight;
+let canvasWidth = $currentRendering.width * $currentRendering.pixelRatio;
+let canvasHeight = $currentRendering.height * $currentRendering.pixelRatio;
 
 $: {
     checkForResize();
@@ -323,14 +324,9 @@ $: {
 
     canvasWidth = $currentRendering.width * pixelRatio;
     canvasHeight = $currentRendering.height * pixelRatio;
+
+    // console.log();
 }
-
-// currentRendering.subscribe(({ width, height, pixelRatio }) => {
-//     checkForResize();
-
-//     canvasWidth = width * pixelRatio;
-//     canvasHeight = height * pixelRatio;
-// });
 
 </script>
 
@@ -368,6 +364,7 @@ $: {
 }
 
 .canvas {
+    display: block;
     max-width: 100%;
     max-height: 100%;
 }
