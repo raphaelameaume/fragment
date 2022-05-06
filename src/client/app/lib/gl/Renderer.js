@@ -10,6 +10,7 @@ class Renderer {
 		pixelRatio = window.devicePixelRatio,
 		webgl = 2,
 	}) {
+		let gl;
 		let attributes = {
 			depth,
 			stencil,
@@ -23,8 +24,10 @@ class Renderer {
 
 		if (webgl === 2) gl = canvas.getContext('webgl2', attributes);
 		if (!gl) {
-			this.gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+			gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
 		}
+
+		this.gl = gl;
 
 		this.state = {
 			activeTextureUnit: 0,
@@ -47,7 +50,7 @@ class Renderer {
     }) {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-        this.gl.useProgram(program.program);
+        this.gl.useProgram(program._program);
 
         for (let attributeName in program.attributesLocations) {
             let location = program.attributesLocations[attributeName];

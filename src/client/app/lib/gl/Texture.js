@@ -26,6 +26,7 @@ class Texture {
 		this.gl = gl;
 		this.image = image;
 		this.name = name;
+		this.target = target;
 		this.type = type;
 		this.wrapS = wrapS;
 		this.wrapT = wrapT;
@@ -35,20 +36,25 @@ class Texture {
 		this.minFilter = minFilter;
 		this.magFilter = magFilter;
 		this.flipY = flipY;
+		this.needsUpdate = true;
 
 		this.glTexture = this.gl.createTexture();
 		this.id = TEXTURE_ID++;
+
+		console.log(this);
+
+		// this.bind();
 	}
 
     bind() {
         if (this.gl.state.textureUnits[this.gl.state.activeTextureUnit] === this.id) return;
 
-        this.gl.bindTexture(target, glTexture);
+        this.gl.bindTexture(this.target, this.glTexture);
         this.gl.state.textureUnits[this.gl.state.activeTextureUnit] = this.id;
     }
 
     update(textureUnit = 0) {
-        if (this.needsUpdate || this.gl.state.textureUnits[textureUnit] !== id) {
+        if (this.needsUpdate || this.gl.state.textureUnits[textureUnit] !== this.id) {
             if (this.gl.state.activeTextureUnit !== textureUnit) {
                 this.gl.state.activeTextureUnit = textureUnit;
                 this.gl.activeTexture(this.gl.TEXTURE0 + textureUnit);
@@ -75,13 +81,13 @@ class Texture {
             }
         }
 
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_S, texture.wrapS);
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_T, texture.wrapT);
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_MIN_FILTER, texture.minFilter);
-        this.gl.texParameteri(this.target, this.gl.TEXTURE_MAG_FILTER, texture.magFilter);
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_S, this.wrapS);
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_WRAP_T, this.wrapT);
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_MIN_FILTER, this.minFilter);
+        this.gl.texParameteri(this.target, this.gl.TEXTURE_MAG_FILTER, this.magFilter);
 
         if (this.image) {
-            this.gl.texImage2D(this.target, 0, internalFormat, format, type, texture.image);
+            this.gl.texImage2D(this.target, 0, this.internalFormat, this.format, this.type, this.image);
             
             if (this.generateMipmaps) {
                 this.gl.generateMipmap(this.target);
