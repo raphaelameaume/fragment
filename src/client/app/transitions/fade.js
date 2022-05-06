@@ -2,7 +2,7 @@ export let name = "Fade";
 
 export let props = {};
 
-export let fragment = /* glsl */`
+export let fragmentShader = /* glsl */`
 precision highp float;
 
 uniform sampler2D uSampler0;

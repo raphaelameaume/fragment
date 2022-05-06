@@ -14,9 +14,31 @@ function createShader(gl, type, source) {
 
 let P_ID = 0;
 
+let defaultVertex = /* glsl */`
+    attribute vec4 position;
+    attribute vec2 uv;
+
+    varying vec2 vUv;
+
+    void main(){
+        vUv = uv;
+        gl_Position = position;
+    }
+`;
+
+let defaultFragment = /* glsl */`
+    precision highp float;
+
+    varying vec2 vUv;
+
+    void main() {
+        gl_FragColor = vec4(vec3(0., 1., 0.), 1.);
+    }
+`;
+
 class Program {
 
-	constructor(gl, { vertex, fragment, uniforms = {} } = {}) {
+	constructor(gl, { vertex = defaultVertex, fragment = defaultFragment, uniforms = {} } = {}) {
 		this.gl = gl;
 
 		this.vertexShader = createShader(gl, gl.VERTEX_SHADER, vertex);

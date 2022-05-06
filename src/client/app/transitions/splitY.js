@@ -1,7 +1,7 @@
 export let name = "SplitY";
 export let props = {};
 
-export let fragment = /* glsl */`
+export let fragmentShader = /* glsl */`
 precision highp float;
 
 uniform float threshold;
