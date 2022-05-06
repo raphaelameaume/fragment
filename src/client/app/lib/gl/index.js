@@ -35,10 +35,18 @@ export function fragment({
 		pr = pixelRatio;
 	}
 
+	function destroy() {
+		geometry.destroy();
+		renderer.destroy();
+		uniforms = null;
+	}
+
 	return {
 		gl: renderer.gl,
+		uniforms,
+
 		resize,
 		render,
-		uniforms,
+		destroy,
 	};
 }

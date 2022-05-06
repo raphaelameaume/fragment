@@ -34,7 +34,7 @@ export async function findRenderer(rendering) {
 
 			let events = [
 				{ name: "onTransitionChange", event: TRANSITION_CHANGE },
-				{ name: "onMountPreview", event: PREVIEW_MOUNT },
+				// { name: "onMountPreview", event: PREVIEW_MOUNT },
 				{ name: "onBeforeUpdatePreview", event: PREVIEW_BEFORE_UPDATE },
 				{ name: "onAfterUpdatePreview", event: PREVIEW_AFTER_UPDATE },
 			];

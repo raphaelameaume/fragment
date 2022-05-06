@@ -67,7 +67,7 @@ export let init = ({ canvas, width, height, pixelRatio }) => {
 };
 
 export let onMountPreview = ({ index, canvas }) => {
-    let { gl, render, resize, uniforms } = fragment({
+    let { gl, render, resize, uniforms, destroy } = fragment({
         canvas,
         shader: fragmentShader,
         uniforms: {
@@ -83,17 +83,31 @@ export let onMountPreview = ({ index, canvas }) => {
 
     let scene = new Scene();
 
-    previews[index] = {
+    previews.push({
+        index,
         scene,
         texture,
         render,
         resize,
-    };
+        destroy,
+    });
 
     return {
         scene,
         renderer,
     };
+};
+
+export let onDestroyPreview = ({ index, canvas }) => {
+    const previewIndex = previews.findIndex(p => p.index === index);
+    const preview = previews[previewIndex];
+
+    if (preview) {
+        preview.texture.destroy();
+
+        preview.destroy();
+        previews.splice(previewIndex, 1);
+    }
 };
 
 export let onTransitionChange = ({ name, fragmentShader }) => {
@@ -117,14 +131,16 @@ export let onBeforeUpdatePreview = ({ index }) => {
 };
 
 export let onAfterUpdatePreview = ({ index }) => {
-    const preview = previews[index];
+    const preview = previews.find(p => p.index === index);
 
-    uniforms.threshold.value = index === 0 ? 0 : 1;
-    renderer.setRenderTarget(null);
-    renderer.render(scene, camera);
+    if (preview) {
+        uniforms.threshold.value = index === 0 ? 0 : 1;
+        renderer.setRenderTarget(null);
+        renderer.render(scene, camera);
 
-    preview.texture.needsUpdate = true;
-    preview.render();
+        preview.texture.needsUpdate = true;
+        preview.render();
+    }
 };
 
 export let resize = ({ width, height, pixelRatio }) => {

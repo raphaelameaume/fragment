@@ -102,6 +102,13 @@ class Texture {
             );
         }
     }
+
+    destroy() {
+        this.gl.deleteTexture(this.glTexture);
+        this.glTexture = null;
+        this.gl = null;
+		this.image = null;
+    }
 }
 
 export default Texture;

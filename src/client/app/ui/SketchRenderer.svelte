@@ -19,7 +19,7 @@ export let index = 0;
 export let paused = false;
 export let recording = writable(false);
 
-let node;
+let node, container;
 let framerate = 60;
 let elapsedRenderingTime = 0;
 let canvas;
@@ -96,6 +96,20 @@ async function createSketch(key) {
     if (!sketch) return;
 
     renderer = await findRenderer(sketch.rendering);
+
+    if (_created && canvas) {
+        renderer.onDestroyPreview({ index, canvas });
+        canvas.parentNode.removeChild(canvas);
+        canvas = null;
+    }
+
+    canvas = document.createElement('canvas');
+    canvas.style.maxWidth = "100%";
+    canvas.style.maxHeight = "100%";
+    canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
+    canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
+
+    container.appendChild(canvas);
 
     let mountParams = renderer.onMountPreview({ index, canvas });
 
@@ -314,33 +328,21 @@ onDestroy(() => {
     }
 });
 
-let canvasWidth = $currentRendering.width * $currentRendering.pixelRatio;
-let canvasHeight = $currentRendering.height * $currentRendering.pixelRatio;
-
 $: {
     checkForResize();
 
-    const pixelRatio = $currentRendering.pixelRatio;
+    if (canvas) {
+        const pixelRatio = $currentRendering.pixelRatio;
 
-    canvasWidth = $currentRendering.width * pixelRatio;
-    canvasHeight = $currentRendering.height * pixelRatio;
-
-    // console.log();
+        canvas.width = $currentRendering.width * pixelRatio;
+        canvas.height = $currentRendering.height * pixelRatio;
+    }
 }
 
 </script>
 
 <div class="sketch-renderer" bind:this={node}>
-    <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
-        <canvas class="canvas"
-            width={canvasWidth}
-            height={canvasHeight}
-            bind:this={canvas}
-            on:mousedown={(event) => checkForTriggersDown(event, key) }
-            on:click={(event) => checkForTriggersClick(event, key) }
-            on:mouseup={(event) => checkForTriggersUp(event, key) }
-            on:mousemove={(event) => checkForTriggersMove(event, key) }
-        ></canvas>
+    <div class="canvas-container" style="max-width: {$currentRendering.width}px;" bind:this={container}>
     </div>
 </div>
 

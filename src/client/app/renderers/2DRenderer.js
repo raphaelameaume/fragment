@@ -1,8 +1,11 @@
 import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "@fragment/utils/canvas.utils";
+import { Renderer, Geometry, Program, Texture } from "@fragment/lib/gl";
 
 let uniforms = {
     threshold: { value: 0, type: "float" },
     uResolution: { value: [0, 0], type: "vec2" },
+    uSampler0: { value: null, type: "sampler2D" },
+    uSampler1: { value: null, type: "sampler2D" },
 };
 
 let textures = [];
@@ -53,38 +56,30 @@ let fragment = /* glsl */`
     }
 `;
 
-let context;
-
 export let init = ({ canvas, pixelRatio }) => {
-    renderer = createGLRenderer({
+    renderer = new Renderer({
         canvas,
         pixelRatio,
     });
 
-    geometry = createGeometry(renderer.gl, {
-        attributes: {
-            position: { data: [-1, -1, 3, -1, -1, 3] },
-            uv: { data: [0, 0, 2, 0, 0, 2] }
-        }
-    });
+    geometry = new Geometry(renderer.gl);
 
-    textures[0] = createGLTexture(renderer.gl);
-    textures[1] = createGLTexture(renderer.gl);
+    textures[0] = new Texture(renderer.gl);
+    textures[1] = new Texture(renderer.gl);
 
-    uniforms[`uSampler0`] = { value: textures[0], type: 'sampler2D' };
-    uniforms[`uSampler1`] = { value: textures[1], type: 'sampler2D' };
+    uniforms.uSampler0.value = textures[0];
+    uniforms.uSampler1.value = textures[1];
 
-    program = createProgram(renderer.gl, {
-        vertex,
+    program = new Program(renderer.gl, {
         fragment,
         uniforms,
     });
 };
 
-export let onTransitionChange = (transition) => {
+export let onTransitionChange = ({ fragmentShader }) => {
     program = createProgram(renderer.gl, {
         vertex,
-        fragment: transition.fragment,
+        fragment: fragmentShader,
         uniforms,
     });
 };
@@ -103,8 +98,23 @@ export let update = ({ threshold }) => {
 };
 
 export let onMountPreview = ({ index, canvas }) => {
-    textures[index].image = canvas;
-    textures[index].needsUpdate = true;
+    let texture = new Texture(renderer.gl, {
+        image: canvas,
+    });
+
+    textures.push({ index, texture });
+
+    return {
+        context: canvas.getContext("2d"),
+    }
+};
+
+export let onDestroyPreview = ({ index }) => {
+    let textureIndex = textures.findIndex(t => t.index === index);
+    let { texture } = textures[textureIndex];
+
+    texture.destroy();
+    textures.splice(textureIndex, 1);
 };
 
 export let onBeforeUpdatePreview = ({ index, canvas }) => {
@@ -116,5 +126,6 @@ export let onUpdatePreview = ({ index, canvas }) => {
 };
 
 export let onAfterUpdatePreview = ({ index, canvas }) => {
-    textures[index].needsUpdate = true;
+    let { texture } = textures.find(t => t.index === index);
+    texture.needsUpdate = true;
 };
