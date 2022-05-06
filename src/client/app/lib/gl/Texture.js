@@ -40,10 +40,6 @@ class Texture {
 
 		this.glTexture = this.gl.createTexture();
 		this.id = TEXTURE_ID++;
-
-		console.log(this);
-
-		// this.bind();
 	}
 
     bind() {
