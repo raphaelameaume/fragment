@@ -1,5 +1,5 @@
 import { WebGLRenderer, WebGLRenderTarget, OrthographicCamera, Scene, BufferGeometry, Mesh, RawShaderMaterial, Vector2, Float32BufferAttribute } from "three";
-import { createGeometry, createGLRenderer, createGLTexture, createProgram } from "@fragment/utils/canvas.utils";
+import { Renderer, Texture, Program, Geometry } from "../lib/gl";
 import { client } from "@fragment/client";
 
 let renderer, scene, camera, mesh;
@@ -36,6 +36,7 @@ let fragment = /* glsl */`
     void main() {
         vec3 mapTexel = texture2D(uSampler, vUv).rgb;
         gl_FragColor = vec4(mapTexel, 1.);
+        // gl_FragColor = vec4(1., 0., 1., 1.);
     }
 `;
 
@@ -117,25 +118,21 @@ export let init = ({ canvas, width, height, pixelRatio }) => {
 };
 
 export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
-    let r = createGLRenderer({
+    console.log("onMountPreview", index);
+    let r = new Renderer({
         canvas,
         pixelRatio,
     });
 
     let { gl } = r;
 
-    let geometry = createGeometry(gl, {
-        attributes: {
-            position: { data: [-1, -1, 3, -1, -1, 3] },
-            uv: { data: [0, 0, 2, 0, 0, 2] }
-        }
-    });
+    let geometry = new Geometry(gl);
 
-    let texture = createGLTexture(gl, {
+    let texture = new Texture(gl, {
         image: renderer.domElement,
     });
 
-    let program = createProgram(gl, {
+    let program = new Program(gl, {
         vertex,
         fragment,
         uniforms: {
