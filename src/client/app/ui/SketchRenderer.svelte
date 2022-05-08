@@ -98,7 +98,10 @@ async function createSketch(key) {
     renderer = await findRenderer(sketch.rendering);
 
     if (_created && canvas) {
-        renderer.onDestroyPreview({ index, canvas });
+        if (typeof renderer.onDestroyPreview === "function") {
+            renderer.onDestroyPreview({ index, canvas });
+        }
+        
         canvas.parentNode.removeChild(canvas);
         canvas = null;
     }
@@ -111,7 +114,17 @@ async function createSketch(key) {
 
     container.appendChild(canvas);
 
-    let mountParams = renderer.onMountPreview({ index, canvas });
+    let mountParams = {};
+
+    if (typeof renderer.onMountPreview === "function") {
+        mountParams = renderer.onMountPreview({
+            index,
+            canvas,
+            width: $currentRendering.width,
+            height: $currentRendering.height,
+            pixelRatio: $currentRendering.pixelRatio,
+        });
+    }
 
     params = {
         ...mountParams,

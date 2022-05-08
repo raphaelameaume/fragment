@@ -2,29 +2,8 @@ import { WebGLRenderer, WebGLRenderTarget, OrthographicCamera, Scene, BufferGeom
 import { Texture, fragment } from "@fragment/lib/gl";
 import { client } from "@fragment/client";
 
-let renderer, scene, camera, mesh;
-
+let renderer;
 let previews = [];
-let renderTargets = [];
-
-let uniforms = {
-    threshold: { value: 0 },
-    uResolution: { value: new Vector2() },
-};
-
-let transitionMaterials = {};
-
-let vertexShader = /* glsl */`
-    attribute vec4 position;
-    attribute vec2 uv;
-    varying vec2 vUv;
-
-    void main(){
-        vUv = uv;
-        gl_Position = position;
-    }
-`;
-
 let fragmentShader = /* glsl */`
     precision highp float;
     uniform sampler2D uSampler;
@@ -36,37 +15,15 @@ let fragmentShader = /* glsl */`
     }
 `;
 
-export let init = ({ canvas, width, height, pixelRatio }) => {
+export let init = ({ canvas }) => {
     renderer = new WebGLRenderer({ canvas, antialias: true });
-    scene = new Scene();
-    camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
-
-    renderTargets[0] = new WebGLRenderTarget(width * pixelRatio, height * pixelRatio);
-    renderTargets[1] = new WebGLRenderTarget(width * pixelRatio, height * pixelRatio);
-
-    uniforms[`uSampler0`] = { value: renderTargets[0].texture };
-    uniforms[`uSampler1`] = { value: renderTargets[1].texture };
-
-    let geometry = new BufferGeometry();
-    geometry.setAttribute('position', new Float32BufferAttribute([-1, 3, 0, -1, -1, 0, 3, -1, 0], 3));
-    geometry.setAttribute('uv', new Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
-
-    let material = new RawShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms
-    });
-
-    mesh = new Mesh(geometry, material);
-    mesh.frustumCulled = false;
-    scene.add(mesh);
 
     return {
         renderer,
     };
 };
 
-export let onMountPreview = ({ index, canvas }) => {
+export let onMountPreview = ({ index, canvas, width, height, pixelRatio }) => {
     let { gl, render, resize, uniforms, destroy } = fragment({
         canvas,
         shader: fragmentShader,
@@ -104,29 +61,8 @@ export let onDestroyPreview = ({ index, canvas }) => {
 
     if (preview) {
         preview.texture.destroy();
-
         preview.destroy();
         previews.splice(previewIndex, 1);
-    }
-};
-
-export let onTransitionChange = ({ name, fragmentShader }) => {
-    if (!transitionMaterials[name]) {
-        transitionMaterials[name] = new RawShaderMaterial({
-            vertexShader,
-            fragmentShader,
-            uniforms,
-        });
-    }
-
-    mesh.material = transitionMaterials[name];
-}
-
-export let onBeforeUpdatePreview = ({ index }) => {
-    let renderTarget = renderTargets[index];
-
-    if (renderTarget) {
-        renderer.setRenderTarget(renderTarget);
     }
 };
 
@@ -134,10 +70,6 @@ export let onAfterUpdatePreview = ({ index }) => {
     const preview = previews.find(p => p.index === index);
 
     if (preview) {
-        uniforms.threshold.value = index === 0 ? 0 : 1;
-        renderer.setRenderTarget(null);
-        renderer.render(scene, camera);
-
         preview.texture.needsUpdate = true;
         preview.render();
     }
@@ -151,17 +83,6 @@ export let resize = ({ width, height, pixelRatio }) => {
         const preview = previews[i];
         preview.resize({ width, height, pixelRatio });
     }
-
-    for (let i = 0; i < renderTargets.length; i++) {
-        renderTargets[i].setSize(width * pixelRatio, height * pixelRatio);
-    }
-};
-
-export let update = ({ threshold }) => {
-    uniforms.threshold.value = threshold;
-
-    renderer.setRenderTarget(null);
-    renderer.render(scene, camera);
 };
 
 /* HOT SHADER RELOADING */

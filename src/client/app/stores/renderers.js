@@ -25,16 +25,17 @@ export async function findRenderer(rendering) {
 		let r;
 
 		if (!initialized) {
-			r = renderer.init({
-				canvas: document.createElement('canvas'),
-				pixelRatio: current.pixelRatio,
-				width: current.width,
-				height: current.height,
-			});
+			if (typeof renderer.init === "function") {
+				r = renderer.init({
+					canvas: document.createElement('canvas'),
+					pixelRatio: current.pixelRatio,
+					width: current.width,
+					height: current.height,
+				});
+			}
 
 			let events = [
 				{ name: "onTransitionChange", event: TRANSITION_CHANGE },
-				// { name: "onMountPreview", event: PREVIEW_MOUNT },
 				{ name: "onBeforeUpdatePreview", event: PREVIEW_BEFORE_UPDATE },
 				{ name: "onAfterUpdatePreview", event: PREVIEW_AFTER_UPDATE },
 			];
@@ -55,12 +56,14 @@ export async function findRenderer(rendering) {
 
 		initialized = true;
 
-		renderer.resize({
-			width: current.width,
-			height: current.height,
-			pixelRatio: current.pixelRatio,
-			...r,
-		});
+		if (typeof renderer.resize === "function") {
+			renderer.resize({
+				width: current.width,
+				height: current.height,
+				pixelRatio: current.pixelRatio,
+				...r,
+			});
+		}
 	});
 
 	return renderer;
