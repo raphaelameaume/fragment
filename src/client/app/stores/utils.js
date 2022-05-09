@@ -29,10 +29,16 @@ export const save = (key, value) => {
 /**
  * 
  * @param {string} key 
- * @returns 
+ * @returns {void}
  */
-export const keepInSync = (key) => {
-    return (value) => {
+export const keepInSync = (key, store) => {
+    store.subscribe((value) => {
         save(key, value);
-    };
+    });
+
+    // window.addEventListener('storage', (event) => {
+    //     if (event.key === key) {
+    //         store.set(JSON.parse(event.newValue));
+    //     }
+    // })
 };

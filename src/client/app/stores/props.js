@@ -8,4 +8,4 @@ export const store = writable({
 	...rehydrate(key, {}, true)
 });
 
-store.subscribe(keepInSync(key));
+keepInSync(key, store);

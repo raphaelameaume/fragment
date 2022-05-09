@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from "svelte";
 import { writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
-import { current as currentRendering, SIZES } from "../stores/rendering.js";
+import { current as currentRendering, SIZES, canvases } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { store as currentProps } from "../stores/props";
 import Prop from "../core/Prop";
@@ -17,6 +17,7 @@ import { onKeyDown } from "../triggers/Keyboard.js";
 export let key;
 export let index = 0;
 export let paused = false;
+export let visible = true;
 export let recording = writable(false);
 
 let node, container;
@@ -101,16 +102,24 @@ async function createSketch(key) {
         if (typeof renderer.onDestroyPreview === "function") {
             renderer.onDestroyPreview({ index, canvas });
         }
+
+        let canvasIndex = $canvases.findIndex(c => c === canvas);
+        let copy = [...$canvases];
+        copy.splice(canvasIndex, 1);
+        $canvases = copy;
         
         canvas.parentNode.removeChild(canvas);
         canvas = null;
     }
 
     canvas = document.createElement('canvas');
+    canvas._index = index;
     canvas.style.maxWidth = "100%";
     canvas.style.maxHeight = "100%";
     canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
     canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
+
+    $canvases = [...$canvases, canvas];
 
     container.appendChild(canvas);
 
@@ -216,8 +225,8 @@ function createRenderLoop() {
         elapsedRenderingTime += deltaTime * 60 / framerate;
 
         if (hasDuration) {
-            playhead = (((elapsedRenderingTime / 1000)) / duration) % 1;
-            playcount = Math.floor((((elapsedRenderingTime / 1000)) / duration));
+            playhead = ((((elapsedRenderingTime + $currentTime.startTime) / 1000)) / duration) % 1;
+            playcount = Math.floor(((((elapsedRenderingTime + $currentTime.startTime) / 1000)) / duration));
         }
 
         draw({
@@ -283,11 +292,13 @@ async function save() {
 let offKeyboardShortcutSave, offKeyboardShortcutPause;
 
 onMount(async () => {
-    await createSketch(key);
-
     currentSketches.subscribe(() => {
-        createSketch(key);
+        if (_created) {
+            createSketch(key);
+        }
     });
+
+    await createSketch(key);
 
     client.on('shader-update', () => {
         if (framerate === 0) {
@@ -339,6 +350,19 @@ onDestroy(() => {
         offKeyboardShortcutPause.destroy();
         offKeyboardShortcutPause = null;
     }
+
+    let canvasIndex = $canvases.findIndex(c => c === canvas);
+    let copy = [...$canvases];
+    copy.splice(canvasIndex, 1);
+    $canvases = copy;
+    
+    canvas.parentNode.removeChild(canvas);
+
+    if (typeof renderer.onDestroyPreview === "function") {
+        renderer.onDestroyPreview({ index, canvas });
+    }
+
+    canvas = null;
 });
 
 $: {
@@ -354,7 +378,7 @@ $: {
 
 </script>
 
-<div class="sketch-renderer" bind:this={node}>
+<div class="sketch-renderer" class:visible={visible} bind:this={node}>
     <div class="canvas-container" style="max-width: {$currentRendering.width}px;" bind:this={container}>
     </div>
 </div>
@@ -368,6 +392,10 @@ $: {
     justify-content: center;
 
     background-color: var(--color-lightblack);
+}
+
+.sketch-renderer:not(.visible) {
+    display: none;
 }
 
 .canvas-container {

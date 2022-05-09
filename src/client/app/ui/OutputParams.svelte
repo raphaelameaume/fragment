@@ -1,15 +1,47 @@
 <script>
 import { emit, TRANSITION_CHANGE } from "../events";
-import { current as currentRendering, SIZES, threshold } from "../stores/rendering.js";
+import { current as currentRendering, canvases, SIZES, threshold, multisampling, monitors } from "../stores/rendering.js";
 import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
 import FieldGroup from "./FieldGroup.svelte";
 import { transitions } from "../transitions/index.js";
 import presets, { getDimensionsForPreset } from "../lib/presets";
+import { client } from "../client";
 
 let canvasWidth = $currentRendering.width;
 let canvasHeight = $currentRendering.height;
 
+let monitorDisabled = false;
+let sampler0 = -1;
+let sampler1 = -1;
+
+$: samplerOptions = $canvases
+    .filter(c => c._index !== undefined)
+    .sort((a, b) => (a._index < b._index) ? -1 : 1)
+    .map((c, index) => {
+        return { label: `monitor ${c._index}`, value: c._index }
+    });
+$: {
+    monitorDisabled = samplerOptions.length === 0;
+
+    if (samplerOptions.length === 0) {
+        samplerOptions = [
+            { label: `No monitor available.`, value: -1 }
+        ];
+        sampler0 = samplerOptions[0].value;
+        sampler1 = samplerOptions[0].value;
+    } else {
+        if (sampler0 < 0) {
+            sampler0 = samplerOptions[0].value;
+        }
+
+        if (sampler1 < 0) {
+            sampler1 = samplerOptions.length > 1 ? samplerOptions[1].value : -1;
+        }
+    }
+
+    $multisampling = [sampler0, sampler1];
+}
 
 function handleChangeDimensions(event) {
     const [width, height] = event.detail;
@@ -28,6 +60,26 @@ function handleChangeDimensions(event) {
         });
     }
 }
+
+function handleChangeSamplers() {
+    $multisampling = [sampler0, sampler1];
+}
+
+multisampling.subscribe(() => {
+    let m0 = $monitors.find(m => m.index === sampler0);
+    let m1 = $monitors.find(m => m.index === sampler1);
+
+    if (m0 && m1) {
+        client.emit('save', {
+            key: 'output',
+            value: {
+                sampler0: m0.selected,
+                sampler1: m1.selected,
+            }
+        });
+    }
+
+});
 
 let transition = $threshold;
 
@@ -149,6 +201,38 @@ $: {
 />
 {/if}
 {#if sketchesCount > 1 }
+<FieldGroup name="monitors">
+    <Field
+        key="sampler0"
+        value={sampler0}
+        on:change={event => {
+            sampler0 = Number(event.detail);
+
+            handleChangeSamplers();
+        }}
+        params={
+            {
+                options: samplerOptions,
+                disabled: monitorDisabled
+            }
+        }
+    />
+    <Field
+        key="sampler1"
+        value={sampler1}
+        on:change={event => {
+            sampler1 = Number(event.detail);
+
+            handleChangeSamplers();
+        }}
+        params={
+            {
+                options: samplerOptions,
+                disabled: monitorDisabled
+            }
+        }
+    />
+</FieldGroup>
 <FieldGroup name="transition">
     <Field
         key="threshold"
@@ -164,7 +248,7 @@ $: {
             key="switch"
             value={() => $threshold = 1 - Math.round($threshold)}
             params={{
-                label: "switch"
+                label: `switch ${Math.round($threshold) > 0 ? `<` : `>`}`
             }}
         />
     </Field>

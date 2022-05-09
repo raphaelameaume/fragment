@@ -18,7 +18,7 @@ $: {
     for (let i = 0; i < options.length; i++) {
         const { value, label, disabled } = options[i];
 
-        if (value) {
+        if (value !== undefined) {
             sanitizedOptions[i] = {
                 value: value,
                 label: label ? label : value,

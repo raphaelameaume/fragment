@@ -3,12 +3,11 @@ let instances = 0;
 </script>
 
 <script>
-import { getContext, onMount, setContext } from "svelte";
+import { getContext, onDestroy, onMount, setContext } from "svelte";
 import { sketchesCount } from "@fragment/props";
-import { current as currentLayout } from "../stores/layout.js";
 import { props } from "../stores";
-import { current as currentRendering } from "../stores/rendering.js";
-import { current as currentSketches } from "../stores/sketches.js";
+import { monitors } from "../stores/rendering.js";
+import { current as sketches } from "../stores/sketches.js";
 
 import Module from "../ui/Module.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
@@ -18,107 +17,54 @@ import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import * as triggersMap from "../triggers/index.js";
 
-let pristine = false;
-let sketch;
-
 let index = instances;
 instances++;
 
-let options = [];
-
 let currentModule = getContext("currentModule");
-let selected;
-let selectedSketch;
-
-let monitors;
+let selected = index;
+let options = [], sketch, sketchProps = {};
 
 $: {
-    monitors = [];
-    $currentLayout.rows.forEach(row => {
-        const { cols = [] } = row;
-        
-        cols.forEach(col => {
-            const { modules = [] } = col;
-
-            modules.forEach((m) => {
-                if (m.name === "monitor") {
-                    monitors.push(m);
-                }
-            })
-        });
+    options = $monitors.map((monitor) => {
+        return { value: monitor.index, label: `monitor ${monitor.index}`}
     });
 
-    options = [
-        ...monitors.map((monitor, index) => {
-            return { value: `${index}`, label: `monitor ${index}`}
-        }),
-    ];
+    if ($monitors.length > selected) {
+        let sketchKey = $monitors[selected].selected;
 
-    selected = options.map((option) => option.value).includes($currentModule.params.selected) ? $currentModule.params.selected : null;
-
-    const monitor = monitors[Number(selected)];
-
-    if (monitor && monitor.params) {
-        selectedSketch = monitor.params.selected;
-        sketch = $currentSketches[selectedSketch];
-
-        if (sketch && sketch.props) {
-            // Object.keys(sketch.props).forEach(key => {
-            //     let prop = sketch.props[key];
-
-            //     prop._listeners = [];
-
-            //     prop.onChange = (fn) => {
-            //         prop._listeners.push(fn);
-
-            //         return () => {
-            //             let index = prop._listeners.findIndex((listener) => listener === fn);
-
-            //             if (index >= 0) {
-            //                 prop._listeners.splice(index, 1);
-            //             }
-            //         };
-            //     };
-            // });
-        }
+        sketch = $sketches[sketchKey];
+        sketchProps = (sketch && sketch.props) ? sketch.props : {};
     }
+
+    $currentModule.params.selected = selected;
 }
 
 onMount(() => {
     if (!selected) {
-        selected = options[Math.min(index, options.length - 1)].value;
-        $currentModule.params.selected = selected;
+        const lastOption = options[Math.min(index, options.length - 1)];
+
+        if (lastOption) {
+            selected = lastOption.value;
+            $currentModule.params.selected = selected;
+        }
     }
 });
 
+onDestroy(() => {
+    instances--;
+})
+
 function handleChangeSelect(event) {
-    selected = event.currentTarget.value;
-    $currentModule.params.selected = selected;
-
-    pristine = true;
+    selected = Number(event.currentTarget.value);
 }
-
-function handleChangeDimensions(event) {
-    const [width, height] = event.detail;
-
-    currentRendering.update((curr) => {
-        return {
-            ...curr,
-            width,
-            height
-        }
-    });
-}
-
-$: sketchProps = $props[selectedSketch] || {};
 
 </script>
 
 <Module name="Parameters">
     <div slot="header-right">
-        {#if monitors.length > 1 }
+        {#if $monitors.length > 1 }
         <ModuleHeaderAction
-            value={$currentModule.params.selected}
+            value={selected}
             permanent
             border
             on:change={handleChangeSelect}
@@ -126,7 +72,7 @@ $: sketchProps = $props[selectedSketch] || {};
         />
         {/if }
     </div>
-    {#if Number(selected) === monitors.length - 1 && sketchesCount === 1}
+    {#if Number(selected) === $monitors.length - 1 && sketchesCount === 1}
         <OutputParams />
     {/if}
 
@@ -138,7 +84,7 @@ $: sketchProps = $props[selectedSketch] || {};
             {/if }
             {#each Object.keys(sketchProps) as key, i}
                 <Field
-                    context={selectedSketch}
+                    context={sketch}
                     key={key}
                     value={sketchProps[key].value}
                     params={sketchProps[key].params}
@@ -147,26 +93,12 @@ $: sketchProps = $props[selectedSketch] || {};
                     on:change={(event) => {
                         sketchProps[key].value = event.detail;
                         sketch.props[key].value = event.detail;
-
-                        // if (sketch.props._listeners.length > 0) {
-                        //     sketch.props._listeners.forEach((listener) => listener(event.detail));
-                        // }
-                        // props.update((current) => ({
-                        //     ...current,
-                        //     [`${selectedSketch}`]: {
-                        //         ...current[`${selectedSketch}`],
-                        //         [`${key}`]: {
-                        //             ...current[`${selectedSketch}`][key],
-                        //             value: event.detail,
-                        //         }
-                        //     }
-                        // }));
                     }}
                 />
             {/each}
         {/if}
     {/if}
-    {#if Number(selected) === monitors.length - 1 && sketchesCount > 1}
+    {#if !sketch}
         <OutputParams />
     {/if}
 </Module>

@@ -3,10 +3,36 @@ import Row from "./Row.svelte";
 import RowToolBar from "./RowToolBar.svelte";
 import Column from "./Column.svelte";
 import ModuleRenderer from "./ModuleRenderer.svelte";
-import Menu from "./Menu.svelte";
 import Resizer from "./Resizer.svelte";
+import { defaultLayouts } from "../data/LayoutData";
+import { onKeyDown } from "../triggers/Keyboard";
 
 import { current as currentLayout } from "../stores/layout.js";
+import { onDestroy, onMount } from "svelte";
+
+let outputLayout = defaultLayouts.find(l => l.name === "Output");
+let trigger;
+
+onMount(() => {
+    let prev;
+
+    trigger = onKeyDown('o', () => {
+        currentLayout.update((curr) => {
+            let layout = prev ? prev : outputLayout.data;
+
+            prev = {...curr};
+
+            return {
+                ...layout,
+            }
+        });
+    });
+});
+
+onDestroy(() => {
+    trigger.destroy();
+    trigger = null;
+})
 
 </script>
 
@@ -18,8 +44,16 @@ import { current as currentLayout } from "../stores/layout.js";
                     {#each row.cols as col, colIndex}
                         <Column current={col} index={colIndex}>
                             {#if col.modules && col.modules.length > 0}
-                                {#each col.modules as module, moduleIndex}
-                                    <ModuleRenderer module={module} index={moduleIndex} />
+                                {#each col.modules as module, moduleIndex (module.name)}
+                                    <div style={`height: ${100/col.modules.length}%; flex-shrink: 0; flex-grow: 0;`}>
+                                        <ModuleRenderer module={module} index={moduleIndex} />
+                                    </div>
+                                    {#if rowIndex !== $currentLayout.rows.length - 1}
+                                        <Resizer
+                                            direction="horizontal"
+                                            rowIndex={rowIndex}
+                                        />
+                                    {/if}
                                 {/each}
                             {/if}
                         </Column>

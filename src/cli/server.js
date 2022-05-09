@@ -5,8 +5,10 @@ import { createServer, defineConfig } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import hotShaderReload from "./plugins/hot-shader-reload.js";
 import hotSketchReload from "./plugins/hot-sketch-reload.js";
+import dbPlugin from "./plugins/db.js";
 
 import log from "./log.js";
+import db from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,11 +56,13 @@ export async function start({ options, filepaths, entries, fragment }) {
                         next();
                     });
                 }
-            }
+            },
+            dbPlugin(),
         ],
         server: {
             port: options.port,
-            host: true
+            host: true,
+            // middlewareMode: "ssr",
         },
         define: {
             '__CWD__': `'${cwd}'`,
@@ -76,9 +80,12 @@ export async function start({ options, filepaths, entries, fragment }) {
 
     const server = await createServer(config);
 
+    server.middlewares.use('/db', (req, res, next) => {
+        next();
+    });
+
     await server.listen();
     log.success(`Server started at:`);
-
 
     Object.values(os.networkInterfaces())
         .flatMap((nInterface) => nInterface ?? [])
@@ -91,19 +98,6 @@ export async function start({ options, filepaths, entries, fragment }) {
             const url = `http://${host}:${server.config.server.port}`;
             console.log(`   ${type} ${url}`);
         })
-
-    // Object.values(os.networkInterfaces())
-    //     .flatMap((nInterface) => nInterface ?? [])
-    //     .filter((detail) => detail && detail.address && detail.family === 'IPv4')
-    //     .map((detail) => {
-    //         const type = detail.address.includes('127.0.0.1')
-    //         ? 'Local:   '
-    //         : 'Network: '
-    //         const host = detail.address.replace('127.0.0.1', 'localhost')
-    //         const url = `http://${host}:`
-    //         return `${type} ${url}`;
-    //     })
-    //     .forEach((msg) => console.log(msg));
 
     return server;
 }

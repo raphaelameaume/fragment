@@ -16,7 +16,7 @@ let fragmentShader = /* glsl */`
 `;
 
 export let init = ({ canvas }) => {
-    renderer = new WebGLRenderer({ canvas, antialias: true });
+    renderer = new WebGLRenderer({ antialias: true });
 
     return {
         renderer,

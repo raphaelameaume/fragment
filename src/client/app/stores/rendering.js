@@ -1,9 +1,7 @@
 import { writable } from "svelte/store";
 import { keepInSync, rehydrate } from "./utils";
 
-
 const key = "rendering";
-
 
 export const SIZES = {
     FIXED: "fixed",
@@ -21,12 +19,17 @@ export const current = writable({
         aspectRatio: 1,
         preset: 'a4',
         pixelsPerInch: 300
-    }, false)
+    }, true)
 });
 
-current.subscribe(keepInSync(key));
+keepInSync(key, current);
 
-export const threshold = writable(rehydrate("threshold", 0, true));
-threshold.subscribe(keepInSync("threshold"));
+export const threshold = writable(rehydrate("fragment.threshold", 0, true));
+keepInSync("fragment.threshold", threshold);
 
-export const monitors = writable(0);
+export const monitors = writable([]);
+export const canvases = writable([]);
+
+/* multisampling store */
+export const multisampling = writable(rehydrate("multisampling", [], true));
+keepInSync("multisampling", multisampling);

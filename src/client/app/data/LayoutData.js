@@ -23,10 +23,19 @@ export const defaultLayouts = [
                         }, {
                             flex: 1,
                             modules: [
-                                { name: "monitor", flex: 0 },
+                                { name: "monitor", flex: 0, params: {
+                                    selected: "output",
+                                } },
                                 { name: "params", flex: 1 },
                             ]
-                        }
+                        },
+                        // {
+                        //     flex: 1,
+                        //     modules: [
+                        //         { name: "monitor", flex: 0 },
+                        //         { name: "params", flex: 1 },
+                        //     ]
+                        // }
                     ]
                 },
             ]
@@ -49,14 +58,40 @@ export const defaultLayouts = [
                         { 
                             flex: 0.6,
                             modules: [
-                                { name: "exports", flex: 0 },
-                                { name: "midi", flex: 0 },
-                                { name: "console", flex: 0 },
-                                { name: "params", grow: true },
+                                { name: "params", flex: 0 },
                             ]
                         },
                     ]
                 },
+                {
+                    flex: 1,
+                    cols: [
+                        {
+                            flex: 1,
+                            modules: [
+                                { name: "console", flex: 0 },
+                            ]
+                        },
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        name: "Output",
+        data: {
+            rows: [
+                {
+                    flex: 1,
+                    cols: [
+                        {
+                            flex: 1,
+                            modules: [
+                                { name: "output" }
+                            ]
+                        }
+                    ]
+                }
             ]
         }
     }
