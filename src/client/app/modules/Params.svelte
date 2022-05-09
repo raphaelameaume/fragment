@@ -17,17 +17,22 @@ import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import * as triggersMap from "../triggers/index.js";
 
-let index = instances;
+let currentModule = getContext("currentModule");
+let index = isFinite($currentModule.params.index) ? $currentModule.params.index : instances;
 instances++;
 
-let currentModule = getContext("currentModule");
-let selected = index;
+$currentModule.params.index = index;
+
+let selected = isFinite($currentModule.params.selected) ? $currentModule.params.selected : index;
 let options = [], sketch, sketchProps = {};
 
 $: {
-    options = $monitors.map((monitor) => {
-        return { value: monitor.index, label: `monitor ${monitor.index}`}
-    });
+    options = $monitors
+        .sort((a, b) => a.index < b.index ? -1 : 1)
+        .map((monitor) => {
+            return { value: monitor.index, label: `monitor ${monitor.index}`}
+        })
+
 
     if ($monitors.length > selected) {
         let sketchKey = $monitors[selected].selected;
@@ -45,7 +50,6 @@ onMount(() => {
 
         if (lastOption) {
             selected = lastOption.value;
-            $currentModule.params.selected = selected;
         }
     }
 });
@@ -60,7 +64,7 @@ function handleChangeSelect(event) {
 
 </script>
 
-<Module name="Parameters">
+<Module name={`Parameters ${index}`}>
     <div slot="header-right">
         {#if $monitors.length > 1 }
         <ModuleHeaderAction
@@ -87,9 +91,9 @@ function handleChangeSelect(event) {
                     context={sketch}
                     key={key}
                     value={sketchProps[key].value}
-                    params={sketchProps[key].params}
+                    params={sketchProps[key].params || {}}
                     type={sketchProps[key].type}
-                    triggers={sketchProps[key].triggers}
+                    triggers={sketchProps[key].triggers || []}
                     on:change={(event) => {
                         sketchProps[key].value = event.detail;
                         sketch.props[key].value = event.detail;

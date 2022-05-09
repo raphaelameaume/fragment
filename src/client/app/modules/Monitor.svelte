@@ -13,10 +13,15 @@ import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
 import { map } from "lemonade-math";
 
+
 export let name = "monitor";
 
-let index = instances;
+let currentModule = getContext('currentModule');
+
+let index = isFinite($currentModule.params.index) ? $currentModule.params.index : instances;
 instances++;
+
+$currentModule.params.index = index;
 
 let paused = false;
 let recording = writable(false);

@@ -24,7 +24,7 @@ export const current = writable({
 
 keepInSync(key, current);
 
-export const threshold = writable(rehydrate("fragment.threshold", 0, true));
+export const threshold = writable(rehydrate("fragment.threshold", 0, false));
 keepInSync("fragment.threshold", threshold);
 
 export const monitors = writable([]);

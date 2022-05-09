@@ -13,7 +13,7 @@ export const current = writable({
     resizable: false,
 });
 
-current.subscribe(keepInSync(key));
+keepInSync(key, current);
 
 export const addRow = () => {
     current.update((current) => {
