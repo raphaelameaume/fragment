@@ -9,6 +9,7 @@ export const SIZES = {
     PRESET: "preset",
     ASPECT_RATIO: "aspect-ratio",
     MONITOR: "monitor",
+    SCALE: "scale",
 };
 
 export const current = writable({
@@ -18,6 +19,7 @@ export const current = writable({
         pixelRatio: 1,
         resizing: SIZES.FIXED,
         aspectRatio: 1,
+        scale: 1,
         preset: 'a4',
         pixelsPerInch: 300
     }, true)

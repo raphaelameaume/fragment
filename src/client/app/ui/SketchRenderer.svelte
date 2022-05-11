@@ -1,11 +1,10 @@
 <script>
 import { onDestroy, onMount } from "svelte";
-import { writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
-import { store as currentProps } from "../stores/props";
-import Prop from "../core/Prop";
+import { store as props } from "../stores/props";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick, reset } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { emit, TRANSITION_CHANGE } from "../events";
@@ -28,7 +27,7 @@ let canvas;
 let _raf;
 let _key = key;
 
-let sketch, props;
+let sketch;
 let _created = false;
 let renderer;
 let noop = () => {};
@@ -77,22 +76,21 @@ let resizeObserver = new ResizeObserver(() => {
 
 let params = {};
 
-function createProps(props = []) {
-    let keys = Object.keys(props);
-    let result = {};
+let sketchProps = derived(props, () => {
+    return $props[key];
+});
 
-    if (props) {
-        keys.forEach((propKey) => {
-            result[propKey] = new Prop(propKey, {...props[propKey] });
-        });
+let needsRender = false;
+
+sketchProps.subscribe(() => {
+    if (framerate === 0) {
+        needsRender = true;
     }
-
-    return result;
-}
+});
 
 async function createSketch(key) {
     sketch = $currentSketches[key];
-    
+
     if (!key || !sketch) return;
 
     renderer = await findRenderer(sketch.rendering);
@@ -150,15 +148,6 @@ async function createSketch(key) {
         canvas,
     };
 
-    if (!$currentProps[key]) {
-        $currentProps = {
-            ...$currentProps,
-            [`${key}`]: createProps(sketch.props)
-        };
-    }
-
-    props = $currentProps[key];
-
     framerate = isFinite(sketch.fps) ? sketch.fps : 60;
 
     const init = sketch.setup || sketch.init;
@@ -179,7 +168,11 @@ async function createSketch(key) {
 
         _renderSketch = createRenderLoop();
 
-        _renderSketch();
+        requestAnimationFrame(() => {
+            needsRender = true;
+            // _renderSketch();
+        });
+
         _created = true;
     } catch(error) {
         console.error(error);
@@ -235,6 +228,8 @@ function createRenderLoop() {
     let interval = 1 / frameCount;
 
     return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
+        needsRender = false;
+
         onBeforeUpdatePreview({ index, canvas }); 
 
         let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
@@ -249,7 +244,7 @@ function createRenderLoop() {
         draw({
             ...renderer,
             ...params,
-            props,
+            props: sketch.props,
             playhead,
             playcount,
             width: width * pixelRatio,
@@ -283,6 +278,10 @@ function render() {
         elapsedRenderingTime += deltaTime;
     }
 
+    if (needsRender) {
+        _renderSketch();
+    }
+
     _raf = requestAnimationFrame(render);
 }
 
@@ -296,6 +295,12 @@ $: {
 
 currentRendering.subscribe((current) => {
     if (canvas && _created) {
+        if (current.resizing === SIZES.SCALE) {
+            canvas.style.transform = `scale(${current.scale})`;
+        } else {
+            canvas.style.transform = null;
+        }
+
         const { width, height, pixelRatio } = current;
         sketch.resize({
             canvas,
@@ -305,7 +310,8 @@ currentRendering.subscribe((current) => {
         });
 
         _renderSketch = createRenderLoop();
-        _renderSketch();
+        needsRender = true;
+        // _renderSketch();
     }
 });
 
@@ -335,7 +341,7 @@ onMount(() => {
 
     client.on('shader-update', () => {
         if (framerate === 0) {
-            _renderSketch();
+            needsRender = true;
         }
     }); 
    

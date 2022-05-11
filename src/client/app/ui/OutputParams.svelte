@@ -97,7 +97,7 @@ function handleChangeTransition(event) {
 }
 
 let sizes = Object.values(SIZES);
-$: dimensionsEnabled = $currentRendering.resizing === "fixed";
+$: dimensionsEnabled = [SIZES.FIXED, SIZES.SCALE].includes($currentRendering.resizing);
 
 $: {
     if ($currentRendering.resizing === SIZES.PRESET) {
@@ -160,6 +160,18 @@ $: {
     value={$currentRendering.aspectRatio}
     on:change={(event) => {
         $currentRendering.aspectRatio = event.detail;
+    }}
+    params={{
+        step: 0.01,
+    }}
+/>
+{/if}
+{#if $currentRendering.resizing === SIZES.SCALE}
+<Field
+    key="zoom"
+    value={$currentRendering.scale}
+    on:change={(event) => {
+        $currentRendering.scale = event.detail;
     }}
     params={{
         step: 0.01,

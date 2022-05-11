@@ -59,7 +59,7 @@ export let onClickLabel = () => {};
     top: calc(var(--margin) * -1);
 
     width: 1px;
-    height: calc(10px + var(--margin));
+    height: var(--margin);
     
     background-color: var(--spacingColor);
 }
@@ -83,30 +83,22 @@ export let onClickLabel = () => {};
     transition: opacity 0.1s ease;
 }
 
+.field__section.secondary {
+    grid-template-columns: 1fr;
+}
+
 .field__section.secondary .field__infos {
-    justify-content: flex-end;
-    align-items: flex-start;
+    align-items: center;
+    border-top: 1px solid var(--spacingColor);
+    padding: 4px 0;
 }
 
 .field__section.secondary .field__label {
     position: relative;
 
     padding-left: 5px;
-    padding-top: 5px;
 
     background-color: #242425;
-}
-
-.field__section.secondary .field__infos:before {
-    content: '';
-
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    height: 1px;
-    width: calc(100% - 15px);
-    background-color: #323233;
-    /* background-color: red; */
 }
 
 .field__input {

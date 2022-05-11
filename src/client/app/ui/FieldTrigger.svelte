@@ -1,5 +1,6 @@
 <script>
 import { createEventDispatcher } from "svelte";
+import ButtonInput from "./fields/ButtonInput.svelte";
 import Select from "./fields/Select.svelte";
 import TextInput from "./fields/TextInput.svelte";
 
@@ -62,7 +63,7 @@ let inputs = {
 };
 
 let inputOptions = [
-    { value: "-", disabled: true },
+    { label: "Select input", value: "-", disabled: true },
     ...Object.keys(inputs).map((inputName) => ({
         value: inputName,
         disabled: inputs[inputName].disabled,
@@ -119,6 +120,11 @@ function onTextChange(e) {
     dispatchEvent();
 }
 
+function handleClickDelete() {
+    console.log("FieldTrigger :: dispatch delete");
+    dispatch('delete');
+}
+
 </script>
 
 <div class="field-triggers__trigger {inputType.toLowerCase()}">
@@ -151,6 +157,13 @@ function onTextChange(e) {
             on:input={onTextChange}
         />
     {/if}
+    <ButtonInput
+        label="delete"
+        on:click={handleClickDelete}
+        --inputColor="white"
+        --background-color="var(--color-red)"
+        --box-shadow-color="var(--color-red)"
+    />
 </div>
 
 <style>
@@ -158,11 +171,12 @@ function onTextChange(e) {
 .field-triggers__trigger {
     display: grid;
     width: 100%;
-    grid-template-columns: 0.75fr 2fr;
+    grid-template-columns: 1fr 2fr auto;
+    align-items: center;
 }
 
 .field-triggers__trigger.keyboard, .field-triggers__trigger.midi {
     display: grid;
-    grid-template-columns: 0.75fr 1fr 1fr;
+    grid-template-columns: 0.75fr 1fr 1fr auto;
 }
 </style>

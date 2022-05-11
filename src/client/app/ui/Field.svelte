@@ -117,8 +117,14 @@ function handleTriggersChange(event) {
                 return new Trigger();
             }
         });
-
     triggers = newTriggers;
+}
+
+function handleTriggersAdd() {
+    triggers = [
+        ...triggers,
+        new Trigger(),
+    ]
 }
 
 function bubble(value) {
@@ -130,19 +136,6 @@ function handleChange(event) {
 }
 
 let label = params.label !== undefined && typeof value !== "function" ? params.label : key;
-
-onMount(() => {
-    // client.on('prop-change', (event) => {
-    //     if (event.key === key) {
-    //         if (type === "button") {
-    //             value();
-    //         } else {
-    //             value = event.value;
-    //             bubble(event.value);
-    //         }
-    //     }
-    // });
-});
 
 </script>
 
@@ -189,6 +182,9 @@ onMount(() => {
     </FieldSection>
     {#if isTriggerable}
     <FieldSection visible={secondaryVisible} secondary label="triggers">
+        <div slot="infos">
+            <ButtonInput label="add" on:click={handleTriggersAdd} />
+        </div>
         <FieldTriggers
             {triggers}
             on:triggers-change={handleTriggersChange}
@@ -207,7 +203,7 @@ onMount(() => {
 
     padding: 4px 0;
     border-bottom: 1px solid var(--spacingColor);
-    padding-left: calc(var(--padding) * 2);
+    padding-left: 12px;
 }
 
 .field__section {

@@ -7,13 +7,6 @@ export let triggers = [];
 
 const dispatch = createEventDispatcher();
 
-function addTrigger() {
-    dispatch('triggers-change', [
-        ...triggers,
-        { inputType: undefined, eventName: undefined, params: {} },
-    ]);
-}
-
 function onTriggerChange(e, index) {
     const { inputType, eventName, params = {}} = e.detail;
 
@@ -36,6 +29,11 @@ function onTriggerChange(e, index) {
     dispatch('triggers-change', newTriggers);
 }
 
+function onTriggerDelete(e, index) {
+    const newTriggers = triggers.filter((t, i) => i !== index);
+    dispatch('triggers-change', newTriggers);
+}
+
 </script>
 
 {#each triggers as trigger, index}
@@ -44,6 +42,7 @@ function onTriggerChange(e, index) {
         eventName={trigger.eventName}
         params={trigger.params}
         on:change={(event) => onTriggerChange(event, index)}
+        on:delete={(event) => onTriggerDelete(event, index)}
     />
 {/each}
-<ButtonInput label={"Add"} on:click={addTrigger} />
+<!-- <ButtonInput label={"Add"} on:click={addTrigger} /> -->
