@@ -6,7 +6,7 @@ import { current as currentRendering, SIZES, canvases, sync } from "../stores/re
 import { current as currentTime } from "../stores/time.js";
 import { store as currentProps } from "../stores/props";
 import Prop from "../core/Prop";
-import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
+import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick, reset } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { emit, TRANSITION_CHANGE } from "../events";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
@@ -122,6 +122,13 @@ async function createSketch(key) {
     canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
     canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
 
+    reset(key);
+
+    canvas.onmousedown = (event) => checkForTriggersDown(event, key);
+    canvas.onmousemove = (event) => checkForTriggersMove(event, key);
+    canvas.onmouseup = (event) => checkForTriggersUp(event, key);
+    canvas.onclick = (event) => checkForTriggersClick(event, key);
+
     $canvases = [...$canvases, canvas];
 
     container.appendChild(canvas);
@@ -168,7 +175,7 @@ async function createSketch(key) {
             ...params,
         });
 
-        resize({ width, height, pixelRatio });
+        resize({ canvas, width, height, pixelRatio });
 
         _renderSketch = createRenderLoop();
 
@@ -233,7 +240,7 @@ function createRenderLoop() {
         let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
 
         if (hasDuration) {
-            playhead = (time / 1000) / duration;
+            playhead = (t / 1000) / duration;
             playhead %= 1;
             playhead = Math.floor(playhead / interval) * interval;
             playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
@@ -290,7 +297,8 @@ $: {
 currentRendering.subscribe((current) => {
     if (canvas && _created) {
         const { width, height, pixelRatio } = current;
-        sketch.resize({ 
+        sketch.resize({
+            canvas,
             width,
             height,
             pixelRatio,
