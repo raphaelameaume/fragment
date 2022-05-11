@@ -91,13 +91,13 @@ function createProps(props = []) {
 }
 
 async function createSketch(key) {
-    if (!key || !container) return;
-
     sketch = $currentSketches[key];
-
-    if (!sketch) return;
+    
+    if (!key || !sketch) return;
 
     renderer = await findRenderer(sketch.rendering);
+
+    if (!container) return;
 
     if (_created && canvas) {
         if (typeof renderer.onDestroyPreview === "function") {
@@ -318,25 +318,27 @@ async function save() {
 
 let offKeyboardShortcutSave, offKeyboardShortcutPause;
 
-onMount(async () => {
-    currentSketches.subscribe(() => {
-        if (_created) {
-            createSketch(key);
-        }
-    });
+currentSketches.subscribe(() => {
+    if (_created) {
+        createSketch(key);
+    }
+});
 
-    await createSketch(key);
+sync.subscribe(() => {
+    if (_created) {
+        _renderSketch = createRenderLoop();
+    }
+});
+
+onMount(() => {
+    createSketch(key);
 
     client.on('shader-update', () => {
         if (framerate === 0) {
             _renderSketch();
         }
-    });
-
-    sync.subscribe(() => {
-        _renderSketch = createRenderLoop();
-    });
-
+    }); 
+   
     if (!$currentRendering.transition) {
         let transitionOptions = Object.keys(transitions);
         $currentRendering.transition = transitionOptions[0];
@@ -382,18 +384,21 @@ onDestroy(() => {
         offKeyboardShortcutPause = null;
     }
 
-    let canvasIndex = $canvases.findIndex(c => c === canvas);
-    let copy = [...$canvases];
-    copy.splice(canvasIndex, 1);
-    $canvases = copy;
-    
-    container.removeChild(canvas);
-
-    if (typeof renderer.onDestroyPreview === "function") {
+    if (renderer && typeof renderer.onDestroyPreview === "function") {
         renderer.onDestroyPreview({ index, canvas });
     }
 
-    canvas = null;
+    if (canvas) {
+        let canvasIndex = $canvases.findIndex(c => c === canvas);
+        let copy = [...$canvases];
+        copy.splice(canvasIndex, 1);
+        $canvases = copy;
+
+        container.removeChild(canvas);
+        canvas = null;
+    }
+
+    _created = false;
 });
 
 $: {
