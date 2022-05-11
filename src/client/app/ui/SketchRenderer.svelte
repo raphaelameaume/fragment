@@ -413,6 +413,7 @@ $: {
     width: 100%;
     height: 100%;
     justify-content: center;
+    align-items: center;
 
     background-color: var(--color-lightblack);
 }
