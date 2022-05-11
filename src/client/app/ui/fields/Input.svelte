@@ -48,7 +48,7 @@ let el;
     box-shadow: inset 0 0 0 1px var(--activeColor);
 }
 
-.input-container:focus-within {
+.input-container:not(.disabled):focus-within {
     box-shadow: 0 0 0 2px var(--activeColor);
 }
 

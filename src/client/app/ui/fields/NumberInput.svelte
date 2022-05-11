@@ -9,8 +9,8 @@ function round(value, step) {
     return Math.round(value * (1 / step)) / (1 / step);
 }
 
-export let value;
-export let name;
+export let value = null;
+export let name = "";
 export let label = "";
 export let step = 1;
 export let suffix = "";
@@ -21,22 +21,31 @@ export let disabled = false;
 export let triggers = [];
 
 let node;
-let isFocused = false;
+$: isFocused = false;
 const dispatch = createEventDispatcher();
 
 function sanitize(v) {
     return suffix !== "" ? Number(v.split(suffix)[0]) : Number(v);
 }
 
-function composeValue(v) {
+function composeValue(v, isFocused) {
     const clampedValue = clamp(v, min, max);
     const roundedValue = typeof step === "number" ? round(clampedValue, step) : v;
-    
-    return `${roundedValue}${suffix}`;
+
+    return isFocused ? `${roundedValue}` : `${roundedValue}${suffix}`;
 }
 
 $: currentValue = value;
-$: composedValue = composeValue(currentValue);
+$: composedValue = composeValue(currentValue, isFocused);
+
+function onFocus() {
+    isFocused = true;
+}
+
+function onBlur() {
+    isFocused = false;
+    dispatch('change', currentValue);
+}
 
 function onKeyDown(event) {
     if ([38, 40].includes(event.keyCode)) {
@@ -57,6 +66,7 @@ function onKeyDown(event) {
 
 function onKeyPress(event) {
     if (event.key === 'Enter') {
+        // onBlur();
         if (!controlled) {
             currentValue = sanitize(event.currentTarget.value);
             composedValue = composeValue(currentValue);
@@ -87,8 +97,8 @@ function handleChangeProgress(event) {
             {label}
             on:keypress={onKeyPress}
             on:keydown={onKeyDown}
-            on:focus={() => isFocused = true}
-            on:blur={() => isFocused = false}
+            on:focus={onFocus}
+            on:blur={onBlur}
             value={composedValue}
         />
 </div>
