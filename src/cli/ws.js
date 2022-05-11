@@ -14,7 +14,6 @@ export async function start({
     let wss = new WebSocketServer({ port });
 
     wss.on('connection', (socket) => {
-        log.warning("Client connected");
         socket.on('message', (message) => {
             const json = JSON.parse(message);
             const { event, data } = json;
@@ -35,10 +34,34 @@ export async function start({
             });
         });
 
-        // if (bufferedError) {
-        //     socket.send(JSON.stringify(bufferedError))
-        //     bufferedError = null
-        // }
+        send({
+            event: 'start',
+            data: {
+                clientCount: wss.clients.size - 1,
+            },
+        }, {
+            include: socket
+        });
+
+        send({
+            event: 'client-connect',
+            data: {
+                clientCount: wss.clients.size - 1
+            }
+        }, {
+            exclude: socket,
+        });
+
+        socket.on('close', () => {
+            send({
+                event: 'client-disconnect',
+                data: {
+                    clientCount: wss.clients.size - 1
+                }
+            }, {
+                exclude: socket,
+            });
+        });
     });
 
     wss.on('error', (e) => {
@@ -47,11 +70,11 @@ export async function start({
         }
     });
 
-    function send(payload, { transform = true, sender = null } = {}) {
+    function send(payload, { transform = true, exclude = null, include = null } = {}) {
         const stringified = transform ? JSON.stringify(payload) : payload;
 
         wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN && client !== sender) {
+            if (client.readyState === WebSocket.OPEN && (client !== exclude || client === include)) {
                 client.send(stringified);
             }
         });

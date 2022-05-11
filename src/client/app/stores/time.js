@@ -2,17 +2,17 @@ import { readable } from "svelte/store";
 
 export const current = readable({ time: 0, deltaTime: 0 }, set => {
     let _raf;
-    let lastTime = performance.now();
-    let startTime = Date.now() - __START_TIME__;
+    let lastTime = Date.now();
+    let startTime = lastTime - __START_TIME__;
     let time = startTime;
 
-    function update() {
-        let currentTime = performance.now();
+    function update(dt = 0) {
+        lastTime = time;
+
+        let currentTime = Date.now();
         let deltaTime = currentTime - lastTime;
 
-        lastTime = currentTime;
-
-        time += deltaTime;
+        time = currentTime;
 
         set({ time, deltaTime, startTime });
 

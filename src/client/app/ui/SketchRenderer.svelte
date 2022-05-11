@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from "svelte";
 import { writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
-import { current as currentRendering, SIZES, canvases } from "../stores/rendering.js";
+import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { store as currentProps } from "../stores/props";
 import Prop from "../core/Prop";
@@ -22,6 +22,7 @@ export let recording = writable(false);
 
 let node, container;
 let framerate = 60;
+let elapsed = 0;
 let elapsedRenderingTime = 0;
 let canvas;
 let _raf;
@@ -90,7 +91,7 @@ function createProps(props = []) {
 }
 
 async function createSketch(key) {
-    if (!key) return;
+    if (!key || !container) return;
 
     sketch = $currentSketches[key];
 
@@ -116,6 +117,8 @@ async function createSketch(key) {
     canvas._index = index;
     canvas.style.maxWidth = "100%";
     canvas.style.maxHeight = "100%";
+    canvas.style.flex = "none";
+    canvas.style.backgroundColor = "var(--background-color, #000000)";
     canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
     canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
 
@@ -157,6 +160,7 @@ async function createSketch(key) {
 
     try {
         _created = false;
+        elapsedRenderingTime = 0;
         init({
             width,
             height,
@@ -219,14 +223,20 @@ function createRenderLoop() {
     let onBeforeUpdatePreview = renderer.onBeforeUpdatePreview || noop;
     let onAfterUpdatePreview = renderer.onAfterUpdatePreview || noop;
 
-    return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
-        onBeforeUpdatePreview({ index, canvas });
+    let frameLength = 1000 / framerate;
+    let frameCount = framerate * duration;
+    let interval = 1 / frameCount;
 
-        elapsedRenderingTime += deltaTime * 60 / framerate;
+    return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
+        onBeforeUpdatePreview({ index, canvas }); 
+
+        let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
 
         if (hasDuration) {
-            playhead = ((((elapsedRenderingTime + $currentTime.startTime) / 1000)) / duration) % 1;
-            playcount = Math.floor(((((elapsedRenderingTime + $currentTime.startTime) / 1000)) / duration));
+            playhead = (time / 1000) / duration;
+            playhead %= 1;
+            playhead = Math.floor(playhead / interval) * interval;
+            playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
         }
 
         draw({
@@ -237,24 +247,33 @@ function createRenderLoop() {
             playcount,
             width: width * pixelRatio,
             height: height * pixelRatio,
-            time,
+            time: t,
             deltaTime,
         });
         onAfterUpdatePreview({ index, canvas });
     };
 }
 
-let elapsed = $currentTime.time;
+let then = Date.now();
 
 function render() {
     if (!paused) {
-        if ((elapsed) >= ((1 / framerate) * 1000)) {
-            elapsed = 0;
+        let now = Date.now();
+        let deltaTime = now - then;
+        then = now;
 
+        elapsed += deltaTime;
+
+        if (!$sync) {
+            if ((elapsed) >= ((1 / framerate) * 1000)) {
+                elapsed = 0;
+                _renderSketch();
+            }
+        } else {
             _renderSketch();
         }
 
-        elapsed += $currentTime.deltaTime;
+        elapsedRenderingTime += deltaTime;
     }
 
     _raf = requestAnimationFrame(render);
@@ -304,6 +323,10 @@ onMount(async () => {
         if (framerate === 0) {
             _renderSketch();
         }
+    });
+
+    sync.subscribe(() => {
+        _renderSketch = createRenderLoop();
     });
 
     if (!$currentRendering.transition) {
@@ -356,7 +379,7 @@ onDestroy(() => {
     copy.splice(canvasIndex, 1);
     $canvases = copy;
     
-    canvas.parentNode.removeChild(canvas);
+    container.removeChild(canvas);
 
     if (typeof renderer.onDestroyPreview === "function") {
         renderer.onDestroyPreview({ index, canvas });
@@ -379,7 +402,7 @@ $: {
 </script>
 
 <div class="sketch-renderer" class:visible={visible} bind:this={node}>
-    <div class="canvas-container" style="max-width: {$currentRendering.width}px;" bind:this={container}>
+    <div class="canvas-container" style="max-width: {$currentRendering.width}px; max-height: {$currentRendering.height}px;" bind:this={container}>
     </div>
 </div>
 
@@ -401,14 +424,11 @@ $: {
 .canvas-container {
     position: relative;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     height: 100%;
     max-height: 100%;
-}
 
-.canvas {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
 }
 </style>
