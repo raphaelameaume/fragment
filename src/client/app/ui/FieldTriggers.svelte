@@ -1,56 +1,81 @@
 <script>
 import { createEventDispatcher } from "svelte";
 import FieldTrigger from "./FieldTrigger.svelte";
+import * as triggersMap from "../triggers/index.js";
 import ButtonInput from "./fields/ButtonInput.svelte";
+import Trigger from "../triggers/Trigger";
 
 export let triggers = [];
+export let context;
+export let onTrigger;
 
 const dispatch = createEventDispatcher();
 
-function onTriggerChange(e, index) {
-    const { inputType, eventName, params = {}} = e.detail;
+function onTriggerChange(e, triggerIndex) {
+    const { eventName } = e.detail;
 
-    const newTriggers = triggers.map((trigger, i) => {
-        if (index === i) {
-            return {
-                inputType,
-                eventName,
-                params,
-            };
-        } else {
-            return {
-                inputType: trigger.inputType,
-                eventName: trigger.eventName,
-                params: trigger.params,
-            };
+    triggers = triggers.map((trigger, index) => {
+        if (triggerIndex !== index) return trigger;
+
+        // destroy previous one
+        trigger.destroy();
+
+        trigger = triggersMap[eventName];
+
+        if (trigger) {
+            return trigger(onTrigger, {
+                ...e.detail,
+                context,
+             });
         }
+
+        trigger = new Trigger({...e.detail});
+
+        return trigger;
     });
 
-    dispatch('triggers-change', newTriggers);
+    dispatch('change', triggers);
 }
 
 function onTriggerDelete(e, index) {
-    const newTriggers = triggers.filter((t, i) => i !== index);
-    dispatch('triggers-change', newTriggers);
+    triggers = triggers.filter((t, i) => i !== index);
+
+    dispatch('change', triggers);
+}
+
+function handleClickAdd() {
+    triggers = [
+        ...triggers,
+        new Trigger()
+    ]
+
+    dispatch('change', triggers);
 }
 
 </script>
 
-<div class="field-triggers">
-{#each triggers as trigger, index}
-    <FieldTrigger
-        input={trigger.inputType}
-        eventName={trigger.eventName}
-        params={trigger.params}
-        on:change={(event) => onTriggerChange(event, index)}
-        on:delete={(event) => onTriggerDelete(event, index)}
-    />
-{/each}
-</div>
+{#if onTrigger }
+    <ButtonInput label="add trigger" on:click={handleClickAdd} />
+    <div class="field-triggers">
+    {#each triggers as trigger, index}
+        <FieldTrigger
+            {trigger}
+            input={trigger.inputType}
+            eventName={trigger.eventName}
+            params={trigger.params}
+            on:change={(event) => onTriggerChange(event, index)}
+            on:delete={(event) => onTriggerDelete(event, index)}
+        />
+    {/each}
+    </div>
+{/if}
 
 <style>
 .field-triggers {
     width: 100%;
+}
+
+.field-triggers:not(:empty) {
     margin-top: var(--column-gap);
 }
 </style>

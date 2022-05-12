@@ -14,7 +14,7 @@ class Trigger {
         this.eventName = eventName;
         this.fn = fn;
         this.params = params;
-        this.enabled = true;
+        this.enabled = inputType && eventName;
         this._destroy = destroy;
     }
 

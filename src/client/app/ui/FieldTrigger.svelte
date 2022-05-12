@@ -5,13 +5,15 @@ import FieldInputRow from "./fields/FieldInputRow.svelte";
 import Select from "./fields/Select.svelte";
 import TextInput from "./fields/TextInput.svelte";
 
-export let input = '-';
-export let eventName = '-';
-export let params = {};
+export let trigger;
+
+let inputType = trigger.inputType;
+let eventName = trigger.eventName;
+let params = trigger.params;
+
+console.log(trigger, { inputType });
 
 const dispatch = createEventDispatcher();
-
-let inputType = input;
 
 let inputs = {
     "Mouse": {
@@ -63,25 +65,29 @@ let inputs = {
     }
 };
 
-let inputOptions = [
-    { label: "Select input", value: "-", disabled: true },
+$: inputOptions = [
+    { label: "Select input", value: undefined, disabled: true },
     ...Object.keys(inputs).map((inputName) => ({
         value: inputName,
         disabled: inputs[inputName].disabled,
     }))
 ];
 
-$: eventOptions = inputType === '-' ? ['-'] : [
+$: eventOptions = inputType ? [
     { value: '-', disabled: true },
     ...inputs[inputType].events.map(e => ({ value: e }))
-]
+] : [];
 
 function dispatchEvent() {
-    dispatch('change', { inputType, eventName, params });
+    trigger.inputType = inputType;
+    trigger.eventName = eventName;
+    trigger.params = params;
+
+    dispatch('change', trigger);
 }
 
 function onInputChange(e) {
-    const needsDispatch = inputType !== e.detail && inputType !== '-';
+    const needsDispatch = inputType && inputType !== e.detail;
 
     inputType = e.detail;
     eventName = '-';
@@ -122,22 +128,21 @@ function onTextChange(e) {
 }
 
 function handleClickDelete() {
-    console.log("FieldTrigger :: dispatch delete");
     dispatch('delete');
 }
 
 </script>
 
-<div class="field-trigger {inputType.toLowerCase()}">
+<div class="field-trigger {inputType ? inputType.toLowerCase() : ""}">
     <FieldInputRow --grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)">
-        <button class="activity" class:enabled={inputType !== "-"}></button>
+        <button class="activity" class:enabled={trigger.enabled}></button>
         <Select
             name="trigger-input"
             value={inputType}
             options={inputOptions}
             on:change={onInputChange}
         />
-        {#if inputType !== "-" }
+        {#if inputType }
         <Select
             options={eventOptions}
             value={eventName}

@@ -1,7 +1,5 @@
 <script>
-import { createEventDispatcher, onMount } from "svelte";
-import { colord } from "colord";
-import { map } from "lemonade-math";
+import { createEventDispatcher } from "svelte";
 
 import Select from "./fields/Select.svelte";
 import NumberInput from "./fields/NumberInput.svelte";
@@ -14,9 +12,7 @@ import ListInput from "./fields/ListInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
-import * as triggersMap from "../triggers/index.js";
 import { inferFromParams, inferFromValue } from "../core/Prop";
-import Trigger from "../triggers/Trigger";
 
 export let key = '';
 export let value = null;
@@ -40,14 +36,13 @@ const fields = {
 
 const onTriggers = {
     'checkbox': () => {
-        prop.value = !prop.value;
+        value = !value;
 
-        bubble(value);
+        dispatch('change', value);
     },
     'button': (event) => {
         value(event);
-
-        // sync(null);
+        dispatch('click', event);
     },
     'number': (event = {}) => {
         const isValueInRange = event.value >= 0 && event.value <= 1;
@@ -57,24 +52,15 @@ const onTriggers = {
 
             prop.value = Math.round(v * (1 / prop.step)) / (1 / prop.step);
 
-            bubble(value);
+            dispatch('change', value);
         }
     },
 };
 
-const onTrigger = onTriggers[type];
+$: onTrigger = onTriggers[type];
 
-// triggers.forEach((trigger, index) => {
-    
-//     const trigger = triggersMap[eventName];
-//     if (trigger.fn === undefined && onTrigger) {
-//         trigger.fn = onTrigger;
-//     }
-// });
 
 let input = fields[type];
-let isTriggerable = Object.keys(onTriggers).includes(type);
-
 let offsetWidth;
 let secondaryVisible = false;
 
@@ -94,45 +80,6 @@ $: {
             sizeClassName = name;
         }
     }
-}
-
-function handleTriggersChange(event) {
-    const currentTriggers = [...triggers];
-
-    if (currentTriggers.length) {
-        currentTriggers
-            .filter(trigger => trigger !== null)
-            .forEach((trigger) => {
-                trigger.destroy()
-            });
-    }
-
-    const newTriggers = event.detail
-        .map(({ eventName, params }) => {
-            const trigger = triggersMap[eventName];
-
-            if (trigger && onTrigger) {
-                return trigger(onTrigger, { context, ...params });
-            } else {
-                return new Trigger();
-            }
-        });
-    triggers = newTriggers;
-}
-
-function handleTriggersAdd() {
-    triggers = [
-        ...triggers,
-        new Trigger(),
-    ]
-}
-
-function bubble(value) {
-    dispatch('change', value);
-}
-
-function handleChange(event) {
-    bubble(event.detail);
 }
 
 let label = params.label !== undefined && typeof value !== "function" ? params.label : key;
@@ -175,21 +122,20 @@ let label = params.label !== undefined && typeof value !== "function" ? params.l
             {value}
             name={key}
             {...params}
-            on:change={handleChange}
+            on:change={(e) => dispatch('change', value)}
             on:click={onTrigger}
         />
         <slot></slot>
     </FieldSection>
-    {#if isTriggerable}
-    <FieldSection visible={secondaryVisible} secondary>
-        <ButtonInput label="add trigger" on:click={handleTriggersAdd} />
-        <FieldTriggers
-            {triggers}
-            on:triggers-change={handleTriggersChange}
-        />
-    </FieldSection>
+    {#if onTrigger }
+        <FieldSection visible={secondaryVisible} secondary>
+            <FieldTriggers
+                {onTrigger}
+                {triggers}
+                {context}
+            />
+        </FieldSection>
     {/if}
-    
 </div>
 
 <style>
