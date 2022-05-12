@@ -10,7 +10,6 @@ export let trigger;
 let inputType = trigger.inputType;
 let eventName = trigger.eventName;
 let params = trigger.params;
-let enabled = trigger.enabled;
 
 $: isValid = inputType && eventName;
 
@@ -84,6 +83,7 @@ function dispatchEvent() {
     trigger.inputType = inputType;
     trigger.eventName = eventName;
     trigger.params = params;
+
     dispatch('change', trigger);
 }
 
@@ -118,6 +118,7 @@ function onEventChange(e) {
     }
 
     if (!keepParams || (keepParams && (params.key && params.key !== ''))) {
+        trigger.enabled = typeof inputType === "string" && typeof eventName === "string";
         dispatchEvent();
     }
 }

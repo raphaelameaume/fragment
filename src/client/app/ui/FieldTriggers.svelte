@@ -40,12 +40,11 @@ function onTriggerChange(e) {
     triggers = triggers.map((t) => {
         if (t.id !== trigger.id) return t;
 
-        // destroy previous one
-        trigger.destroy();
-
         const createTrigger = triggersMap[eventName];
 
         if (createTrigger) {
+            // destroy previous one
+            trigger.destroy();
             return createTrigger(onTrigger, {
                 ...params,
                 context,
@@ -66,9 +65,10 @@ function onTriggerDelete(e) {
 }
 
 function handleClickAdd() {
+    let trigger = new Trigger();
     triggers = [
         ...triggers,
-        new Trigger()
+        trigger,
     ]
 }
 
