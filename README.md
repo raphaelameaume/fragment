@@ -1,24 +1,33 @@
-## CLI
+# Fragment
 
-fragment ./scenes
-fragment ./scenes/Cubes.js --open -p 3002
+`fragment` is a live environment to build reactive A/V experiments directly in the browser. It provides a simple API to work with Canvas 2D or WebGL (only THREE.js is currently supported).
 
-fragment ./scenes/Spheres --new --template three/orthographic
-fragment ./scenes/Spheres --new --template ogl/perspective
-fragment ./scenes/Spheres --new --template 2d
-fragment ./scenes/Spheres --new --template ./custom-template.js
+## Installation
 
-## Features
-- CLI
-- Inputs out of the box: MIDI, Mouse, Keyboard
-- Screenshots
-- Record canvas output to webm/mp4
-- Renderer: perspective transform on canvas output. Switch layout in UI between transformed/not transformed
-- Scene can have specific duration or framerate
-- Open output in another url with sync
-- Save state between sessions
-- Assets Explorer ??
-- Built in MoveNet for pose estimation
-- Save/Restore current state
-- Timeline playhead
-- Save/set custom layout + default ones
+As `fragment` is not yet available on npmjs.org, you need to clone and link the project in order to use. It's only a few steps.
+
+`git clone https://github.com/raphaelameaume/fragment`
+`cd fragment`
+`npm link`
+
+You should now be able to run the CLI in the folder with npm initialized. If you have issues while linking, I invite you to read the npm link documentation.
+
+Let's create a new directory for your sketches.
+
+`cd ../`
+`mkdir sketches`
+`cd sketches`
+`npm init`
+
+You should now be able to run `fragment` at the root of your directory.
+
+## Usage
+
+## Motivation
+
+This project started a few years ago.
+
+## Contributing
+
+If you find issues, please file one with details on how to reproduce it.
+As for new features, I'm not looking into contributors for now, I'm moving at my own pace on this personal project.
