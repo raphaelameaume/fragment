@@ -128,7 +128,7 @@ function handleClickDelete() {
 
 </script>
 
-<div class="field-triggers__trigger {inputType.toLowerCase()}">
+<div class="field-trigger {inputType.toLowerCase()}">
     <FieldInputRow --grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)">
         <button class="activity" class:enabled={inputType !== "-"}></button>
         <Select
@@ -174,13 +174,12 @@ function handleClickDelete() {
 
 <style>
 
-.field-triggers__trigger {
+.field-trigger {
     --width-delete: 50px;
     --width-input: 90px;
     --width-activity: 16px;
     --width-cols: 1fr;
 
-    display: grid;
     width: 100%;
 }
 
@@ -203,11 +202,11 @@ function handleClickDelete() {
     --background-color: var(--color-red);
 }
 
-.field-triggers__trigger.mouse {
+.field-trigger.mouse {
     --width-cols: var(--width-input) 1fr;
 }
 
-.field-triggers__trigger.keyboard, .field-triggers__trigger.midi {
+.field-trigger.keyboard, .field-trigger.midi {
     --width-cols: var(--width-input) 1fr 0.75fr;
 }
 </style>

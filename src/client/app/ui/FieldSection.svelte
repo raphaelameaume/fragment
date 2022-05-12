@@ -110,8 +110,4 @@ export let onClickLabel = () => {};
     padding: var(--column-gap);
     border: 1px solid var(--spacingColor);
 }
-
-:global(.field__input > div:not(:first-child)) {
-    margin-top: 4px;
-}
 </style>

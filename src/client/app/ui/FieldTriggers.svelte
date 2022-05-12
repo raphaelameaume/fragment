@@ -36,6 +36,7 @@ function onTriggerDelete(e, index) {
 
 </script>
 
+<div class="field-triggers">
 {#each triggers as trigger, index}
     <FieldTrigger
         input={trigger.inputType}
@@ -45,4 +46,12 @@ function onTriggerDelete(e, index) {
         on:delete={(event) => onTriggerDelete(event, index)}
     />
 {/each}
+</div>
+
+<style>
+.field-triggers {
+    width: 100%;
+    margin-top: var(--column-gap);
+}
+</style>
 <!-- <ButtonInput label={"Add"} on:click={addTrigger} /> -->
