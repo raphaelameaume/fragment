@@ -4,6 +4,7 @@ import ProgressInput from "./ProgressInput.svelte";
 import Input from "./Input.svelte";
 import { clamp } from "lemonade-math";
 import Keyboard from "../../inputs/Keyboard.js";
+import FieldInputRow from "./FieldInputRow.svelte";
 
 function round(value, step) {
     return Math.round(value * (1 / step)) / (1 / step);
@@ -89,8 +90,26 @@ function handleChangeProgress(event) {
 
 <div class="number-input {hasProgress ? "number-input--with-progress": ""}">
     {#if hasProgress}
-        <ProgressInput step={step} value={currentValue} min={min} max={max} on:change={handleChangeProgress} />
-    {/if}
+        <FieldInputRow --grid-template-columns="1fr 0.5fr">
+            <ProgressInput
+                step={step}
+                value={currentValue}
+                min={min}
+                max={max}
+                on:change={handleChangeProgress}
+            />
+            <Input 
+                bind:this={node}
+                {name}
+                {label}
+                on:keypress={onKeyPress}
+                on:keydown={onKeyDown}
+                on:focus={onFocus}
+                on:blur={onBlur}
+                value={composedValue}
+            />
+        </FieldInputRow>
+    {:else}
         <Input 
             bind:this={node}
             {name}
@@ -101,23 +120,12 @@ function handleChangeProgress(event) {
             on:blur={onBlur}
             value={composedValue}
         />
+    {/if}
 </div>
 
 <style>
 .number-input {
     position: relative;
-    display: grid;
-    grid-template-columns: 1fr;
-    column-gap: var(--columnGap);
-    align-items: center;
     width: 100%;
-}
-
-.number-input--with-progress {
-    grid-template-columns: 1fr 0.5fr;
-}
-
-:global(.xxsmall) .number-input--with-progress {
-    grid-template-columns: 1fr;
 }
 </style>

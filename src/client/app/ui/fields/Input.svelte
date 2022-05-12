@@ -40,8 +40,6 @@ let el;
     border-radius: var(--inputBorderRadius);
     background-color: var(--inputBackgroundColor);
     box-shadow: inset 0 0 0 1px var(--inputBorderColor);
-
-    margin-right: calc(var(--padding));
 }
 
 .input-container:not(.disabled):hover {

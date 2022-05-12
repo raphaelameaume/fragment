@@ -1,5 +1,6 @@
 <script>
 import { createEventDispatcher } from "svelte";
+import FieldInputRow from "./FieldInputRow.svelte";
 import NumberInput from "./NumberInput.svelte";
 
 export let value;
@@ -10,6 +11,7 @@ export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
 export let triggers = [];
+export let disabled = false;
 
 function sanitize(value, type) {
     if (Array.isArray(value)) {
@@ -40,8 +42,8 @@ function desanitize(updated) {
     return updated;
 }
 
-let previousValue = sanitize(value);
-let currentValue = sanitize(value);
+$: previousValue = sanitize(value);
+$: currentValue = sanitize(value);
 
 const dispatch = createEventDispatcher();
 
@@ -66,70 +68,38 @@ function onValueChange(index, newValue) {
 </script>
 
 <div class="vector-container vec{currentValue.length}" class:locked={locked}>
-{#each currentValue as curr, index}
-    <NumberInput
-        controlled
-        {min}
-        {max}
-        {step}
-        {suffix}
-        {name}
-        label={curr.label}
-        value={curr.value}
-        on:change={(event) => onValueChange(index, event.detail)}
-    />
-{/each}
+    <FieldInputRow --grid-template-columns={currentValue.map(() => "1fr").join(" ")}>
+        {#each currentValue as curr, index}
+            <NumberInput
+                controlled
+                {min}
+                {max}
+                {step}
+                {suffix}
+                {name}
+                label={curr.label}
+                value={curr.value}
+                on:change={(event) => onValueChange(index, event.detail)}
+            />
+        {/each}
+    </FieldInputRow>
 </div>
 
 <style>
 .vector-container {
-    display: grid;
     width: 100%;
-    column-gap: var(--columnGap);
 }
 
-:global(.vector-container.locked > *:not(:last-child):after) {
+:global(.vector-container.locked .number-input:not(:last-child):after) {
     content: '';
 
     position: absolute;
     top: 50%;
-    right: calc(var(--columnGap) * -1);
-    width: calc(var(--columnGap) + var(--padding));
+    right: calc(var(--column-gap) * -1);
+    width: var(--column-gap);
     height: 1px;
 
     background-color: var(--inputBorderColor);
-}
-
-:global(.xxsmall .vector-container.locked > *:not(:last-child):after) {
-    content: '';
-
-    position: absolute;
-    top: calc(100% - 2px);
-    left: calc(50% - var(--padding) * 0.5);
-    width: 1px;
-    height: calc(var(--padding));
-
-    /* background-color: red; */
-}
-
-.vector-container.vec2 {
-    grid-template-columns: 1fr 1fr;
-}
-
-:global(.xxsmall) .vector-container.vec2{
-    grid-template-columns: 1fr;
-}
-
-.vector-container.vec3 {
-    grid-template-columns: 1fr 1fr 1fr;
-}
-
-:global(.xsmall) .vector-container.vec3{
-    grid-template-columns: 1fr;
-}
-
-:global(.xxsmall) .vector-container.vec3{
-    grid-template-columns: 1fr;
 }
 
 </style>

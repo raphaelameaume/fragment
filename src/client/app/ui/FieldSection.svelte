@@ -107,9 +107,7 @@ export let onClickLabel = () => {};
 }
 
 .field__section.secondary .field__input {
-    padding: 4px;
-    padding-right: 0px;
-    margin-right: var(--padding);
+    padding: var(--column-gap);
     border: 1px solid var(--spacingColor);
 }
 

@@ -32,7 +32,6 @@ export let disabled = false;
     border-radius: var(--inputBorderRadius);
     background-color: var(--background-color, var(--inputBackgroundColor));
     box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--inputBorderColor));
-    margin-right: calc(var(--padding));
 }
 
 :global(.field.disabled) .button {

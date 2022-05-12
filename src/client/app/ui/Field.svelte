@@ -194,14 +194,13 @@ let label = params.label !== undefined && typeof value !== "function" ? params.l
 
 <style>
 .field {
-    --columnGap: 3px;
+    --column-gap: 3px;
     --padding: 6px;
 
     width: 100%;
 
-    padding: 4px 0;
+    padding: 3px 6px 3px 12px;
     border-bottom: 1px solid var(--spacingColor);
-    padding-left: 12px;
 }
 
 .field__section {

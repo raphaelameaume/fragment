@@ -57,7 +57,7 @@ function onChangeText(event) {
 
 .layout {
     display: grid;
-    column-gap: var(--columnGap);
+    column-gap: var(--column-gap);
     grid-template-columns: 0.35fr 0.65fr;
     align-items: center;
 }

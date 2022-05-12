@@ -1,6 +1,7 @@
 <script>
 import { createEventDispatcher } from "svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
+import FieldInputRow from "./fields/FieldInputRow.svelte";
 import Select from "./fields/Select.svelte";
 import TextInput from "./fields/TextInput.svelte";
 
@@ -128,58 +129,59 @@ function handleClickDelete() {
 </script>
 
 <div class="field-triggers__trigger {inputType.toLowerCase()}">
-    <button class="activity" class:enabled={inputType !== "-"}>
-    </button>
-    <Select
-        name="trigger-input"
-        value={inputType}
-        options={inputOptions}
-        on:change={onInputChange}
-    />
-    {#if inputType !== "-" }
-    <Select
-        options={eventOptions}
-        value={eventName}
-        on:change={onEventChange}
-        disabled={inputType === '-'}
-        name="trigger-event"
-    />
-    {/if}
-    {#if inputType === 'Keyboard'}
-        <TextInput
-            name="trigger-custom"
-            value={params.key ? params.key : ""}
-            label="key"
-            on:input={onTextChange}
+    <FieldInputRow --grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)">
+        <button class="activity" class:enabled={inputType !== "-"}></button>
+        <Select
+            name="trigger-input"
+            value={inputType}
+            options={inputOptions}
+            on:change={onInputChange}
         />
-    {/if}
-    {#if inputType === 'MIDI'}
-        <TextInput
-            name="trigger-custom"
-            value={params.key ? params.key : ""}
-            label={["onNoteOn", "onNoteOff"].includes(eventName) ? "note" : "number"}
-            on:input={onTextChange}
+        {#if inputType !== "-" }
+        <Select
+            options={eventOptions}
+            value={eventName}
+            on:change={onEventChange}
+            disabled={inputType === '-'}
+            name="trigger-event"
         />
-    {/if}
-    <ButtonInput
-        label="delete"
-        on:click={handleClickDelete}
-        --inputColor="white"
-        --background-color="var(--color-red)"
-        --box-shadow-color="var(--color-red)"
-    />
+        {/if}
+        {#if inputType === 'Keyboard'}
+            <TextInput
+                name="trigger-custom"
+                value={params.key ? params.key : ""}
+                label="key"
+                on:input={onTextChange}
+            />
+        {/if}
+        {#if inputType === 'MIDI'}
+            <TextInput
+                name="trigger-custom"
+                value={params.key ? params.key : ""}
+                label={["onNoteOn", "onNoteOff"].includes(eventName) ? "note" : "number"}
+                on:input={onTextChange}
+            />
+        {/if}
+        <ButtonInput
+            label="delete"
+            on:click={handleClickDelete}
+            --inputColor="white"
+            --background-color="var(--color-red)"
+            --box-shadow-color="var(--color-red)"
+        />
+    </FieldInputRow>
 </div>
 
 <style>
 
 .field-triggers__trigger {
     --width-delete: 50px;
+    --width-input: 90px;
     --width-activity: 16px;
+    --width-cols: 1fr;
 
     display: grid;
     width: 100%;
-    grid-template-columns: var(--width-activity) 1fr var(--width-delete);
-    align-items: center;
 }
 
 .activity {
@@ -202,10 +204,10 @@ function handleClickDelete() {
 }
 
 .field-triggers__trigger.mouse {
-    grid-template-columns: var(--width-activity) 90px 1fr var(--width-delete);
+    --width-cols: var(--width-input) 1fr;
 }
 
 .field-triggers__trigger.keyboard, .field-triggers__trigger.midi {
-    grid-template-columns: var(--width-activity) 90px 1fr 0.75fr var(--width-delete);
+    --width-cols: var(--width-input) 1fr 0.75fr;
 }
 </style>

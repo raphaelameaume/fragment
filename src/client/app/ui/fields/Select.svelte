@@ -67,7 +67,6 @@ function handleChange(event) {
     display: flex;
     height: var(--inputHeight);
     margin: 2px 0;
-    margin-right: var(--padding);
 
     color: rgba(255, 255, 255, 0.5);
 

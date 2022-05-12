@@ -60,7 +60,6 @@ function handleMouseUp() {
 
     background: var(--inputBackgroundColor);
     cursor: ew-resize;
-    margin-right: var(--padding);
 }
 
 .progress:hover {
