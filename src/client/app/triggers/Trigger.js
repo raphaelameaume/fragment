@@ -8,13 +8,22 @@ class Trigger {
      * @param {function} fn 
      * @param {object} params 
      */
-    constructor(inputType, eventName, fn, params = {}, destroy = () => {}) {
+    constructor({
+        inputType,
+        eventName,
+        fn,
+        params = {},
+        destroy = () => {},
+        enabled = typeof inputType === "string" && typeof eventName === "string",
+        hot = true,
+    } = {}) {
         this.id = ID++;
         this.inputType = inputType;
         this.eventName = eventName;
         this.fn = fn;
         this.params = params;
-        this.enabled = inputType && eventName;
+        this.enabled = enabled;
+        this.hot = hot;
         this._destroy = destroy;
     }
 

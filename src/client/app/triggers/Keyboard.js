@@ -7,6 +7,25 @@ const pressedKeys = new Map();
 const upKeys = new Map();
 const downKeys = new Map();
 
+export const removeHotListeners = (key) => {
+    function removeHotFrom(collection) {
+        const triggers = collection.get(key);
+
+        if (triggers && triggers.length > 0) {
+            const hotListeners = triggers.filter(t => t.hot);
+            const rest = triggers.filter(t => !t.hot);
+
+            hotListeners.forEach(t => t.destroy());
+
+            collection.set(key, rest);
+        }
+    }
+
+    removeHotFrom(pressedKeys);
+    removeHotFrom(upKeys);
+    removeHotFrom(downKeys);
+};
+
 function createEventListener(collection) {
     return (event) => {
         const { key, target } = event;
@@ -44,13 +63,23 @@ function createTrigger(eventName, collection) {
             }
         }
 
+        const { hot, enabled, ...params } = options;
+
         let keys = key.split('').includes(',') ? key.split(',') : [key];
         keys = keys.filter((k) => k !== '');
         
-        const trigger = new Trigger('Keyboard', eventName, fn, {...options, key }, () => {
-            keys.forEach((k) => {
-                removeFromMapArray(collection, k, (item) => item.id === trigger.id);
-            });
+        const trigger = new Trigger({
+            inputType: 'Keyboard',
+            eventName,
+            fn,
+            params: {...params, key },
+            hot,
+            enabled,
+            destroy: () => {
+                keys.forEach((k) => {
+                    removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+                });
+            }
         });
 
         keys.forEach(k => {

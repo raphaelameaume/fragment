@@ -1,3 +1,5 @@
+import { writable } from "svelte/store";
+
 /**
  * 
  * @param {string} key 
@@ -41,4 +43,20 @@ export const keepInSync = (key, store) => {
     //         store.set(JSON.parse(event.newValue));
     //     }
     // })
+};
+
+
+let persistentStores = new Map();
+
+export const getPersistentStore = (key, reset = false) => {
+    if (!persistentStores.has(key)) {
+        let store = writable(
+            rehydrate(key, { props: {} }, reset),
+        );
+        keepInSync(key, store);
+
+        persistentStores.set(key, store); 
+    }
+
+    return persistentStores.get(key);
 };

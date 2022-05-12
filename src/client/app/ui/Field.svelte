@@ -18,7 +18,7 @@ export let key = '';
 export let value = null;
 export let context = null;
 export let params = {};
-export let type = inferFromParams(params) || inferFromValue(value);
+export let type = null;
 export let triggers = [];
 
 const dispatch = createEventDispatcher();
@@ -57,10 +57,10 @@ const onTriggers = {
     },
 };
 
-$: onTrigger = onTriggers[type];
+$: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
+$: onTrigger = onTriggers[fieldType];
+$: input = fields[fieldType];
 
-
-let input = fields[type];
 let offsetWidth;
 let secondaryVisible = false;
 
@@ -130,8 +130,8 @@ let label = params.label !== undefined && typeof value !== "function" ? params.l
     {#if onTrigger }
         <FieldSection visible={secondaryVisible} secondary>
             <FieldTriggers
+                {key}
                 {onTrigger}
-                {triggers}
                 {context}
             />
         </FieldSection>

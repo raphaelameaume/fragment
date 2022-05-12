@@ -9,6 +9,27 @@ const numberons = new Map();
 const numberoffs = new Map();
 const controlchanges = new Map();
 
+export const removeHotListeners = (key) => {
+    function removeHotFrom(collection) {
+        const triggers = collection.get(key);
+
+        if (triggers && triggers.length > 0) {
+            const hotListeners = triggers.filter(t => t.hot);
+            const rest = triggers.filter(t => !t.hot);
+
+            hotListeners.forEach(t => t.destroy());
+
+            collection.set(key, rest);
+        }
+    }
+
+    removeHotFrom(noteons);
+    removeHotFrom(noteoffs);
+    removeHotFrom(numberons);
+    removeHotFrom(numberoffs);
+    removeHotFrom(controlchanges);
+};
+
 function createEventListener(collection, getKey = (event) => event.key) {
     return (event) => {
         const key = getKey(event);
@@ -45,13 +66,23 @@ function createTrigger(eventName, collection) {
             }
         }
 
+        const { hot, enabled, ...params } = options;
+
         let keys = key.split('').includes(',') ? key.split(',') : [key];
         keys = keys.filter((k) => k !== '');
         
-        const trigger = new Trigger('MIDI', eventName, fn, {...options, key: keys }, () => {
-            keys.forEach((k) => {
-                removeFromMapArray(collection, k, (item) => item.id === trigger.id);
-            });
+        const trigger = new Trigger({
+            inputType: 'MIDI',
+            eventName,
+            fn,
+            params: {...params, key: keys },
+            hot,
+            enabled,
+            destroy : () => {
+                keys.forEach((k) => {
+                    removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+                });
+            }
         });
 
         keys.forEach(k => {

@@ -23,11 +23,32 @@ export const reset = (key) => {
     clicks.delete(key);
 }
 
+export const removeHotListeners = (key) => {
+    function removeHotFrom(collection) {
+        const triggers = collection.get(key);
+
+        if (triggers && triggers.length > 0) {
+            const hotListeners = triggers.filter(t => t.hot);
+            const rest = triggers.filter(t => !t.hot);
+
+            hotListeners.forEach(t => t.destroy());
+
+            collection.set(key, rest);
+        }
+    }
+
+    removeHotFrom(downs);
+    removeHotFrom(ups);
+    removeHotFrom(moves);
+    removeHotFrom(clicks);
+};
+
 export const assignSketchFiles = (files) => {
     sketchFiles.push(...files);
 }
 
 const checkForTriggers = (collection, event, scope) => {
+
     const triggers = [
         ...(collection.has(scope) ? collection.get(scope) : []),
         ...(collection.has(wildcard) ? collection.get(wildcard) : []),
@@ -44,7 +65,7 @@ const checkForTriggers = (collection, event, scope) => {
  * @returns 
  */
 const createTrigger = (eventName, collection) => {
-    return (fn, { context } = {}) => {
+    return (fn, { context, hot, enabled } = {}) => {
         try {
             if (!context) {
                 const { stack } = new Error();
@@ -73,8 +94,16 @@ const createTrigger = (eventName, collection) => {
                 }
             }
 
-            const trigger = new Trigger('Mouse', eventName, fn, { context }, () => {
-                removeFromMapArray(collection, context, (item) => item.id === trigger.id);
+            const trigger = new Trigger({
+                inputType: 'Mouse',
+                eventName,
+                fn,
+                params: { context },
+                hot,
+                enabled,
+                destroy: () => {
+                    removeFromMapArray(collection, context, (item) => item.id === trigger.id);
+                }
             });
 
             addToMapArray(collection, context, trigger);

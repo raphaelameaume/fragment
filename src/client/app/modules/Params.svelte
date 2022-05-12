@@ -3,19 +3,16 @@ let instances = 0;
 </script>
 
 <script>
-import { getContext, onDestroy, onMount, setContext } from "svelte";
+import { getContext, onDestroy, onMount } from "svelte";
 import { sketchesCount } from "@fragment/props";
 import { props } from "../stores";
 import { monitors } from "../stores/rendering.js";
 import { current as sketches } from "../stores/sketches.js";
 
 import Module from "../ui/Module.svelte";
-import FieldGroup from "../ui/FieldGroup.svelte";
-import FieldSpace from "../ui/FieldSpace.svelte";
 import Field from "../ui/Field.svelte";
 import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
-import * as triggersMap from "../triggers/index.js";
 
 let currentModule = getContext("currentModule");
 let index = isFinite($currentModule.params.index) ? $currentModule.params.index : instances;
@@ -24,7 +21,7 @@ instances++;
 $currentModule.params.index = index;
 
 let selected = isFinite($currentModule.params.selected) ? $currentModule.params.selected : index;
-let options = [], sketch, sketchProps = {};
+let options = [], sketch, sketchKey, sketchProps = {};
 
 $: {
     options = $monitors
@@ -35,10 +32,10 @@ $: {
 
 
     if ($monitors.length > selected) {
-        let sketchKey = $monitors[selected].selected;
-
+        sketchKey = $monitors[selected].selected;
         sketch = $sketches[sketchKey];
         sketchProps = (sketch && sketch.props) ? sketch.props : {};
+        $props[sketchKey] = sketchProps;
     }
 
     $currentModule.params.selected = selected;
@@ -64,7 +61,7 @@ function handleChangeSelect(event) {
 
 </script>
 
-<Module name={`Parameters ${index}`}>
+<Module name={`Parameters`}>
     <div slot="header-right">
         {#if $monitors.length > 1 }
         <ModuleHeaderAction
@@ -82,13 +79,13 @@ function handleChangeSelect(event) {
 
     {#if sketch }
         {#if typeof props === "object"}
-            <Field key="framerate" value={sketch.fps ? sketch.fps : 60} params={{disabled: true}}/>
+            <Field key="framerate" value={isFinite(sketch.fps) ? sketch.fps : 60} params={{disabled: true}}/>
             {#if sketch.duration && sketch.duration > 0 }
                 <Field key="duration" value={sketch.duration} params={{disabled: true, suffix: "s"}}/>
             {/if }
             {#each Object.keys(sketchProps) as key, i}
                 <Field
-                    context={sketch}
+                    context={sketchKey}
                     key={key}
                     value={sketchProps[key].value}
                     params={sketchProps[key].params || {}}

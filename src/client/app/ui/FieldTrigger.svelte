@@ -10,8 +10,9 @@ export let trigger;
 let inputType = trigger.inputType;
 let eventName = trigger.eventName;
 let params = trigger.params;
+let enabled = trigger.enabled;
 
-console.log(trigger, { inputType });
+$: isValid = inputType && eventName;
 
 const dispatch = createEventDispatcher();
 
@@ -74,15 +75,15 @@ $: inputOptions = [
 ];
 
 $: eventOptions = inputType ? [
-    { value: '-', disabled: true },
+    { label: "-", value: undefined, disabled: true },
     ...inputs[inputType].events.map(e => ({ value: e }))
 ] : [];
+
 
 function dispatchEvent() {
     trigger.inputType = inputType;
     trigger.eventName = eventName;
     trigger.params = params;
-
     dispatch('change', trigger);
 }
 
@@ -90,7 +91,7 @@ function onInputChange(e) {
     const needsDispatch = inputType && inputType !== e.detail;
 
     inputType = e.detail;
-    eventName = '-';
+    eventName = undefined;
 
     if (needsDispatch) {
         dispatchEvent();
@@ -128,14 +129,25 @@ function onTextChange(e) {
 }
 
 function handleClickDelete() {
-    dispatch('delete');
+    dispatch('delete', trigger);
+}
+
+function onClickActivity() {
+    trigger.enabled = !trigger.enabled;
+    dispatchEvent();
 }
 
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ""}">
     <FieldInputRow --grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)">
-        <button class="activity" class:enabled={trigger.enabled}></button>
+        <button
+            class="activity"
+            class:valid={isValid}
+            class:enabled={trigger.enabled}
+            class:disabled={!trigger.enabled}
+            on:click={onClickActivity}
+        ></button>
         <Select
             name="trigger-input"
             value={inputType}
@@ -189,21 +201,37 @@ function handleClickDelete() {
 }
 
 .activity {
-    --size: 4px;
     --background-color: rgba(255, 255, 255, 0.5);
+
+    position: relative;
+
+    width: var(--width-activity);
+    height: 100%;
+
+    background-color: transparent;
+}
+
+.activity:before {
+    --size: 4px;
+
+    content: '';
+
+    position: absolute;
+    top: calc(50% - var(--size) * 0.5);
+    left: calc(50% - var(--size) * 0.5);
+
     width: var(--size);
     height: var(--size);
-    margin-left: calc((var(--width-activity) - var(--size)) * 0.5);
     border-radius: 2px;
 
     background-color: var(--background-color);
 }
 
-.activity.enabled {
+.activity.valid.enabled {
     --background-color: var(--color-green);
 }
 
-.activity.disabled {
+.activity.valid.disabled {
     --background-color: var(--color-red);
 }
 

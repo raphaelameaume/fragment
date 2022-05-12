@@ -5,13 +5,15 @@ import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { store as props } from "../stores/props";
-import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick, reset } from "../triggers/Mouse.js";
+import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
+
 import { client } from "../client";
 import { emit, TRANSITION_CHANGE } from "../events";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
 import { transitions } from "../transitions/index.js";
 import { findRenderer } from "../stores/renderers";
 import { onKeyDown } from "../triggers/Keyboard.js";
+import { removeHotListeners } from "../triggers/index.js";
 
 export let key;
 export let index = 0;
@@ -28,7 +30,7 @@ let _raf;
 let _key = key;
 
 let sketch;
-let _created = false;
+let _created = false, _errored = false;
 let renderer;
 let noop = () => {};
 let _renderSketch = noop;
@@ -97,7 +99,7 @@ async function createSketch(key) {
 
     if (!container) return;
 
-    if (_created && canvas) {
+    if (canvas) {
         if (typeof renderer.onDestroyPreview === "function") {
             renderer.onDestroyPreview({ index, canvas });
         }
@@ -120,7 +122,7 @@ async function createSketch(key) {
     canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
     canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
 
-    reset(key);
+    removeHotListeners(key);
 
     canvas.onmousedown = (event) => checkForTriggersDown(event, key);
     canvas.onmousemove = (event) => checkForTriggersMove(event, key);
@@ -174,7 +176,9 @@ async function createSketch(key) {
         });
 
         _created = true;
+        _errored = false;
     } catch(error) {
+        _errored = true;
         console.error(error);
     }
     
@@ -325,7 +329,7 @@ async function save() {
 let offKeyboardShortcutSave, offKeyboardShortcutPause;
 
 currentSketches.subscribe(() => {
-    if (_created) {
+    if (_created || _errored) {
         createSketch(key);
     }
 });

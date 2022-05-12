@@ -18,18 +18,18 @@ $: {
     for (let i = 0; i < options.length; i++) {
         const { value, label, disabled } = options[i];
 
-        if (value !== undefined) {
-            sanitizedOptions[i] = {
-                value: value,
-                label: label ? label : value,
-                disabled,
-            }
-        } else {
+        if (["number", "string"].includes(typeof options[i])) {
             sanitizedOptions[i] = {
                 value: options[i],
                 label: options[i],
                 disabled,
             };
+        } else {
+            sanitizedOptions[i] = {
+                value: value,
+                label: label ? label : value,
+                disabled,
+            }
         }
     }
 }
