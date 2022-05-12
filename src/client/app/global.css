@@ -42,6 +42,9 @@ html {
 	--color-lightblack: #0E0E0E;
 	--borderColor: var(--color-lightblack);
 
+	--color-red: #ff4444;
+	--color-green: #9af49f;
+
     --inputColor: #f0f0f0;
 	--inputHeight: 20px;
     --inputBorderRadius: 3px;

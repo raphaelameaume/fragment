@@ -88,9 +88,7 @@ export let onClickLabel = () => {};
 }
 
 .field__section.secondary .field__infos {
-    align-items: center;
-    border-top: 1px solid var(--spacingColor);
-    padding: 4px 0;
+    display: none;
 }
 
 .field__section.secondary .field__label {
@@ -108,7 +106,14 @@ export let onClickLabel = () => {};
     align-items: flex-start;
 }
 
+.field__section.secondary .field__input {
+    padding: 4px;
+    padding-right: 0px;
+    margin-right: var(--padding);
+    border: 1px solid var(--spacingColor);
+}
+
 :global(.field__input > div:not(:first-child)) {
-    margin-top: 3px;
+    margin-top: 4px;
 }
 </style>

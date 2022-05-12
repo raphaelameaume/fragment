@@ -181,10 +181,8 @@ let label = params.label !== undefined && typeof value !== "function" ? params.l
         <slot></slot>
     </FieldSection>
     {#if isTriggerable}
-    <FieldSection visible={secondaryVisible} secondary label="triggers">
-        <div slot="infos">
-            <ButtonInput label="add" on:click={handleTriggersAdd} />
-        </div>
+    <FieldSection visible={secondaryVisible} secondary>
+        <ButtonInput label="add trigger" on:click={handleTriggersAdd} />
         <FieldTriggers
             {triggers}
             on:triggers-change={handleTriggersChange}

@@ -128,12 +128,15 @@ function handleClickDelete() {
 </script>
 
 <div class="field-triggers__trigger {inputType.toLowerCase()}">
+    <button class="activity" class:enabled={inputType !== "-"}>
+    </button>
     <Select
         name="trigger-input"
         value={inputType}
         options={inputOptions}
         on:change={onInputChange}
     />
+    {#if inputType !== "-" }
     <Select
         options={eventOptions}
         value={eventName}
@@ -141,6 +144,7 @@ function handleClickDelete() {
         disabled={inputType === '-'}
         name="trigger-event"
     />
+    {/if}
     {#if inputType === 'Keyboard'}
         <TextInput
             name="trigger-custom"
@@ -169,14 +173,39 @@ function handleClickDelete() {
 <style>
 
 .field-triggers__trigger {
+    --width-delete: 50px;
+    --width-activity: 16px;
+
     display: grid;
     width: 100%;
-    grid-template-columns: 1fr 2fr auto;
+    grid-template-columns: var(--width-activity) 1fr var(--width-delete);
     align-items: center;
 }
 
+.activity {
+    --size: 4px;
+    --background-color: rgba(255, 255, 255, 0.5);
+    width: var(--size);
+    height: var(--size);
+    margin-left: calc((var(--width-activity) - var(--size)) * 0.5);
+    border-radius: 2px;
+
+    background-color: var(--background-color);
+}
+
+.activity.enabled {
+    --background-color: var(--color-green);
+}
+
+.activity.disabled {
+    --background-color: var(--color-red);
+}
+
+.field-triggers__trigger.mouse {
+    grid-template-columns: var(--width-activity) 90px 1fr var(--width-delete);
+}
+
 .field-triggers__trigger.keyboard, .field-triggers__trigger.midi {
-    display: grid;
-    grid-template-columns: 0.75fr 1fr 1fr auto;
+    grid-template-columns: var(--width-activity) 90px 1fr 0.75fr var(--width-delete);
 }
 </style>
