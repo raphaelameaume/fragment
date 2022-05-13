@@ -79,7 +79,7 @@ function onKeyPress(event) {
     }
 }
 
-const hasProgress = isFinite(min) && isFinite(max);
+$: hasProgress = isFinite(min) && isFinite(max);
 
 function handleChangeProgress(event) {
     currentValue = event.detail;
