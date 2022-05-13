@@ -57,7 +57,7 @@ async function createEntries(entry, options) {
     }
     
     const entries = [];
-    const shouldCreateFile = options.new;
+    let shouldCreateFile = options.new;
 
     async function createEntryFile(entryPath) {
         const templates = {
@@ -124,6 +124,8 @@ async function createEntries(entry, options) {
             
             console.log(`${log.prefix} Created ${path.relative(process.cwd(), destPath)} on disk.`);
         }
+
+        shouldCreateFile = false;
     }
 
     const entryPath = path.join(process.cwd(), entry);
@@ -144,7 +146,7 @@ async function createEntries(entry, options) {
             entries.push(...sketchFiles.map((sketchFile) => path.relative(process.cwd(), sketchFile)));
         } else if (stats.isFile()) {
             if (shouldCreateFile) {
-                log.warning(`Ignored argument:`);
+                log.warning(`Ignored argument: --new`);
                 console.log(`${entry} already exists.`);
             }
 
