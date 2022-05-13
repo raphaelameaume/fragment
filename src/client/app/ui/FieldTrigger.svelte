@@ -183,7 +183,7 @@ function onClickActivity() {
         <ButtonInput
             label="delete"
             on:click={handleClickDelete}
-            --inputColor="white"
+            --color-text="white"
             --background-color="var(--color-red)"
             --box-shadow-color="var(--color-red)"
         />

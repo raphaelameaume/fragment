@@ -26,4 +26,4 @@ onMount(async () => {
 {#if sketch1 }
 	<SketchRenderer key={sketch1} visible={false} index={1}/>
 {/if}
-<OutputRenderer/>
+<OutputRenderer --background-color="black"/>

@@ -46,8 +46,8 @@ function clear() {
     max-height: 100%;
 
     background-color: #1d1d1e;
-    border-radius: var(--inputBorderRadius);
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    border-radius: var(--border-radius-input);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
 }
 
 .scroll {
@@ -65,7 +65,7 @@ function clear() {
 }
 
 .scroll::-webkit-scrollbar-thumb {
-    background-color: var(--activeColor);    /* color of the scroll thumb */
+    background-color: var(--color-active);    /* color of the scroll thumb */
     border-radius: 20px;       /* roundness of the scroll thumb */
 }
 

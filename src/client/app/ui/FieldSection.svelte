@@ -61,7 +61,7 @@ export let onClickLabel = () => {};
     width: 1px;
     height: var(--margin);
     
-    background-color: var(--spacingColor);
+    background-color: var(--color-spacing);
 }
 
 .field__infos {
@@ -75,8 +75,7 @@ export let onClickLabel = () => {};
 }
 
 .field__label {
-    font-size: var(--inputFontSize);
-    font-family: var(--fontFamily);
+    font-size: var(--font-size-input);
     user-select: none;
 
     opacity: 0.5;
@@ -108,6 +107,6 @@ export let onClickLabel = () => {};
 
 .field__section.secondary .field__input {
     padding: var(--column-gap);
-    border: 1px solid var(--spacingColor);
+    border: 1px solid var(--color-spacing);
 }
 </style>

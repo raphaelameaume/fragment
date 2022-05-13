@@ -65,10 +65,10 @@ function onChangeText(event) {
 .mirror {
     position: relative;
     
-    height: var(--inputHeight);
+    height: var(--height-input);
 
-    border-radius: var(--inputBorderRadius);
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    border-radius: var(--border-radius-inputut);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
 }
 
 .mirror:before {
@@ -82,11 +82,11 @@ function onChangeText(event) {
     bottom: var(--gap);
 
     background-color: var(--currentColor);
-    border-radius: calc(var(--inputBorderRadius) * 0.5);
+    border-radius: calc(var(--border-radius-inputut) * 0.5);
 }
 
 .mirror:hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
+    box-shadow: inset 0 0 0 1px var(--color-active);
 }
 
 .input {

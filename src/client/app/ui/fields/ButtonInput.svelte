@@ -21,17 +21,17 @@ export let disabled = false;
 .button {
     display: flex;
     width: 100%;
-    height: var(--inputHeight);
+    height: var(--height-input);
     justify-content: center;
     align-items: center;
     padding: 0 4px;
 
     color: rgba(255, 255, 255, 0.5);
-    font-size: var(--inputFontSize);
+    font-size: var(--font-size-input);
     
-    border-radius: var(--inputBorderRadius);
-    background-color: var(--background-color, var(--inputBackgroundColor));
-    box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--inputBorderColor));
+    border-radius: var(--border-radius-input);
+    background-color: var(--background-color, var(--color-background-input));
+    box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--color-border-input));
 }
 
 :global(.field.disabled) .button {
@@ -39,12 +39,12 @@ export let disabled = false;
 }
 
 .button:hover {
-    color: var(--inputColor);
+    color: var(--color-text);
 
-    box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--activeColor));
+    box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--color-active));
 }
 
 .button:active {
-    box-shadow: 0 0 0 2px var(--box-shadow-color, var(--activeColor));
+    box-shadow: 0 0 0 2px var(--box-shadow-color, var(--color-active));
 }
 </style>

@@ -8,7 +8,7 @@ export let height = 20;
 .field-space {
     position: relative;
 
-    border-bottom: 1px solid var(--spacingColor);
+    border-bottom: 1px solid var(--color-spacing);
     overflow: hidden;
 }
 
@@ -21,7 +21,7 @@ export let height = 20;
     width: 100%;
     height: 1px;
 
-    background-color: var(--spacingColor);
+    background-color: var(--color-spacing);
 }
 
 .field-space:before {

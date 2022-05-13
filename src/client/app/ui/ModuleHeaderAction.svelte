@@ -44,7 +44,6 @@ export let options = [];
 .text:not(:empty) {
     color: inherit;
     width: 100%;
-    font-family: "Jetbrains Mono";
     font-size: 10px;
 
     padding: 1px 3px 1px 3px;

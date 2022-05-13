@@ -23,33 +23,33 @@ function handleChange() {
 .checkbox {
     position: relative;
 
-    width: var(--inputHeight);
-    height: var(--inputHeight);
+    width: var(--height-input);
+    height: var(--height-input);
     margin-right: calc(var(--padding));
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
 
-    border-radius: var(--inputBorderRadius);
-    background-color: var(--inputBackgroundColor);
+    border-radius: var(--border-radius-input);
+    background-color: var(--color-background-input);
 }
 
 .checkbox:hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
+    box-shadow: inset 0 0 0 1px var(--color-active);
 }
 
 .checkbox:focus-within {
-    box-shadow: 0 0 0 2px var(--activeColor);
+    box-shadow: 0 0 0 2px var(--color-active);
 }
 
 .input {
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: var(--inputBorderRadius);
+    border-radius: var(--border-radius-input);
     background-color: transparent;
 }
 
 /* .input:checked {
-    background-color: var(--activeColor);
+    background-color: var(--color-active);
 } */
 
 .checked {
@@ -59,8 +59,8 @@ function handleChange() {
     bottom: 3px;
     right: 3px;
 
-    border-radius: calc(var(--inputBorderRadius) * 0.5);
-    background-color: var(--activeColor);
+    border-radius: calc(var(--border-radius-input) * 0.5);
+    background-color: var(--color-active);
 
     opacity: 0;
     pointer-events: none;

@@ -24,7 +24,6 @@ export let options = [];
 }
 
 .select {
-    font-family: var(--fontFamily);
     font-size: 10px;
     padding: 1px 15px 1px 3px;
     

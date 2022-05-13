@@ -70,14 +70,14 @@
 	.log {
 		--json-tree-string-color: rgba(255, 255, 255, 0.5);
 		--arrow-sign: rgba(255, 255, 255, 0.5);
-		--json-tree-font-size: var(--inputFontSize);
-		--json-tree-font-family: var(--fontFamily);
-		--json-tree-number-color: var(--activeColor);
+		--json-tree-font-size: var(--font-size-input);
+		--json-tree-font-family: var(--font-mono);
+		--json-tree-number-color: var(--color-active);
 		--json-tree-symbol-color: #cb3f41;
-		--json-tree-boolean-color: var(--activeColor);
-		--json-tree-function-color: var(--activeColor);
+		--json-tree-boolean-color: var(--color-active);
+		--json-tree-function-color: var(--color-active);
 		/* --json-tree-number-color: #3029cf; */
-		--json-tree-label-color: var(--activeColor);
+		--json-tree-label-color: var(--color-active);
 		--json-tree-arrow-color: #727272;
 		--json-tree-null-color: #8d8d8d;
 		--json-tree-undefined-color: #8d8d8d;

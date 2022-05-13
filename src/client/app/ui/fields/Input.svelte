@@ -34,20 +34,20 @@ let el;
     position: relative;
 
     display: flex;
-    height: var(--inputHeight);
+    height: var(--height-input);
     margin: 2px 0;
 
-    border-radius: var(--inputBorderRadius);
-    background-color: var(--inputBackgroundColor);
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    border-radius: var(--border-radius-input);
+    background-color: var(--color-background-input);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
 }
 
 .input-container:not(.disabled):hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
+    box-shadow: inset 0 0 0 1px var(--color-active);
 }
 
 .input-container:not(.disabled):focus-within {
-    box-shadow: 0 0 0 2px var(--activeColor);
+    box-shadow: 0 0 0 2px var(--color-active);
 }
 
 .label {
@@ -60,8 +60,8 @@ let el;
     align-items: center;
     padding: var(--padding);
 
-    color: var(--inputColor);
-    font-size: var(--inputFontSize);
+    color: var(--color-text);
+    font-size: var(--font-size-input);
     font-weight: 600;
     pointer-events: none;
     opacity: 0.35;
@@ -77,7 +77,7 @@ let el;
     padding: 0 var(--padding);
 
     color: rgba(255, 255, 255, 0.5);
-    font-size: var(--inputFontSize);
+    font-size: var(--font-size-input);
     text-align: right;
 
     background: transparent;
@@ -89,15 +89,15 @@ let el;
 }
 
 :global(.field__section:hover .container .input) {
-    color: var(--inputColor);
+    color: var(--color-text);
 }
 
 input:focus {
-    color: var(--inputColor);
+    color: var(--color-text);
 }
 
 /* .input:focus {
-    border: var(--borderWidth) solid var(--activeColor);
+    border: var(--borderWidth) solid var(--color-active);
 } */
 
 </style>

@@ -54,20 +54,20 @@ function handleMouseUp() {
 .progress {
     position: relative;
     
-    height: var(--inputHeight);
-    border-radius: var(--inputBorderRadius);
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    height: var(--height-input);
+    border-radius: var(--border-radius-input);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
 
-    background: var(--inputBackgroundColor);
+    background: var(--color-background-input);
     cursor: ew-resize;
 }
 
 .progress:hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
+    box-shadow: inset 0 0 0 1px var(--color-active);
 }
 
 .progress.dragging {
-    box-shadow: 0 0 0 2px var(--activeColor);
+    box-shadow: 0 0 0 2px var(--color-active);
 }
 
 
@@ -80,9 +80,9 @@ function handleMouseUp() {
 
     background: grey;
     transform-origin: 0 50%;
-    border-radius: calc(var(--inputBorderRadius) * 0.5);
+    border-radius: calc(var(--border-radius-input) * 0.5);
 
-    background-color: var(--activeColor);
+    background-color: var(--color-active);
 }
 
 </style>

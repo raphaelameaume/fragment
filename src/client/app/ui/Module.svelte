@@ -21,7 +21,7 @@ let current = getContext("currentModule");
 $: {
     let modulesInCol = $currentLayout.rows[rowIndex].cols[colIndex].modules.length;
 
-    style = minimized ? `height: 25px;` : `height: ${100/modulesInCol}%; flex-shrink: 0; flex-grow: 0;`;
+    // style = minimized ? `height: 25px;` : `height: ${100/modulesInCol}%; flex-shrink: 0; flex-grow: 0;`;
 }
 
 </script>
@@ -88,7 +88,6 @@ $: {
     height: 25px;
     flex-shrink: 0;
     align-items: center;
-    font-family: var(--fontFamily);
 
     background-color: var(--color-lightblack);
 }
@@ -141,7 +140,7 @@ $: {
 }
 
 .module__container::-webkit-scrollbar-thumb {
-    background-color: var(--activeColor);    /* color of the scroll thumb */
+    background-color: var(--color-active);    /* color of the scroll thumb */
     border-radius: 20px;       /* roundness of the scroll thumb */
 }
 

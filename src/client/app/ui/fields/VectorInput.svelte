@@ -99,7 +99,7 @@ function onValueChange(index, newValue) {
     width: var(--column-gap);
     height: 1px;
 
-    background-color: var(--inputBorderColor);
+    background-color: var(--color-border-input);
 }
 
 </style>

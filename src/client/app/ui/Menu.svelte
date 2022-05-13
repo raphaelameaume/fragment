@@ -69,7 +69,7 @@ function handleClickOutside(event) {
 
 .menu {
     display: flex;
-    height: var(--topBarHeight);
+    height: var(--height-topbar);
     align-items: center;
     padding: 0 4px;
 

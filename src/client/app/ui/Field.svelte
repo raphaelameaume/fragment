@@ -146,7 +146,7 @@ let label = params.label !== undefined && typeof value !== "function" ? params.l
     width: 100%;
 
     padding: 3px 6px 3px 12px;
-    border-bottom: 1px solid var(--spacingColor);
+    border-bottom: 1px solid var(--color-spacing);
 }
 
 .field__section {

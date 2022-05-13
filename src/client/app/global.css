@@ -1,59 +1,26 @@
-@font-face {
-	font-family: 'Inter';
-	font-style: normal;
-	font-weight: 400;
-	font-display: swap;
-	src: url("/fonts/Inter-Regular.woff2?v=3.19") format("woff2");
-}
-
-@font-face {
-	font-family: 'Inter';
-	font-style: italic;
-	font-weight: 400;
-	font-display: swap;
-	src: url("/fonts/Inter-Italic.woff2?v=3.19") format("woff2");
-}
-
-@font-face {
-	font-family: 'Inter';
-	font-style: normal;
-	font-weight: 600;
-	font-display: swap;
-	src: url("/fonts/Inter-SemiBold.woff2?v=3.19") format("woff2");
-}
-
-@font-face {
-	font-family: 'Inter';
-	font-style:  normal;
-	font-weight: 700;
-	font-display: swap;
-	src: url("/fonts/Inter-Bold.woff2?v=3.19") format("woff2");
-}
-
 html {
 	height: 100%;
 }
 
 :root {
-	--fontFamily: "Jetbrains Mono", system-ui, sans-serif;
-	--backgroundColor: #242425;
-	--activeColor: #177bd0;
-	--topBarHeight: 24px;
-	--color-lightblack: #0E0E0E;
-	--borderColor: var(--color-lightblack);
+	--font-mono: "Jetbrains Mono", monospace;
 
 	--color-red: #ff4444;
 	--color-green: #9af49f;
+	--color-lightblack: #0E0E0E;
+	
+	--color-background: #242425;
+	--color-active: #177bd0;
+	--color-text: #f0f0f0;
+	--color-border: var(--color-lightblack);
+	--color-border-input: #000000;
+    --color-background-input: #1d1d1e;
+    --color-spacing: #323233;
 
-    --inputColor: #f0f0f0;
-	--inputHeight: 20px;
-    --inputBorderRadius: 3px;
-    --inputBorderWidth: 1px;
-    --inputBorderColor: #000000;
-    --inputBackgroundColor: #1d1d1e;
-    --spacingColor: #323233;
-    --inputFontSize: 11px;
-    --inputFontFamily: "Jetbrains Mono";
+	--height-input: 20px;
+	--height-topbar: 24px;
+    --border-radius-input: 3px;
+    --font-size-input: 11px;
 }
 
 body {
@@ -64,9 +31,9 @@ body {
 
 	margin: 0;
 	padding: 0;
-	font-family: var(--fontFamily);
+	font-family: var(--font-mono);
 
-	background-color: var(--backgroundColor);
+	background-color: var(--color-background);
 	overscroll-behavior: none;
 }
 
@@ -76,8 +43,6 @@ button {
 	-webkit-appearance: none;
 	color: inherit;
 	font-size: 10px;
-	font-family: "Inter";
-	/* font-weight: 600; */
 	border-radius: 2px;
 }
 
@@ -105,7 +70,7 @@ input, select, button {
 	padding: 0;
 	margin: 0;
 	border: none;
-	font-family: var(--fontFamily);
+	font-family: var(--font-mono);
 }
 
 h1, h2, h3, h4, h5 {

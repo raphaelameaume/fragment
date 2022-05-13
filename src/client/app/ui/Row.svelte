@@ -30,7 +30,7 @@ $: style = `flex: ${current.flex};`;
     width: 100%;
     height: 100%;
 
-    border-top: 2px solid var(--borderColor);
+    border-top: 2px solid var(----color-border);
     /* border: 1px solid #505050;
     border-radius: 2px; */
 

@@ -2,7 +2,8 @@
 import { afterUpdate } from "svelte";
 
 export let disabled;
-export let value;
+export let value = null;
+export let name = "";
 
 let container;
 
@@ -41,8 +42,8 @@ afterUpdate(() => {
     height: 80px;
 
     background-color: #1d1d1e;
-    border-radius: var(--inputBorderRadius);
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
+    border-radius: var(--border-radius-input);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
     overflow-y: scroll;
 }
 
@@ -63,7 +64,7 @@ afterUpdate(() => {
 }
 
 .container::-webkit-scrollbar-thumb {
-    background-color: var(--activeColor);    /* color of the scroll thumb */
+    background-color: var(--color-active);    /* color of the scroll thumb */
     border-radius: 20px;       /* roundness of the scroll thumb */
 }
 
@@ -73,9 +74,8 @@ afterUpdate(() => {
 
     margin: 0;
     padding: 0 3px;
-    color: var(--inputColor);
+    color: var(--color-text);
     font-size: 10px;
-    font-family: var(--fontFamily);
 
     opacity: 0.35;
     user-select: none;
@@ -89,11 +89,11 @@ afterUpdate(() => {
 }
 
 .list:not(.disabled) .label:hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
+    box-shadow: inset 0 0 0 1px var(--color-active);
 }
 
 .list:not(.disabled) .label:active {
-    box-shadow: 0 0 0 2px var(--activeColor);
+    box-shadow: 0 0 0 2px var(--color-active);
 }
 
 .item:hover {

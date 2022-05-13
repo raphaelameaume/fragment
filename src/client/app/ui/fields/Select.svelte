@@ -65,22 +65,22 @@ function handleChange(event) {
     position: relative;
 
     display: flex;
-    height: var(--inputHeight);
+    height: var(--height-input);
     margin: 2px 0;
 
     color: rgba(255, 255, 255, 0.5);
 
-    box-shadow: inset 0 0 0 1px var(--inputBorderColor);
-    border-radius: var(--inputBorderRadius);
-    background-color: var(--inputBackgroundColor);
+    box-shadow: inset 0 0 0 1px var(--color-border-input);
+    border-radius: var(--border-radius-input);
+    background-color: var(--color-background-input);
 }
 
 .select-input:not(.disabled) .container:hover {
-    box-shadow: inset 0 0 0 1px var(--activeColor);
+    box-shadow: inset 0 0 0 1px var(--color-active);
 }
 
 .container:focus-within {
-    box-shadow: 0 0 0 2px var(--activeColor);
+    box-shadow: 0 0 0 2px var(--color-active);
 }
 
 .select {
@@ -89,8 +89,7 @@ function handleChange(event) {
     width: 100%;
     
     color: inherit;
-    font-size: var(--inputFontSize);
-    font-family: var(--fontFamily);
+    font-size: var(--font-size-input);
 
     outline: 0;
     background-color: transparent;
@@ -101,11 +100,11 @@ function handleChange(event) {
 }
 
 :global(.field__section:hover .select-input:not(.disabled) .container) {
-    color: var(--inputColor);
+    color: var(--color-text);
 }
 
 .select-input:not(.disabled) .select:focus {
-    color: var(--inputColor);
+    color: var(--color-text);
 }
 
 .chevrons {

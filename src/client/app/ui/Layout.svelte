@@ -85,7 +85,7 @@ onDestroy(() => {
     position: relative;
     display: flex;
     width: 100%;
-    /* height: calc(100% - var(--topBarHeight)); */
+    /* height: calc(100% - var(--height-topbar)); */
     height: 100%;
     flex-direction: column;
 }
