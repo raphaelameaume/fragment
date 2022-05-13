@@ -1,4 +1,4 @@
-import { WebGLRenderer, WebGLRenderTarget, OrthographicCamera, Scene, BufferGeometry, Mesh, RawShaderMaterial, Vector2, Float32BufferAttribute } from "three";
+import { WebGLRenderer, Scene } from "three";
 import { Texture, fragment } from "@fragment/lib/gl";
 import { client } from "@fragment/client";
 
@@ -89,21 +89,15 @@ export let resize = ({ width, height, pixelRatio }) => {
 client.on('shader-update', (data) => {
     const { filepath, source } = data;
 
-    function getShaderPath(shader) {
+    const getShaderPath = (shader) => {
         const match = shader.match(/<filepath:\/\/(.*)>/);
-        
-        if (match && match.length > 1) {
-            return match[1];
-        }
+		return match && match[1];
+    };
 
-        return null;
-    }
+    const scenes = previews.map((preview) => preview.scene);
+    const materials = [];
 
-    for (let i = 0; i < previews.length; i++) {
-        const { scene } = previews[i];
-
-        const materials = [];
-
+    scenes.forEach(scene => {
         scene.traverse((child) => {
             if (child.isMesh) {
                 const { material } = child;
@@ -113,20 +107,20 @@ client.on('shader-update', (data) => {
                 }
             }
         })
+    });
 
-        materials.forEach(material => {
-            const { vertexShader, fragmentShader } = material;
+    materials.forEach(material => {
+        const { vertexShader, fragmentShader } = material;
 
-            Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
-                const shader = material[key];
-                const shaderPath = getShaderPath(shader);
+        Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
+            const shader = material[key];
+            const shaderPath = getShaderPath(shader);
 
-                if (shaderPath === filepath) {
-                    console.log(`[fragment] HotShaderReload : ${shaderPath.replace(__CWD__, "")}`);
-                    material[key] = source;
-                    material.needsUpdate = true;
-                }
-            });
-        })
-    }
+            if (shaderPath === filepath) {
+                console.log(`[fragment] HotShaderReload : ${shaderPath.replace(__CWD__, "")}`);
+                material[key] = source;
+                material.needsUpdate = true;
+            }
+        });
+    });
 });

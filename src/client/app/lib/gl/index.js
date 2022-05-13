@@ -46,6 +46,7 @@ export function fragment({
 
 	const frag = {
 		gl: renderer.gl,
+		program,
 
 		resize,
 		render,

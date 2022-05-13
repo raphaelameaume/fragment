@@ -53,6 +53,7 @@ class Program {
 	}
 
 	set vertexShader(text) {
+		this.vertex = text;
 		this._vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, text);
 		this.needsUpdate = true;
 	}
@@ -62,10 +63,7 @@ class Program {
 	}
 
 	set fragmentShader(text) {
-		// if (this._fragmentShader) {
-		// 	this.gl.deleteShader(this._fragmentShader);
-		// }
-
+		this.fragment = text;
 		this._fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, text);
 		this.needsUpdate = true;
 	}
