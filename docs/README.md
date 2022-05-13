@@ -2,14 +2,16 @@
 
 ---
 
-API docs
-- @TODO
+## API docs
+- CLI
+- Sketch
 
-Concepts
-- [Renderers]
-- [Sketchs]
-- [Triggers]
+## Concepts
 
-Guide
-- [Keep things in sync](./GUIDE.md#keep-things-in-sync)
-- [Hot Shader Reload](./GUIDE.md#hot-shader-reload)
+- Renderers
+- Sketchs
+- Triggers
+
+## Guide
+- [Keeping things in sync](./GUIDE.md#keeping-things-in-sync)
+- [Hot Shader Reloading](./GUIDE.md#hot-shader-reload)

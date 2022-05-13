@@ -2,7 +2,7 @@
 
 ---
 
-- [Keep things in sync](#keep-things-in-sync)
+- [Keeping things in sync](#keeping-things-in-sync)
 
 ## Keep things in sync
 If you want to make sure your sketch stays in sync across tabs or even different devices, you have to make sure your code don't depend on internal logic that is not dependent from `time`.
@@ -33,3 +33,5 @@ export let update = ({ time }) => {
 ```
 
 If you are using random number generations, you should use a seed and provide the variable `__SEED__` available globally.
+
+- [Hot Shader Reloading](#hot-shader-reloading)
