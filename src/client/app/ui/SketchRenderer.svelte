@@ -169,10 +169,14 @@ async function createSketch(key) {
         resize({ canvas, width, height, pixelRatio });
 
         _renderSketch = createRenderLoop();
+        _renderSketch();
 
         requestAnimationFrame(() => {
             needsRender = true;
-            // _renderSketch();
+
+            if (!_raf) {
+                render();
+            }
         });
 
         _created = true;
@@ -180,6 +184,9 @@ async function createSketch(key) {
     } catch(error) {
         _errored = true;
         console.error(error);
+
+        cancelAnimationFrame(_raf);
+        _raf = null;
     }
     
 }
