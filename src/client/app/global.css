@@ -1,5 +1,14 @@
-html {
-	height: 100%;
+@font-face {
+	font-family: 'Jetbrains Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src:
+		local('Jetbrains Mono Regular'),
+		local('Jetbrains-Mono-Regular'),
+		local('Jetbrains Mono'),
+		local('Jetbrains-Mono'),
+		url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
 }
 
 :root {
@@ -23,6 +32,10 @@ html {
     --font-size-input: 11px;
 }
 
+html {
+	height: 100%;
+}
+
 body {
 	position: fixed;
 
@@ -37,15 +50,6 @@ body {
 	overscroll-behavior: none;
 }
 
-button {
-	background-color: #202020;
-	border: 1px solid #505050;
-	-webkit-appearance: none;
-	color: inherit;
-	font-size: 10px;
-	border-radius: 2px;
-}
-
 #app {
 	display: flex;
 	width: 100%;
@@ -53,7 +57,6 @@ button {
 	flex-direction: column;
 	overflow: hidden;
 }
-
 
 ul, ol {
 	list-style: none;
