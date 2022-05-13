@@ -9,6 +9,7 @@ import dbPlugin from "./plugins/db.js";
 
 import log from "./log.js";
 import db from "./db.js";
+import screenshotPlugin from "./plugins/screenshot.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,6 +59,7 @@ export async function start({ options, filepaths, entries, fragment }) {
                 }
             },
             dbPlugin(),
+            screenshotPlugin({ cwd }),
         ],
         server: {
             port: options.port,
@@ -68,7 +70,7 @@ export async function start({ options, filepaths, entries, fragment }) {
             '__CWD__': `'${cwd}'`,
             '__FRAGMENT_PORT__': fragment.server.port,
             '__START_TIME__': Date.now(),
-            '__SEED__': Date.now()
+            '__SEED__': performance.now()
         },
         optimizeDeps: {
             exclude: [

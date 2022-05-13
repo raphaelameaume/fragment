@@ -122,7 +122,7 @@ let label = params.label !== undefined && typeof value !== "function" ? params.l
             {value}
             name={key}
             {...params}
-            on:change={(e) => dispatch('change', value)}
+            on:change={(e) => dispatch('change', e.detail)}
             on:click={onTrigger}
         />
         <slot></slot>

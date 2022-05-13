@@ -18,12 +18,6 @@ export async function start({
             const json = JSON.parse(message);
             const { event, data } = json;
             
-            if (event === "screenshot") {
-                fs.writeFile(path.join(cwd, data.filename), Buffer.from(data.content.replace(/^data:image\/\w+;base64,/, ''), 'base64'), (error) => {
-                    console.log(error);
-                });
-            }
-
             if (event === "save") {
                 const { key, value } = data;
                 db.save(key, value);

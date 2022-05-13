@@ -322,7 +322,13 @@ currentRendering.subscribe((current) => {
 async function save() {
     paused = true;
 
-    await screenshotCanvas(canvas, key);
+    await screenshotCanvas(canvas, {
+        filename: key,
+        pattern: sketch?.filenamePattern,
+        params: {
+            props: sketch.props,
+        }
+    });
     paused = false;
 }
 

@@ -2,7 +2,6 @@
 https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad843fb7688/lib/save.js
 */
 
-import { client } from "../client";
 
 const supportedEncodings = [
     'image/png',
@@ -28,13 +27,37 @@ export function exportCanvas (canvas, { encoding = 'image/png', encodingQuality 
 }
 
 export async function saveDataURL(dataURL, options) {
-    client.emit("screenshot", {
-        content: dataURL,
-        ...options,
-    });
+    async function onError(err) {
+        console.error(`[fragment] Error while saving screenshot.`);
+        console.log(err);
 
-    const blob = await createBlobFromDataURL(dataURL);
-    await saveBlob(blob, options);
+        const blob = await createBlobFromDataURL(dataURL);
+        await saveBlob(blob, options);
+    }
+
+    try {
+        const body = {
+            dataURL,
+            ...options,
+        };
+        const response = await fetch('/screenshot', {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        });
+        const { filepath, error } = await response.json();
+
+        if (response.ok && filepath) {
+            console.log(`[fragment] Saved ${filepath}`);
+        } else {
+            onError(error);
+        }
+    } catch(error) {
+        onError(error);
+    }
 };
 
 function createBlobFromDataURL(dataURL) {
@@ -89,29 +112,47 @@ function saveBlob(blob, { filename }) {
     });
 }
 
-function getFileNameSuffix() {
+function getFilenameParams() {
     const now = new Date();
 
     const year = now.toLocaleString('default', { year: 'numeric' });
     const month = now.toLocaleString('default', { month: 'numeric' });
     const day = now.toLocaleString('default', { day: 'numeric' });
     const hours = now.toLocaleString('default', { hour: 'numeric' }).split(' ')[0];
-    const minutes = now.toLocaleString('default', { minute: 'numeric' });
-    const seconds = now.toLocaleString('default', { second: 'numeric' });
+    const minutes = now.toLocaleString('default', { minute: 'numeric' }).padStart(2, `0`);
+    const seconds = now.toLocaleString('default', { second: 'numeric' }).padStart(2, `0`);
 
-    const date = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
+    const suffix = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
 
-    return date;
+    return {
+        year,
+        month,
+        day,
+        hours,
+        minutes,
+        seconds,
+        suffix,
+    };
 }
 
-export async function screenshotCanvas(canvas, name) {
+export const defaultFilenamePattern = ({
+    filename,
+    suffix,
+}) => {
+    return `${filename}.${suffix}`;
+};
+
+export async function screenshotCanvas(canvas, {
+    filename = "",
+    pattern = defaultFilenamePattern,
+    params = {},
+}) {
     const { extension, type, dataURL } = exportCanvas(canvas);
 
-    const prefix = `${name}.`;
-    const suffix = getFileNameSuffix();
-    const filename = `${prefix}${suffix}${extension}`;
+    const patternParams = getFilenameParams();
+    const name = pattern({ filename, ...params, ...patternParams });
 
-    await saveDataURL(dataURL, { filename });
+    await saveDataURL(dataURL, { filename: `${name}${extension}` });
 }
 
 let ffmpeg;
