@@ -64,6 +64,10 @@ async function createEntries(entry, options) {
             "2d": [
                 "./templates/2d.js"
             ],
+            "fragment": [
+                "./templates/fragment.js",
+                "./templates/fragment.fs"
+            ],
             "three/orthographic": [
                 "./templates/three-orthographic.js"
             ],
