@@ -8,7 +8,7 @@ function createShader(gl, type, source) {
         return shader;
     }
 
-    console.log(gl.getShaderInfoLog(shader));
+	console.warn(`lemonade-gl.Program: Shader Info Log: ${gl.getShaderInfoLog(shader)}`);
     gl.deleteShader(shader);
 }
 
@@ -41,21 +41,51 @@ class Program {
 	constructor(gl, { vertex = defaultVertex, fragment = defaultFragment, uniforms = {} } = {}) {
 		this.gl = gl;
 
-		this.vertexShader = createShader(gl, gl.VERTEX_SHADER, vertex);
-		this.fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragment);
+		this.vertexShader = vertex;
+		this.fragmentShader = fragment;
+		this.uniforms = uniforms;
+		this.needsUpdate = true;
 		
 		this._program = gl.createProgram();
 		this.id = P_ID++;
 
-		gl.attachShader(this._program, this.vertexShader);
-		gl.attachShader(this._program, this.fragmentShader);
-		gl.linkProgram(this._program);
+		this.compile();
+	}
 
-		let programLog = gl.getProgramInfoLog(this._program);
+	set vertexShader(text) {
+		this._vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, text);
+		this.needsUpdate = true;
+	}
+
+	get vertexShader() {
+		return this._vertexShader;
+	}
+
+	set fragmentShader(text) {
+		// if (this._fragmentShader) {
+		// 	this.gl.deleteShader(this._fragmentShader);
+		// }
+
+		this._fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, text);
+		this.needsUpdate = true;
+	}
+
+	get fragmentShader() {
+		return this._fragmentShader;
+	}
+
+	compile() {
+		const { gl, _program, uniforms } = this;
+
+		gl.attachShader(_program, this.vertexShader);
+		gl.attachShader(_program, this.fragmentShader);
+		gl.linkProgram(_program);
+
+		let programLog = gl.getProgramInfoLog(_program);
 		let vertexLog = gl.getShaderInfoLog(this.vertexShader);
 		let fragmentLog = gl.getShaderInfoLog(this.fragmentShader);
 
-		if (gl.getProgramParameter(this._program, gl.LINK_STATUS) === false) {
+		if (gl.getProgramParameter(_program, gl.LINK_STATUS) === false) {
 			console.error(`Program: shader error
 			${vertexLog}
 			${fragmentLog}
@@ -64,47 +94,35 @@ class Program {
 			console.warn(`lemonade-gl.Program: Program Info Log: ${programLog}`);
 		}
 
-		let success = gl.getProgramParameter(this._program, gl.LINK_STATUS);
+		let success = gl.getProgramParameter(_program, gl.LINK_STATUS);
 		if (!success) {
-			console.log(gl.getProgramInfoLog(this._program));
-			gl.deleteProgram(this._program);
+			console.warn(`lemonade-gl.Program: Program Info Log: ${gl.getProgramInfoLog(_program)}`);
+			gl.deleteProgram(_program);
 		}
 
 		let uniformsLocations = Object.keys(uniforms).reduce((all, name) => {
-			all[name] = gl.getUniformLocation(this._program, name);
+			all[name] = gl.getUniformLocation(_program, name);
 
 			return all;
 		}, {});
 
-		let attributesCount = gl.getProgramParameter(this._program, gl.ACTIVE_ATTRIBUTES);
+		let attributesCount = gl.getProgramParameter(_program, gl.ACTIVE_ATTRIBUTES);
 		let attributesLocations = {};
 
 		for (let aIndex = 0; aIndex < attributesCount; aIndex++) {
-			let attribute = gl.getActiveAttrib(this._program, aIndex);
-			let location = gl.getAttribLocation(this._program, attribute.name);
+			let attribute = gl.getActiveAttrib(_program, aIndex);
+			let location = gl.getAttribLocation(_program, attribute.name);
 			attributesLocations[attribute.name] = location;
 		}
 
-		this.uniforms = uniforms;
+		this.gl.detachShader(_program, this._vertexShader);
+		this.gl.detachShader(_program, this._fragmentShader);
+
 		this.attributesLocations = attributesLocations;
 		this.uniformsLocations = uniformsLocations;
+
+		this.needsUpdate = false;
 	}
-
-	// set vertexShader(shader) {
-	// 	this._vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, shader);
-	// }
-
-	// set fragmentShader(shader) {
-	// 	this._fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, shader);
-	// }
-
-	// get vertexShader() {
-	// 	return this._vertexShader;
-	// }
-
-	// get fragmentShader() {
-	// 	return this._fragmentShader;
-	// }
 }
 
 export default Program;

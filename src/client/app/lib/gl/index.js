@@ -6,16 +6,19 @@ import Renderer from "./Renderer.js";
 export { Geometry, Texture, Program, Renderer };
 
 export function fragment({
-	canvas,
+	canvas = document.createElement('canvas'),
 	shader,
 	uniforms = {},
 }) {
-	const renderer = new Renderer({
+	let _shader = shader;
+	let _uniforms = uniforms;
+
+	let renderer = new Renderer({
 		canvas,
 	});
 
-	const geometry = new Geometry(renderer.gl);
-	const program = new Program(renderer.gl, {
+	let geometry = new Geometry(renderer.gl);
+	let program = new Program(renderer.gl, {
 		fragment: shader,
 		uniforms,
 	});
@@ -41,12 +44,38 @@ export function fragment({
 		uniforms = null;
 	}
 
-	return {
+	const frag = {
 		gl: renderer.gl,
-		uniforms,
 
 		resize,
 		render,
 		destroy,
 	};
+
+	Object.defineProperty(frag, 'shader', {
+		enumerable: true,
+    	configurable: true,
+		get: () => {
+			return _shader;
+		},
+		set: (v) => {
+			_shader = v;
+			program.fragmentShader = _shader;
+		}
+	});
+
+	Object.defineProperty(frag, 'uniforms', {
+		enumerable: true,
+    	configurable: true,
+		get: () => {
+			return _uniforms;
+		},
+		set: (v) => {
+			_uniforms = v;
+			program.uniforms = _uniforms;
+			program.needsUpdate = true;
+		}
+	});
+
+	return frag;
 }

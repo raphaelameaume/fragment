@@ -48,6 +48,10 @@ class Renderer {
         offset = 0,
         count = 3
     }) {
+        if (program.needsUpdate) {
+            program.compile();
+        }
+
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         this.gl.useProgram(program._program);

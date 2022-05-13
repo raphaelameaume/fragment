@@ -8,6 +8,10 @@ function loadRenderer(rendering) {
 		return import(/* @vite-ignore */"../renderers/THREERenderer.js");
 	}
 
+	if (rendering === "fragment") {
+		return import(/* @vite-ignore */"../renderers/FragmentRenderer.js");
+	}
+
 	return import(/* @vite-ignore */"../renderers/2DRenderer.js");
 }
 
