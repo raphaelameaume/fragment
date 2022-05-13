@@ -91,6 +91,9 @@ function handleChangeSelect(event) {
                     params={sketchProps[key].params || {}}
                     type={sketchProps[key].type}
                     triggers={sketchProps[key].triggers || []}
+                    on:click={(event) => {
+                        sketchProps[key].value._refresh = true;
+                    }}
                     on:change={(event) => {
                         sketchProps[key].value = event.detail;
                         sketch.props[key].value = event.detail;
