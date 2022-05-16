@@ -25,19 +25,19 @@ let node;
 $: isFocused = false;
 const dispatch = createEventDispatcher();
 
-function sanitize(v) {
-    return suffix !== "" ? Number(v.split(suffix)[0]) : Number(v);
+function sanitize(v, suffix) {
+    return (suffix && suffix !== "") ? Number(v.split(suffix)[0]) : Number(v);
 }
 
-function composeValue(v, isFocused) {
-    const clampedValue = clamp(v, min, max);
+function composeValue(v, isFocused, suffix = "") {
+    const clampedValue = clamp(v, isFinite(min) ? min : -Infinity, isFinite(max) ? max : Infinity);
     const roundedValue = typeof step === "number" ? round(clampedValue, step) : v;
 
     return isFocused ? `${roundedValue}` : `${roundedValue}${suffix}`;
 }
 
 $: currentValue = value;
-$: composedValue = composeValue(currentValue, isFocused);
+$: composedValue = composeValue(currentValue, isFocused, suffix);
 
 function onFocus() {
     isFocused = true;
@@ -54,7 +54,7 @@ function onKeyDown(event) {
 
         const diff = Keyboard.getStepFromEvent(event);
         const direction = event.keyCode === 38 ? 1 : -1;
-        const newValue = sanitize(composedValue) + direction * (diff);
+        const newValue = sanitize(composedValue, suffix) + direction * (diff);
 
         if (!controlled) {
             currentValue = newValue;
@@ -69,12 +69,12 @@ function onKeyPress(event) {
     if (event.key === 'Enter') {
         // onBlur();
         if (!controlled) {
-            currentValue = sanitize(event.currentTarget.value);
+            currentValue = sanitize(event.currentTarget.value, suffix);
             composedValue = composeValue(currentValue);
 
             dispatch('change', currentValue);
         } else {
-            dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value))));
+            dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value, suffix))));
         }
     }
 }
