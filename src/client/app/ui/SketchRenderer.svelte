@@ -4,7 +4,7 @@ import { derived, writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
-import { store as props } from "../stores/props";
+import { props } from "../stores/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 
 import { client } from "../client";
@@ -81,6 +81,8 @@ let params = {};
 let sketchProps = derived(props, () => {
     return $props[key];
 });
+
+console.log($sketchProps, $props);
 
 let needsRender = false;
 

@@ -21,7 +21,7 @@ instances++;
 $currentModule.params.index = index;
 
 let selected = isFinite($currentModule.params.selected) ? $currentModule.params.selected : index;
-let options = [], sketch, sketchKey, sketchProps = {};
+let options = [], sketchKey, sketchProps = {};
 
 $: {
     options = $monitors
@@ -33,9 +33,6 @@ $: {
 
     if ($monitors.length > selected) {
         sketchKey = $monitors[selected].selected;
-        sketch = $sketches[sketchKey];
-        sketchProps = (sketch && sketch.props) ? sketch.props : {};
-        $props[sketchKey] = sketchProps;
     }
 
     $currentModule.params.selected = selected;
@@ -58,6 +55,9 @@ onDestroy(() => {
 function handleChangeSelect(event) {
     selected = Number(event.currentTarget.value);
 }
+
+$: sketch = $sketches[sketchKey];
+$: sketchProps = $props[sketchKey];
 
 </script>
 
@@ -91,12 +91,11 @@ function handleChangeSelect(event) {
                     params={sketchProps[key].params || {}}
                     type={sketchProps[key].type}
                     triggers={sketchProps[key].triggers || []}
-                    on:click={(event) => {
-                        sketchProps[key].value._refresh = true;
+                    on:click={() => {
+                        $props[sketchKey][key].value._refresh = true;
                     }}
                     on:change={(event) => {
-                        sketchProps[key].value = event.detail;
-                        sketch.props[key].value = event.detail;
+                        $props[sketchKey][key].value = event.detail;
                     }}
                 />
             {/each}
