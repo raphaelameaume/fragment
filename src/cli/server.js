@@ -30,7 +30,9 @@ export async function start({ options, filepaths, entries, fragment }) {
                 { find: '@fragment/sketches', replacement: filepaths[0] },
                 { find: '@fragment/props', replacement: filepaths[1] },
                 { find: '@fragment', replacement: app },
-                { find: 'three', replacement: path.join(process.cwd(), 'node_modules/three') },
+                { find: 'three', replacement: path.join(cwd, 'node_modules/three') },
+                { find: 'p5', replacement: path.join(cwd, 'node_modules/p5') },
+                { find: 'ogl', replacement: path.join(cwd, 'node_modules/ogl') },
             ]
         },
         fs: {

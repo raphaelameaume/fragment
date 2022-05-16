@@ -84,6 +84,9 @@ async function createEntries(entry, options) {
             "ogl/perspective": [
                 "./templates/ogl-perspective.js"
             ],
+            "p5": [
+                "./templates/p5.js"
+            ],
             "default": [
                 "./templates/default.js"
             ],
