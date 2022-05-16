@@ -8,12 +8,13 @@ sketches.subscribe((sketches) => {
 
 	Object.keys(sketches).forEach((key) => {
 		$props[key] = reconcile(sketches[key].props, $props[key]);
+		
 	});
 
 	props.set($props);
 });
 
-function reconcile(newProps, existingProps) {
+function reconcile(newProps = {}, existingProps = {}) {
 	Object.keys(newProps).forEach(propKey => {
 		newProps[propKey]._initialValue = newProps[propKey].value;
 	});

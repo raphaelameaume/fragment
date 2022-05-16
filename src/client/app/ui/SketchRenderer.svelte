@@ -82,15 +82,51 @@ let sketchProps = derived(props, () => {
     return $props[key];
 });
 
-console.log($sketchProps, $props);
-
 let needsRender = false;
 
 sketchProps.subscribe(() => {
     if (framerate === 0) {
-        needsRender = true;
+        // ensure we don't double render from createSketch
+        requestAnimationFrame(() => {
+            needsRender = true;
+        })
     }
 });
+
+function createCanvas(canvas = document.createElement('canvas')) {
+    canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
+    canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
+
+    canvas._index = index;
+    canvas.style.maxWidth = "100%";
+    canvas.style.maxHeight = "100%";
+    canvas.style.flex = "none";
+    canvas.style.backgroundColor = "var(--background-color, #000000)";
+
+    canvas.onmousedown = (event) => checkForTriggersDown(event, key);
+    canvas.onmousemove = (event) => checkForTriggersMove(event, key);
+    canvas.onmouseup = (event) => checkForTriggersUp(event, key);
+    canvas.onclick = (event) => checkForTriggersClick(event, key);
+
+    container.appendChild(canvas);
+
+    $canvases = [...$canvases, canvas];
+
+    return canvas;
+}
+
+function destroyCanvas(canvas) {
+    let canvasIndex = $canvases.findIndex(c => c === canvas);
+    let copy = [...$canvases];
+    copy.splice(canvasIndex, 1);
+    $canvases = copy;
+    
+    if (canvas.parentNode === container) {
+        canvas.parentNode.removeChild(canvas);
+    }
+
+    canvas = null;
+}
 
 async function createSketch(key) {
     sketch = $currentSketches[key];
@@ -106,34 +142,11 @@ async function createSketch(key) {
             renderer.onDestroyPreview({ index, canvas });
         }
 
-        let canvasIndex = $canvases.findIndex(c => c === canvas);
-        let copy = [...$canvases];
-        copy.splice(canvasIndex, 1);
-        $canvases = copy;
-        
-        canvas.parentNode.removeChild(canvas);
-        canvas = null;
+        destroyCanvas(canvas);
     }
 
-    canvas = document.createElement('canvas');
-    canvas._index = index;
-    canvas.style.maxWidth = "100%";
-    canvas.style.maxHeight = "100%";
-    canvas.style.flex = "none";
-    canvas.style.backgroundColor = "var(--background-color, #000000)";
-    canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
-    canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
-
+    canvas = createCanvas();
     removeHotListeners(key);
-
-    canvas.onmousedown = (event) => checkForTriggersDown(event, key);
-    canvas.onmousemove = (event) => checkForTriggersMove(event, key);
-    canvas.onmouseup = (event) => checkForTriggersUp(event, key);
-    canvas.onclick = (event) => checkForTriggersClick(event, key);
-
-    $canvases = [...$canvases, canvas];
-
-    container.appendChild(canvas);
 
     let mountParams = {};
 
@@ -147,6 +160,11 @@ async function createSketch(key) {
         });
     }
 
+    if (mountParams.canvas && mountParams.canvas !== canvas) {
+        destroyCanvas(canvas);
+        canvas = createCanvas(mountParams.canvas);
+    }
+
     params = {
         ...mountParams,
         canvas,
@@ -154,8 +172,8 @@ async function createSketch(key) {
 
     framerate = isFinite(sketch.fps) ? sketch.fps : 60;
 
-    const init = sketch.setup || sketch.init;
-    const resize = sketch.resize || (() => {});
+    const init = sketch.setup || sketch.init || noop;
+    const resize = sketch.resize || noop;
     const { width, height, pixelRatio } = $currentRendering;
 
     try {
@@ -168,10 +186,16 @@ async function createSketch(key) {
             ...params,
         });
 
-        resize({ canvas, width, height, pixelRatio });
+        resize({
+            canvas,
+            width,
+            height,
+            pixelRatio,
+            props,
+            ...params,
+        });
 
         _renderSketch = createRenderLoop();
-        _renderSketch();
 
         requestAnimationFrame(() => {
             needsRender = true;
@@ -315,11 +339,14 @@ currentRendering.subscribe((current) => {
         }
 
         const { width, height, pixelRatio } = current;
-        sketch.resize({
+        const resize = sketch.resize || noop;
+        
+        resize({
             canvas,
             width,
             height,
             pixelRatio,
+            ...params,
         });
 
         _renderSketch = createRenderLoop();
@@ -414,13 +441,7 @@ onDestroy(() => {
     }
 
     if (canvas) {
-        let canvasIndex = $canvases.findIndex(c => c === canvas);
-        let copy = [...$canvases];
-        copy.splice(canvasIndex, 1);
-        $canvases = copy;
-
-        container.removeChild(canvas);
-        canvas = null;
+        destroyCanvas(canvas);
     }
 
     _created = false;
@@ -428,6 +449,15 @@ onDestroy(() => {
 
 $: {
     checkForResize();
+
+    if (renderer && typeof renderer.onResizePreview === "function") {
+        renderer.onResizePreview({
+            index,
+            width: $currentRendering.width,
+            height: $currentRendering.height,
+            pixelRatio: $currentRendering.pixelRatio,
+        });
+    }
 
     if (canvas) {
         const pixelRatio = $currentRendering.pixelRatio;

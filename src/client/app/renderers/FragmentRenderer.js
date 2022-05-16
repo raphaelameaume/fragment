@@ -16,6 +16,12 @@ export let onMountPreview = ({ canvas, index }) => {
 	return { frag };
 };
 
+export let onResizePreview = ({ index, width, height, pixelRatio }) => {
+	let { frag } = frags.find(f => f.index === index);
+
+	frag.resize({ width, height, pixelRatio });
+};
+
 export let onDestroyPreview = ({ canvas, index }) => {
 	let fragIndex = frags.findIndex(f => f.index === index);
 	let { frag } = frags[fragIndex];

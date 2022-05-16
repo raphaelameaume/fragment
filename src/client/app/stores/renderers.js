@@ -12,6 +12,10 @@ function loadRenderer(rendering) {
 		return import(/* @vite-ignore */"../renderers/FragmentRenderer.js");
 	}
 
+	if (rendering === "p5") {
+		return import(/* @vite-ignore */"../renderers/P5Renderer.js");
+	}
+
 	return import(/* @vite-ignore */"../renderers/2DRenderer.js");
 }
 
