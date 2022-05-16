@@ -78,6 +78,10 @@ $: {
     store.update((curr) => {
         let clone = {...curr};
 
+        if (!clone.props[key]) {
+            clone.props[key] = { triggers: [] };
+        }
+
         clone.props[key].triggers = triggers;
 
         return clone;

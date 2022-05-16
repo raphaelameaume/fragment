@@ -60,6 +60,7 @@ const onTriggers = {
 $: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
 $: onTrigger = onTriggers[fieldType];
 $: input = fields[fieldType];
+$: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 
 let offsetWidth;
 let secondaryVisible = false;
@@ -81,8 +82,6 @@ $: {
         }
     }
 }
-
-let label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 
 </script>
 
