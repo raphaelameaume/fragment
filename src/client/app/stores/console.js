@@ -1,5 +1,15 @@
 import { writable } from "svelte/store";
 
+import { traverse } from "./layout";
+
+
+const modules = [];
+traverse((m) => {
+	modules.push(m);
+});
+
+export let enabled = modules.some(m => m.name === "console");
+
 export const current = writable([
     // { level: "", args: ["hello world"], count: 1207 },
     // { level: "", args: [{"key": "value"}], count: 2 },
@@ -12,12 +22,21 @@ export const current = writable([
 let mirrored = ["log", "warn", "error", "dir"];
 
 mirrored.forEach((key) => {
+	if (!enabled) return;
+
 	let temp = console[`${key}`];
 
 	console[`${key}`] = (...args) => {
-		temp(...args);
+		let isFromVite = args.some((log) => typeof log === "string" && log.includes('[vite]'));
+		isFromVite = false;
+
+		if (!isFromVite) {
+			temp(...args);
+		}
 
 		current.update((logs) => {
+			if (isFromVite) return logs;
+
 			if (logs.length > 0 && arraySame(logs[logs.length - 1].args, args)) {
 				logs[logs.length - 1].count++;
 
