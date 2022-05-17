@@ -2,15 +2,11 @@
 
 ---
 
-## API docs
-- CLI
-- Sketch
-
-## Concepts
-
-- Renderers
-- Sketchs
-- Triggers
+## API
+- [CLI](./API.md#CLI)
+- [Sketch](./API.md#Sketch)
+- [Renderer](./API.md#Renderer)
+- [Triggers](./API.md#Triggers)
 
 ## Guide
 - [Keeping things in sync](./GUIDE.md#keeping-things-in-sync)
