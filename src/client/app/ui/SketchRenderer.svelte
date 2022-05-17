@@ -98,10 +98,6 @@ function createCanvas(canvas = document.createElement('canvas')) {
     canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
 
     canvas._index = index;
-    canvas.style.maxWidth = "100%";
-    canvas.style.maxHeight = "100%";
-    canvas.style.flex = "none";
-    canvas.style.backgroundColor = "var(--background-color, #000000)";
 
     canvas.onmousedown = (event) => checkForTriggersDown(event, key);
     canvas.onmousemove = (event) => checkForTriggersMove(event, key);
@@ -499,5 +495,17 @@ $: {
     height: 100%;
     max-height: 100%;
 
+}
+
+:global(.canvas-container canvas){
+    max-width: 100%;
+    max-height: 100%;
+
+    flex: none;
+
+    width: auto !important;
+    height: auto !important;
+
+    background-color: var(--background-color, #000000);
 }
 </style>

@@ -27,8 +27,6 @@ export let onResizePreview = ({ index, width, height, pixelRatio }) => {
 
 	if (preview) {
 		preview.p.resizeCanvas(width * pixelRatio, height * pixelRatio, false);
-		preview.p.canvas.style.width = null; // remove auto styling from p5
-		preview.p.canvas.style.height = null; // remove auto styling from p5
 	}
 };
 
