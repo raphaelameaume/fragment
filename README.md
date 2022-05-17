@@ -46,27 +46,27 @@ This is an example of a sketch drawing a blue circle on a black background with 
 
 ```js
 export let props = {
-	radius: {
-		value: 10,
-		params: {
-			min: 4,
-			max: 30
-		}
-	}
+  radius: {
+    value: 10,
+    params: {
+      min: 4,
+      max: 30
+    }
+  }
 };
 
 export let update = ({ context, width, height }) => {
-	// draw background
-	context.fillStyle = '#000000';
-	context.fillRect(0, 0, width, height);
+  // draw background
+  context.fillStyle = '#000000';
+  context.fillRect(0, 0, width, height);
 
-	// draw circle
-	const radius = props.radius.value;
+  // draw circle
+  const radius = props.radius.value;
 
-	context.fillStyle = '#0000ff';
-	context.beginPath();
-	context.arc(width * 0.5, height * 0.5, radius, 0, 2 * Math.PI, false);
-	context.fill();
+  context.fillStyle = '#0000ff';
+  context.beginPath();
+  context.arc(width * 0.5, height * 0.5, radius, 0, 2 * Math.PI, false);
+  context.fill();
 };
 ```
 
