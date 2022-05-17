@@ -3,6 +3,7 @@
 <br>
 
 `fragment` aims to provide a simple API to work with `<canvas>`. It comes with a built-in GUI and a set of *triggers* to make your sketches **interactive**.
+
 It currently supports:
 - [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 - [p5.js](https://github.com/processing/p5.js/)
