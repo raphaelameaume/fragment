@@ -1,4 +1,5 @@
 #### <sup>[fragment](../README.md) → [Documentation](./README.md) → API</sup>
+<br>
 
 # CLI
 
@@ -13,6 +14,10 @@
 - `export let resize = ({ canvas, width, height })`
 - `export let update = ({ canvas, width, height })`
 
+# Props
+
 # Renderer
+
+# Modules
 
 # Triggers

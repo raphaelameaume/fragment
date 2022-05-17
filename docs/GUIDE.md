@@ -1,6 +1,5 @@
 #### <sup>[fragment](../README.md) → [Documentation](./README.md) → Guide</sup>
-
----
+<br>
 
 - [Keeping things in sync](#keeping-things-in-sync)
 
