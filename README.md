@@ -74,7 +74,8 @@ Learn how to write your own sketch in the [API docs](./docs/API.md#sketch) or re
 
 ## Motivation
 
-This project started a few years ago.
+A few years ago, I developed a tool to quickly switch between three.js scenes on stage for a VJ performance. It was really hard to setup and it couldn't handle a mix of different scenes, so I decided to explore a tool to mix two scenes in a single fragment shader. In the meantime, I became a freelance creative developer and I always lacked a tool that could fit the variety of my tasks (shader prototyping, reactive audio visuals, canvas2D sketching, exports...). 
+So I decided to build one.
 
 ## Contributing
 
