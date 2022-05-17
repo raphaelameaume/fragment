@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import { watch } from "chokidar";
 import log from "./log.js";
 import { start as startViteServer } from "./server.js";
 import { start as startWebSocketServer } from "./ws.js";
+import templates from "./templates/index.js";
 
 import { fileURLToPath } from 'url';
 
@@ -60,38 +60,6 @@ async function createEntries(entry, options) {
     let shouldCreateFile = options.new;
 
     async function createEntryFile(entryPath) {
-        const templates = {
-            "2d": [
-                "./templates/2d.js"
-            ],
-            "fragment": [
-                "./templates/fragment.js",
-                "./templates/fragment.fs"
-            ],
-            "three/orthographic": [
-                "./templates/three-orthographic.js"
-            ],
-            "three/fragment": [
-                "./templates/three-fragment.js",
-                "./templates/fragment.fs"
-            ],
-            "three/perspective": [
-                "./templates/three-perspective.js"
-            ],
-            "ogl/orthographic": [
-                "./templates/ogl-orthographic.js"
-            ],
-            "ogl/perspective": [
-                "./templates/ogl-perspective.js"
-            ],
-            "p5": [
-                "./templates/p5.js"
-            ],
-            "default": [
-                "./templates/default.js"
-            ],
-        };
-
         const createFromTemplate = typeof options.template === "string";
         const templateFiles = createFromTemplate ? templates[options.template] : templates.default;
 
