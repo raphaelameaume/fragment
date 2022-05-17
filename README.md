@@ -2,7 +2,7 @@
 <div align="center">A development environment for creative coding</div>
 <br>
 
-`fragment` aims to provide a simple API to work with `<canvas>`. It comes with a built-in GUI and a set of `triggers` to interact with your sketches easily.
+`fragment` aims to provide a simple API to work with `<canvas>`. It comes with a built-in GUI and a set of *triggers* to make your sketches **interactive**.
 It currently supports [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/) and fragment shaders.
 
 ## Installation
@@ -39,6 +39,13 @@ fragment ./sketch.js --new --template=2d
 ```
 
 Learn more about the available flag options in the [CLI docs](./docs/API.md#cli).
+
+## Features
+
+- Support for multiple rendering modes (p5.js, three.js, WebGL shaders, Canvas2D)
+- Built-in GUI from sketch files
+- Export `<canvas>` to images on the fly (.png, .webm, .jpg)
+- Shaders hot reloading (available with three.js and fragment rendering)
 
 ## Example
 
@@ -91,3 +98,7 @@ Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you w
 - [Svelte](https://svelte.dev/)
 - The font used for display is the [JetBrains Mono](https://www.jetbrains.com/lp/mono/).
 - A special thanks to [Matt Deslauriers](https://www.mattdesl.com/) for [canvas-sketch](https://github.com/mattdesl/canvas-sketch) and his multiple projects around generative-art tools.
+
+## License
+
+See [LICENSE.md](./LICENSE.md) for details.

@@ -5,19 +5,24 @@
 
 
 # Sketch
-- `export let rendering = "2d"`
-- `export let duration = 60`
-- `export let duration = 60`
-- `export let fps = 60`
-- `export let props = {}`;
-- `export let init = ({ canvas, width, height })`
-- `export let resize = ({ canvas, width, height })`
-- `export let update = ({ canvas, width, height })`
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `init` | `function` |
+| `update` | `function` |
+| `resize` | `function` |
+| `props` | `object` | See [Props](./API.md#props) for details |
+| `rendering` | `string` | Change the renderer. Default to `2d` |
+| `duration` | `number` | Enable sketch loop. Default to `undefined` |
+| `fps` | `number` | Change the framerate. Default to `60` |
+| `filenamePattern` | `function` | Change the framerate. Default to `60` |
 
 # Props
 
 # Renderer
 
 # Modules
+
+# Shortcuts
 
 # Triggers
