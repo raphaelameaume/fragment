@@ -75,6 +75,8 @@ class Program {
 	compile() {
 		const { gl, _program, uniforms } = this;
 
+		if (!this.vertexShader || !this.fragmentShader) return;
+
 		gl.attachShader(_program, this.vertexShader);
 		gl.attachShader(_program, this.fragmentShader);
 		gl.linkProgram(_program);
