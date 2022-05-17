@@ -2,13 +2,13 @@
   "name": "fragment-examples",
   "version": "1.0.0",
   "description": "",
-  "main": "three-cube.js",
   "dependencies": {
-    "three": "^0.136.0"
+    "p5": "^1.4.1",
+    "three": "^0.140.2"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "fragment ./circle-2d.js"
   },
   "author": "Raphaël Améaume",
   "license": "MIT"

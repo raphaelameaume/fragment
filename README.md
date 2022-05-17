@@ -70,7 +70,7 @@ export let update = ({ context, width, height }) => {
 };
 ```
 
-Learn how to write your own sketch in the [API docs](./docs/API.md#sketch)
+Learn how to write your own sketch in the [API docs](./docs/API.md#sketch) or read the [examples](./examples/).
 
 ## Motivation
 
