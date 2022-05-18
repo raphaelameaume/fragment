@@ -1,13 +1,15 @@
 #### <sup>[fragment](../README.md) → [Documentation](./README.md)</sup>
+<br>
 
----
-
-## API
-- [CLI](./API.md#CLI)
-- [Sketch](./API.md#Sketch)
-- [Renderer](./API.md#Renderer)
-- [Triggers](./API.md#Triggers)
+## APIs
+- [CLI](./api/CLI.md)
+- [Sketch](./api/sketch.md)
+- [Renderer](./api/renderers.md)
+- [Modules](./api/modules.md)
+- [Triggers](./api/triggers.md)
 
 ## Guide
-- [Keeping things in sync](./GUIDE.md#keeping-things-in-sync)
-- [Hot Shader Reloading](./GUIDE.md#hot-shader-reload)
+- [About](./guide/about.md)
+- [Getting started](./guide/getting-started.md)
+- [Hot Shader Reloading](./guide/hot-shader-reloading.md)
+- [Shortcuts](./guide/shortcuts.md)

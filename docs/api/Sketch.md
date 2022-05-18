@@ -1,4 +1,4 @@
-#### <sup>[fragment](../README.md) → [Documentation](./README.md) → API</sup>
+#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → Sketch</sup>
 <br>
 
 # Sketch
