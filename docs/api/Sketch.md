@@ -1,10 +1,4 @@
-#### <sup>[fragment](../README.md) → [Documentation](./README.md) → API</sup>
-<br>
-
-# CLI
-
-
-# [Sketch](./api/Sketch.md)
+# Sketch
 
 ```js
 init();
@@ -60,13 +54,3 @@ Change the framerate.
 - Default: `({ filename, suffix }) => filename.suffix`
 
 Change the filename when exporting a file. 
-
-# Props
-
-# Renderer
-
-# Modules
-
-# Shortcuts
-
-# Triggers
