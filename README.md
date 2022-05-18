@@ -4,11 +4,12 @@
 
 `fragment` aims to provide a simple API to work with `<canvas>`. It comes with a built-in GUI and a set of *triggers* to make your sketches **interactive**.
 
-It currently supports:
-- [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
-- [p5.js](https://github.com/processing/p5.js/)
-- [three.js](https://github.com/mrdoob/three.js/)
-- [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
+## Features
+
+- Multiple rendering modes: [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/), [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
+- Built-in GUI from sketch files
+- Export `<canvas>` to images on the fly (.png, .webm, .jpg)
+- Hot shader reloading (available with three.js and fragment rendering)
 
 ## Installation
 
@@ -44,13 +45,6 @@ fragment ./sketch.js --new --template=2d
 ```
 
 Learn more about the available flag options in the [CLI docs](./docs/API.md#cli).
-
-## Features
-
-- Support for multiple rendering modes (p5.js, three.js, WebGL shaders, Canvas2D)
-- Built-in GUI from sketch files
-- Export `<canvas>` to images on the fly (.png, .webm, .jpg)
-- Shaders hot reloading (available with three.js and fragment rendering)
 
 ## Example
 
