@@ -31,13 +31,21 @@ sketch.update();
 Depending on the rendering context, params can contain different things.
 
 ##### `rendering = "2d"`
+| name | type | description |
+|---|---|---|
 | `context` | `CanvasRenderingContext2D` | The context of the canvas |
 ##### `rendering = "p5"`
+| name | type | description |
+|---|---|---|
 | `p` | `p5Instance` | The p5 instance |
 ##### `rendering = "three"`
+| name | type | description |
+|---|---|---|
 | `renderer` | `THREE.WebGLRenderer` | The three.js WebGLRenderer |
 | `scene` | `THREE.Scene` | A instance of THREE.Scene |
 ##### `rendering = "fragment"`
+| name | type | description |
+|---|---|---|
 | `frag` | `fragmentInstance` | The fragment instance |
 
 > ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined above are available directly if you want:
@@ -57,8 +65,8 @@ export let init = ({ context, width, height }) => {
 |---|---|---|
 | time | `number` | Amount of time ellapsed since the start of fragment. In milliseconds |
 | deltaTime | `number` | Amount of time ellapsed since the last frame. In milliseconds |
-| playhead | `number` | If [`duration`](./#duration) is defined, playhead will go from 0 to 1 every specified duration |
-| playcount | `number` | If [`duration`](./#duration) is defined, playcount will increase of 1 every loop |
+| playhead | `number` | If [`duration`](#duration) is defined, playhead will go from 0 to 1 every specified duration |
+| playcount | `number` | If [`duration`](#duration) is defined, playcount will increase of 1 every loop |
 
 #### `resize`
 - Type: `({ width: number, height: number, pixelRatio: number }) => void`
@@ -72,7 +80,7 @@ export let init = ({ context, width, height }) => {
 #### `props`
 - Type: `SketchProps`
 
-See [SketchProps](./#sketchprops) for details.
+See [SketchProps](#sketchprops) for details.
 
 #### `rendering`
 - Type: `string`
@@ -89,7 +97,7 @@ npm install three --save
 - Type: `number`
 - Default: `undefined`
 
-Setting a duration to a sketch will compute correct values for `playhead` and `playcount` in [`update`](./#update) callback params.
+Setting a duration to a sketch will compute correct values for `playhead` and `playcount` in [`update`](#update) callback params.
 
 #### `fps`
 - Type: `number`
