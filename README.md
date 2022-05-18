@@ -2,7 +2,7 @@
 <div align="center">A web development environment for creative coding</div>
 <br>
 
-`fragment` aims to provide a simple API to work with `<canvas>`. It comes with a built-in GUI and a set of *triggers* to make your sketches **interactive**.
+`fragment` aims to provide a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
 
 ## Features
 
@@ -13,7 +13,7 @@
 
 ## Installation
 
-As `fragment` is not yet available on npmjs.org, you need to clone and link the project in order to use it. It's only a few steps.
+`fragment` is not yet available on [npmjs.com](npmjs.com) so you need to clone and link the project in order to use it. It's only a few steps.
 
 ```
 # clone the project

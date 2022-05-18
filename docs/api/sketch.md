@@ -20,7 +20,7 @@ sketch.update();
 `fragment` leverages the power of [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export), meaning that you can export various properties from your sketch entry point and they will be picked up on runtime.
 
 #### `init`
-- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, ...params: object}) => void`
+- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, ...params: {...InitParams, ...MountParams }}) => void`
 
 | name | type | description |
 |---|---|---|
