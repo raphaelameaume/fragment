@@ -1,4 +1,10 @@
-# Sketch
+#### <sup>[fragment](../README.md) → [Documentation](./README.md) → API</sup>
+<br>
+
+# CLI
+
+
+# [Sketch](./api/Sketch.md)
 
 ```js
 init();
@@ -6,7 +12,7 @@ resize();
 update();
 ```
 
-### `init`
+#### `init`
 - Type: `({ canvas: HTMLCanvasElement, width: number, height: number, ...params: object}) => void`
 
 Depending on the rendering context, params will contain different things.
@@ -21,36 +27,46 @@ export let init = ({ context, width, height }) => {
 };
 ```
 
-### `update`
+#### `update`
 - Type: `({ time: number, deltaTime: number, playhead: number, playcount: number }) => void`
 
-### `resize`
+#### `resize`
 - Type: `({ width: number, height: number, pixelRatio: number }) => void`
 
-### `props`
-- Type: `object`
+#### `props`
+- Type: `SketchProps`
 
 See [Props](./API.md#props) for details.
 
-### `rendering`
+#### `rendering`
 - Type: `string`
 - Values: `2d`, `three`, `p5`, `fragment`
 - Default: `2d`
 
-### `duration`
+#### `duration`
 - Type: `number`
 - Default: `undefined`
 
 Enable sketch loop.
 
-### `fps`
+#### `fps`
 - Type: `number`
 - Default: `60`
 
 Change the framerate.
 
-### `filenamePattern`
-- Type: `({ filename, suffix, year, month, day, hours, minutes, seconds }) => string`
+#### `filenamePattern`
+- Type: `({ filename: string, suffix: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
 - Default: `({ filename, suffix }) => filename.suffix`
 
 Change the filename when exporting a file. 
+
+# Props
+
+# Renderer
+
+# Modules
+
+# Shortcuts
+
+# Triggers
