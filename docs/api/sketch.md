@@ -122,6 +122,15 @@ In order to reuse the timestamp in your own pattern, `suffix` is available as a 
 
 > ⚠️ You don't need to specify the extension since this is handled internally by the [Exports](./modules.md#exports) module.
 
+The callback is also returning the sketch current props so you can use their values in your export name.
+
+Example: 
+
+```js
+export let filenamePattern = ({ filename, suffix, props }) => {
+  return `${filename}.${suffix}.radius=${props.radius.value}`;
+}
+```
 
 ## SketchProps
 
