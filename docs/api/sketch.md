@@ -30,20 +30,14 @@ sketch.update();
 
 Depending on the rendering context, params can contain different things.
 
-| name | type | description |
-|---|---|---|
-| rendering = "2d" |||
-|---|---|---|
+##### `rendering = "2d"`
 | `context` | `CanvasRenderingContext2D` | The context of the canvas |
-| rendering = "p5" |
-|---|---|---|
+##### `rendering = "p5"`
 | `p` | `p5Instance` | The p5 instance |
-| rendering = "three" |
-|---|---|---|
+##### `rendering = "three"`
 | `renderer` | `THREE.WebGLRenderer` | The three.js WebGLRenderer |
 | `scene` | `THREE.Scene` | A instance of THREE.Scene |
-| rendering = "fragment" |
-|---|---|---|
+##### `rendering = "fragment"`
 | `frag` | `fragmentInstance` | The fragment instance |
 
 > ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined above are available directly if you want:
