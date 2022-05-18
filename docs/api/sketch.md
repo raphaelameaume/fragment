@@ -103,14 +103,25 @@ Setting a duration to a sketch will compute correct values for `playhead` and `p
 - Type: `number`
 - Default: `60`
 
-Change how many times `update()` is called in 1 second. Per default, the value is 60, meaning `update()` will be called on every *requestAnimationFrame*.
+Change how many times `update()` is called in 1 second. Py default, the value is 60, meaning `update()` will be called on every *requestAnimationFrame*.
 If you set it to `0`, `fragment` will only call `update()` once at the end of the *lifecycle* and when `props` change.
+
+#### `name`
+- Type: `string`
+- Default: `[filename]`
+
+Change the value used for display in the monitor dropdown.
 
 #### `filenamePattern`
 - Type: `({ filename: string, suffix: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
 - Default: `({ filename, suffix }) => ${filename}.${suffix}`
 
-Change the filename when exporting a file.
+Change the filename pattern when exporting a file. By default, `fragment` will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`.
+
+In order to reuse the timestamp in your own pattern, `suffix` is available as a parameter within the callback, but you can also deconstruct `{ year, month, day, hours, minutes, seconds}` to make up your own.
+
+> ⚠️ You don't need to specify the extension since this is handled internally by the [Exports](./modules.md#exports) module.
+
 
 ## SketchProps
 
@@ -130,10 +141,10 @@ export let props = {
 |---|---|---|
 | `number` | { disabled?: `boolean`, step?: `number` } | `<NumberInput>` |
 | `number` | { min:`number`, max: `number` } | `<ProgressInput>` + `<NumberInput>` |
-| `number` | { options?: `value[] \| object[{label: string, value:number}]`} | `<SelectInput>`|
+| `number` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
 | `string` | { disabled?: `boolean`} | `<TextInput>`|
-| `string` | { options?: `string[] \| object[{label: string, value:string}]`} | `<SelectInput>`|
-| `function` | { label?: `string` } | `<ButtonInput>`|
+| `string` | { options?: `string[] \| object[{label?: string, value:string}]`} | `<SelectInput>`|
+| `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
 | `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
 | `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
 
