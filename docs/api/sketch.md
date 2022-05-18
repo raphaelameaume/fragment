@@ -22,7 +22,29 @@ sketch.update();
 #### `init`
 - Type: `({ canvas: HTMLCanvasElement, width: number, height: number, ...params: object}) => void`
 
-Depending on the rendering context, params will contain different things.
+| name | type | description |
+|---|---|---|
+| canvas | `HTMLCanvasElement` | The canvas element used for drawing |
+| width | `number` | Width of the canvas |
+| height | `number` | Height of the canvas |
+
+Depending on the rendering context, params can contain different things.
+
+| name | type | description |
+| --- |
+| rendering = "2d" |
+| --- |
+| `context` | `CanvasRenderingContext2D` | The context of the canvas |
+| rendering = "p5" |
+| --- |
+| `p` | `p5Instance` | The p5 instance |
+| rendering = "three" |
+| --- |
+| `renderer` | `THREE.WebGLRenderer` | The three.js WebGLRenderer |
+| `scene` | `THREE.Scene` | A instance of THREE.Scene |
+| rendering = "fragment" |
+| --- |
+| `frag` | `fragmentInstance` | The fragment instance |
 
 > ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined above are available directly if you want:
 
@@ -30,15 +52,28 @@ Depending on the rendering context, params will contain different things.
 export let rendering = "2d";
 
 export let init = ({ context, width, height }) => {
-	context.fillStyle = '#ff0000';
+  context.fillStyle = '#ff0000';
 };
 ```
 
 #### `update`
-- Type: `({ time: number, deltaTime: number, playhead: number, playcount: number }) => void`
+- Type: `({ time: number, deltaTime: number, playhead?: number, playcount?: number }) => void`
+
+| name | type | description |
+|---|---|---|
+| time | `number` | Amount of time ellapsed since the start of fragment. In milliseconds |
+| deltaTime | `number` | Amount of time ellapsed since the last frame. In milliseconds |
+| playhead | `number` | If [`duration`](./#duration) is defined, playhead will go from 0 to 1 every specified duration |
+| playcount | `number` | If [`duration`](./#duration) is defined, playcount will increase of 1 every loop |
 
 #### `resize`
 - Type: `({ width: number, height: number, pixelRatio: number }) => void`
+
+| name | type | description |
+|---|---|---|
+| width | `number` | Width of the canvas |
+| height | `number` | Height of the canvas |
+| pixelRatio | `number` | PixelRatio of the canvas |
 
 #### `props`
 - Type: `SketchProps`
@@ -60,13 +95,14 @@ npm install three --save
 - Type: `number`
 - Default: `undefined`
 
-Enable sketch loop.
+Setting a duration to a sketch will compute correct values for `playhead` and `playcount` in [`update`](./#update) callback params.
 
 #### `fps`
 - Type: `number`
 - Default: `60`
 
-Change the framerate.
+Change how many times `update()` is called in 1 second. Per default, the value is 60, meaning `update()` will be called on every *requestAnimationFrame*.
+If you set it to `0`, `fragment` will only call `update()` once at the end of the *lifecycle* and when `props` change.
 
 #### `filenamePattern`
 - Type: `({ filename: string, suffix: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
@@ -78,13 +114,23 @@ Change the filename when exporting a file.
 
 You can define `props` in your sketch files in order to create GUI elements and use their values directly in your code. `fragment` will attempt to infer the type of field you want based on values and params of the props.
 
-| type | params | field |
+You can force type on a prop by assigning a `type` to your object like so:
+```js
+export let props = {
+  color: {
+    value: [255, 0, 255],
+    type: "color",
+  }
+}
+```
+
+| value type | params | field |
 |---|---|---|
 | `number` | { disabled?: `boolean`, step?: `number` } | `<NumberInput>` |
 | `number` | { min:`number`, max: `number` } | `<ProgressInput>` + `<NumberInput>` |
-| `number` | { options?: `value[] | object[{label: string, value:number}]`} | `<SelectInput>`|
+| `number` | { options?: `value[] \| object[{label: string, value:number}]`} | `<SelectInput>`|
 | `string` | { disabled?: `boolean`} | `<TextInput>`|
-| `string` | { options?: `string[] | object[{label: string, value:string}]`} | `<SelectInput>`|
+| `string` | { options?: `string[] \| object[{label: string, value:string}]`} | `<SelectInput>`|
 | `function` | { label?: `string` } | `<ButtonInput>`|
 | `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
 | `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
@@ -92,21 +138,21 @@ You can define `props` in your sketch files in order to create GUI elements and 
 Example:
 ```js
 export let props = {
-	radius: {
-		value: 10,
-		params: {
-			min: 1,
-			max: 30,
-			step: 0.1
-		}
-	}
+  radius: {
+    value: 10,
+    params: {
+        min: 1,
+        max: 30,
+        step: 0.1
+    }
+  }
 };
 
 // use props.radius.value
 export let update = ({ context }) => {
-	const radius = props.radius.value;
+  const radius = props.radius.value;
 
-	context.arc(x, y, radius, 0, 2 * Math.PI); 
+  context.arc(x, y, radius, 0, 2 * Math.PI); 
 };
 ```
 
