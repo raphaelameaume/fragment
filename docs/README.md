@@ -12,4 +12,4 @@
 - [About](./guide/about.md)
 - [Getting started](./guide/getting-started.md)
 - [Hot Shader Reloading](./guide/hot-shader-reloading.md)
-- [Shortcuts](./guide/shortcuts.md)
+- [Export sketch](./guide/shortcuts.md)

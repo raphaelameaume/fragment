@@ -3,7 +3,7 @@
 
 # Sketch
 
-A sketch in `fragment` is the entry point of your project.
+A sketch in `fragment` is the entry point of your project. Its API is fairly simple, supports different types of renderings and can grow in complexity.
 
 ## Lifecycle
 
