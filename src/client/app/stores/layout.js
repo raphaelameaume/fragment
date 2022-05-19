@@ -1,14 +1,23 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { sketchesCount } from "@fragment/props";
 import { defaultLayouts } from "../data/LayoutData";
 import { keepInSync, rehydrate } from "./utils";
 
 const isMany = sketchesCount > 1;
 const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
-const defaultLayout = defaultLayouts.filter((layout) => layout.isMany === isMany)[0];
+const outputLayout = defaultLayouts.find((layout) => layout.name === "Output");
+
+let defaultLayout = defaultLayouts.filter((layout) => layout.isMany === isMany)[0];
+
+let override = !window.location.search.includes('?output');
+override = true;
+
+if (window.location.search.includes('?output')) {
+    defaultLayout = outputLayout;
+}
 
 export const current = writable({
-    ...rehydrate(key, defaultLayout.data, false),
+    ...rehydrate(key, defaultLayout.data, override),
     editable: false,
     resizable: false,
 });
@@ -82,4 +91,16 @@ export const edit = () => {
             editable: !curr.editable,
         };
     })
+}
+
+export const traverse = (fn) => {
+    const { rows } = get(current);
+
+    rows.forEach(({ cols, modules = [] }) => {
+        modules.forEach(fn);
+
+        cols.forEach(({ modules = []}) => {
+            modules.forEach(fn);
+        })
+    });
 }
