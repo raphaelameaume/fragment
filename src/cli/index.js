@@ -60,16 +60,15 @@ async function createEntries(entry, options) {
     let shouldCreateFile = options.new;
 
     async function createEntryFile(entryPath) {
+        if (path.extname(entryPath) !== ".js") {
+            throw new Error(`File extension needs to be .js`);
+        }
+
         const createFromTemplate = typeof options.template === "string";
         const templateFiles = createFromTemplate ? templates[options.template] : templates.default;
 
         if (!templateFiles) {
-            log.error(`Wrong argument value.`);
-            console.log(`Template ${options.template} doesn't exist.\nPossible values are:`);
-            Object.keys(templates).forEach((key) => {
-                console.log(key);
-            });
-            return;
+            throw new Error(`Error: Template ${options.template} doesn't exist.`);
         }
 
         const entryName = path.basename(entryPath, path.extname(entryPath));
@@ -91,9 +90,20 @@ async function createEntries(entry, options) {
                 fileContent = fileContent.replace(new RegExp(filepaths[i], 'g'), `${entryName}${path.extname(filepaths[i])}`);
             }
 
-            await fs.writeFile(destPath, Buffer.from(fileContent));
-            
-            console.log(`${log.prefix} Created ${path.relative(process.cwd(), destPath)} on disk.`);
+            try {
+                const stats = await fs.lstat(destPath);
+
+                if (stats.isFile()) {
+                    log.warning(`Ignored argument: --new. File already exists.`);
+                }
+            } catch(error) {
+                if (error.code === "ENOENT") {
+                    await fs.writeFile(destPath, Buffer.from(fileContent));
+                    console.log(`${log.prefix} Created ${path.relative(process.cwd(), destPath)} on disk.`);
+                } else {
+                    throw error;
+                }
+            }
         }
 
         shouldCreateFile = false;
@@ -102,9 +112,15 @@ async function createEntries(entry, options) {
     const entryPath = path.join(process.cwd(), entry);
 
     try {
-        const stats = await fs.lstat(entryPath);
+        if (shouldCreateFile) {
+            await createEntryFile(entryPath);
+        }
 
-        if (stats.isDirectory()) {
+        const stats = await fs.lstat(entryPath);
+        
+        if (stats.isFile()) {
+            entries.push(path.relative(process.cwd(), entryPath));
+        } else if (stats.isDirectory()) {
             const files = await fs.readdir(entryPath);
             const sketchFiles = files.filter((file) => path.extname(file) === ".js");
 
@@ -115,23 +131,12 @@ async function createEntries(entry, options) {
             }
 
             entries.push(...sketchFiles.map((sketchFile) => path.relative(process.cwd(), sketchFile)));
-        } else if (stats.isFile()) {
-            if (shouldCreateFile) {
-                log.warning(`Ignored argument: --new`);
-                console.log(`${entry} already exists.`);
-            }
-
-            entries.push(path.relative(process.cwd(), entryPath));
         }
     } catch(error) {
         if (error.code === "ENOENT") {
-            if (shouldCreateFile) {
-                await createEntryFile(entryPath);
-                run(entry, options);
-            } else {
-                log.error(`Missing file: ${entry} doesn't exist.`)
-                console.log("Use --new flag to create the file automatically");
-            }
+            log.error(`Error: ${entry} doesn't exist.`);
+        } else {
+            log.error(error.message);
         }
     }
 

@@ -24,10 +24,7 @@ const templates = {
 	],
 	"p5": [
 		"./templates/p5.js"
-	],
-	"default": [
-		"./templates/default.js"
-	],
+	]
 };
 
 export default templates;

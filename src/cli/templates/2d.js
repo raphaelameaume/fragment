@@ -11,3 +11,5 @@ export let update = ({ context, width, height, time, deltaTime }) => {
 export let resize = ({ width, height }) => {
 
 };
+
+export let rendering = "2d";
