@@ -2,6 +2,10 @@
 https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad843fb7688/lib/save.js
 */
 
+import { changeDpiDataUrl } from "changedpi";
+import { get } from "svelte/store";
+import { exports } from "../stores";
+
 
 const supportedEncodings = [
     'image/png',
@@ -147,10 +151,18 @@ export async function screenshotCanvas(canvas, {
     pattern = defaultFilenamePattern,
     params = {},
 }) {
-    const { extension, type, dataURL } = exportCanvas(canvas);
+    const { imageEncoding, quality, pixelsPerInch } = get(exports);
+    let { extension, dataURL } = exportCanvas(canvas, {
+        encoding: `image/${imageEncoding}`,
+        encodingQuality: quality,
+    });
 
-    const patternParams = getFilenameParams();
-    const name = pattern({ filename, ...params, ...patternParams });
+    let patternParams = getFilenameParams();
+    let name = pattern({ filename, ...params, ...patternParams });
+
+    if (imageEncoding !== "webp" && pixelsPerInch !== 72) {
+        dataURL = changeDpiDataUrl(dataURL, exportParams.pixelsPerInch);
+    }
 
     await saveDataURL(dataURL, { filename: `${name}${extension}` });
 }

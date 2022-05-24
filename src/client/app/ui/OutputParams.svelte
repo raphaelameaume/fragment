@@ -7,6 +7,7 @@ import FieldGroup from "./FieldGroup.svelte";
 import { transitions } from "../transitions/index.js";
 import presets, { getDimensionsForPreset } from "../lib/presets";
 import { client } from "../client";
+import { exports } from "../stores";
 
 let canvasWidth = $currentRendering.width;
 let canvasHeight = $currentRendering.height;
@@ -101,8 +102,8 @@ $: dimensionsEnabled = [SIZES.FIXED, SIZES.SCALE].includes($currentRendering.res
 
 $: {
     if ($currentRendering.resizing === SIZES.PRESET) {
-        const { preset, pixelsPerInch } = $currentRendering;
-        const [ width, height ] = getDimensionsForPreset(preset, { pixelsPerInch });
+        const { preset } = $currentRendering;
+        const [ width, height ] = getDimensionsForPreset(preset, { pixelsPerInch: 300 });
 
         currentRendering.update((curr) => {
             return {
@@ -141,6 +142,8 @@ $: {
             // compute aspect ratio based on previous props
             aspectRatio = $currentRendering.width / $currentRendering.height;
         }
+
+        $exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
 
         currentRendering.update((curr) => {
             return {
@@ -187,17 +190,6 @@ $: {
     }}
     params={{
         options: presets,
-    }}
-/>
-<Field
-    key="pixelsPerInch"
-    value={$currentRendering.pixelsPerInch}
-    on:change={(event) => {
-        $currentRendering.pixelsPerInch = event.detail;
-    }}
-    params={{
-        step: 0.01,
-        suffix: "ppi"
     }}
 />
 {/if}

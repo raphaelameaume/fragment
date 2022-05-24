@@ -13,7 +13,7 @@ export const SIZES = {
 };
 
 export const current = writable({
-    ...rehydrate(key, {
+    ...rehydrate(`fragment.rendering`, {
         width: 500,
         height: 500,
         pixelRatio: 1,
@@ -21,11 +21,10 @@ export const current = writable({
         aspectRatio: 1,
         scale: 1,
         preset: 'a4',
-        pixelsPerInch: 300
     }, true)
 });
 
-keepInSync(key, current);
+keepInSync(`fragment.rendering`, current);
 
 export const threshold = writable(rehydrate("fragment.threshold", 0, false));
 keepInSync("fragment.threshold", threshold);
