@@ -79,7 +79,6 @@ function handleClick() {
     color: #f0f0f0;
 
     font-size: 11px;
-    font-family: "Jetbrains Mono";
     font-weight: 700;
     /* text-transform: uppercase; */
 
