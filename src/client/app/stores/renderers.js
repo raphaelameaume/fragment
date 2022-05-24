@@ -1,5 +1,5 @@
 import { current as currentRendering } from "./rendering";
-import { on, PREVIEW_AFTER_UPDATE, PREVIEW_BEFORE_UPDATE, PREVIEW_MOUNT, TRANSITION_CHANGE } from "../events";
+import { on, TRANSITION_CHANGE } from "../events";
 
 export let renderers = {};
 
@@ -44,8 +44,6 @@ export async function findRenderer(rendering) {
 
 			let events = [
 				{ name: "onTransitionChange", event: TRANSITION_CHANGE },
-				{ name: "onBeforeUpdatePreview", event: PREVIEW_BEFORE_UPDATE },
-				{ name: "onAfterUpdatePreview", event: PREVIEW_AFTER_UPDATE },
 			];
 
 			events.forEach(({ name, event }) => {

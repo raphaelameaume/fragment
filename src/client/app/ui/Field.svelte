@@ -12,7 +12,7 @@ import ListInput from "./fields/ListInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
-import { inferFromParams, inferFromValue } from "../core/Prop";
+import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 
 export let key = '';
 export let value = null;

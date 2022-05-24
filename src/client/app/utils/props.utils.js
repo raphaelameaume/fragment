@@ -1,9 +1,13 @@
-import { client } from "../client";
+import { colord } from "colord";
 
 export function inferFromParams(params) {
     if (params.options && Array.isArray(params.options)) {
         return "select";
     }
+
+	if (params.type === "folder") {
+		return "folder";
+	}
 
     return null;
 }
@@ -28,38 +32,3 @@ export function inferFromValue(value) {
         return "vec2";
     }
 }
-
-class Prop {
-
-	constructor(key, { value, ...params } = {}) {
-		this.key = key;
-		this.value = value;
-		this.type = inferFromParams(params) || inferFromValue(value);
-		this.params = params;
-		this.triggers = [];
-	}
-
-	set value(v) {
-		this._value = v;
-	}
-
-	get value() {
-		return this._value;
-	}
-
-	onTrigger(fn) {}
-
-	onChange(fn) {}
-
-	toJSON() {
-		return {
-			key: this.key,
-			type: this.type,
-			value: this.value,
-			params: this.params,
-			triggers: this.triggers,
-		}
-	}
-}
-
-export default Prop;
