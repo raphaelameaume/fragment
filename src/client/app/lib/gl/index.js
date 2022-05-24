@@ -48,6 +48,8 @@ export function fragment({
 		gl: renderer.gl,
 		program,
 
+		texture: (params = {}) => new Texture(gl, params),
+
 		resize,
 		render,
 		destroy,
