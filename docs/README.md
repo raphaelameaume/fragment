@@ -4,7 +4,7 @@
 ## APIs
 - [CLI](./api/CLI.md)
 - [Sketch](./api/sketch.md)
-- [Renderer](./api/renderers.md)
+- [Renderers](./api/renderers.md)
 - [Modules](./api/modules.md)
 - [Triggers](./api/triggers.md)
 
@@ -12,4 +12,4 @@
 - [About](./guide/about.md)
 - [Getting started](./guide/getting-started.md)
 - [Hot Shader Reloading](./guide/hot-shader-reloading.md)
-- [Export sketch](./guide/shortcuts.md)
+- [Export a sketch](./guide/exports.md)

@@ -44,7 +44,7 @@ npm init
 fragment ./sketch.js --new --template=2d
 ```
 
-Learn more about the available flag options in the [CLI docs](./docs/API.md#cli).
+Learn more about the available flag options in the [CLI docs](./docs/api/CLI.md).
 
 ## Example
 
@@ -76,7 +76,7 @@ export let update = ({ context, width, height }) => {
 };
 ```
 
-Learn how to write your own sketch in the [API docs](./docs/API.md#sketch) or read the [examples](./examples/).
+Learn how to write your own sketch in the [API docs](./docs/api/sketch.md) or read the [examples](./examples/).
 
 ## Contributing
 
