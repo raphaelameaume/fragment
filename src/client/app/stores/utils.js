@@ -37,12 +37,6 @@ export const keepInSync = (key, store) => {
     store.subscribe((value) => {
         save(key, value);
     });
-
-    // window.addEventListener('storage', (event) => {
-    //     if (event.key === key) {
-    //         store.set(JSON.parse(event.newValue));
-    //     }
-    // })
 };
 
 
