@@ -6,10 +6,10 @@
 
 ## Features
 
-- 🌌  Multiple rendering modes: [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/), [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
-- ⚙️  Built-in GUI from sketch files
-- 💾  Export `<canvas>` to images on the fly (.png, .webm, .jpg)
-- ⚡️  Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
+- Multiple rendering modes: [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/), [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
+- Built-in GUI from sketch files
+- Export `<canvas>` to images on the fly (.png, .webm, .jpg)
+- Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
 
 ## Installation
 
