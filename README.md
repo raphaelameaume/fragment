@@ -17,7 +17,7 @@
 
 ```
 # clone the project
-git clone https://github.com/raphaelameaume/fragment`
+git clone https://github.com/raphaelameaume/fragment
 
 # move to the project directory
 cd fragment
