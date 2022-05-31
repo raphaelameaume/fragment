@@ -69,7 +69,7 @@ export async function start({ options, filepaths, entries, fragment }) {
             // middlewareMode: "ssr",
         },
         define: {
-            '__CWD__': `'${cwd}'`,
+            '__CWD__': `${JSON.stringify('${cwd}')}`,
             '__FRAGMENT_PORT__': fragment.server.port,
             '__START_TIME__': Date.now(),
             '__SEED__': Date.now()
