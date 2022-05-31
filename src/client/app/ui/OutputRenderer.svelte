@@ -112,7 +112,7 @@ function resize() {
     height: 100%;
     justify-content: center;
 
-    background-color: var(--color-lightblack);
+    background-color: var(--background-color, var(--color-lightblack));
 }
 
 .output-renderer :global(canvas) {

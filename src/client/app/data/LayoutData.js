@@ -55,25 +55,27 @@ export const defaultLayouts = [
                                 { name: "monitor", flex: 1, grow: true },
                             ]
                         },
-                        { 
-                            flex: 0.6,
+                        {
+                            flex: 1,
                             modules: [
-                                { name: "params", flex: 0 },
+                                { name: "exports" },
+                                { name: "params" },
                             ]
                         },
                     ]
                 },
-                {
-                    flex: 1,
-                    cols: [
-                        {
-                            flex: 1,
-                            modules: [
-                                { name: "console", flex: 0 },
-                            ]
-                        },
-                    ]
-                }
+                
+                // {
+                //     flex: 1,
+                //     cols: [
+                //         {
+                //             flex: 1,
+                //             modules: [
+                //                 { name: "console", flex: 0 },
+                //             ]
+                //         },
+                //     ]
+                // }
             ]
         }
     },
