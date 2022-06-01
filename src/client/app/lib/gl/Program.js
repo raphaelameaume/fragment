@@ -126,3 +126,5 @@ class Program {
 }
 
 export default Program;
+
+export { defaultVertex, defaultFragment };

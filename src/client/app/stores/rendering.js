@@ -21,7 +21,7 @@ export const current = writable({
         aspectRatio: 1,
         scale: 1,
         preset: 'a4',
-    }, true)
+    }, false)
 });
 
 keepInSync(`fragment.rendering`, current);

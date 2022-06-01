@@ -1,16 +1,17 @@
 import Geometry from "./Geometry.js";
 import Texture from "./Texture.js";
-import Program from "./Program.js";
+import Program, { defaultFragment, defaultVertex } from "./Program.js";
 import Renderer from "./Renderer.js";
 
 export { Geometry, Texture, Program, Renderer };
 
 export function fragment({
 	canvas = document.createElement('canvas'),
-	shader,
+	shader = defaultFragment,
 	uniforms = {},
 }) {
-	let _shader = shader;
+	let _fragmentShader = shader;
+	let _vertexShader = defaultVertex;
 	let _uniforms = uniforms;
 
 	let renderer = new Renderer({
@@ -59,11 +60,35 @@ export function fragment({
 		enumerable: true,
     	configurable: true,
 		get: () => {
-			return _shader;
+			return _fragmentShader;
 		},
 		set: (v) => {
-			_shader = v;
-			program.fragmentShader = _shader;
+			_fragmentShader = v;
+			program.fragmentShader = _fragmentShader;
+		}
+	});
+
+	Object.defineProperty(frag, 'fragmentShader', {
+		enumerable: true,
+    	configurable: true,
+		get: () => {
+			return _fragmentShader;
+		},
+		set: (v) => {
+			_fragmentShader = v;
+			program.fragmentShader = _fragmentShader;
+		}
+	});
+
+	Object.defineProperty(frag, 'vertexShader', {
+		enumerable: true,
+    	configurable: true,
+		get: () => {
+			return _vertexShader;
+		},
+		set: (v) => {
+			_vertexShader = v;
+			program.vertexShader = _vertexShader;
 		}
 	});
 
