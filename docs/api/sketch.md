@@ -136,16 +136,6 @@ export let filenamePattern = ({ filename, suffix, props }) => {
 
 You can define `props` in your sketch files in order to create GUI elements and use their values directly in your code. `fragment` will attempt to infer the type of field you want based on values and params of the props.
 
-You can force type on a prop by assigning a `type` to your object like so:
-```js
-export let props = {
-  color: {
-    value: [255, 0, 255],
-    type: "color",
-  }
-}
-```
-
 | value type | params | field |
 |---|---|---|
 | `number` | { disabled?: `boolean`, step?: `number` } | `<NumberInput>` |
@@ -178,6 +168,26 @@ export let update = ({ context }) => {
 };
 ```
 
+You can also force a type on a prop by assigning a `type` to your object like so:
+
+```js
+export let props = {
+  color: {
+    value: [255, 0, 255],
+    type: "color",
+  }
+}
+```
+
+| prop type | value type | params | field |
+|---|---|---|---|
+| `number` | `number` | { disabled?: `boolean`, step?: `number`, min:`number`, max: `number` } | `<ProgressInput?>` + `<NumberInput>` |
+| `select` | `number|string` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
+| `text` | `string` | { disabled?: `boolean`} | `<TextInput>`|
+| `button` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
+| `download` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
+| `vec2` | `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
+| `vec3` | `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
 ## Templates
 
 `fragment` comes with a bunch of pre-defined templates. See [CLI docs](./CLI.md#templates) for details.

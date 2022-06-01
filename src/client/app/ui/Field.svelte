@@ -13,6 +13,7 @@ import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
+import { download } from "../utils/file.utils.js";
 
 export let key = '';
 export let value = null;
@@ -32,6 +33,7 @@ const fields = {
     "list": ListInput,
     "color": ColorInput,
     "button": ButtonInput,
+    "download": ButtonInput,
 };
 
 const onTriggers = {
@@ -43,6 +45,11 @@ const onTriggers = {
     'button': (event) => {
         value(event);
         dispatch('click', event);
+    },
+    'download': (event) => {
+        let [data, filename] = value(event);
+
+        download(data, filename);
     },
     'number': (event = {}) => {
         const isValueInRange = event.value >= 0 && event.value <= 1;
@@ -58,9 +65,18 @@ const onTriggers = {
 };
 
 $: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
+$: settings = {...params};
 $: onTrigger = onTriggers[fieldType];
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
+
+$: {
+    if (fieldType === "download" || fieldType === "button") {
+        if (params.label === undefined) {
+            settings.label = fieldType === "download" ? "download" : "trigger";
+        }
+    }
+}
 
 let offsetWidth;
 let secondaryVisible = false;
@@ -120,7 +136,7 @@ $: {
             this={input}
             {value}
             name={key}
-            {...params}
+            {...settings}
             on:change={(e) => dispatch('change', e.detail)}
             on:click={onTrigger}
         />
