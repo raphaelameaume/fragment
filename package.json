@@ -30,7 +30,6 @@
     "body-parser": "^1.20.0",
     "changedpi": "^1.0.4",
     "chokidar": "^3.5.2",
-    "colord": "^2.7.0",
     "get-port": "^6.0.0",
     "glslify": "^7.1.1",
     "kleur": "^4.1.4",
