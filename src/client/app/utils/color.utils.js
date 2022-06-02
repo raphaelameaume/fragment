@@ -2,7 +2,7 @@
  * 
  * @param {string} colorName 
  */
-export function nameToRGBA(colorName, element = "temp") {
+export function nameToComponents(colorName, element = "temp") {
 	if (colorName.toLowerCase() === "transparent") return [0, 0, 0, 0];
 
 	let temp = document.body.appendChild(document.createElement(element));
@@ -15,7 +15,11 @@ export function nameToRGBA(colorName, element = "temp") {
 	let color = getComputedStyle(temp).color;
 	document.body.removeChild(temp);
 
-	return stringToRGBA(color);
+	return stringToComponents(color);
+}
+
+export function nameToHex(color) {
+	return componentsToHex(nameToComponents(color));
 }
 
 /**
@@ -23,7 +27,7 @@ export function nameToRGBA(colorName, element = "temp") {
  * @param {string} value
  * @return {array}
  */
-export function stringToRGBA(color) {
+export function stringToComponents(color) {
 	const match = color.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d+?))\))?/);
 
 	if (match) {
@@ -37,7 +41,11 @@ export function stringToRGBA(color) {
 	return [];
 }
 
-export function vecToRGBA(color) {
+export function stringToHex(color) {
+	return componentsToHex(stringToComponents(color));
+}
+
+export function vecToComponents(color) {
 	const match = color.match(/vec[3-4]?\((\d*(?:\.\d*?)), ?(\d*(?:\.\d*?)), ?(\d*(?:\.\d*))?(?:, ?(\d(?:\.\d*?))\))?/);
 
 	if (match) {
@@ -52,10 +60,10 @@ export function vecToRGBA(color) {
 }
 
 export function vecToHex(color) {
-	return RGBAToHex(vecToRGBA(color));
+	return componentsToHex(vecToComponents(color));
 }
 
-export function hexToRGBA(color) {
+export function hexToComponents(color) {
 	if (color.length < 7){
 		const R = color[1];
 		const G = color[2];
@@ -84,31 +92,29 @@ export function hexToRGBA(color) {
  * @returns 
  */
 export function hexToVec3String(color) {
-	return componentsToVec3String(hexToRGBA(color));
+	return componentsToVec3String(hexToComponents(color));
 }
 
 export function hexToVec4String(color) {
-	return componentsToVec4String(hexToRGBA(color));
+	return componentsToVec4String(hexToComponents(color));
 }
 
-export function colorToRGBA(color) {
-	if (isHexString(color)) return hexToRGBA(color);
-	if (isRGBAString(color)) return stringToRGBA(color);
-	if (isRGBString(color)) return stringToRGBA(color);
-	if (isVec3String(color)) return vecToRGBA(color);
-	if (isVec4String(color)) return vecToRGBA(color);
+export function toComponents(color) {
+	if (isHexString(color)) return hexToComponents(color);
+	if (isRGBAString(color) || isRGBString(color)) return stringToComponents(color);
+	if (isVec3String(color) || isVec4String(color)) return vecToComponents(color);
 	
-	if (!color.includes('rgb')) return nameToRGBA(color);
+	if (typeof color === "string") return nameToComponents(color);
 
-	console.error(`colorToRGBA :: cannot parse color.`);
+	console.error(`toComponents :: cannot parse color`, color);
 }
 
-export function colorToVec3String(color) {
-	return componentsToVec3String(colorToRGBA(color));
+export function toVec3String(color) {
+	return componentsToVec3String(toComponents(color));
 }
 
-export function colorToVec4String(color) {
-	return componentsToVec4String(colorToRGBA(color));
+export function toVec4String(color) {
+	return componentsToVec4String(toComponents(color));
 }
 
 export function componentsToVec3String(components = []) {
@@ -160,7 +166,7 @@ export function componentsToVec4String(components = []) {
 	return `vec4(${rn}, ${gn}, ${bn}, ${an})`;
 }
 
-export function colorToHex(color) {
+export function toHex(color) {
 	if (isHexString(color)) return color;
 	if (isRGBString(color)) return stringToHex(color);
 	if (isRGBAString(color)) return stringToHex(color);
@@ -169,57 +175,49 @@ export function colorToHex(color) {
 	if (!color.includes('rgb')) return nameToHex(color);
 }
 
-export function colorToRGBString(color) {
-	const [r, g, b] = colorToRGBA(color);
+export function toRGBString(color) {
+	const [r, g, b] = toComponents(color);
 
-	return RGBtoRGBString([r, g, b]);
+	return componentsToRGBString([r, g, b]);
 }
 
 export function hexToRGBString(color) {
-	return RGBToRGBString(hexToRGBA(color));
+	return componentsToRGBString(hexToComponents(color));
 }
 
 export function hexToRGBAString(color) {
-	return RGBAToRGBString(hexToRGBA(color));
+	return componentsToRGBString(hexToComponents(color));
 }
 
-export function colorToRGBAString(color) {
-	return RGBAToRGBAString(colorToRGBA(color));
+export function toRGBAString(color) {
+	return componentsToRGBAString(toComponents(color));
 }
 
-export function RGBtoRGBString(components) {
+export function componentsToRGBString(components) {
 	const [ r, g, b ] = components;
 
 	return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function RGBAToRGBAString(components = []) {
+export function componentsToRGBAString(components = []) {
 	const [ r = 0, g = 0, b = 0, a = 1 ] = components;
 
 	return `rgba(${r}, ${g}, ${b}, ${a})`;
-}
-
-export function RGBAToHex(components) {
-	return RGBToHex(components);
-}
-
-export function stringToHex(color) {
-	return RGBToHex(stringToRGBA(color));
-}
-
-export function nameToHex(color) {
-	return RGBToHex(nameToRGBA(color));
 }
 
 export function componentToHex(c) {
 	return c.toString(16).padStart(2, 0);
 }
 
-export function RGBToHex(components = [0, 0, 0]) {
+export function componentsToHex(components) {
 	const [r, g, b] = components;
 
 	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
+
+
+
+
 
 export function isHexString(color, isString = typeof color === "string") {
 	return isString && color[0] === "#";
@@ -250,7 +248,7 @@ export function isRGBArray(value) {
 }
 
 export function isName(value) {
-	const components = nameToRGBA(value);
+	const components = nameToComponents(value);
 
 	return components && components.length > 0;
 }

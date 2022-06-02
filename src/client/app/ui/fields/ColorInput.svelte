@@ -1,6 +1,6 @@
 <script>
 import { createEventDispatcher } from "svelte";
-import { colorToHex, colorToRGBA, colorToRGBAString, colorToRGBString, colorToVec3String, colorToVec4String, componentsToVec4String, FORMATS, getColorFormat, hexToRGBA, hexToVec3String, hexToVec4String, isColor,  isRGBAString,  isVec4String,  RGBAToRGBAString, stringToRGBA } from "../../utils/color.utils.js";
+import * as color from "../../utils/color.utils.js";
 import TextInput from "./TextInput.svelte";
 import Field from "../Field.svelte";
 
@@ -9,27 +9,27 @@ export let name;
 
 const dispatch = createEventDispatcher();
 
-let hexValue = colorToHex(value);
+let hexValue = color.toHex(value);
 let isInputDriven = true;
 
 let override = false;
 
-let format = getColorFormat(value);
+let format = color.getColorFormat(value);
 let textValue = formatColorFromHex(hexValue);
 let alpha = 1;
 
-$: hasAlpha = typeof textValue === "string" && (isRGBAString(textValue) || isVec4String(textValue));
+$: hasAlpha = typeof textValue === "string" && (color.isRGBAString(textValue) || color.isVec4String(textValue));
 $: {
     if (isInputDriven) {
         textValue = formatColorFromHex(hexValue);
     } else {
-        hexValue = colorToHex(textValue);
+        hexValue = color.toHex(textValue);
     }
 }
 
 $: {
     if (hasAlpha) {
-        const [r, g, b, a = 1] = colorToRGBA(textValue);
+        const [r, g, b, a = 1] = color.toComponents(textValue);
         alpha = a;
     }
 }
@@ -41,18 +41,18 @@ function handleBlur() {
 function formatColorFromHex(hex) {
     if (override) return textValue;
 
-    if (format === FORMATS.HEX_STRING) return hex;
-    if (format === FORMATS.VEC3_STRING) return hexToVec3String(hex);
-    if (format === FORMATS.RGB_STRING) return hexToRGBString(hex);
+    if (format === color.FORMATS.HEX_STRING) return hex;
+    if (format === color.FORMATS.VEC3_STRING) return color.hexToVec3String(hex);
+    if (format === color.FORMATS.RGB_STRING) return color.hexToRGBString(hex);
 
-    let components = hexToRGBA(hex);
+    let components = color.hexToComponents(hex);
 
     if (hasAlpha && alpha !== 1) {
         components[3] = alpha;
     }
 
-    if (format === FORMATS.RGBA_STRING) return RGBToRGBAString(components);
-    if (format === FORMATS.VEC4_STRING) return componentsToVec4String(components);
+    if (format === color.FORMATS.RGBA_STRING) return color.componentsToRGBAString(components);
+    if (format === color.FORMATS.VEC4_STRING) return color.componentsToVec4String(components);
 }
 
 function onChangeText(event) {
@@ -60,8 +60,8 @@ function onChangeText(event) {
 
     const { value } = event.currentTarget;
 
-    if (isColor(value)) {
-        format = getColorFormat(value);
+    if (color.isColor(value)) {
+        format = color.getColorFormat(value);
         textValue = value;
 
         dispatch('change', value);
@@ -69,18 +69,20 @@ function onChangeText(event) {
 }
 
 function onChangeAlpha(event) {
-    if (format === FORMATS.RGBA_STRING) {
-        const [r, g, b] = hexToRGBA(textValue);
+    isInputDriven = false;
+    
+    if (format === color.FORMATS.RGBA_STRING) {
+        const [r, g, b] = color.hexToComponents(hexValue);
 
-        textValue = RGBAToRGBAString([r, g, b, event.detail]);
-    } else if (format === FORMATS.VEC4_STRING) {
-        const [r, g, b] = hexToRGBA(hexValue);
+        textValue = color.componentsToRGBAString([r, g, b, event.detail]);
 
-        textValue = componentsToVec4String([r, g, b, event.detail]);
+
+    } else if (format === color.FORMATS.VEC4_STRING) {
+        const [r, g, b] = color.hexToComponents(hexValue);
+
+        textValue = color.componentsToVec4String([r, g, b, event.detail]);
     }
 }
-
-
 
 </script>
 
