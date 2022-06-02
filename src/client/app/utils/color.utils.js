@@ -5,15 +5,27 @@
 export function nameToComponents(colorName, element = "temp") {
 	if (colorName.toLowerCase() === "transparent") return [0, 0, 0, 0];
 
-	let temp = document.body.appendChild(document.createElement(element));
+	let temp = document.createElement(element);
+	document.body.appendChild(temp);
+
+	const removeChild = () => temp.parentNode.removeChild(temp);
+
 	let flag = 'rgb(1, 2, 3)';
 	temp.style.color = flag;
-	if (temp.style.color !== flag) return; // an override exists
+	if (temp.style.color !== flag) {
+		removeChild();
+		return;
+	}
 	temp.style.color = colorName;
-	if (temp.style.color === flag || temp.style.color === '') return; // parse failed
+
+	// parse failed
+	if (temp.style.color === flag || temp.style.color === '') {
+		removeChild();
+		return;
+	}
 
 	let color = getComputedStyle(temp).color;
-	document.body.removeChild(temp);
+	removeChild();
 
 	return stringToComponents(color);
 }
@@ -28,7 +40,7 @@ export function nameToHex(color) {
  * @return {array}
  */
 export function stringToComponents(color) {
-	const match = color.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d+?))\))?/);
+	const match = color.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d*(?:\.?\d*?))\))?/);
 
 	if (match) {
 		return [
@@ -46,7 +58,7 @@ export function stringToHex(color) {
 }
 
 export function vecToComponents(color) {
-	const match = color.match(/vec[3-4]?\((\d*(?:\.\d*?)), ?(\d*(?:\.\d*?)), ?(\d*(?:\.\d*))?(?:, ?(\d(?:\.\d*?))\))?/);
+	const match = color.match(/vec[3-4]?\((\d*(?:\.\d*?)), ?(\d*(?:\.\d*?)), ?(\d*(?:\.\d*))?(?:, ?(\d*(?:\.?\d*?))\))?/);
 
 	if (match) {
 		return [
@@ -56,12 +68,69 @@ export function vecToComponents(color) {
 			match[4] ? Math.min(1, Math.max(Number(match[4]), 0)) : 1];
 	}
 
+	console.error(`color.vecToComponents :: cannot parse color`, color);
+
 	return [];
 }
 
 export function vecToHex(color) {
 	return componentsToHex(vecToComponents(color));
 }
+
+// https://stackoverflow.com/questions/39118528/rgb-to-hsl-conversion
+export function rgbTohsl(r,g,b) {
+  
+}
+
+export function hslToHSLComponents(color) {
+	const match = color.match(/hsla?\((\d{1,3}), ?(\d{1,3})\%, ?(\d{1,3})\%\)?(?:, ?(\d*(?:\.?\d*?))\))?/);
+
+	if (match) {
+		const h = Math.min(360, Math.max(Number(match[1]), 0));
+		const l = Math.min(100, Math.max(Number(match[2]), 0));
+		const s = Math.min(100, Math.max(Number(match[3]), 0));
+		const a = match[4] ? Math.min(1, Math.max(Number(match[4]), 0)) : 1;
+
+		return [h, s, l, a];
+	}
+
+	console.error(`color.hslToHSLComponents :: cannot parse color`, color);
+	return [];
+}
+
+export function hslToComponents(color) {
+	const [h, s, l, a] = hslToHSLComponents(color);
+
+	// monochromatic
+	if (s === 0) { 
+		const tl = l / 100 * 255;
+
+		return [tl, tl, tl, a];
+	} else {
+		const hue2rgb = (p, q, t) => {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		};
+
+		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		const p = 2 * l - q;
+
+		return [
+			hue2rgb(p, q, h + 1 / 3),
+			hue2rgb(p, q, h),
+			hue2rgb(p, q, h - 1 / 3),
+			a,
+		];
+	}
+}
+
+export function hlsToHex(color) {
+	return componentsToHex(hslToComponents(color));
+};
 
 export function hexToComponents(color) {
 	if (color.length < 7){
@@ -99,6 +168,14 @@ export function hexToVec4String(color) {
 	return componentsToVec4String(hexToComponents(color));
 }
 
+export function hexToHSLString(color) {
+	return componentsToHSLString(hexToComponents(color));
+}
+
+export function hexToHSLAString(color) {
+	return componentsToHSLAString(hexToComponents(color));
+}
+
 export function toComponents(color) {
 	if (isHexString(color)) return hexToComponents(color);
 	if (isRGBAString(color) || isRGBString(color)) return stringToComponents(color);
@@ -106,7 +183,7 @@ export function toComponents(color) {
 	
 	if (typeof color === "string") return nameToComponents(color);
 
-	console.error(`toComponents :: cannot parse color`, color);
+	console.error(`color.toComponents :: cannot parse color`, color);
 }
 
 export function toVec3String(color) {
@@ -173,6 +250,8 @@ export function toHex(color) {
 	if (isVec3String(color)) return vecToHex(color);
 	if (isVec4String(color)) return vecToHex(color);
 	if (!color.includes('rgb')) return nameToHex(color);
+
+	console.error(`color.toHex :: cannot parse color`, color);
 }
 
 export function toRGBString(color) {
@@ -181,16 +260,16 @@ export function toRGBString(color) {
 	return componentsToRGBString([r, g, b]);
 }
 
+export function toRGBAString(color) {
+	return componentsToRGBAString(toComponents(color));
+}
+
 export function hexToRGBString(color) {
 	return componentsToRGBString(hexToComponents(color));
 }
 
 export function hexToRGBAString(color) {
 	return componentsToRGBString(hexToComponents(color));
-}
-
-export function toRGBAString(color) {
-	return componentsToRGBAString(toComponents(color));
 }
 
 export function componentsToRGBString(components) {
@@ -205,19 +284,52 @@ export function componentsToRGBAString(components = []) {
 	return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+export function componentsToHSLComponents(components = []) {
+	const [ r = 0, g = 0, b = 0 ] = components;
+
+	let v = Math.max(r,g,b);
+	let c = v-Math.min(r,g,b);
+	let f = (1-Math.abs(v+v-c-1));
+  	let h = c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
+	h = 60*(h<0?h+6:h);
+
+	let l = (f ? c/f : 0);
+	let s = (v+v-c)/2;
+
+	return [h, s, l];
+}
+
+export function hslToHSLString(components) {
+	const [ h = 0, s = 0, l = 0] = components;
+
+	return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+export function hslaToHSLAString(components) {
+	const [ h = 0, s = 0, l = 0, a = 1] = components;
+
+	return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+}
+
+export function componentsToHSLString(components = []) {
+	const [ r = 0, g = 0, b = 0, a = 1 ] = components;
+	return hslToHSLString(componentsToHSLComponents([r, g, b]));
+}
+
+export function componentsToHSLAString(components = []) {
+	const [ r = 0, g = 0, b = 0, a = 1 ] = components;
+	return hslaToHSLAString(componentsToHSLComponents([r, g, b]));
+}
+
 export function componentToHex(c) {
 	return c.toString(16).padStart(2, 0);
 }
 
-export function componentsToHex(components) {
-	const [r, g, b] = components;
+export function componentsToHex(components = []) {
+	const [ r = 0, g = 0, b = 0 ] = components;
 
 	return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
-
-
-
-
 
 export function isHexString(color, isString = typeof color === "string") {
 	return isString && color[0] === "#";
@@ -229,6 +341,14 @@ export function isRGBAString(color, isString = typeof color === "string") {
 
 export function isRGBString(color, isString = typeof color === "string") {
 	return isString && color.includes("rgb");
+}
+
+export function isHSLAString(color, isString = typeof color === "string") {
+	return isString && color.includes("hsla");
+}
+
+export function isHSLString(color, isString = typeof color === "string") {
+	return isString && color.includes("hsl");
 }
 
 export function isVec3String(color, isString = typeof color === "string") {
@@ -260,6 +380,7 @@ export function isColor(value) {
 	if (isRGBString(value, isString)) return true;
 	if (isVec3String(value, isString)) return true;
 	if (isVec4String(value, isString)) return true;
+	if (isHSLString(value, isString)) return true;
 	if (isRGBArray(value)) return true;
 	if (isRGBAArray(value)) return true;
 	if (isName(value)) return true;
@@ -271,6 +392,8 @@ export const FORMATS = {
 	HEX_STRING: "hex-string",
 	RGB_STRING: "rgb-string",
 	RGBA_STRING: "rgba-string",
+	HSL_STRING: "hsl-string",
+	HSLA_STRING: "hsla-string",
 	RGB_ARRAY: "rgb-array",
 	RGBA_ARRAY: "rgba-array",
 	VEC3_STRING: "vec3-string",
@@ -285,4 +408,6 @@ export function getColorFormat(value) {
 	if (isRGBAArray(value)) return FORMATS.RGBA_ARRAY;
 	if (isVec3String(value)) return FORMATS.VEC3_STRING;
 	if (isVec4String(value)) return FORMATS.VEC4_STRING;
+	if (isHSLAString(value)) return FORMATS.HSLA_STRING;
+	if (isHSLString(value)) return FORMATS.HSL_STRING;
 };

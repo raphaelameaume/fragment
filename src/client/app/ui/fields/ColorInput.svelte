@@ -18,7 +18,12 @@ let format = color.getColorFormat(value);
 let textValue = formatColorFromHex(hexValue);
 let alpha = 1;
 
-$: hasAlpha = typeof textValue === "string" && (color.isRGBAString(textValue) || color.isVec4String(textValue));
+$: hasAlpha = typeof textValue === "string" &&
+    (
+        color.isRGBAString(textValue) ||
+        color.isVec4String(textValue) ||
+        color.isHSLAString(textValue)
+    );
 $: {
     if (isInputDriven) {
         textValue = formatColorFromHex(hexValue);
@@ -44,6 +49,7 @@ function formatColorFromHex(hex) {
     if (format === color.FORMATS.HEX_STRING) return hex;
     if (format === color.FORMATS.VEC3_STRING) return color.hexToVec3String(hex);
     if (format === color.FORMATS.RGB_STRING) return color.hexToRGBString(hex);
+    if (format === color.FORMATS.HSL_STRING) return color.hexToHSLString(components);
 
     let components = color.hexToComponents(hex);
 
@@ -53,6 +59,7 @@ function formatColorFromHex(hex) {
 
     if (format === color.FORMATS.RGBA_STRING) return color.componentsToRGBAString(components);
     if (format === color.FORMATS.VEC4_STRING) return color.componentsToVec4String(components);
+    if (format === color.FORMATS.HSLA_STRING) return color.componentsToHSLAString(components);
 }
 
 function onChangeText(event) {
@@ -70,17 +77,19 @@ function onChangeText(event) {
 
 function onChangeAlpha(event) {
     isInputDriven = false;
-    
+
     if (format === color.FORMATS.RGBA_STRING) {
         const [r, g, b] = color.hexToComponents(hexValue);
 
         textValue = color.componentsToRGBAString([r, g, b, event.detail]);
-
-
     } else if (format === color.FORMATS.VEC4_STRING) {
-        const [r, g, b] = color.hexToComponents(hexValue);
+        const [r, g, b] = color.vecToComponents(textValue);
 
         textValue = color.componentsToVec4String([r, g, b, event.detail]);
+    } else if (format === color.FORMATS.HSLA_STRING) {
+        const [h, s, l] = color.hslToHSLComponents(textValue);
+
+        textValue = color.hslaToHSLAString([h, s, l, event.detail]);
     }
 }
 
