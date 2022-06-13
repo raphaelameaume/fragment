@@ -3,7 +3,7 @@
 
 # CLI
 
-Once `fragment` is properly [installed](../../README.md#installation), you can create and launch it from the command line.
+Once `fragment` is properly [installed](../../README.md#installation), you can launch it and create sketches from the command line.
 
 ## Usage
 
@@ -26,7 +26,7 @@ fragment ./sketch.js --new --template=three/orthographic
 
 | Flag | Shortcut | Description | Default |
 |---|---|---|---|
-|`--new`| `-n` | Create a new file and start Fragment | `false` |
+|`--new`| `-n` | Create a new file and start | `false` |
 |`--template`| `-t` | Specify the type of template to use as source | `2d` |
 |`--port`| `-p` | Specify the server port.  | `3000` |
 
