@@ -25,7 +25,7 @@ fragment ./sketch.js --new --template=three/orthographic
 ## Options
 
 | Flag | Shortcut | Description | Default |
-|---|---|---|
+|---|---|---|---|
 |`--new`| `-n` | Create a new file and start Fragment | `false` |
 |`--template`| `-t` | Specify the type of template to use as source | `2d` |
 |`--port`| `-p` | Specify the server port.  | `3000` |
