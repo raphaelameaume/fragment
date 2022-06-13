@@ -182,7 +182,7 @@ export let props = {
 | prop type | value type | params | field |
 |---|---|---|---|
 | `number` | `number` | { disabled?: `boolean`, step?: `number`, min:`number`, max: `number` } | `<ProgressInput?>` + `<NumberInput>` |
-| `select` | `number|string` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
+| `select` | `number\|string` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
 | `text` | `string` | { disabled?: `boolean`} | `<TextInput>`|
 | `button` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
 | `download` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|

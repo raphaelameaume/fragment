@@ -1,4 +1,4 @@
-import { colord } from "colord";
+import { isColor } from "./color.utils";
 
 export function inferFromParams(params) {
     if (params.options && Array.isArray(params.options)) {
@@ -20,8 +20,7 @@ export function inferFromValue(value) {
     } else if (typeof value === "boolean") {
         return "checkbox";
     } else if (typeof value === "string") {
-        if (colord(value).parsed) return "color";
-        return "text";
+        return isColor(value) ? "color" : "text";
     } else if (Array.isArray(value) && value.length === 2) {
         return "vec2";
     } else if (Array.isArray(value) && value.length === 3) {
