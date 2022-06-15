@@ -4,7 +4,7 @@ import { derived, writable } from "svelte/store";
 import { current as currentSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
-import { props } from "../stores/index.js";
+import { exports, props } from "../stores/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 
 import { client } from "../client";
@@ -14,12 +14,12 @@ import { transitions } from "../transitions/index.js";
 import { findRenderer } from "../stores/renderers";
 import { onKeyDown } from "../triggers/Keyboard.js";
 import { removeHotListeners } from "../triggers/index.js";
+import { recording } from "../stores/exports.js";
 
 export let key;
 export let index = 0;
 export let paused = false;
 export let visible = true;
-export let recording = writable(false);
 
 let node, container;
 let framerate = 60;
@@ -218,9 +218,14 @@ let record = $recording;
 $: {
     if ($recording && !record) {
         let recordOptions = {
-            name: key,
             onTick: _renderSketch,
-            framerate: 30,
+            framerate: $exports.framerate,
+            filename: key,
+            pattern: sketch?.filenamePattern,
+            format: $exports.videoFormat,
+            params: {
+                props: sketch.props,
+            },
             onStart: () => {
                 elapsedRenderingTime = 0;
             },
@@ -230,17 +235,20 @@ $: {
             }
         };
 
-        if (sketch && sketch.duration) {
-            recordOptions.duration = sketch.duration * 4;
+        if ($exports.useDuration) {
+            recordOptions.duration = sketch.duration;
         }
+
+        console.log("startRecording");
 
         record = recordCanvas(canvas, recordOptions);
     }
 
     if (record && !$recording) {
+        console.log("stopRecording");
+
         record.stop();
-        $recording = false;
-        record = null;
+        record = false;
     }
 }
 

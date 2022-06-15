@@ -24,7 +24,6 @@ instances++;
 $currentModule.params.index = index;
 
 let paused = false;
-let recording = writable(false);
 
 let selected;
 
@@ -70,11 +69,6 @@ async function screenshot() {
     paused = false;
 }
 
-function record() {
-    $recording = !$recording;
-    paused = $recording;
-}
-
 function handleSketchChange(event) {
     selected = event.detail;
 }
@@ -83,7 +77,6 @@ function handleSketchChange(event) {
 
 <Module name={`${name}`}>
     <svelte:fragment slot="header-left">
-        <ModuleHeaderAction border label="Record" on:click={record}>{$recording ? 'stop' : 'record'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
         <ModuleHeaderAction border label="Refresh" on:click={() => {}}>save</ModuleHeaderAction>
     </svelte:fragment>
@@ -94,7 +87,7 @@ function handleSketchChange(event) {
         />
     </svelte:fragment>
     {#if selected && selected !== "output"}
-        <SketchRenderer key={selected} {index} {paused} {recording}/>
+        <SketchRenderer key={selected} {index} {paused} />
     {:else if selected }
         <OutputRenderer {paused} />
     {/if}

@@ -3,7 +3,16 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import { exports } from "../stores";
-import { IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
+import { IMAGE_ENCODINGS, recording, VIDEO_FORMATS } from "../stores/exports";
+
+const LABEL_RECORD = "start";
+const LABEL_RECORDING = "stop";
+
+function record () {
+	$recording = !$recording;
+}
+
+$: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 
 </script>
 
@@ -40,12 +49,14 @@ import { IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
 			value={$exports.framerate}
 			on:change={((e) => {
 				$exports.framerate = e.detail;
+
+				console.log($exports.framerate);
 			})}
 		/>
 		<Field
 			key="format"
 			value={$exports.videoFormat}
-			params={{ options: VIDEO_FORMATS }}
+			params={{ options: Object.values(VIDEO_FORMATS) }}
 			on:change={((e) => {
 				$exports.videoFormat = e.detail;
 			})}
@@ -56,6 +67,11 @@ import { IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
 			on:change={((e) => {
 				$exports.useDuration = e.detail;
 			})}
+		/>
+		<Field
+			key="record"
+			value={record}
+			params={{ label }}
 		/>
 	</FieldGroup>
 </Module>

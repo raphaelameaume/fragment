@@ -7,12 +7,12 @@ export default function screenshot({ cwd }) {
 		name: 'screenshot',
 		configureServer(server){
 			server.middlewares.use(bodyParser.json({ limit: '50mb'}))
-			server.middlewares.use('/screenshot', (req, res, next) => {
+			server.middlewares.use('/save', (req, res, next) => {
 				if (req.method === "POST") {
 					const { filename, dataURL } = req.body;
 
 					const filepath = path.join(cwd, filename);
-					const buffer = Buffer.from(dataURL.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+					const buffer = Buffer.from(dataURL, 'base64');
 
 					fs.writeFile(filepath, buffer, (error) => {
 						let statusCode = error ? 500 : 200;
@@ -24,8 +24,7 @@ export default function screenshot({ cwd }) {
 				} else {
 					next();
 				}
-			})
-			
+			});
 		}
 	}
 
