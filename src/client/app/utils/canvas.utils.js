@@ -5,9 +5,10 @@ https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad84
 import { changeDpiDataUrl } from "changedpi";
 import { get } from "svelte/store";
 import { exports } from "../stores";
-import WebMWriter from "webm-writer";
 import { VIDEO_FORMATS } from "../stores/exports";
 import { downloadBlob } from "./file.utils";
+import WebMRecorder from "../lib/canvas-recorder/WebMRecorder";
+import MP4Recorder from "../lib/canvas-recorder/MP4Recorder";
 
 const supportedEncodings = [
     'image/png',
@@ -176,72 +177,18 @@ export async function screenshotCanvas(canvas, {
     });
 }
 
-let ffmpeg;
-let noop = () => {};
+function recordCanvasWebM(canvas, options) {
+    let recorder = new WebMRecorder(canvas, options);
+    recorder.start();
 
-function recordCanvasWebM(canvas, {
-    filename = 'output',
-    framerate = 25,
-    duration = Infinity,
-    onStart = noop,
-    onTick = noop,
-    onComplete = noop,
-}) {
-    let writer = new WebMWriter({
-        quality: 0.95,
-        frameRate: framerate,
-    });
+    return recorder;
+}
 
-    let time = 0;
-    let deltaTime = 0;
-    let frameCount = 0;
-    let frameTotal = isFinite(duration) ? duration * framerate : Infinity;
-    let started = false;
-    let stopped = false;
+function recordCanvasMp4(canvas, options) {
+    let recorder = new MP4Recorder(canvas, options);
+    recorder.start();
 
-    function start() {
-        started = true;
-
-        tick();
-    }
-
-    async function onEnd() {
-        onComplete();
-
-        let blob = await writer.complete();
-        saveBlob(blob, {
-            filename: `${filename}.webm`,
-            onError: () => {
-                console.log(`[fragment] Error while saving record.`);
-            }
-        });
-    }
-
-    function tick() {
-        onTick({ time, deltaTime });
-        
-        writer.addFrame(canvas);
-
-        deltaTime = (1000 / framerate);
-        time += deltaTime;
-        frameCount++;
-
-        console.log(frameCount, frameTotal, isFinite(frameTotal) && frameCount < frameTotal);
-
-        if (started && !stopped && (!isFinite(frameTotal) || (isFinite(frameTotal) && frameCount < frameTotal))) {
-            requestAnimationFrame(tick);
-        } else {
-            onEnd();
-        }
-    }
-
-    start();
-
-    return {
-        stop: () => {
-            stopped = true;
-        }
-    }
+    return recorder;
 }
 
 export function recordCanvas(canvas, {
@@ -254,99 +201,38 @@ export function recordCanvas(canvas, {
     onTick = () => {},
     onComplete = () => {}
 } = {}) {
-    let time = 0;
-    let deltaTime = 0;
-    let stopped = false;
-    let frameCount = 0;
-
     let patternParams = getFilenameParams();
     let name = pattern({ filename, ...patternParams });
 
+    function complete(result) {
+        saveBlob(result, {
+            filename: `${name}.${format}`,
+            onError: () => {
+                console.log(`[fragment] Error while saving record.`);
+            }
+        });
+        onComplete();
+    }
+
     const options = {
-        filename: name,
         framerate,
         duration,
         onStart,
         onTick,
-        onComplete,
+        onComplete: complete,
     };
 
-    let recorder; 
+    let recorder;
 
     if (format === VIDEO_FORMATS.WEBM) {
         recorder = recordCanvasWebM(canvas, options);
-    } else {
-        if (!ffmpeg) {
-            const { createFFmpeg } = FFmpeg;
-
-            ffmpeg = createFFmpeg({ log: false });
-        }
-
-        async function onEnd() {
-            if (frameCount > 1) {
-                console.log(`[fragment] record canvas - compile ${frameCount} frames...`);
-
-                const filename = `${name}.${getFileNameSuffix()}.${extension}`;
-
-                await ffmpeg.run(...(`-r ${framerate} -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.${extension}`.split(' ')));
-                const data = ffmpeg.FS('readFile', `output.${extension}`);
-                const blob = new Blob([data.buffer], { type: `video/${extension}` });
-
-                downloadBlob(blob, { filename });
-            } else {
-                console.log(`[fragment] record canvas - stopped before rendering started.`);
-            }
-        }
-
-        function tick() {
-            if (stopped) {
-                return onEnd();
-            }
-
-            onTick({ time, deltaTime });
-
-            deltaTime = (1000 / framerate);
-            time += deltaTime;
-
-            canvas.toBlob(async function(blob) {
-                const fn = `frame_${frameCount.toString().padStart(4, '0')}.png`;
-                ffmpeg.FS('writeFile', fn, new Uint8Array(await blob.arrayBuffer()));
-
-                frameCount++;
-
-                console.log(`[fragment] recording canvas - render frame ${frameCount} - duration ${time}ms`);
-
-                if (frameCount < framerate * duration) {
-                    requestAnimationFrame(tick);
-                } else {
-                    await onEnd();
-                    onComplete();
-                }
-            });
-        }
-
-        let promise = Promise.resolve();
-        
-        if (!ffmpeg.isLoaded()) {
-            console.log(`[fragment] loading ffmpeg...`);
-            promise = ffmpeg.load().then(() => {
-                console.log(`[fragment] loaded ffmpeg`);
-            })
-        }
-
-        promise.then(() => {
-            onStart();
-            tick();
-        });
+    } else if (format === VIDEO_FORMATS.MP4) {
+        recorder = recordCanvasMp4(canvas, options);
     }
 
-    return {
-        stop: () => {
-            if (recorder) {
-                recorder.stop();
-            }
-
-            stopped = true;
-        }
+    if (!recorder) {
+        console.error(`Cannot find matching recorder`);
     }
+
+    return recorder;
 };

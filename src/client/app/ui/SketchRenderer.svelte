@@ -239,14 +239,10 @@ $: {
             recordOptions.duration = sketch.duration;
         }
 
-        console.log("startRecording");
-
         record = recordCanvas(canvas, recordOptions);
     }
 
     if (record && !$recording) {
-        console.log("stopRecording");
-
         record.stop();
         record = false;
     }
