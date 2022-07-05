@@ -10,29 +10,8 @@ import { downloadBlob } from "./file.utils";
 import WebMRecorder from "../lib/canvas-recorder/WebMRecorder";
 import MP4Recorder from "../lib/canvas-recorder/MP4Recorder";
 import GIFRecorder from "../lib/canvas-recorder/GIFRecorder";
-
-const supportedEncodings = [
-    'image/png',
-    'image/jpeg',
-    'image/webp'
-];
-
-export function exportCanvas (canvas, { encoding = 'image/png', encodingQuality = 0.92 } = {}) {
-    if (!supportedEncodings.includes(encoding)) throw new Error(`Invalid canvas encoding ${encoding}`);
-
-    let extension = (encoding.split('/')[1] || '').replace(/jpeg/i, 'jpg');
-    if (extension) {
-        extension = `.${extension}`.toLowerCase();
-    }
-
-    let dataURL = canvas.toDataURL(encoding, encodingQuality); 
-
-    return {
-        extension,
-        type: encoding,
-        dataURL
-    };
-}
+import FrameRecorder from "../lib/canvas-recorder/FrameRecorder";
+import { exportCanvas } from "../lib/canvas-recorder/utils";
 
 export async function saveDataURL(dataURL, options) {
     async function onError(err) {
@@ -199,6 +178,13 @@ function recordCanvasGIF(canvas, options) {
     return recorder;
 }
 
+function recordCanvasFrames(canvas, options) {
+    let recorder = new FrameRecorder(canvas, options);
+    recorder.start();
+
+    return recorder;
+}
+
 export function recordCanvas(canvas, {
     filename = 'output',
     format = 'mp4',
@@ -206,6 +192,7 @@ export function recordCanvas(canvas, {
     duration = Infinity,
     quality = 100,
     pattern = defaultFilenamePattern,
+    imageEncoding,
     onStart = () => {},
     onTick = () => {},
     onComplete = () => {}
@@ -213,15 +200,27 @@ export function recordCanvas(canvas, {
     let patternParams = getFilenameParams();
     let name = pattern({ filename, ...patternParams });
 
-    console.log("record canvas", quality);
-
     function complete(result) {
-        saveBlob(result, {
-            filename: `${name}.${format}`,
-            onError: () => {
-                console.log(`[fragment] Error while saving record.`);
+        if (Array.isArray(result)) {
+            const frmt = format === VIDEO_FORMATS.FRAMES ? imageEncoding : format;
+
+            for (let i = 0; i < result.length; i++) {
+                const index = `${i}`.padStart(`${result.length}`.length, '0');
+                saveBlob(result[i], {
+                    filename: `${name}-${index}.${frmt}`,
+                    onError: () => {
+                        console.log(`[fragment] Error while saving record.`);
+                    }
+                });
             }
-        });
+        } else {
+            saveBlob(result, {
+                filename: `${name}.${format}`,
+                onError: () => {
+                    console.log(`[fragment] Error while saving record.`);
+                }
+            });
+        }
         onComplete();
     }
 
@@ -242,6 +241,11 @@ export function recordCanvas(canvas, {
         recorder = recordCanvasMp4(canvas, options);
     } else if (format === VIDEO_FORMATS.GIF) {
         recorder = recordCanvasGIF(canvas, options);
+    } else if (format === VIDEO_FORMATS.FRAMES) {
+        recorder = recordCanvasFrames(canvas, {
+            ...options,
+            imageEncoding,
+        });
     }
 
     if (!recorder) {

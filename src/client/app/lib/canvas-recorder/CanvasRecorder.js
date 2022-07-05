@@ -76,7 +76,7 @@ class CanvasRecorder {
 	tick() {}
 
 	end() {
-		console.log(`CanvasRecorder - compiled frames`);
+		console.log(`CanvasRecorder - compiled ${this.frameCount} frames`);
 		this.onComplete(this.result);
 	}
 

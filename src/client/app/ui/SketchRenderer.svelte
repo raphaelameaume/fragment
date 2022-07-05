@@ -223,6 +223,7 @@ $: {
             filename: key,
             pattern: sketch?.filenamePattern,
             format: $exports.videoFormat,
+            imageEncoding: $exports.imageEncoding,
             quality: $exports.videoQuality,
             params: {
                 props: sketch.props,
