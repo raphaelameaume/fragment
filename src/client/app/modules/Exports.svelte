@@ -62,12 +62,30 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 			})}
 		/>
 		<Field
+			key="quality"
+			value={$exports.videoQuality}
+			params={{ min: 1, max: 100, step: 1, suffix: "%" }}
+			on:change={((e) => {
+				$exports.videoQuality = e.detail;
+			})}
+		/>
+		<Field
 			key="useDuration"
 			value={$exports.useDuration}
 			on:change={((e) => {
 				$exports.useDuration = e.detail;
 			})}
 		/>
+		{#if $exports.useDuration }
+		<Field
+			key="loopCount"
+			value={$exports.loopCount}
+			params={{ step: 1 }}
+			on:change={((e) => {
+				$exports.loopCount = e.detail;
+			})}
+		/>
+		{/if}
 		<Field
 			key="record"
 			value={record}

@@ -223,6 +223,7 @@ $: {
             filename: key,
             pattern: sketch?.filenamePattern,
             format: $exports.videoFormat,
+            quality: $exports.videoQuality,
             params: {
                 props: sketch.props,
             },
@@ -236,7 +237,7 @@ $: {
         };
 
         if ($exports.useDuration) {
-            recordOptions.duration = sketch.duration;
+            recordOptions.duration = sketch.duration * $exports.loopCount;
         }
 
         record = recordCanvas(canvas, recordOptions);

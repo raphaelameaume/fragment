@@ -9,6 +9,7 @@ import { VIDEO_FORMATS } from "../stores/exports";
 import { downloadBlob } from "./file.utils";
 import WebMRecorder from "../lib/canvas-recorder/WebMRecorder";
 import MP4Recorder from "../lib/canvas-recorder/MP4Recorder";
+import GIFRecorder from "../lib/canvas-recorder/GIFRecorder";
 
 const supportedEncodings = [
     'image/png',
@@ -191,11 +192,19 @@ function recordCanvasMp4(canvas, options) {
     return recorder;
 }
 
+function recordCanvasGIF(canvas, options) {
+    let recorder = new GIFRecorder(canvas, options);
+    recorder.start();
+
+    return recorder;
+}
+
 export function recordCanvas(canvas, {
     filename = 'output',
     format = 'mp4',
     framerate = 25,
     duration = Infinity,
+    quality = 100,
     pattern = defaultFilenamePattern,
     onStart = () => {},
     onTick = () => {},
@@ -203,6 +212,8 @@ export function recordCanvas(canvas, {
 } = {}) {
     let patternParams = getFilenameParams();
     let name = pattern({ filename, ...patternParams });
+
+    console.log("record canvas", quality);
 
     function complete(result) {
         saveBlob(result, {
@@ -217,6 +228,7 @@ export function recordCanvas(canvas, {
     const options = {
         framerate,
         duration,
+        quality,
         onStart,
         onTick,
         onComplete: complete,
@@ -228,6 +240,8 @@ export function recordCanvas(canvas, {
         recorder = recordCanvasWebM(canvas, options);
     } else if (format === VIDEO_FORMATS.MP4) {
         recorder = recordCanvasMp4(canvas, options);
+    } else if (format === VIDEO_FORMATS.GIF) {
+        recorder = recordCanvasGIF(canvas, options);
     }
 
     if (!recorder) {

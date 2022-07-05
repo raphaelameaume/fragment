@@ -5,6 +5,7 @@ class CanvasRecorder {
 	constructor(canvas, {
 		duration = Infinity,
 		framerate = 25,
+		quality = 100,
 		onStart = noop,
 		onTick = noop,
 		onComplete = noop,
@@ -12,6 +13,7 @@ class CanvasRecorder {
 		this.canvas = canvas;
 		this.framerate = framerate;
 		this.duration = duration;
+		this.quality = quality;
 		this.onStart = onStart;
 		this.onTick = onTick;
 		this.onComplete = onComplete;
@@ -19,6 +21,7 @@ class CanvasRecorder {
 		this.time = 0;
 		this.deltaTime = (1000 / this.framerate);
 
+		this.frameDuration = (1000 / this.framerate);
 		this.frameTotal = isFinite(duration) ? this.duration * this.framerate : Infinity;
 		this.started = false;
 		this.stopped = false;
@@ -36,7 +39,7 @@ class CanvasRecorder {
 			return;
 		}
 
-		console.log(`CanvasRecorder - start`);
+		console.log(`CanvasRecorder - start rendering ${this.frameTotal} frames`, this.framerate, this.duration);
 
 		this.frameCount = 0;
 		this.started = true;
@@ -52,7 +55,11 @@ class CanvasRecorder {
 			deltaTime: this.deltaTime,
 		});
 
-		await this.tick();
+		await this.tick({
+			time: this.time,
+			deltaTime: this.deltaTime,
+			frameCount: this.frameCount,
+		});
 
 		if (this.started && !this.stopped && (!isFinite(this.frameTotal) || (isFinite(this.frameTotal) && this.frameCount < this.frameTotal))) {
 			this.time += this.deltaTime;
@@ -61,7 +68,7 @@ class CanvasRecorder {
 				this._tick()
 			});
         } else {
-			console.log(`CanvasRecorder - compiling frames...`);
+			console.log(`CanvasRecorder - compiling ${this.frameCount} frames...`);
             this.end();
         }
 	}

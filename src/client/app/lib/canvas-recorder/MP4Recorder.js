@@ -1,20 +1,29 @@
-import CanvasRecorder from "./Recorder";
+import { loadScript } from "../loader/loadScript";
+import CanvasRecorder from "./CanvasRecorder";
 
 let ffmpeg;
 
 class MP4Recorder extends CanvasRecorder {
+
+	static loaded = false;
 	
 	constructor(canvas, options) {
 		super(canvas, options);
+	}
+
+	async load() {
+		if (!MP4Recorder.loaded) {
+			await loadScript("/js/ffmpeg.min.js");
+
+			MP4Recorder.loaded = true;
+		}
 
 		if (!ffmpeg) {
             const { createFFmpeg } = FFmpeg;
 
             ffmpeg = createFFmpeg({ log: false });
         }
-	}
 
-	load() {
 		if (!ffmpeg.isLoaded()) {
             console.log(`[fragment] MP4Recorder - loading ffmpeg...`);
             return ffmpeg.load().then(() => {
@@ -34,7 +43,7 @@ class MP4Recorder extends CanvasRecorder {
 	}
 
 	async end() {
-		await ffmpeg.run(...(`-r ${this.framerate} -i frame_%04d.png -vcodec libx264 -crf 15 -pix_fmt yuv420p output.mp4`.split(' ')));
+		await ffmpeg.run(...(`-r ${this.framerate} -i frame_%04d.png -vcodec libx264 -pix_fmt yuv420p output.mp4`.split(' ')));
         const data = ffmpeg.FS('readFile', `output.mp4`);
 
 		this.result = new Blob([data.buffer], { type: `video/mp4` });

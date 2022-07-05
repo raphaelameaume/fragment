@@ -20,6 +20,8 @@ export const exports = writable({
 		pixelsPerInch: 72,
 		framerate: 60,
 		useDuration: true,
+		loopCount: 1,
+		videoQuality: 100,
 	}, false)
 });
 
