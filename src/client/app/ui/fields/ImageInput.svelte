@@ -1,6 +1,8 @@
 <script>
 import { onMount } from "svelte";
 import { loadImage } from "../../lib/loader/loadImage";
+import ButtonInput from "./ButtonInput.svelte";
+import FieldInputRow from "./FieldInputRow.svelte";
 import TextInput from "./TextInput.svelte";
 
 export let value;
@@ -62,38 +64,57 @@ function handleDragleave(event) {
 </script>
 
 <div class="img-container">
-	<div
-		class="preview"
-		on:click={handleClick}
-		class:dragover={dragover}
-		on:dragover={handleDragover}
-		on:dragleave={handleDragleave}
-		on:drop={handleUpload}
-	>
-		<img class="img" src="" alt="" bind:this={img}/>
-		<input class="input" type="file" bind:this={input} on:change={handleUpload} />
-	</div>
-	<TextInput disabled value={displayUrl} />
+	<FieldInputRow --grid-template-columns="1fr 0.5fr">
+		<div class="row">
+			<div
+				class="preview"
+				on:click={handleClick}
+				class:dragover={dragover}
+				on:dragover={handleDragover}
+				on:dragleave={handleDragleave}
+				on:drop={handleUpload}
+			>
+				<img class="img" src="" alt="" bind:this={img}/>
+				<input class="input" type="file" bind:this={input} on:change={handleUpload} />
+			</div>
+			<TextInput disabled value={displayUrl} />
+		</div>
+		<ButtonInput
+			label="click or drop"
+			on:click={handleClick}
+			on:dragover={handleDragover}
+			on:dragleave={handleDragleave}
+			on:drop={handleUpload}
+		/>
+	</FieldInputRow>
+	
 </div>
 
 <style>
 .img-container {
 	width: 100%;
-	/* display: flex; */
 }
 
 .preview {
-	width: 100%;
-
+	width: var(--height-input);
+	height: var(--height-input);
+;
 	display: grid;
 	place-items: center;
-	padding: var(--padding);
 
 	border-radius: var(--border-radius-input);
     background-color: var(--color-background-input);
     box-shadow: inset 0 0 0 1px var(--color-border-input);
 
 	cursor: copy;
+	overflow: hidden;
+}
+
+.row {
+	display: grid;
+	grid-template-columns: 20px auto;
+	gap: var(--column-gap);
+	place-items: center;
 }
 
 .preview:hover {
@@ -111,7 +132,8 @@ function handleDragleave(event) {
 }
 
 .img {
-	height: calc(var(--height-input) * 3);
+	max-width: calc(100% - var(--padding) * 0.5);
+	max-height: calc(100% - var(--padding) * 0.5);
 }
 
 .input {
