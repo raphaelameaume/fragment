@@ -84,6 +84,10 @@ let el;
     outline: 0;
 }
 
+.input:disabled {
+    opacity: 0.4;
+}
+
 :global(.field.disabled) .input {
     opacity: 0.4;
 }
