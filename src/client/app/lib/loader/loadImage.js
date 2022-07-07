@@ -1,21 +1,19 @@
-export function loadImage(url, { id = url } = {}) {
-    const image = new Image();
-
+export function loadImage(url, { id = url, img = new Image() } = {}) {
     return new Promise((resolve, reject) => {
         function onLoad() {
-            image.removeEventListener('load', onLoad);
-            resolve(image);
+            img.removeEventListener('load', onLoad);
+            resolve(img);
         }
 
         function onError(error) {
-            image.removeEventListener('load', onLoad);
-            image.removeEventListener('error', onError);
+            img.removeEventListener('load', onLoad);
+            img.removeEventListener('error', onError);
             reject(error);
         }
 
-        image.addEventListener('load', onLoad);
-        image.addEventListener('error', onError);
+        img.addEventListener('load', onLoad);
+        img.addEventListener('error', onError);
 
-        image.src = url;
+        img.src = url;
     });
 };

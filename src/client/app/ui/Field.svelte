@@ -10,6 +10,7 @@ import TextInput from "./fields/TextInput.svelte";
 import ColorInput from "./fields/ColorInput.svelte";
 import ListInput from "./fields/ListInput.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
+import ImageInput from "./fields/ImageInput.svelte";
 import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
@@ -34,6 +35,7 @@ const fields = {
     "color": ColorInput,
     "button": ButtonInput,
     "download": ButtonInput,
+    "image": ImageInput,
 };
 
 const onTriggers = {

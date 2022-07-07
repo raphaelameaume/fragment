@@ -1,5 +1,14 @@
 import { isColor } from "./color.utils";
 
+
+function isImageURL(url) {
+    return url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null;
+}
+
+function isImage(value) {
+    return typeof value === HTMLImageElement || isImageURL(value);
+}
+
 export function inferFromParams(params) {
     if (params.options && Array.isArray(params.options)) {
         return "select";
@@ -20,7 +29,14 @@ export function inferFromValue(value) {
     } else if (typeof value === "boolean") {
         return "checkbox";
     } else if (typeof value === "string") {
-        return isColor(value) ? "color" : "text";
+        if (isColor(value)) {
+            return "color";
+        } else if (isImage(value)) {
+            return "image";
+        }
+
+        return "text";
+
     } else if (Array.isArray(value) && value.length === 2) {
         return "vec2";
     } else if (Array.isArray(value) && value.length === 3) {
