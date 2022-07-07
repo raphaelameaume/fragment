@@ -43,6 +43,7 @@ export let options = [];
 
 .text:not(:empty) {
     color: inherit;
+    background: transparent;
     width: 100%;
     font-size: 10px;
 

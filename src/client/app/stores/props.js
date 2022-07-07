@@ -1,5 +1,5 @@
 import { writable, get } from "svelte/store";
-import { current as sketches } from "./sketches";
+import { all as sketches } from "./sketches";
 
 export const props = writable({});
 

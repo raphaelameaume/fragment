@@ -7,7 +7,7 @@ import { getContext, onDestroy, onMount } from "svelte";
 import { sketchesCount } from "@fragment/props";
 import { props } from "../stores";
 import { monitors } from "../stores/rendering.js";
-import { current as sketches } from "../stores/sketches.js";
+import { all as sketches } from "../stores/sketches.js";
 
 import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";

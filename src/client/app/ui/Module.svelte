@@ -7,27 +7,14 @@ import ModuleHeaderSelect from "./ModuleHeaderSelect.svelte";
 
 export let name;
 export let scrollable = true;
+export let hasHeader = true;
 
 let minimized = false;
 
-let style = "";
-
-let rowIndex = getContext("rowIndex");
-let colIndex = getContext("colIndex");
-let index = getContext("moduleIndex");
-
-let current = getContext("currentModule");
-
-$: {
-    let modulesInCol = $currentLayout.rows[rowIndex].cols[colIndex].modules.length;
-
-    // style = minimized ? `height: 25px;` : `height: ${100/modulesInCol}%; flex-shrink: 0; flex-grow: 0;`;
-}
-
 </script>
 
-<div class="module module--{name}" class:minimized={minimized} style={style} class:scrollable={scrollable}>
-    {#if name}
+<div class="module module--{name}" class:minimized={minimized} class:scrollable={scrollable} class:no-header={!hasHeader}>
+    {#if hasHeader && name}
         <header class="module__header" >
             <div class="header__col">
                 {#if $currentLayout.editable }
@@ -79,13 +66,18 @@ $: {
 
 <style>
 .module {
+    --header-height: 25px;
     height: 100%;
+}
+
+.module.no-header {
+    --header-height: 0px;
 }
 
 .module__header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    height: 25px;
+    height: var(--header-height);
     flex-shrink: 0;
     align-items: center;
 
@@ -124,7 +116,7 @@ $: {
 .module__container {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 25px);
+    height: calc(100% - var(--header-height));
 }
 
 .module.scrollable .module__container {

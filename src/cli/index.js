@@ -30,9 +30,11 @@ export const run = async (entry, options) => {
         if (entries.length > 0) {
             const filepaths = await generateFiles(entries, options);
 
-            wsServer = await startWebSocketServer({
-                cwd: process.cwd(),
-            });
+            if (!options.build) {
+                wsServer = await startWebSocketServer({
+                    cwd: process.cwd(),
+                });
+            }
 
             await startViteServer({
                 options,

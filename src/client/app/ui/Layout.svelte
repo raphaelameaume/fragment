@@ -4,13 +4,13 @@ import RowToolBar from "./RowToolBar.svelte";
 import Column from "./Column.svelte";
 import ModuleRenderer from "./ModuleRenderer.svelte";
 import Resizer from "./Resizer.svelte";
+import { singleLayout } from "../stores/layout.js"; 
 import { defaultLayouts } from "../data/LayoutData";
 import { onKeyDown } from "../triggers/Keyboard";
 
 import { current as currentLayout } from "../stores/layout.js";
 import { onDestroy, onMount } from "svelte";
 
-let outputLayout = defaultLayouts.find(l => l.name === "Output");
 let trigger;
 
 onMount(() => {
@@ -18,13 +18,11 @@ onMount(() => {
 
     trigger = onKeyDown('o', () => {
         currentLayout.update((curr) => {
-            let layout = prev ? prev : outputLayout.data;
+            let layout = prev ? prev : singleLayout;
 
             prev = {...curr};
 
-            return {
-                ...layout,
-            }
+            return layout;
         });
     });
 });

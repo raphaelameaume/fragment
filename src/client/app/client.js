@@ -1,11 +1,7 @@
 const socketProtocol = (location.protocol === 'https:' ? 'wss' : 'ws');
 const socketHost = `${location.hostname}:${__FRAGMENT_PORT__}`;
 
-const socket = new WebSocket(`${socketProtocol}://${socketHost}`);
-
-console.log("[fragment] connecting...");
-
-let listeners = {};
+let socket, listeners = {};
 
 function handleMessage(payload) {
     const { event, data = {} } = payload;
@@ -15,12 +11,6 @@ function handleMessage(payload) {
         callbacks.forEach((cb) => cb(data));
     }
 }
-
-socket.addEventListener('message', async (message) => {
-    const { data } = message;
-
-    handleMessage(JSON.parse(data));
-});
 
 function on(event, cb) {
     if (!listeners[event]) {
@@ -54,12 +44,22 @@ function emit(event, data) {
     }
 }
 
-socket.addEventListener("open", () => {
-    console.log("[fragment] connected.");
-    opened = true;
-});
-
 if (import.meta.hot) {
+    console.log("[fragment] connecting...");
+
+    socket = new WebSocket(`${socketProtocol}://${socketHost}`);
+
+    socket.addEventListener('message', async (message) => {
+        const { data } = message;
+
+        handleMessage(JSON.parse(data));
+    });
+
+    socket.addEventListener("open", () => {
+        console.log("[fragment] connected.");
+        opened = true;
+    });
+
     import.meta.hot.on('sketch-update', (data) => {
         console.log(`[fragment] hot updated: ${data.filepath}`);
     })

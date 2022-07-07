@@ -157,7 +157,7 @@ $: {
         options: sizes,
     }}
 />
-{#if $currentRendering.resizing === "aspect-ratio"}
+{#if $currentRendering.resizing === SIZES.ASPECT_RATIO}
 <Field
     key="aspectRatio"
     value={$currentRendering.aspectRatio}

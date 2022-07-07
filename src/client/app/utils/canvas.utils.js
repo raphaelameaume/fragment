@@ -109,7 +109,7 @@ function getFilenameParams() {
     const minutes = now.toLocaleString('default', { minute: 'numeric' }).padStart(2, `0`);
     const seconds = now.toLocaleString('default', { second: 'numeric' }).padStart(2, `0`);
 
-    const suffix = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
+    const timestamp = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
 
     return {
         year,
@@ -118,15 +118,15 @@ function getFilenameParams() {
         hours,
         minutes,
         seconds,
-        suffix,
+        timestamp,
     };
 }
 
 export const defaultFilenamePattern = ({
     filename,
-    suffix,
+    timestamp,
 }) => {
-    return `${filename}.${suffix}`;
+    return `${filename}.${timestamp}`;
 };
 
 export async function screenshotCanvas(canvas, {

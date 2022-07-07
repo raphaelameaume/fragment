@@ -5,19 +5,25 @@ import { keepInSync, rehydrate } from "./utils";
 
 const isMany = sketchesCount > 1;
 const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
-const outputLayout = defaultLayouts.find((layout) => layout.name === "Output");
 
-let defaultLayout = defaultLayouts.filter((layout) => layout.isMany === isMany)[0];
+export const outputLayout = defaultLayouts.find((layout) => layout.name === "Output");
+export const singleLayout = defaultLayouts.find((layout) => layout.name === "Single");
+export const defaultLayout = defaultLayouts.find((layout) => layout.name === "Sketching");
+
+
+if (__PRODUCTION__) {
+    defaultLayout = singleLayout;
+}
 
 let override = !window.location.search.includes('?output');
-override = true;
+override = __PRODUCTION__ ? false : true;
 
 if (window.location.search.includes('?output')) {
     defaultLayout = outputLayout;
 }
 
 export const current = writable({
-    ...rehydrate(key, defaultLayout.data, override),
+    ...rehydrate(key, defaultLayout, override),
     editable: false,
     resizable: false,
 });

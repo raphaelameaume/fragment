@@ -4,15 +4,13 @@ let instances = 0;
 
 <script>
 import { onMount, onDestroy, getContext } from "svelte";
-import { writable } from "svelte/store";
 import { monitors } from "../stores/rendering.js";
 import Module from "../ui/Module.svelte";
+import { current as currentSketches } from "../stores/sketches.js";
+import { current as currentLayout } from "../stores/layout.js";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
-import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
-import { map } from "lemonade-math";
-
 
 export let name = "monitor";
 
@@ -25,11 +23,9 @@ $currentModule.params.index = index;
 
 let paused = false;
 
-let selected;
+$: selected = $currentSketches[Math.min(index, $currentSketches.length - 1)];
 
 onMount(() => {
-    name = `${name} ${index}`;
-
     monitors.update((v) => {
         return [
             ...v,
@@ -41,6 +37,8 @@ onMount(() => {
         ]
     })
 });
+
+$: moduleName = `${name} ${instances > 1 ? index : ""}`; 
 
 onDestroy(() => {
     instances--;
@@ -64,27 +62,13 @@ $: {
     })
 }
 
-async function screenshot() {
-    paused = true;
-    paused = false;
-}
-
-function handleSketchChange(event) {
-    selected = event.detail;
-}
+$: hasHeader = $currentLayout.name !== "Single" && !__PRODUCTION__;
 
 </script>
 
-<Module name={`${name}`}>
-    <svelte:fragment slot="header-left">
-        <ModuleHeaderAction border label="Pause" on:click={() => paused = !paused}>{paused ? 'play' : 'pause'}</ModuleHeaderAction>
-        <ModuleHeaderAction border label="Refresh" on:click={() => {}}>save</ModuleHeaderAction>
-    </svelte:fragment>
+<Module name={moduleName} {hasHeader}>
     <svelte:fragment slot="header-right">
-        <ModuleHeaderSelectSketch
-            {index}
-            on:change={handleSketchChange}
-        />
+        <ModuleHeaderSelectSketch {index} />
     </svelte:fragment>
     {#if selected && selected !== "output"}
         <SketchRenderer key={selected} {index} {paused} />

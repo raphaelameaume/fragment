@@ -8,6 +8,7 @@ export let label;
 
 <style>
 .module-header-action__button {
+    color: inherit;
     background: transparent;
     /* opacity: 0.5; */
     display: flex;

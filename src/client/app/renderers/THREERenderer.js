@@ -97,9 +97,11 @@ client.on('shader-update', (data) => {
     const scenes = previews.map((preview) => preview.scene);
     const materials = [];
 
+    
+
     scenes.forEach(scene => {
         scene.traverse((child) => {
-            if (child.isMesh) {
+            if (child.material) {
                 const { material } = child;
 
                 if (material.isShaderMaterial || material.isRawShaderMaterial) {

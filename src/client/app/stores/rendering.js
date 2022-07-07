@@ -8,9 +8,11 @@ export const SIZES = {
     FIXED: "fixed",
     PRESET: "preset",
     ASPECT_RATIO: "aspect-ratio",
-    MONITOR: "monitor",
+    WINDOW: "window",
     SCALE: "scale",
 };
+
+
 
 export const current = writable({
     ...rehydrate(`fragment.rendering`, {
@@ -21,7 +23,7 @@ export const current = writable({
         aspectRatio: 1,
         scale: 1,
         preset: 'a4',
-    }, false)
+    })
 });
 
 keepInSync(`fragment.rendering`, current);

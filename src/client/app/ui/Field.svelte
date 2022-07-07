@@ -69,11 +69,12 @@ $: settings = {...params};
 $: onTrigger = onTriggers[fieldType];
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
+$: disabled = params.disabled;
 
 $: {
     if (fieldType === "download" || fieldType === "button") {
         if (params.label === undefined) {
-            settings.label = fieldType === "download" ? "download" : "trigger";
+            settings.label = fieldType === "download" ? "download" : "run";
         }
     }
 }
@@ -101,10 +102,10 @@ $: {
 
 </script>
 
-<div class="field {sizeClassName} {params.disabled ? "disabled": ""}">
+<div class="field {sizeClassName} {disabled ? "disabled": ""}">
     <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
         <div slot="infos" class="field__actions">
-            {#if params.triggers && params.triggers.length && !params.disabled }
+            {#if params.triggers && params.triggers.length && !disabled }
                 <button class="field__action field__action--triggers">
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"></path>
@@ -116,7 +117,7 @@ $: {
                     </svg>
                 </button>
             {/if}
-            {#if (type === "vec2" || type === "vec3") && !params.disabled }
+            {#if (type === "vec2" || type === "vec3") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
                     {#if params.locked}
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">

@@ -1,7 +1,7 @@
 <script>
 import { onDestroy, onMount } from "svelte";
 import { derived, writable } from "svelte/store";
-import { current as currentSketches } from "../stores/sketches.js";
+import { all as allSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
@@ -38,11 +38,11 @@ let _renderSketch = noop;
 function checkForResize() {
     if (!node) return;
 
-    let needsUpdate = $currentRendering.resizing === SIZES.MONITOR || $currentRendering.resizing === SIZES.ASPECT_RATIO;
+    let needsUpdate = $currentRendering.resizing === SIZES.WINDOW || $currentRendering.resizing === SIZES.ASPECT_RATIO;
 
     let newWidth, newHeight;
 
-    if ($currentRendering.resizing === SIZES.MONITOR) {
+    if ($currentRendering.resizing === SIZES.WINDOW) {
         newWidth = node.offsetWidth;
         newHeight = node.offsetHeight;
     } else if ($currentRendering.resizing === SIZES.ASPECT_RATIO) {
@@ -125,9 +125,31 @@ function destroyCanvas(canvas) {
 }
 
 async function createSketch(key) {
-    sketch = $currentSketches[key];
+    sketch = $allSketches[key];
 
     if (!key || !sketch) return;
+
+    if (__PRODUCTION__) {
+        const { buildConfig = {} } = sketch;
+
+        const resizing = sketch.buildConfig.canvasSize || SIZES.WINDOW;
+        const overrides = {
+            resizing,
+        };
+
+        if (buildConfig.dimensions && buildConfig.dimensions.length === 2) {
+            const { dimensions } = buildConfig;
+            overrides.width = dimensions[0];
+            overrides.height = dimensions[1];
+        }
+
+        if (buildConfig.pixelRatio) {
+            const { pixelRatio } = buildConfig;
+            overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
+        }
+
+        currentRendering.update((curr) => ({...curr, ...overrides}));
+    }
 
     renderer = await findRenderer(sketch.rendering);
 
@@ -370,9 +392,9 @@ async function save() {
     paused = false;
 }
 
-let offKeyboardShortcutSave, offKeyboardShortcutPause;
+let keyboardShortcutSave, keyboardShortcutPause, keyboardShortcutRefresh;
 
-currentSketches.subscribe(() => {
+allSketches.subscribe(() => {
     if (_created || _errored) {
         createSketch(key);
     }
@@ -402,22 +424,25 @@ onMount(() => {
 
     render();
 
-    if (offKeyboardShortcutSave) {
-        offKeyboardShortcutSave();
-        offKeyboardShortcutSave = null;
-    }
-
-    offKeyboardShortcutSave = onKeyDown('s', (event) => {
+    keyboardShortcutSave = onKeyDown('s', (event) => {
         if (event.metaKey || event.ctrlKey) {
             event.preventDefault();
             save();
         }
     });
 
-    offKeyboardShortcutPause = onKeyDown(' ', (event) => {
+    keyboardShortcutPause = onKeyDown(' ', (event) => {
         if (!event.metaKey || !event.ctrlKey) {
             event.preventDefault();
             paused = !paused;
+            then = Date.now();
+        }
+    });
+
+    keyboardShortcutRefresh = onKeyDown('r', (event) => {
+        if (!event.metaKey && !event.ctrlKey) {
+            event.preventDefault();
+            createSketch(key);
         }
     });
 
@@ -428,15 +453,14 @@ onDestroy(() => {
     resizeObserver.unobserve(node);
     cancelAnimationFrame(_raf);
 
-    if (offKeyboardShortcutSave) {
-        offKeyboardShortcutSave.destroy();
-        offKeyboardShortcutSave = null;
-    }
+    keyboardShortcutSave.destroy();
+    keyboardShortcutSave = null;
 
-    if (offKeyboardShortcutPause) {
-        offKeyboardShortcutPause.destroy();
-        offKeyboardShortcutPause = null;
-    }
+    keyboardShortcutPause.destroy();
+    keyboardShortcutPause = null;
+
+    keyboardShortcutRefresh.destroy();
+    keyboardShortcutRefresh = null;
 
     if (renderer && typeof renderer.onDestroyPreview === "function") {
         renderer.onDestroyPreview({ index, canvas });
@@ -471,9 +495,13 @@ $: {
 
 </script>
 
-<div class="sketch-renderer" class:visible={visible} bind:this={node}>
+<div class="sketch-renderer" class:visible={visible} class:recording={$recording} bind:this={node}>
     <div class="canvas-container" style="max-width: {$currentRendering.width}px; max-height: {$currentRendering.height}px;" bind:this={container}>
     </div>
+    {#if $recording}
+    <span class="record">REC</span>
+    {/if}>
+    
 </div>
 
 <style>
@@ -500,7 +528,57 @@ $: {
     align-items: center;
     height: 100%;
     max-height: 100%;
+}
 
+.sketch-renderer.recording .canvas-container {
+    opacity: 0.5;
+}
+
+.record {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 2;
+
+    display: flex;
+    place-items: center;
+
+    height: 16px;
+    padding: 0 2px;
+
+    color: var(--color-red);
+    font-size: 10px;
+
+    border: 1px solid var(--color-red);
+    border-radius: 2px;
+}
+
+.record:before {
+    --size: 6px;
+    content: '';
+
+    width: var(--size);
+    height: var(--size);
+    margin: 0 3px 0 1px;
+
+    background-color: var(--color-red);
+    border-radius: 50%;
+
+    animation: fade 1s ease-in-out infinite;
+}
+
+@keyframes fade {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
 :global(.canvas-container canvas){
