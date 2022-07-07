@@ -197,6 +197,11 @@ async function createSketch(key) {
     try {
         _created = false;
         elapsedRenderingTime = 0;
+
+        if (sketch.load) {
+            await sketch.load();
+        }
+
         init({
             width,
             height,
@@ -495,13 +500,21 @@ $: {
 
 </script>
 
-<div class="sketch-renderer" class:visible={visible} class:recording={$recording} bind:this={node}>
-    <div class="canvas-container" style="max-width: {$currentRendering.width}px; max-height: {$currentRendering.height}px;" bind:this={container}>
+<div
+    bind:this={node}
+    class="sketch-renderer"
+    class:visible={visible}
+    class:recording={$recording}
+    style={`--background-color: ${sketch && sketch.backgroundColor ? sketch.backgroundColor : "inherit"}`}
+>
+    <div
+        class="canvas-container"
+        style="max-width: {$currentRendering.width}px; max-height: {$currentRendering.height}px;"
+        bind:this={container}>
     </div>
     {#if $recording}
-    <span class="record">REC</span>
-    {/if}>
-    
+        <span class="record">REC</span>
+    {/if}
 </div>
 
 <style>
@@ -513,7 +526,7 @@ $: {
     justify-content: center;
     align-items: center;
 
-    background-color: var(--color-lightblack);
+    background-color: var(--background-color, var(--color-lightblack));
 }
 
 .sketch-renderer:not(.visible) {

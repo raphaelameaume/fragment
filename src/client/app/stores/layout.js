@@ -8,8 +8,9 @@ const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
 
 export const outputLayout = defaultLayouts.find((layout) => layout.name === "Output");
 export const singleLayout = defaultLayouts.find((layout) => layout.name === "Single");
-export const defaultLayout = defaultLayouts.find((layout) => layout.name === "Sketching");
+export const sketchLayout = defaultLayouts.find((layout) => layout.name === "Sketching");
 
+let defaultLayout = sketchLayout;
 
 if (__PRODUCTION__) {
     defaultLayout = singleLayout;

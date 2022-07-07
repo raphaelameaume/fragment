@@ -84,8 +84,12 @@ export async function start({ options, filepaths, entries, fragment }) {
     });
 
     if (options.build) {
-        console.log("build vite");
-        await build(config);
+        await build({
+            ...config,
+            build: {
+                outDir: path.join(process.cwd(), options.outDir),
+            }
+        });
     } else {
         const server = await createServer(config);
 
