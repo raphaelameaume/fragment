@@ -63,16 +63,18 @@ function handleDragleave(event) {
 
 </script>
 
-<div class="img-container">
+<div
+	class="img-container"
+	class:dragover={dragover}
+	on:dragover={handleDragover}
+	on:dragleave={handleDragleave}
+	on:drop={handleUpload}
+>
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div class="row">
 			<div
 				class="preview"
 				on:click={handleClick}
-				class:dragover={dragover}
-				on:dragover={handleDragover}
-				on:dragleave={handleDragleave}
-				on:drop={handleUpload}
 			>
 				<img class="img" src="" alt="" bind:this={img}/>
 				<input class="input" type="file" bind:this={input} on:change={handleUpload} />
@@ -80,7 +82,7 @@ function handleDragleave(event) {
 			<TextInput disabled value={displayUrl} />
 		</div>
 		<ButtonInput
-			label="click or drop"
+			label="change"
 			on:click={handleClick}
 			on:dragover={handleDragover}
 			on:dragleave={handleDragleave}
@@ -96,8 +98,8 @@ function handleDragleave(event) {
 }
 
 .preview {
-	width: var(--height-input);
-	height: var(--height-input);
+	width: calc(var(--height-input) * 1);
+	height: calc(var(--height-input) * 1);
 ;
 	display: grid;
 	place-items: center;
@@ -123,11 +125,11 @@ function handleDragleave(event) {
     box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--color-active));
 }
 
-.preview:active, .preview.dragover {
+.preview:active, .img-container.dragover .preview {
     box-shadow: 0 0 0 2px var(--box-shadow-color, var(--color-active));
 }
 
-.preview.dragover {
+.img-container.dragover {
 	cursor: copy;
 }
 
