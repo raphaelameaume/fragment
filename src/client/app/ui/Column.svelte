@@ -5,10 +5,25 @@ import { current as currentLayout } from "../stores/layout.js";
 export let index;
 export let current;
 
-let rowIndex = getContext("rowIndex");
 setContext("colIndex", index);
 
-$: style = `flex: ${current.flex}`;
+let style = "";
+
+$: {
+    const templateRows = current.modules.map((m, i) => {
+        const size = m.minimized ? "25px" : "auto";
+        return i === current.modules.length - 1 ? `minmax(0, ${size})` : `minmax(0, ${size}) 0px`;
+    }).join(' ');
+
+
+    style = `grid-template-rows: ${templateRows};`;
+
+    if (current.modules.length === 1) {
+        style = `grid-template-rows: minmax(25px, 1fr)`;
+        // style += `align-content: center;`;
+    }
+}
+
 
 </script>
 
@@ -25,9 +40,10 @@ $: style = `flex: ${current.flex}`;
 <style>
 .column {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    align-content: flex-start;
 }
 
 .column:not(:last-child) {

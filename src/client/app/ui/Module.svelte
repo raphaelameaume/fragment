@@ -9,7 +9,10 @@ export let name;
 export let scrollable = true;
 export let hasHeader = true;
 
-let minimized = false;
+let currentModule = getContext('currentModule');
+
+
+$: minimized = $currentModule.minimized;
 
 </script>
 
@@ -50,7 +53,7 @@ let minimized = false;
                 {/if}
             </div>
             <div class="header__col">
-                <h3 class="module__title" on:click={() => minimized = !minimized }>{name}</h3>
+                <h3 class="module__title" on:click={() => $currentModule.minimized = !$currentModule.minimized }>{name}</h3>
             </div>
             <div class="header__col">
                 <div class="slot slot--right">
@@ -67,7 +70,11 @@ let minimized = false;
 <style>
 .module {
     --header-height: 25px;
+
+    display: grid;
+    grid-template-rows: 25px minmax(0px, auto);
     height: 100%;
+    align-items: stretch;
 }
 
 .module.no-header {
@@ -114,9 +121,7 @@ let minimized = false;
 }
 
 .module__container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - var(--header-height));
+    
 }
 
 .module.scrollable .module__container {
@@ -138,5 +143,9 @@ let minimized = false;
 
 .module.minimized .module__container {
     display: none;
+}
+
+.footer {
+    height: var(--height-input);
 }
 </style>

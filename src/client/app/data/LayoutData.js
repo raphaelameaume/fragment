@@ -61,23 +61,33 @@ export const defaultLayouts = [
         isMany: false,
         rows: [
             {
-                flex: 1,
+                size: 0.5,
                 cols: [
                     {
-                        flex: 1.4,
+                        size: 0.5,
                         modules: [
                             { name: "monitor", flex: 1, grow: true },
                         ]
                     },
                     {
-                        flex: 1,
+                        size: 0.5,
                         modules: [
-                            { name: "exports" },
+                            { name: "exports", minimized: true },
                             { name: "params" },
                         ]
                     },
                 ]
             },
+            {
+                size: 0.5,
+                cols: [
+                    {
+                        modules: [
+                            { name: "midi" },
+                        ]
+                    }
+                ],
+            }
             
             // {
             //     flex: 1,

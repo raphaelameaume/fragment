@@ -29,7 +29,7 @@ let totalColFlex = 0;
 let visible = false;
 
 const MIN_WIDTH_COL = 100;
-const MIN_HEIGHT_ROW = 80;
+const MIN_HEIGHT_ROW = 25;
 
 function handleMouseDown() {
     if (!isDragging) {
@@ -43,11 +43,11 @@ function handleMouseDown() {
         currentRowRect = currentRow && currentRow.$element.getBoundingClientRect();
         nextRowRect = nextRow && nextRow.$element.getBoundingClientRect();
 
-        totalRowFlex = (currentRow ? currentRow.flex : 0) + (nextRow ? nextRow.flex : 0);
+        totalRowFlex = 1;
 
         if (direction === DIRECTIONS.VERTICAL) {
             if (currentCol && nextCol) {
-                totalColFlex = currentCol.flex + nextCol.flex;
+                totalColFlex = 1;
 
                 currentColRect = currentCol.$element.getBoundingClientRect();
                 nextColRect = nextCol.$element.getBoundingClientRect();
@@ -55,7 +55,7 @@ function handleMouseDown() {
                 currentCol.resizing = true;
                 nextCol.resizing = true;
 
-                visible = currentCol.flex === nextCol.flex;
+                visible = currentCol.size === nextCol.size;
             }
         } else {
             if (currentRow) {
@@ -66,7 +66,7 @@ function handleMouseDown() {
                 nextRow.resizing = true;
             }
 
-            visible = currentRow.flex === nextRow.flex;
+            visible = currentRow.size === nextRow.size;
         }
 
     }
@@ -102,8 +102,8 @@ function handleMouseMove(event) {
 
             const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
 
-            let prevFlex = Math.round(map(y, top, bottom, 0, totalRowFlex) * 100) / 100;
-            let nextFlex = Math.round(map(y, bottom, top, 0, totalRowFlex) * 100) / 100;
+            let prevFlex = Math.round(map(y, top, bottom, 0, totalRowFlex) * 10000) / 10000;
+            let nextFlex = Math.round(map(y, bottom, top, 0, totalRowFlex) * 10000) / 10000;
 
             if (Math.abs(nextFlex - prevFlex) < 0.05) {
                 prevFlex = totalRowFlex * 0.5;
@@ -116,10 +116,12 @@ function handleMouseMove(event) {
                 const updated = {
                     ...current,
                     rows:  current.rows.map((row, index) => {
-                        return index === rowIndex ? {...row, flex: prevFlex } :
-                            index === (rowIndex + 1 ) ? {...row, flex: nextFlex} : row
+                        return index === rowIndex ? {...row, size: prevFlex } :
+                            index === (rowIndex + 1 ) ? {...row, size: nextFlex} : row
                     })
                 };
+
+                console.log(updated.rows);
 
                 return updated; 
             });
@@ -128,8 +130,8 @@ function handleMouseMove(event) {
             const right = nextColRect.right;
 
             const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-            let prevFlex = Math.round(map(x, left, right, 0, totalColFlex) * 100) / 100;
-            let nextFlex = Math.round(map(x, right, left, 0, totalColFlex) * 100) / 100;
+            let prevFlex = Math.round(map(x, left, right, 0, totalColFlex) * 10000) / 10000;
+            let nextFlex = Math.round(map(x, right, left, 0, totalColFlex) * 10000) / 10000;
 
             if (Math.abs(nextFlex - prevFlex) < 0.05) {
                 prevFlex = totalColFlex * 0.5;
@@ -146,8 +148,8 @@ function handleMouseMove(event) {
                             {
                                 ...row,
                                 cols: row.cols.map((col, j) => {
-                                    return j === colIndex ? {...col, flex: prevFlex } :
-                                        j === (colIndex + 1) ? {...col, flex: nextFlex } : col;
+                                    return j === colIndex ? {...col, size: prevFlex } :
+                                        j === (colIndex + 1) ? {...col, size: nextFlex } : col;
                                 })
                             }
                     })
@@ -161,7 +163,7 @@ function handleMouseMove(event) {
 
 </script>
 
-<div class="resizer resizer--{direction}" class:dragging={isDragging}>
+<div class="resizer resizer--{direction}" class:dragging={isDragging} style={`--z-index: ${direction === DIRECTIONS.VERTICAL ? (rowIndex + 11) : (rowIndex + 13)};`}>
     <div class="resizer-hover" class:visible={visible} on:mousedown={handleMouseDown}></div>
 </div>
 
@@ -174,7 +176,7 @@ function handleMouseMove(event) {
 
 .resizer-hover {
     position: absolute;
-    z-index: 999;
+    z-index: var(--z-index);
 
     display: flex;
     justify-content: center;
