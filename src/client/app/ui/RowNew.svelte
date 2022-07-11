@@ -1,26 +1,52 @@
 <script>
-import { getContext, setContext } from "svelte";
-import { hasContext, onDestroy, onMount } from "svelte/internal";
+import { getContext, setContext, hasContext, onDestroy, onMount } from "svelte";
 import { writable } from "svelte/store";
 import Resizer from "./ResizerNew.svelte";
 
 export let size = 1;
 
-let parent = hasContext('col') ? getContext('col') : writable([]);
+let depth = hasContext('depth') ? (getContext('depth') + 1) : 0;
+setContext('depth', depth);
+
+let children = writable([]);
+let layout = getContext('layout');
+let parent = getContext('parent');
 let index;
 let node;
+let siblings = [];
+
+setContext('prevParent', parent);
+setContext('parent', children);
+
+$: console.log("RowNew", $children, $parent);
 
 onMount(() => {
-	index = $parent.length;
-	$parent = [...$parent, { index, size, node }];
+	index = layout.getSiblings({ depth }).length;
+
+	$parent = [...$parent, { index, node, size }];
+
+	layout.addChild({
+		depth,
+		node,
+		index,
+		size,
+		parent,
+	});
 });
+
+
+layout.all.subscribe(() => {
+	siblings = layout.getSiblings({ depth }).filter((n => n.index !== index));
+})
 
 onDestroy(() => {
-	$parent = [...$parent].slice(index, 1);
+	layout.removeChild();
+
+	const childIndex = $parent.findIndex((c) => c.index === index);
+
+	$parent = [...$parent].slice(childIndex, 1);
 });
 
-const children = writable([]);
-setContext('row', children);
 
 let style = "";
 
@@ -43,7 +69,7 @@ $: {
 <div class="row" style={style} bind:this={node}>
 	<slot></slot>
 </div>
-{#if index < $parent.length - 1}
+{#if index < siblings.length}
 <Resizer direction="horizontal" {index}/>
 {/if}
 
@@ -58,9 +84,6 @@ $: {
     height: 100%;
 
     border-top: 2px solid var(----color-border);
-    /* border: 1px solid #505050;
-    border-radius: 2px; */
-    align-items: stretch;
     background-color: var(--color-background);
 }
 </style>

@@ -1,3 +1,8 @@
+<script context="module">
+export const MIN_HEIGHT_ROW = 25;
+export const MIN_WIDTH_COL = 80;
+</script>
+
 <script>
 import { getContext } from "svelte";
 import { map, clamp } from "lemonade-math";
@@ -10,33 +15,16 @@ const DIRECTIONS = {
 
 export let direction = DIRECTIONS.HORIZONTAL;
 
-export let rowIndex = -1;
-export let colIndex = -1;
 export let index = -1;
 
 let isDragging = false;
 
-const parent = getContext(direction === DIRECTIONS.HORIZONTAL ? "col" : "row");
-
-$: currentRow = $currentLayout.content[rowIndex];
-$: nextRow = $currentLayout.content[rowIndex + 1];
-
-$: currentCol = colIndex >= 0 ? currentRow.content[colIndex] : null;
-$: nextCol = currentCol ? currentRow.content[colIndex + 1] : null;
-
-let currentRowRect, nextRowRect;
-let currentColRect, nextColRect;
-let totalRowFlex = 0;
-let totalColFlex = 0;
+const children = getContext('prevParent');
 
 let visible = false;
 
-const MIN_WIDTH_COL = 100;
-const MIN_HEIGHT_ROW = 25;
-
-let current = $parent[index], next = $parent[index+1];
+let current = $children[index], next = $children[index+1];
 let currentRect, nextRect;
-let totalFlex;
 
 function handleMouseDown() {
     if (!isDragging) {
@@ -45,12 +33,8 @@ function handleMouseDown() {
         document.body.style.userSelect = "none";
         document.body.style.cursor = direction === DIRECTIONS.HORIZONTAL ? "ns-resize" : "ew-resize";
 
-		console.log(current, next, $parent);
-
 		currentRect = current.node.getBoundingClientRect();
 		nextRect = next.node.getBoundingClientRect();
-
-        totalFlex = current.size + next.size;
 
 		visible = current.size === next.size;
     }
@@ -75,32 +59,28 @@ function handleMouseMove(event) {
 
             const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
 
-            prevFlex = Math.round(map(y, top, bottom, 0, totalFlex) * 10000) / 10000;
-            nextFlex = Math.round(map(y, bottom, top, 0, totalFlex) * 10000) / 10000;
-
-            if (Math.abs(nextFlex - prevFlex) < 0.05) {
-                prevFlex = 1 * 0.5;
-                nextFlex = 1 * 0.5;
-            }
+            prevFlex = Math.round(map(y, top, bottom, 0, 1) * 10000) / 10000;
+            nextFlex = Math.round(map(y, bottom, top, 0, 1) * 10000) / 10000;
         } else if (direction === DIRECTIONS.VERTICAL) {
             const left = currentRect.left;
             const right = nextRect.right;
 
             const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-            prevFlex = Math.round(map(x, left, right, 0, totalFlex) * 10000) / 10000;
-            nextFlex = Math.round(map(x, right, left, 0, totalFlex) * 10000) / 10000;
-
-            if (Math.abs(nextFlex - prevFlex) < 0.05) {
-                prevFlex = totalFlex * 0.5;
-                nextFlex = totalFlex * 0.5;
-            }
+            prevFlex = Math.round(map(x, left, right, 0, 1) * 10000) / 10000;
+            nextFlex = Math.round(map(x, right, left, 0, 1) * 10000) / 10000;
         }
+
+		if (Math.abs(nextFlex - prevFlex) < 0.05) {
+			prevFlex = 0.5;
+			nextFlex = 0.5;
+		}
 
 		visible = prevFlex === nextFlex;
 
-		$parent = $parent.map((p, i) => {
+
+		$children = $children.map((p, i) => {
 			if (i === index) {
-				return { ...p, size: prevFlex };
+				return {...p, size: prevFlex};
 			} else if (i === (index + 1)) {
 				return {...p, size: nextFlex};
 			} else {
@@ -112,7 +92,7 @@ function handleMouseMove(event) {
 
 </script>
 
-<div class="resizer resizer--{direction}" class:dragging={isDragging} style={`--z-index: ${direction === DIRECTIONS.VERTICAL ? (rowIndex + 11) : (rowIndex + 13)};`}>
+<div class="resizer resizer--{direction}" class:dragging={isDragging}>
     <div class="resizer-hover" class:visible={visible} on:mousedown={handleMouseDown}></div>
 </div>
 
@@ -120,24 +100,25 @@ function handleMouseMove(event) {
 
 <style>
 .resizer {
+	--area-size: 10px;
+	--thickness: 2px;
+
     position: relative;
 }
 
 .resizer-hover {
     position: absolute;
-    z-index: var(--z-index);
+    z-index: 100;
 
     display: flex;
     justify-content: center;
-    align-items: center;
-
-    /* background: rgba(255, 0, 0, 0.5); */
+    align-items: center;	
 }
 
 .resizer-hover:before {
     content: '';
 
-    width: 2px;
+    width: var(--thickness);
     height: 100%;
     
     background-color: white;
@@ -162,9 +143,9 @@ function handleMouseMove(event) {
 }
 
 .resizer--horizontal .resizer-hover {
-    top: -4px;
+    top: calc(-0.5 * var(--area-size));
     right: 0;
-    bottom: -4px;
+    bottom: calc(-0.5 * var(--area-size));
     left: 0;
 
     cursor: ns-resize;
@@ -172,7 +153,7 @@ function handleMouseMove(event) {
 
 .resizer--horizontal .resizer-hover:before {
     width: 100%;
-    height: 2px;
+    height: var(--thickness);
 }
 
 .resizer--vertical {
@@ -181,9 +162,9 @@ function handleMouseMove(event) {
 
 .resizer--vertical .resizer-hover {
     top: 0;
-    right: -4px;
+    right: calc(-0.5 * var(--area-size));
     bottom: 0;
-    left: -4px;
+    left: calc(-0.5 * var(--area-size));
 
     cursor: ew-resize;
 
