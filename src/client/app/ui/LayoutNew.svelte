@@ -1,7 +1,7 @@
 <script>
 import { setContext } from "svelte";
 
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { map } from "../utils/math.utils";
 
 import Column from "./ColumnNew.svelte"; 
@@ -41,62 +41,35 @@ setContext('depth', -1);
 setContext('layout', layout);
 setContext('parent', children);
 
+const data = writable([]);
+setContext('data', data);
 
-all.subscribe(() => {
-	console.log('layout has changed', $all);
-})
-// {
-	// registerCol: ({ index, depth, size, children }) => {
-	// 	console.log('----');
-	// 	console.log('registerCol', { index, depth, size });
-	// 	const i = $layout.findIndex((v) => v.type === "col" && index === v.index && depth === v.depth);
+data.subscribe(() => {
+	console.log($data);
+});
 
-	// 	if (i < 0) {
-	// 		console.log('add col', { index, depth, size, children });
-	// 		$layout = [...$layout, {
-	// 			index,
-	// 			depth,
-	// 			size,
-	// 			type: "col"
-	// 		}]
-	// 	} else {
-	// 		console.log("col already exists", i, $layout[i]);
 
-	// 		$layout = $layout.map((item, i) => i !== index ? item : {
-	// 			...item,
-	// 			size,
-	// 			depth,
-	// 			children,
-	// 		});
-	// 	}
-	// },
-	// registerRow: ({ index, depth, size, children }) => {
-	// 	const i = $layout.findIndex((v) => v.type === "row" && index === v.index && depth === v.depth); 
+// all.subscribe(() => {
+// 	console.log('layout has changed', $all);
 
-	// 	if (i < 0) {
-	// 		console.log('add row', { index, depth, size, children });
-	// 		$layout = [...$layout, {
-	// 			index,
-	// 			depth,
-	// 			size,
-	// 			type: "row",
-	// 			children,
-	// 		}]
-	// 	} else {
-	// 		console.log("row already exists", $layout[i]);
-	// 		$layout = $layout.map((item, i) => i !== index ? item : {
-	// 			...item,
-	// 			depth,
-	// 			children,
-	// 			size
-	// 		});
-	// 	}
-	// }
+// 	$all.forEach((c) => {
+// 		c.children.subscribe(() => {
+// 			console.log("children changed");
+// 		})
+// 		// const test = get(c.children);
+// 		// console.log(test);
+// 	})
 // });
 
-// layout.subscribe(() => {
-// 	console.log("layout has changed");
-// });
+// $: {
+// 	console.log('layout has changed', $all);
+
+// 	$all.forEach(c => {
+// 		const test = c.children;
+
+// 		console.log(test.$children);
+// 	})
+// }
 
 </script>
 

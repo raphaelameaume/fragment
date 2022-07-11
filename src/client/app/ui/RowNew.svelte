@@ -1,6 +1,8 @@
 <script>
 import { getContext, setContext, hasContext, onDestroy, onMount } from "svelte";
 import { writable } from "svelte/store";
+import { layoutID } from "../stores/layout";
+import { map } from "../utils/math.utils";
 import Resizer from "./ResizerNew.svelte";
 
 export let size = 1;
@@ -10,51 +12,58 @@ setContext('depth', depth);
 
 let children = writable([]);
 let layout = getContext('layout');
+let data = getContext('data');
 let parent = getContext('parent');
 let index;
 let node;
 let siblings = [];
 
+let id;
+
 setContext('prevParent', parent);
 setContext('parent', children);
 
-$: console.log("RowNew", $children, $parent);
+children.subscribe(() => {
+	const idx = $data.findIndex(d => d.id === id);
+
+	if (idx >= 0) {
+		$data = $data.map((d, i) => {
+			if (i !== idx) return d;
+
+			return {...d, children: $children };
+		});
+	}
+});
 
 onMount(() => {
-	index = layout.getSiblings({ depth }).length;
+	index = $parent.length;
+	id = $layoutID++;
 
-	$parent = [...$parent, { index, node, size }];
-
-	layout.addChild({
-		depth,
-		node,
-		index,
-		size,
-		parent,
-	});
+	$data = [...$data, { id, index, depth, size, children: $children }];
+	$parent = [...$parent, id ];
 });
 
-
-layout.all.subscribe(() => {
-	siblings = layout.getSiblings({ depth }).filter((n => n.index !== index));
-})
+$: siblings = $data.filter(e => e.depth === depth).filter((e) => e.index !== index);
+$: console.log("test");
 
 onDestroy(() => {
-	layout.removeChild();
-
-	const childIndex = $parent.findIndex((c) => c.index === index);
+	const childIndex = $parent.findIndex((c) => c === id);
 
 	$parent = [...$parent].slice(childIndex, 1);
+	$data = $data.filter(d => d.id !== id);
 });
-
 
 let style = "";
 
 $: {
     const templateColumns = $children.map((c, i) => {
-        const size = c.size ? `${c.size}fr` : "1fr";
+		const col = $data.find(d => c.id === id);
 
-        return i === $children.length - 1 ? `minmax(0, ${size})` : `minmax(0, ${size}) 0px`;
+		if (col) {
+        	const size = col.size ? `${col.size}fr` : "1fr";
+        	return i === $children.length - 1 ? `minmax(0, ${size})` : `minmax(0, ${size}) 0px`;
+		}
+
     });
 
 	if ($children.length > 0) {
