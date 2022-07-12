@@ -29,47 +29,40 @@ function getChildren({ index, depth, parent } = {}) {
 function removeChild({ index, depth } = {}) {
 }
 
+const data = writable([]);
+
+function registerComponent(component) {
+	$data = [...$data, component];
+}
+
+function deleteComponent(id) {
+	$data = $data.filter((c) => c.id !== id);
+}
+
+data.subscribe((value) => {
+	const root = value.find((v) => v.parent === undefined);
+
+
+})
+
 const layout = {
-	children,
-	all,
-	addChild,
-	removeChild,
-	getSiblings,
-	getChildren,
+	registerComponent,
+	deleteComponent,
 };
 setContext('depth', -1);
 setContext('layout', layout);
-setContext('parent', children);
 
-const data = writable([]);
-setContext('data', data);
+/**
+WHAT ARE THE PROBLEMS WE'RE FACING
 
-data.subscribe(() => {
-	console.log($data);
-});
+- How to know if a component is the last one
+- Get a description of the current layout with prev parent and children
 
+WHAT IF
+- Resizer access prev nodes from node.parentNode.children
+- Resizer retrieve prev and next size from store in parent context with children by comparing nodes
 
-// all.subscribe(() => {
-// 	console.log('layout has changed', $all);
-
-// 	$all.forEach((c) => {
-// 		c.children.subscribe(() => {
-// 			console.log("children changed");
-// 		})
-// 		// const test = get(c.children);
-// 		// console.log(test);
-// 	})
-// });
-
-// $: {
-// 	console.log('layout has changed', $all);
-
-// 	$all.forEach(c => {
-// 		const test = c.children;
-
-// 		console.log(test.$children);
-// 	})
-// }
+*/
 
 </script>
 
@@ -84,9 +77,7 @@ data.subscribe(() => {
 					<ModuleRenderer module={{ name: "exports"}} />
 				</Row>
 				<Row size={0.5}>
-					<Column>
-						<ModuleRenderer module={{ name: "params"}} />
-					</Column>
+					<ModuleRenderer module={{ name: "params"}} />
 				</Row>
 			</Column>
 		</Row>
