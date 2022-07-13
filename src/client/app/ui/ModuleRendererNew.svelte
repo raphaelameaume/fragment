@@ -1,11 +1,4 @@
-<script context="module">
-let moduleCount = new Map();
-</script>
-
 <script>
-import { setContext, getContext, onMount, onDestroy } from "svelte";
-import { get, writable } from "svelte/store";
-import { current as currentLayout } from "../stores/layout.js";
 import Monitor from "../modules/Monitor.svelte";
 import Console from "../modules/Console.svelte";
 import Output from "../modules/Output.svelte";
@@ -14,9 +7,9 @@ import MousePanel from "../modules/MousePanel.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
 import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 import Exports from "../modules/Exports.svelte";
+import { getContext } from "svelte";
 
-export let module;
-export let index;
+export let name;
 
 const moduleList = {
     "monitor": Monitor,
@@ -29,25 +22,14 @@ const moduleList = {
     "output": Output
 };
 
-Object.keys(moduleList).forEach(() => {
-    if (!moduleCount.has(module.name)) {
-        moduleCount.set(module.name, 0);
-    }
-})
+$: component = moduleList[name];
 
-$: component = moduleList[module.name];
+const parent = getContext('parent');
 
-moduleCount.set(module.name, moduleCount.get(module.name) + 1);
-
-// onMount(() => {
-//     console.log(module.name, moduleCount.get(module.name));
-// });
-
-onDestroy(() => {
-    moduleCount.set(module.name, moduleCount.get(module.name) - 1);
+parent.registerChild({
+    type: "module",
+    name,
 });
-
-setContext("moduleIndex", index);
 
 </script>
 

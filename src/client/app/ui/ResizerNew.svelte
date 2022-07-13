@@ -63,7 +63,6 @@ function handleMouseDown() {
 }
 
 function handleMouseUp(event) {
-	console.log("ResizerNew :: mouseup");
     if (isDragging) {
         isDragging = false;
         visible = false;
@@ -119,8 +118,6 @@ function handleMouseMove(event) {
 		prevFlex = totalSize;
 		nextFlex = 0;
 	}
-
-	console.log(totalSize, prevFlex, nextFlex);
 
 	$children = $children.map((c) => {
 		if (c === current) {

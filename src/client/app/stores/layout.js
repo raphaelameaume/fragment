@@ -1,7 +1,7 @@
 import { writable, get } from "svelte/store";
 import { sketchesCount } from "@fragment/props";
 import { defaultLayouts } from "../data/LayoutData";
-import { keepInSync, rehydrate } from "./utils";
+import { getPersistentStore, keepInSync, rehydrate } from "./utils";
 import { afterUpdate, onDestroy, onMount } from "svelte";
 
 const isMany = sketchesCount > 1;
@@ -24,7 +24,26 @@ if (window.location.search.includes('?output')) {
     defaultLayout = outputLayout;
 }
 
-let tree = writable({});
+let tree = getPersistentStore("fragment.layout.current", false, {});
+
+function cleanNodes(value) {
+    return JSON.parse(JSON.stringify(value, (key, value) => {
+        if (!(value instanceof HTMLElement)) {
+            return value;
+        }
+    }));
+}
+
+export function traverse(fn = () => {}, node = get(tree)) {
+    const { children = [] } = node;
+
+    fn(node);
+
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        traverse(fn, child);
+    }
+};
 
 tree.subscribe((value) => {
     console.log(value);
@@ -33,15 +52,13 @@ tree.subscribe((value) => {
 let data = [];
 
 export const current = writable({
-    ...rehydrate(key, {}, override),
-    editable: false,
-    resizable: false,
+    editing: false,
     registerChild: (component, children) => {
         onMount(() => {
             data = [...data, component];
 
             if (component.root) {
-                tree.set(component);
+                tree.set(cleanNodes(component));
             }
         });
 
@@ -50,7 +67,7 @@ export const current = writable({
 
             data.forEach(c => {
                 if (c.root) {
-                    tree.set(c);
+                    tree.set(cleanNodes(c));
                 }
             }) 
         });
@@ -63,7 +80,7 @@ export const current = writable({
     }
 });
 
-keepInSync(key, current);
+
 
 
 export const addRow = () => {
@@ -135,14 +152,14 @@ export const edit = () => {
     })
 }
 
-export const traverse = (fn) => {
-    const { rows } = get(current);
+// export const traverse = (fn) => {
+//     const { rows } = get(current);
 
-    rows.forEach(({ cols, modules = [] }) => {
-        modules.forEach(fn);
+//     rows.forEach(({ cols, modules = [] }) => {
+//         modules.forEach(fn);
 
-        cols.forEach(({ modules = []}) => {
-            modules.forEach(fn);
-        })
-    });
-}
+//         cols.forEach(({ modules = []}) => {
+//             modules.forEach(fn);
+//         })
+//     });
+// }
