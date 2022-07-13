@@ -20,6 +20,7 @@ let current = {
 	style,
 	depth,
 	size,
+	minimized: false,
 };
 
 $: {
@@ -29,15 +30,16 @@ $: {
 		if (isColumn) {
 			property = `grid-template-rows`;
 			value = $children.map((row, i) => {
-				const size = row.size ? `${row.size}fr` : "1fr";
+				let size = `${row.size}fr`;
 
 				return `minmax(25px, ${size}) 0px`;
 			}).join(' ');
 		} else {
 			property = `grid-template-columns`;
 			value = $children.map((col, i) => {
-				const size = col.size ? `${col.size}fr` : "1fr";
-				return `minmax(0, ${size}) 0px`;
+				let size = `${col.size}fr`;
+
+				return `minmax(25px, ${size}) 0px`;
 			}).join(' ');
 		}
 	}
@@ -62,7 +64,7 @@ setContext('parent', {
 
 </script>
 
-<div class:column={isColumn} class:row={isRow} bind:this={current.node} style={style}>
+<div class:column={isColumn} class:row={isRow} bind:this={current.node} class:minimized={current.minimized} style={style}>
 	<slot></slot>
 </div>
 <ResizerNew direction={isColumn ? "vertical" : "horizontal"} {current} {parent} />
@@ -73,14 +75,13 @@ setContext('parent', {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: minmax(25px, 1fr);
-    align-content: flex-start;
 }
 
 .row {
     position: relative;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-rows: minmax(25px, 1fr);
     width: 100%;
     height: 100%;
 
