@@ -1,29 +1,45 @@
 <script context="module">
 export const MIN_HEIGHT_ROW = 25;
 export const MIN_WIDTH_COL = 80;
+export const DIRECTIONS = {
+    HORIZONTAL: "horizontal",
+    VERTICAL: "vertical",
+}; 
 </script>
 
 <script>
-import { getContext } from "svelte";
+import { getContext, tick } from "svelte";
 import { map, clamp } from "lemonade-math";
-import { current as currentLayout } from "../stores/layout.js";
-
-const DIRECTIONS = {
-    HORIZONTAL: "horizontal",
-    VERTICAL: "vertical",
-};
 
 export let direction = DIRECTIONS.HORIZONTAL;
+export let current;
+export let parent;
 
-export let index = -1;
-
-let isDragging = false;
-
-const children = getContext('prevParent');
+const { children } = parent;
 
 let visible = false;
+let hidden = false;
+let isDragging = false;
+let next;
 
-let current = $children[index], next = $children[index+1];
+async function findNext() {
+	await tick();
+	if (children && current.node && current.node) {
+		const { parentNode } = current.node;
+		const childNodes = [...parentNode.children]
+			// .filter((node) => node.classList.contains('row') || node.classList.contains('column'));
+
+		const index = childNodes.findIndex(c => c === current.node);
+		const nextNode = childNodes[index+2];
+
+		next = $children.find(c => c.node === nextNode);
+	}
+}
+
+$: {
+	findNext();
+}
+
 let currentRect, nextRect;
 
 function handleMouseDown() {
@@ -50,52 +66,49 @@ function handleMouseUp(event) {
 }
 
 function handleMouseMove(event) {
-    if (isDragging) {
-		let prevFlex, nextFlex;
+	if (!isDragging) return;
+	let prevFlex, nextFlex;
 
-        if (direction === DIRECTIONS.HORIZONTAL) {
-            const top = currentRect.top;
-            const bottom = nextRect.bottom;
+	if (direction === DIRECTIONS.HORIZONTAL) {
+		const top = currentRect.top;
+		const bottom = nextRect.bottom;
 
-            const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
+		const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
 
-            prevFlex = Math.round(map(y, top, bottom, 0, 1) * 10000) / 10000;
-            nextFlex = Math.round(map(y, bottom, top, 0, 1) * 10000) / 10000;
-        } else if (direction === DIRECTIONS.VERTICAL) {
-            const left = currentRect.left;
-            const right = nextRect.right;
+		prevFlex = Math.round(map(y, top, bottom, 0, 1) * 10000) / 10000;
+		nextFlex = Math.round(map(y, bottom, top, 0, 1) * 10000) / 10000;
+	} else if (direction === DIRECTIONS.VERTICAL) {
+		const left = currentRect.left;
+		const right = nextRect.right;
 
-            const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-            prevFlex = Math.round(map(x, left, right, 0, 1) * 10000) / 10000;
-            nextFlex = Math.round(map(x, right, left, 0, 1) * 10000) / 10000;
-        }
+		const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
+		prevFlex = Math.round(map(x, left, right, 0, 1) * 10000) / 10000;
+		nextFlex = Math.round(map(x, right, left, 0, 1) * 10000) / 10000;
+	}
 
-		if (Math.abs(nextFlex - prevFlex) < 0.05) {
-			prevFlex = 0.5;
-			nextFlex = 0.5;
+	if (Math.abs(nextFlex - prevFlex) < 0.05) {
+		prevFlex = 0.5;
+		nextFlex = 0.5;
+	}
+
+	visible = prevFlex === nextFlex;
+
+	$children = $children.map((c) => {
+		if (c === current) {
+			c.size = prevFlex;
+		} else if (c === next) {
+			c.size = nextFlex;
 		}
 
-		visible = prevFlex === nextFlex;
-
-
-		$children = $children.map((p, i) => {
-			if (i === index) {
-				return {...p, size: prevFlex};
-			} else if (i === (index + 1)) {
-				return {...p, size: nextFlex};
-			} else {
-				return p;
-			}
-		});
-    }
+		return c;
+	});
 }
 
 </script>
 
 <div class="resizer resizer--{direction}" class:dragging={isDragging}>
-    <div class="resizer-hover" class:visible={visible} on:mousedown={handleMouseDown}></div>
+	<div class="resizer-hover" class:visible={visible} on:mousedown={handleMouseDown}></div>
 </div>
-
 <svelte:body on:mouseup={handleMouseUp} on:mousemove={handleMouseMove} />
 
 <style>
@@ -104,6 +117,10 @@ function handleMouseMove(event) {
 	--thickness: 2px;
 
     position: relative;
+}
+
+.resizer:last-child {
+	display: none;
 }
 
 .resizer-hover {

@@ -519,7 +519,7 @@ $: {
 
 <style>
 .sketch-renderer {
-    position: relative;
+    position: absolute;
     display: flex;
     width: 100%;
     height: 100%;

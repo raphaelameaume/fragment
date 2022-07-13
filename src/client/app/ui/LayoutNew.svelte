@@ -51,6 +51,10 @@ const layout = {
 };
 setContext('depth', -1);
 setContext('layout', layout);
+setContext('parent', {
+	children,
+	registerChild: () => {}
+});
 
 /**
 WHAT ARE THE PROBLEMS WE'RE FACING
