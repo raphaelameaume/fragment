@@ -12,6 +12,7 @@ const children = writable([]);
 
 $: isColumn = type === "column";
 $: isRow = !isColumn;
+$: isRoot = !parent;
 
 let style = "";
 let node;
@@ -64,12 +65,20 @@ setContext('parent', {
 
 </script>
 
-<div class:column={isColumn} class:row={isRow} bind:this={current.node} class:minimized={current.minimized} style={style}>
+<div class:column={isColumn} class:root={isRoot} class:row={isRow} bind:this={current.node} class:minimized={current.minimized} style={style}>
 	<slot></slot>
 </div>
+{#if !isRoot}
 <ResizerNew direction={isColumn ? "vertical" : "horizontal"} {current} {parent} />
+{/if}
 
 <style>
+.root {
+	align-content: stretch;
+	width: 100%;
+    height: 100%;
+}
+
 .column {
 	position: relative;
     display: grid;

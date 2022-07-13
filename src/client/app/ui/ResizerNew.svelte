@@ -1,6 +1,6 @@
 <script context="module">
 export const MIN_HEIGHT_ROW = 25;
-export const MIN_WIDTH_COL = 80;
+export const MIN_WIDTH_COL = 25;
 export const DIRECTIONS = {
     HORIZONTAL: "horizontal",
     VERTICAL: "vertical",
@@ -13,17 +13,17 @@ import { map, clamp } from "lemonade-math";
 
 export let direction = DIRECTIONS.HORIZONTAL;
 export let current;
-export let parent;
+export let parent = {};
 
 const { children } = parent;
 
 let visible = false;
-let hidden = false;
 let isDragging = false;
 let next;
 
 async function findNext() {
 	await tick();
+
 	if (children && current.node && current.node) {
 		const { parentNode } = current.node;
 		const childNodes = [...parentNode.children]
@@ -41,9 +41,10 @@ $: {
 }
 
 let currentRect, nextRect;
+let currentSize, nextSize, totalSize;
 
 function handleMouseDown() {
-    if (!isDragging) {
+    if (!isDragging && next) {
         isDragging = true;
 
         document.body.style.userSelect = "none";
@@ -52,11 +53,17 @@ function handleMouseDown() {
 		currentRect = current.node.getBoundingClientRect();
 		nextRect = next.node.getBoundingClientRect();
 
+		currentSize = current.size;
+		nextSize = next.size;
+
+		totalSize = current.size + next.size;
+
 		visible = current.size === next.size;
     }
 }
 
 function handleMouseUp(event) {
+	console.log("ResizerNew :: mouseup");
     if (isDragging) {
         isDragging = false;
         visible = false;
@@ -73,31 +80,55 @@ function handleMouseMove(event) {
 		const top = currentRect.top;
 		const bottom = nextRect.bottom;
 
-		const y = clamp(event.clientY, top + MIN_HEIGHT_ROW, bottom - MIN_HEIGHT_ROW); 
+		const y = clamp(event.clientY, top, bottom);
 
-		prevFlex = Math.round(map(y, top, bottom, 0, 1) * 10000) / 10000;
-		nextFlex = Math.round(map(y, bottom, top, 0, 1) * 10000) / 10000;
+		prevFlex = Math.round(map(y, top, bottom, 0, totalSize) * 10000) / 10000;
+		nextFlex = Math.round(map(y, bottom, top, 0, totalSize) * 10000) / 10000;
 	} else if (direction === DIRECTIONS.VERTICAL) {
 		const left = currentRect.left;
 		const right = nextRect.right;
 
 		const x = clamp(event.clientX, left + MIN_WIDTH_COL, right - MIN_WIDTH_COL);
-		prevFlex = Math.round(map(x, left, right, 0, 1) * 10000) / 10000;
-		nextFlex = Math.round(map(x, right, left, 0, 1) * 10000) / 10000;
+		prevFlex = Math.round(map(x, left, right, 0, totalSize) * 10000) / 10000;
+		nextFlex = Math.round(map(x, right, left, 0, totalSize) * 10000) / 10000;
 	}
+
+	let totalWidth = currentRect.width + nextRect.width;
+	let totalHeight = currentRect.height + nextRect.height;
+	
+
 
 	if (Math.abs(nextFlex - prevFlex) < 0.05) {
-		prevFlex = 0.5;
-		nextFlex = 0.5;
+		prevFlex = totalSize * 0.5;
+		nextFlex = totalSize * 0.5;
 	}
 
+	let ratioWidth = totalWidth / totalSize;
+	let ratioHeight = totalHeight / totalSize;
+	
 	visible = prevFlex === nextFlex;
+
+	function isMinimized(size) {
+		return size * (direction === DIRECTIONS.HORIZONTAL ? ratioHeight : ratioWidth) <= 25;
+	}
+
+	if (isMinimized(prevFlex)) {
+		nextFlex = totalSize;
+		prevFlex = 0;
+	} else if (isMinimized(nextFlex)) {
+		prevFlex = totalSize;
+		nextFlex = 0;
+	}
+
+	console.log(totalSize, prevFlex, nextFlex);
 
 	$children = $children.map((c) => {
 		if (c === current) {
 			c.size = prevFlex;
+			c.minimized = isMinimized(prevFlex);
 		} else if (c === next) {
 			c.size = nextFlex;
+			c.minimized = isMinimized(nextFlex);
 		}
 
 		return c;
