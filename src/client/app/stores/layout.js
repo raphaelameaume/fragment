@@ -2,6 +2,7 @@ import { writable, get } from "svelte/store";
 import { sketchesCount } from "@fragment/props";
 import { defaultLayouts } from "../data/LayoutData";
 import { keepInSync, rehydrate } from "./utils";
+import { afterUpdate, onDestroy, onMount } from "svelte";
 
 const isMany = sketchesCount > 1;
 const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
@@ -23,13 +24,47 @@ if (window.location.search.includes('?output')) {
     defaultLayout = outputLayout;
 }
 
+let tree = writable({});
+
+tree.subscribe((value) => {
+    console.log(value);
+});
+
+let data = [];
+
 export const current = writable({
-    ...rehydrate(key, defaultLayout, override),
+    ...rehydrate(key, {}, override),
     editable: false,
     resizable: false,
+    registerChild: (component, children) => {
+        onMount(() => {
+            data = [...data, component];
+
+            if (component.root) {
+                tree.set(component);
+            }
+        });
+
+        children.subscribe((value) => {
+            component.children = value;
+
+            data.forEach(c => {
+                if (c.root) {
+                    tree.set(c);
+                }
+            }) 
+        });
+
+        onDestroy(() => {
+            const index = data.findIndex((c) => c === component);
+
+            data = data.filter((c, i) => i !== index);
+        })
+    }
 });
 
 keepInSync(key, current);
+
 
 export const addRow = () => {
     current.update((current) => {
