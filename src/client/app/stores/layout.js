@@ -35,7 +35,6 @@ function cleanNodes(value) {
 }
 
 export function traverse(fn = () => {}, node = get(tree)) {
-    console.log("traverse", node);
     const { children = [] } = node;
 
     fn(node);
@@ -63,8 +62,6 @@ export const current = writable({
         onMount(() => {
             data = [...data, component];
 
-            console.log("onMount", component);
-
             component.children = children();
 
             if (component.root) {
@@ -74,7 +71,6 @@ export const current = writable({
         });
 
         onDestroy(() => {
-            console.log("onDestroy", component);
             const index = data.findIndex((c) => c === component);
 
             data = data.filter((c, i) => i !== index);
@@ -99,20 +95,31 @@ export const replaceChildren = (component, newChildren) => {
     });
 };
 
-export const addChild = (child, parent) => {
+export const updateModule = (m, { name } = {}) => {
     tree.update((t) => {
-        
-    })
-};
+        traverse((c) => {
+            if (c.mID === m.mID) {
+                c.name = name;
+            }
+        }, t);
+
+        return t;
+    });
+}
 
 export const addSibling = (component, sibling) => {
     tree.update((t) => {
         traverse((c) => {
             if (c.id === component.parent) {
-                c.children = [
+                const index = c.children.findIndex( k => k.id === component.id);
+                const newChildren = [
                     ...c.children,
-                    sibling,
-                ]
+                ];
+                newChildren.splice(index + 1, 0, sibling);
+
+                console.log("insert sibling at", index + 1, index);
+
+                c.children = newChildren;
             }
         })
 

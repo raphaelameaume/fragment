@@ -5,9 +5,9 @@ let ID = 0;
 <script>
 import { afterUpdate, beforeUpdate, getContext, hasContext, onDestroy, onMount, setContext } from "svelte";
 import { writable } from "svelte/store";
-import { addChild, addSibling, current as currentLayout, replaceChildren } from "../stores/layout";
+import { addSibling, current as currentLayout, replaceChildren, updateModule } from "../stores/layout";
 import Field from "./Field.svelte";
-import ModuleRendererNew, { moduleNames } from "./ModuleRendererNew.svelte";
+import ModuleRendererNew, { moduleNames, getModuleID } from "./ModuleRendererNew.svelte";
 
 import ResizerNew from "./ResizerNew.svelte";
 
@@ -23,7 +23,6 @@ setContext('depth', depth);
 setContext('module', module);
 
 const children = writable([]);
-const siblings = parent ? parent.children : writable([]);
 
 $: isColumn = type === "column";
 $: isRow = !isColumn;
@@ -117,7 +116,7 @@ function addColumn() {
 		depth: isNewChild ? (depth + 1) : depth,
 		type: isNewChild ? "column" : type,
 		children: [
-			{ type: "module"},
+			{ mID: getModuleID(), type: "module" },
 		]
 	});
 
@@ -126,7 +125,7 @@ function addColumn() {
 			...$children.map((c, i) => createComponent({
 				id: ID++,
 				type: isNewChild ? "column" : "row",
-				depth,
+				depth: depth + 1,
 				children: [
 					c,
 				]
@@ -149,7 +148,7 @@ function addRow() {
 		depth: isNewChild ? (depth + 1) : depth,
 		type: isNewChild ? "row" : type,
 		children: [
-			{ type: "module"},
+			{ mID: getModuleID(), type: "module" },
 		]
 	});
 
@@ -158,7 +157,7 @@ function addRow() {
 			...$children.map((c, i) => createComponent({
 				id: ID++,
 				type: isNewChild ? "row" : "column",
-				depth,
+				depth: depth + 1,
 				children: [
 					c,
 				]
@@ -173,10 +172,9 @@ function addRow() {
 }
 
 function handleModuleChange(event) {
-	$children = [{
-		...$children[0],
-		name: event.detail
-	}];
+	updateModule($module, {
+		name: event.detail,
+	});
 }
 
 </script>
@@ -187,7 +185,7 @@ function handleModuleChange(event) {
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRendererNew name={child.name} />
+				<ModuleRendererNew name={child.name} id={child.mID} />
 			{/if}
 
 		{/each}
@@ -262,8 +260,8 @@ function handleModuleChange(event) {
 	width: 100%;
 	height: 100%;
 	
-	background: rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(8px);
+	background: rgba(0, 0, 0, 0.8);
+	/* backdrop-filter: blur(8px); */
 	
 }
 
