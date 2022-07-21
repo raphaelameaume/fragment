@@ -25,10 +25,8 @@ onDestroy(() => {
 
 <LayoutComponent tree={$tree}>
 	<Row size={1}>
-		<ModuleRenderer name="exports" />
-	</Row>
-		
-		<!-- <Column size={0.65}>
+		<!-- <ModuleRenderer name="exports" /> -->
+		<Column size={0.65}>
 			<ModuleRenderer name="monitor" />
 		</Column>
 		<Column size={0.35}>
@@ -38,5 +36,7 @@ onDestroy(() => {
 			<Row size={1}>
 				<ModuleRenderer name="params" />
 			</Row>
-		</Column> -->
+		</Column>
+	</Row>
+		
 </LayoutComponent>
