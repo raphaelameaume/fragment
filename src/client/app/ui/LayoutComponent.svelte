@@ -175,6 +175,7 @@ function addRow() {
 }
 
 function handleModuleChange(event) {
+	$children[0].name = event.detail; // keep state when replacingChildren
 	updateModule($module, {
 		name: event.detail,
 	});
@@ -269,8 +270,7 @@ function handleModuleChange(event) {
 }
 
 .toolbar__content {
-	width: 200px;
-
+	width: 250px;
 	border-radius: var(--border-radius-input); 
 	background-color: var(--color-background);
 }
