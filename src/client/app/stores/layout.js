@@ -112,9 +112,16 @@ export const addSibling = (component, sibling) => {
         traverse((c) => {
             if (c.id === component.parent) {
                 const index = c.children.findIndex( k => k.id === component.id);
+
+                const { size } = c.children[index];
+                c.children[index].size = size * 0.5;
+                sibling.size = size * 0.5;
+
                 const newChildren = [
                     ...c.children,
                 ];
+                
+
                 newChildren.splice(index + 1, 0, sibling);
 
                 c.children = newChildren;

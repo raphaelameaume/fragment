@@ -87,17 +87,19 @@ $layout.registerChild(current, () => $children);
 $: {
 	let property = ``, value = ``;
 
-	if ($children.length > 1) {
+	const nodes = tree.children;
+
+	if (Array.isArray(nodes) && nodes.length > 1) {
 		if (isColumn) {
 			property = `grid-template-rows`;
-			value = $children.map((row, i) => {
+			value = nodes.map((row, i) => {
 				let size = `${row.size}fr`;
 
 				return `minmax(25px, ${size}) 0px`;
 			}).join(' ');
 		} else {
 			property = `grid-template-columns`;
-			value = $children.map((col, i) => {
+			value = nodes.map((col, i) => {
 				let size = `${col.size}fr`;
 
 				return `minmax(25px, ${size}) 0px`;

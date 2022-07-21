@@ -43,9 +43,6 @@ const moduleList = {
 
 $: component = moduleList[name];
 
-
-
-console.log("ModuleRenderer :: id", id);
 const current = {
     id,
     type: "module",
