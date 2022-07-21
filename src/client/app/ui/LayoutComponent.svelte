@@ -112,7 +112,7 @@ function addColumn() {
 	const isNewChild = type === "row";
 
 	const newborn = createComponent({
-		id: ID + 1,
+		id: ID++,
 		parent: isNewChild ? context : parent,
 		depth: isNewChild ? (depth + 1) : depth,
 		type: isNewChild ? "column" : type,
@@ -121,44 +121,55 @@ function addColumn() {
 		]
 	});
 
-	if (isNewChild && $children.length === 1 && $children[0].type === "module") {
+	if (isNewChild && $children.length <= 1) {
 		replaceChildren(current, [
-			createComponent({
-				id: ID + 2,
+			...$children.map((c, i) => createComponent({
+				id: ID++,
 				type: isNewChild ? "column" : "row",
 				depth,
 				children: [
-					$children[0],
+					c,
 				]
-			}),
+			})),
 			newborn
 		]);
-		// addChild(newborn, )
-		// $children = [
-		// 	createComponent({
-		// 		id: ID + 2,
-		// 		type: isNewChild ? "column" : "row",
-		// 		depth,
-		// 		children: [
-		// 			$children[0],
-		// 		]
-		// 	}),
-		// 	newborn,
-		// ];
 
 		module.set({});
 	} else {
-		console.log("add sibling");
 		addSibling(current, newborn);
-		// $siblings = [
-		// 	...$siblings,
-		// 	newborn,
-		// ];
 	}
 }
 
 function addRow() {
+	const isNewChild = type === "column";
 
+	const newborn = createComponent({
+		id: ID++,
+		parent: isNewChild ? context : parent,
+		depth: isNewChild ? (depth + 1) : depth,
+		type: isNewChild ? "row" : type,
+		children: [
+			{ type: "module"},
+		]
+	});
+
+	if (isNewChild && $children.length <= 1) {
+		replaceChildren(current, [
+			...$children.map((c, i) => createComponent({
+				id: ID++,
+				type: isNewChild ? "row" : "column",
+				depth,
+				children: [
+					c,
+				]
+			})),
+			newborn
+		]);
+
+		module.set({});
+	} else {
+		addSibling(current, newborn);
+	}
 }
 
 function handleModuleChange(event) {
