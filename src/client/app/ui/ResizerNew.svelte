@@ -10,7 +10,7 @@ export const DIRECTIONS = {
 <script>
 import { getContext, tick } from "svelte";
 import { map, clamp } from "lemonade-math";
-import { current as currentLayout } from "../stores/layout.js";
+import { current as currentLayout, resize, traverse, tree } from "../stores/layout.js";
 
 export let direction = DIRECTIONS.HORIZONTAL;
 export let current;
@@ -22,44 +22,46 @@ let visible = false;
 let isDragging = false;
 let next;
 
-async function findNext() {
-	await tick();
-
+function findNext() {
 	if (children && current.node && current.node) {
 		const { parentNode } = current.node;
 		const childNodes = [...parentNode.children]
-			// .filter((node) => node.classList.contains('row') || node.classList.contains('column'));
 
 		const index = childNodes.findIndex(c => c === current.node);
 		const nextNode = childNodes[index+2];
 
 		next = $children.find(c => c.node === nextNode);
-	}
-}
 
-$: {
-	findNext();
+		traverse((c) => {
+			if (c.id === next.id) {
+				nextSize = c.size;
+			}
+
+			if (c.id === current.id) {
+				currentSize = c.size;
+			}
+		}, $tree);
+	}
 }
 
 let currentRect, nextRect;
 let currentSize, nextSize, totalSize;
 
 function handleMouseDown() {
+	findNext();
+
     if (!isDragging && next) {
         isDragging = true;
 
         document.body.style.userSelect = "none";
         document.body.style.cursor = direction === DIRECTIONS.HORIZONTAL ? "ns-resize" : "ew-resize";
 
+		totalSize = currentSize + nextSize;
+
 		currentRect = current.node.getBoundingClientRect();
 		nextRect = next.node.getBoundingClientRect();
 
-		currentSize = current.size;
-		nextSize = next.size;
-
-		totalSize = current.size + next.size;
-
-		visible = current.size === next.size;
+		visible = currentSize === nextSize;
     }
 }
 
@@ -120,17 +122,10 @@ function handleMouseMove(event) {
 		nextFlex = 0;
 	}
 
-	$children = $children.map((c) => {
-		if (c === current) {
-			c.size = prevFlex;
-			c.minimized = isMinimized(prevFlex);
-		} else if (c === next) {
-			c.size = nextFlex;
-			c.minimized = isMinimized(nextFlex);
-		}
-
-		return c;
-	});
+	resize([
+		{ id: current.id, size: prevFlex },
+		{ id: next.id, size: nextFlex }
+	]);
 }
 
 </script>

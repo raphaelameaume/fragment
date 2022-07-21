@@ -48,8 +48,8 @@ export function traverse(fn = () => {}, node = get(tree)) {
 };
 
 tree.subscribe((value) => {
-    console.log("Tree was updated");
-    console.log(value);
+    // console.log("Tree was updated");
+    // console.log(value);
 });
 
 let data = [];
@@ -130,4 +130,19 @@ export const addSibling = (component, sibling) => {
 
         return t;
     })
+};
+
+export const resize = (nodes = []) => {
+    tree.update((t) => {
+        traverse((c) => {
+            nodes.forEach(n => {
+                if (n.id === c.id) {
+                    c.size = n.size;
+                }
+            });
+        }, t);
+
+        return t;
+    });
+
 };
