@@ -7,7 +7,7 @@ import { afterUpdate, beforeUpdate, getContext, hasContext, onDestroy, onMount, 
 import { writable } from "svelte/store";
 import { addSibling, current as currentLayout, replaceChildren, updateModule } from "../stores/layout";
 import Field from "./Field.svelte";
-import ModuleRendererNew, { moduleNames, getModuleID } from "./ModuleRendererNew.svelte";
+import ModuleRendererNew, { moduleNames } from "./ModuleRendererNew.svelte";
 
 import ResizerNew from "./ResizerNew.svelte";
 
@@ -66,6 +66,7 @@ let current = createComponent({
 const context = {
 	id: current.id,
 	children,
+	getID: () => ID++,
 	registerChild: (child) => {
 		$children = [...$children, child];
 
@@ -116,7 +117,7 @@ function addColumn() {
 		depth: isNewChild ? (depth + 1) : depth,
 		type: isNewChild ? "column" : type,
 		children: [
-			{ mID: getModuleID(), type: "module" },
+			{ id: ID++, type: "module" },
 		]
 	});
 
@@ -148,7 +149,7 @@ function addRow() {
 		depth: isNewChild ? (depth + 1) : depth,
 		type: isNewChild ? "row" : type,
 		children: [
-			{ mID: getModuleID(), type: "module" },
+			{ id: ID++, type: "module" },
 		]
 	});
 
@@ -181,11 +182,11 @@ function handleModuleChange(event) {
 
 <div class:column={isColumn} class:root={isRoot} class:row={isRow} bind:this={current.node} class:minimized={current.minimized} style={style}>
 	{#if tree && Array.isArray(tree.children) && tree.children.length > 0 }
-		{#each tree.children as child }
+		{#each tree.children as child (child.id) }
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRendererNew name={child.name} id={child.mID} />
+				<ModuleRendererNew name={child.name} id={child.id} />
 			{/if}
 
 		{/each}

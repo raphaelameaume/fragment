@@ -10,15 +10,6 @@ export let moduleNames = [
     "output",
     "appearance",
 ];
-
-let ID = 0;
-
-export let getModuleID = () => {
-
-    return ID++;
-};
-
-
 </script>
 
 <script>
@@ -33,7 +24,9 @@ import Exports from "../modules/Exports.svelte";
 import { getContext } from "svelte";
 import Appearance from "../modules/Appearance.svelte";
 
-export let id = ID++;
+const parent = getContext('parent');
+
+export let id = parent.getID();
 export let name;
 
 const moduleList = {
@@ -50,17 +43,14 @@ const moduleList = {
 
 $: component = moduleList[name];
 
-const parent = getContext('parent');
 
 
-
+console.log("ModuleRenderer :: id", id);
 const current = {
-    mID: id,
+    id,
     type: "module",
     name,
 };
-
-console.log("ModuleRenderer ::", current.mID, name);
 
 parent.registerChild(current);
 

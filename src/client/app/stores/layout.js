@@ -98,7 +98,7 @@ export const replaceChildren = (component, newChildren) => {
 export const updateModule = (m, { name } = {}) => {
     tree.update((t) => {
         traverse((c) => {
-            if (c.mID === m.mID) {
+            if (c.id === m.id) {
                 c.name = name;
             }
         }, t);
@@ -116,8 +116,6 @@ export const addSibling = (component, sibling) => {
                     ...c.children,
                 ];
                 newChildren.splice(index + 1, 0, sibling);
-
-                console.log("insert sibling at", index + 1, index);
 
                 c.children = newChildren;
             }
