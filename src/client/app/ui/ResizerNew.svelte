@@ -10,6 +10,7 @@ export const DIRECTIONS = {
 <script>
 import { getContext, tick } from "svelte";
 import { map, clamp } from "lemonade-math";
+import { current as currentLayout } from "../stores/layout.js";
 
 export let direction = DIRECTIONS.HORIZONTAL;
 export let current;
@@ -134,10 +135,10 @@ function handleMouseMove(event) {
 
 </script>
 
-<div class="resizer resizer--{direction}" class:dragging={isDragging}>
+<div class="resizer resizer--{direction}" class:dragging={isDragging} class:editing={$currentLayout.editing}>
 	<div class="resizer-hover" class:visible={visible} on:mousedown={handleMouseDown}></div>
 </div>
-<svelte:body on:mouseup={handleMouseUp} on:mousemove={handleMouseMove} />
+<svelte:window on:mouseup={handleMouseUp} on:mousemove={handleMouseMove} />
 
 <style>
 .resizer {
@@ -170,7 +171,11 @@ function handleMouseMove(event) {
     opacity: 0;
 }
 
-.resizer-hover:hover:before {
+.resizer.editing .resizer-hover:before {
+    opacity: 0.1;
+}
+
+.resizer .resizer-hover:hover:before {
     opacity: 0.25;
 }
 

@@ -42,10 +42,10 @@ export const keepInSync = (key, store) => {
 
 let persistentStores = new Map();
 
-export const getPersistentStore = (key, reset = false) => {
+export const getPersistentStore = (key, reset = false, initialValue) => {
     if (!persistentStores.has(key)) {
         let store = writable(
-            rehydrate(key, { props: {} }, reset),
+            rehydrate(key, initialValue, reset),
         );
         keepInSync(key, store);
 

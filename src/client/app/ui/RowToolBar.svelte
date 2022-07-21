@@ -1,5 +1,5 @@
 <script>
-import { current as currentLayout, addRow, deleteRow, addColumn, changeRowIndex } from "../stores/layout.js";
+import { current as currentLayout } from "../stores/layout.js";
 
 export let index;
 export let style = "top: 0";
