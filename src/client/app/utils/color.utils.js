@@ -373,6 +373,18 @@ export function isName(value) {
 	return components && components.length > 0;
 }
 
+export function isTHREE(value) {
+	return value && value.isColor;
+}
+
+export function threeToHexString(value) {
+	if (!isTHREE(value)) {
+		console.error(`color.threeToHexString() : value is not an instance of THREE.Color`);
+	}
+
+	return `#${value.getHexString()}`;
+}
+
 export function isColor(value) {
 	let isString = typeof value === "string";
 
@@ -398,9 +410,11 @@ export const FORMATS = {
 	RGBA_ARRAY: "rgba-array",
 	VEC3_STRING: "vec3-string",
 	VEC4_STRING: "vec4-string",
+	THREE: "three",
 };
 
 export function getColorFormat(value) {
+	if (isTHREE(value)) return FORMATS.THREE;
 	if (isHexString(value)) return FORMATS.HEX_STRING;
 	if (isRGBAString(value)) return FORMATS.RGBA_STRING;
 	if (isRGBString(value)) return FORMATS.RGB_STRING;

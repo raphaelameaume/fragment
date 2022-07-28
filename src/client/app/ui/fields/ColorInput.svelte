@@ -9,7 +9,7 @@ export let name;
 
 const dispatch = createEventDispatcher();
 
-let hexValue = color.toHex(value);
+let hexValue = color.toHex(color.isTHREE(value) ? `#${value.getHexString()}` : value);
 let isInputDriven = true;
 
 let override = false;
@@ -30,6 +30,14 @@ $: {
     } else {
         hexValue = color.toHex(textValue);
     }
+
+    if (color.isTHREE(value)) {
+        const [r, g, b] = color.hexToComponents(hexValue);
+
+        value.r =  r / 255;
+        value.g =  g / 255;
+        value.b =  b / 255;
+    }
 }
 
 $: {
@@ -39,17 +47,26 @@ $: {
     }
 }
 
+function dispatchChange() {
+    // support THREE.Color
+    if (color.isTHREE(value)) {
+        dispatch('change', value);
+    } else {
+        dispatch('change', textValue);
+    }
+}
+
 function handleBlur() {
-    dispatch('change', textValue);
+    dispatchChange();
 }
 
 function formatColorFromHex(hex) {
     if (override) return textValue;
 
+    if (format === color.FORMATS.THREE) return color.threeToHexString(value);
     if (format === color.FORMATS.HEX_STRING) return hex;
     if (format === color.FORMATS.VEC3_STRING) return color.hexToVec3String(hex);
     if (format === color.FORMATS.RGB_STRING) return color.hexToRGBString(hex);
-    if (format === color.FORMATS.HSL_STRING) return color.hexToHSLString(components);
 
     let components = color.hexToComponents(hex);
 
@@ -57,9 +74,11 @@ function formatColorFromHex(hex) {
         components[3] = alpha;
     }
 
+    if (format === color.FORMATS.HSL_STRING) return color.hexToHSLString(components);
     if (format === color.FORMATS.RGBA_STRING) return color.componentsToRGBAString(components);
     if (format === color.FORMATS.VEC4_STRING) return color.componentsToVec4String(components);
     if (format === color.FORMATS.HSLA_STRING) return color.componentsToHSLAString(components);
+    
 }
 
 function onChangeText(event) {
@@ -93,13 +112,19 @@ function onChangeAlpha(event) {
     }
 }
 
+function onInput() {
+    isInputDriven = true;
+
+    dispatchChange();
+}
+
 </script>
 
 <div class="color-input">
     <div class="layout">
         <div class="mirror" style="--currentColor: {hexValue}; --opacity: {alpha}">
             <!-- svelte-ignore -->
-            <input class="input" type="color" bind:value={hexValue} {name} on:blur={handleBlur} on:input={() => isInputDriven = true} />
+            <input class="input" type="color" bind:value={hexValue} {name} on:blur={handleBlur} on:input={onInput} />
         </div>
         <TextInput value={textValue} on:input={onChangeText} {name} on:change={onChangeText} />
     </div>

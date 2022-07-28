@@ -5,7 +5,7 @@ let ID = 0;
 <script>
 import { afterUpdate, beforeUpdate, getContext, hasContext, onDestroy, onMount, setContext } from "svelte";
 import { writable } from "svelte/store";
-import { addSibling, current as currentLayout, replaceChildren, updateModule } from "../stores/layout";
+import { addSibling, current as currentLayout, remove, replaceChildren, updateModule } from "../stores/layout";
 import Field from "./Field.svelte";
 import ModuleRendererNew, { moduleNames } from "./ModuleRendererNew.svelte";
 
@@ -71,7 +71,7 @@ const context = {
 		$children = [...$children, child];
 
 		onDestroy(() => {
-			$children = $children.filter((c) => c !== child);
+			$children = $children.filter((c) => c.id !== child.id);
 		});
 	}
 };
@@ -107,6 +107,8 @@ $: {
 		}
 
 		style = `${property}:${value}`;
+	} else {
+		style = "";
 	}
 }
 
@@ -174,6 +176,15 @@ function addRow() {
 	}
 }
 
+function deleteCurrent() {
+	remove(current, () => ({
+		id: ID++,
+		type: "module",
+	}));
+
+	$children = current.children;
+}
+
 function handleModuleChange(event) {
 	$children[0].name = event.detail; // keep state when replacingChildren
 	updateModule($module, {
@@ -196,17 +207,18 @@ function handleModuleChange(event) {
 	{:else}
 		<slot></slot>
 	{/if}
-	{#if $currentLayout.editing && $children.length === 1 && $children[0].type === "module"}
+	{#if $currentLayout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
 	<div class="toolbar">
 		<div class="toolbar__content">
-			<Field key="module" value={$children[0].name} params={{options: ["Select a module", ...moduleNames] }} on:change={handleModuleChange} />
-			<Field key="column" value={() => addColumn()} params={{ label: "add"}} />
+			<Field key="module" value={$children.length > 0 ? $children[0].name : "Select a module" } params={{options: ["Select a module", ...moduleNames] }} on:change={handleModuleChange} />
+			<Field key="column" value={addColumn} params={{ label: "add"}} />
 			<Field key="row" value={addRow} params={{ label: "add"}} />
+			<Field key="delete" value={deleteCurrent} />
 		</div>
 	</div>
 	{/if}
 </div>
-{#if !isRoot}
+{#if !isRoot }
 <ResizerNew direction={isColumn ? "vertical" : "horizontal"} {current} {parent} />
 {/if}
 
