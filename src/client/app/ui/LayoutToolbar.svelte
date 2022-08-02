@@ -8,7 +8,7 @@ import { moduleNames } from "./ModuleRendererNew.svelte";
 
 const defaultValue = "Select a module";
 
-export let moduleName = defaultValue;
+export let moduleName = undefined;
 export let isRoot = false;
 
 const dispatch = createEventDispatcher();
