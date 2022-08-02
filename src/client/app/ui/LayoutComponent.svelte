@@ -64,12 +64,6 @@ let current = createComponent({
 $: isColumn = type === "column";
 $: isRow = !isColumn;
 
-onMount(() => {
-	if (isRoot) {
-		console.log(`Root mounted`, current.id);
-	}
-})
-
 const context = {
 	id: current.id,
 	children,
@@ -95,6 +89,7 @@ $: {
 	let property = ``, value = ``;
 
 	const nodes = tree.children;
+	
 
 	if (Array.isArray(nodes) && nodes.length > 1) {
 		if (isColumn) {
@@ -134,18 +129,21 @@ function addComponent(newType) {
 
 	if (isSibling) {
 		if (isRoot) {
-			const newRoot = createComponent({
+			const newSibling = createComponent({
 				id: ID++,
-				depth,
-				type: newType === "column" ? "row" : "column",
-				root: true,
-				children: [
-					current,
-					newborn,
-				]
+				depth: newborn.depth,
+				type: newborn.type,
+				children: current.children,
 			});
 
-			swapRoot(current, newborn, newRoot);
+			// switch type
+			current.children = [
+				newSibling,
+				newborn,
+			];
+			current.type = current.type === "column" ? "row" : "column";
+
+			swapRoot(current);
 		} else {
 			addSibling(current, newborn);
 		}
@@ -179,12 +177,7 @@ function addRow() {
 }
 
 function deleteCurrent() {
-	remove(current, () => ({
-		id: ID++,
-		type: "module",
-	}));
-
-	$children = current.children;
+	remove(current);
 }
 
 function handleModuleChange(event) {
@@ -204,7 +197,6 @@ function handleModuleChange(event) {
 			{:else if child.type === "module"}
 				<ModuleRendererNew name={child.name} id={child.id} />
 			{/if}
-
 		{/each}
 	{:else}
 		<slot></slot>

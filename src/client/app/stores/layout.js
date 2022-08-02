@@ -24,7 +24,7 @@ if (window.location.search.includes('?output')) {
     defaultLayout = outputLayout;
 }
 
-export let tree = getPersistentStore("fragment.layout.current", true, {});
+export let tree = getPersistentStore("fragment.layout.current", false, {});
 
 function cleanNodes(value) {
     return JSON.parse(JSON.stringify(value, (key, value) => {
@@ -105,11 +105,17 @@ export const updateModule = (m, { name } = {}) => {
     });
 }
 
-export const swapRoot = (component, newborn, newRoot) => {
+export const swapRoot = (newRoot) => {
     tree.update((t) => {
         traverse((c) => {
-            c.depth = c.depth + 1;
+            if (!c.root && c.type !== "module") {
+                c.depth = c.depth + 1;
+            }
         }, newRoot);
+        // console.log("swap root", newRoot.type);
+        return newRoot;
+
+        
 
         component.root = false;
         component.parent = newRoot.id;
@@ -158,7 +164,7 @@ export const addChildren = (component, newChild) => {
     })
 };
 
-export const remove = (node, createEmptyModule) => {
+export const remove = (node) => {
     tree.update((t) => {
         traverse((c) => {
             const { children = [] } = c;
@@ -168,15 +174,22 @@ export const remove = (node, createEmptyModule) => {
                 const newChildren = [...children];
                 newChildren.splice(childIndex, 1);
 
+                console.log("remove child", node.id);
+
                 newChildren.forEach((k) => {
                     k.size = 1. / newChildren.length;
                 });
 
                 if (newChildren.length === 0) {
+                    console.log("remove child as well", node.id);
                     remove(c);
                 }
 
+
+
                 c.children = newChildren;
+            } else {
+                console.log("cannot find component with id", node.id);
             }
         }, t);
 

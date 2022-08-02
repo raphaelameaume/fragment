@@ -6,6 +6,7 @@ import Row from "./RowNew.svelte";
 import { current as currentLayout, tree } from "../stores/layout.js";
 import { onDestroy, onMount, setContext } from "svelte";
 import { onKeyPress } from "../triggers";
+import LayoutRoot from "./LayoutRoot.svelte";
 
 setContext('layout', currentLayout);
 
@@ -23,7 +24,7 @@ onDestroy(() => {
 
 </script>
 
-<LayoutComponent tree={$tree}>
+<LayoutRoot>
 	<Row size={1}>
 		<Column size={0.65}>
 			<ModuleRenderer name="monitor" />
@@ -37,5 +38,4 @@ onDestroy(() => {
 			</Row>
 		</Column>
 	</Row>
-		
-</LayoutComponent>
+</LayoutRoot>
