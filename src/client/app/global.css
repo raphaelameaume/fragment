@@ -14,6 +14,7 @@
 :root {
 	--font-mono: "Jetbrains Mono", monospace;
 
+	--color-lightred: #ffaeae;
 	--color-red: #ff4444;
 	--color-green: #9af49f;
 	--color-lightblack: #0E0E0E;
@@ -66,6 +67,8 @@ ul, ol {
 
 * {
 	box-sizing: border-box;
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-active) transparent;
 }
 
 input, select, button {
@@ -80,4 +83,13 @@ h1, h2, h3, h4, h5 {
 	font-weight: 400;
 	margin: 0;
 	padding: 0;
+}
+
+.visually-hidden {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
 }

@@ -6,6 +6,7 @@ export let name;
 export let value;
 export let triggers = [];
 export let disabled = false;
+export let title = "";
 
 const dispatch = createEventDispatcher();
 
@@ -43,7 +44,7 @@ function handleChange(event) {
 
 <div class="select-input" class:disabled={disabled}>
     <div class="container">
-        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled}>
+        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled} {title}>
             {#each sanitizedOptions as option}
                 <option value={option.value} selected={value === option.value} disabled={option.disabled}>{option.label}</option>
             {/each}
@@ -84,7 +85,7 @@ function handleChange(event) {
 }
 
 .select {
-    padding: 0 var(--padding) 0 var(--padding);
+    padding: 0 var(--padding, 6px) 0 var(--padding, 6px);
 
     width: 100%;
     
@@ -104,6 +105,10 @@ function handleChange(event) {
 }
 
 .select-input:not(.disabled) .select:focus {
+    color: var(--color-text);
+}
+
+.select-input:not(.disabled) .select:hover {
     color: var(--color-text);
 }
 

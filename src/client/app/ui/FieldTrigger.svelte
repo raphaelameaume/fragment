@@ -185,7 +185,7 @@ function onClickActivity() {
             on:click={handleClickDelete}
             --color-text="white"
             --background-color="var(--color-red)"
-            --box-shadow-color="var(--color-red)"
+            --box-shadow-color-active="var(--color-lightred)"
         />
     </FieldInputRow>
 </div>

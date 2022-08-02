@@ -193,7 +193,7 @@ function handleMouseMove(event) {
     bottom: calc(-0.5 * var(--area-size));
     left: 0;
 
-    cursor: ns-resize;
+    cursor: row-resize;
 }
 
 .resizer--horizontal .resizer-hover:before {
@@ -211,7 +211,7 @@ function handleMouseMove(event) {
     bottom: 0;
     left: calc(-0.5 * var(--area-size));
 
-    cursor: ew-resize;
+    cursor: col-resize;
 
     /* background: rgba(0, 255, 0, 0.5); */
 }

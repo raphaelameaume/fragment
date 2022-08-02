@@ -7,6 +7,7 @@ import { afterUpdate, beforeUpdate, getContext, hasContext, onDestroy, onMount, 
 import { writable } from "svelte/store";
 import { addSibling, current as currentLayout, remove, replaceChildren, updateModule } from "../stores/layout";
 import Field from "./Field.svelte";
+import LayoutToolbar from "./LayoutToolbar.svelte";
 import ModuleRendererNew, { moduleNames } from "./ModuleRendererNew.svelte";
 
 import ResizerNew from "./ResizerNew.svelte";
@@ -186,6 +187,7 @@ function deleteCurrent() {
 }
 
 function handleModuleChange(event) {
+	console.log("receive change", event.detail, this);
 	$children[0].name = event.detail; // keep state when replacingChildren
 	updateModule($module, {
 		name: event.detail,
@@ -208,14 +210,14 @@ function handleModuleChange(event) {
 		<slot></slot>
 	{/if}
 	{#if $currentLayout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
-	<div class="toolbar">
-		<div class="toolbar__content">
-			<Field key="module" value={$children.length > 0 ? $children[0].name : "Select a module" } params={{options: ["Select a module", ...moduleNames] }} on:change={handleModuleChange} />
-			<Field key="column" value={addColumn} params={{ label: "add"}} />
-			<Field key="row" value={addRow} params={{ label: "add"}} />
-			<Field key="delete" value={deleteCurrent} />
-		</div>
-	</div>
+	<LayoutToolbar
+		{isRoot}
+		moduleName={$children[0].name}
+		on:change={handleModuleChange}
+		on:add-row={addRow}
+		on:add-column={addColumn}
+		on:delete={deleteCurrent}
+	/>
 	{/if}
 </div>
 {#if !isRoot }
@@ -262,28 +264,5 @@ function handleModuleChange(event) {
 
 .row:not(:last-child) {
 	border-bottom: 0.5px solid var(--color-lightblack);
-}
-
-.toolbar {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 2;
-
-	display: grid;
-	place-items: center;
-	
-	width: 100%;
-	height: 100%;
-	
-	background: rgba(0, 0, 0, 0.8);
-	/* backdrop-filter: blur(8px); */
-	
-}
-
-.toolbar__content {
-	width: 250px;
-	border-radius: var(--border-radius-input); 
-	background-color: var(--color-background);
 }
 </style>

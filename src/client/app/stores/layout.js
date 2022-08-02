@@ -24,7 +24,7 @@ if (window.location.search.includes('?output')) {
     defaultLayout = outputLayout;
 }
 
-export let tree = getPersistentStore("fragment.layout.current", true, {});
+export let tree = getPersistentStore("fragment.layout.current", false, {});
 
 function cleanNodes(value) {
     return JSON.parse(JSON.stringify(value, (key, value) => {
@@ -120,7 +120,6 @@ export const addSibling = (component, sibling) => {
                 const newChildren = [
                     ...c.children,
                 ];
-                
 
                 newChildren.splice(index + 1, 0, sibling);
 
@@ -130,6 +129,35 @@ export const addSibling = (component, sibling) => {
 
         return t;
     })
+};
+
+export const remove = (node, createEmptyModule) => {
+    tree.update((t) => {
+        traverse((c) => {
+            const { children = [] } = c;
+            const childIndex = children.findIndex( k => k.id === node.id);
+
+            if (childIndex >= 0) {
+                const newChildren = [...children];
+                const childSize = children[childIndex].size;
+                newChildren.splice(childIndex, 1);
+
+                const totalSize = newChildren.reduce((total, k) => total + k.size, 0);
+
+                newChildren.forEach((k) => {
+                    k.size = k.size / totalSize;
+                });
+
+                if (newChildren.length === 0) {
+                    remove(c);
+                }
+
+                c.children = newChildren;
+            }
+        }, t);
+
+        return t;
+    });
 };
 
 export const resize = (nodes = []) => {
