@@ -12,7 +12,7 @@ export let onTrigger;
 export let persist = true;
 
 const dispatch = createEventDispatcher();
-const store = getPersistentStore(context, !persist);
+const store = getPersistentStore(context, !persist, { props: {}});
 
 if (!$store.props[key]) {
     $store.props[key] = { triggers: [] };
