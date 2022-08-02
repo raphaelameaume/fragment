@@ -15,6 +15,7 @@ import FieldSection from "./FieldSection.svelte";
 import FieldTriggers from "./FieldTriggers.svelte";
 import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 import { download } from "../utils/file.utils.js";
+import { map } from "../utils/math.utils";
 
 export let key = '';
 export let value = null;
@@ -56,10 +57,9 @@ const onTriggers = {
     'number': (event = {}) => {
         const isValueInRange = event.value >= 0 && event.value <= 1;
 
-        if (isValueInRange && isFinite(prop.min) && isFinite(prop.max)) {
-            let v = map(event.value, 0, 1, prop.min, prop.max);
-
-            prop.value = Math.round(v * (1 / prop.step)) / (1 / prop.step);
+        if (isValueInRange && isFinite(params.min) && isFinite(params.max)) {
+            let v = map(event.value, 0, 1, params.min, params.max);
+            let value = Math.round(v * (1 / params.step)) / (1 / params.step);
 
             dispatch('change', value);
         }
