@@ -10,6 +10,8 @@ const defaultValue = "Select a module";
 
 export let moduleName = undefined;
 export let isRoot = false;
+export let vertical = false;
+
 
 const dispatch = createEventDispatcher();
 
@@ -39,8 +41,14 @@ const options = [
 
 </script>
 
-<div class="toolbar" class:root={isRoot} class:split-columns={splitColumns} class:split-rows={splitRows}>
-	<div class="toolbar__content">
+<div
+	class="toolbar"
+	class:root={isRoot}
+	class:split-columns={splitColumns}
+	class:split-rows={splitRows}
+	
+>
+	<div class="content" class:vertical={vertical}>
 		{#if !isRoot}
 			<div class="module">
 				<Select
@@ -52,7 +60,7 @@ const options = [
 			</div>
 			<div class="separator"></div>
 		{/if}
-		<div class="layout-split">
+		<div class="layout-actions">
 			<ButtonInput
 				label="Split in columns"
 				showLabel={false}
@@ -79,25 +87,25 @@ const options = [
 					<div class="icon-box"></div>
 				</div>
 			</ButtonInput>
+			{#if !isRoot}
+				<div class="layout-delete">
+					<ButtonInput
+						label="Delete"
+						showLabel={false}
+						on:click={handleDelete}
+						--color-text="white"
+						--background-color="var(--color-red)"
+						--box-shadow-color-active="var(--color-lightred)"
+					>
+						<div class="icon-cross">
+							<div class="icon-cross-side"></div>
+							<div class="icon-cross-side"></div>
+						</div>
+					</ButtonInput>
+				</div>
+			{/if}
 		</div>
-		{#if !isRoot}
-			<div class="separator"></div>
-			<div class="layout-delete">
-				<ButtonInput
-					label="Delete"
-					showLabel={false}
-					on:click={handleDelete}
-					--color-text="white"
-					--background-color="var(--color-red)"
-					--box-shadow-color-active="var(--color-lightred)"
-				>
-					<div class="icon-cross">
-						<div class="icon-cross-side"></div>
-						<div class="icon-cross-side"></div>
-					</div>
-				</ButtonInput>
-			</div>
-		{/if}
+		
 		<!-- <Field key="module" value={moduleName} params={{options: ["Select a module", ...moduleNames] }} on:change={handleModuleChange} />
 		<Field key="column" value={handleAddColumn} params={{ label: "add"}} />
 		<Field key="row" value={handleAddRow} params={{ label: "add"}} />
@@ -115,9 +123,9 @@ const options = [
 	display: grid;
 	justify-content: center;
 	align-items: center;
-	
 	width: 100%;
 	height: 100%;
+	padding: 6px;
 }
 
 .toolbar:not(.root) {
@@ -171,16 +179,8 @@ const options = [
 }
 
 .module {
-	width: 130px;
-	flex-shrink: 0;
-}
-
-.separator {
-	position: relative;
-
-	width: 19px;
-	height: 100%;
-	flex-shrink: 0;
+	max-width: 130px;
+	width: 100%;
 }
 
 .icon-cross {
@@ -228,6 +228,22 @@ const options = [
 	transform: rotate(90deg);
 }
 
+.separator {
+	--size: 20px;
+
+	position: relative;
+
+	width: var(--size);
+	height: 100%;
+	flex-shrink: 0;
+}
+
+.content.vertical .separator {
+	width: 100%;
+	height: calc(var(--size) * 0.25);
+	opacity: 0;
+}
+
 .separator:after {
 	--size: 10px; 
 	content: "";
@@ -242,7 +258,16 @@ const options = [
 	background-color: var(--color-border-input);
 }
 
-.toolbar__content {
+
+.content.vertical .separator:after {
+	top: calc(50% - 1px);
+	left: calc(50% - var(--size) * 0.5);
+
+	width: var(--size);
+	height: 1px;
+}
+
+.content {
 	position: relative;
 
 	display: flex;
@@ -256,16 +281,20 @@ const options = [
 	pointer-events: auto;
 }
 
-.toolbar.root .toolbar__content {
+.content.vertical {
+	flex-direction: column-reverse;
+}
+
+.toolbar.root .content {
 	margin-top: 25px;
 	border-style: dashed;
 }
 
-.toolbar__content:hover {
+.content:hover {
 	border-color: #666;
 }
 
-.layout-split {
+.layout-actions {
 	display: flex;
 	gap: 5px;
 }

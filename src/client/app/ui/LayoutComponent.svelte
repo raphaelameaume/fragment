@@ -189,9 +189,19 @@ function handleModuleChange(event) {
 	});
 }
 
+let offsetWidth;
+
 </script>
 
-<div class:column={isColumn} class:root={isRoot} class:row={isRow} bind:this={current.node} class:minimized={current.minimized} style={style}>
+<div
+	style={style}
+	class:column={isColumn}
+	class:root={isRoot}
+	class:row={isRow}
+	class:minimized={current.minimized}
+	bind:this={current.node}
+	bind:offsetWidth={offsetWidth}
+>
 	{#if tree && Array.isArray(tree.children) && tree.children.length > 0 }
 		{#each tree.children as child (child.id) }
 			{#if child.type === "column" || child.type === "row"}
@@ -211,6 +221,7 @@ function handleModuleChange(event) {
 		on:add-row={addRow}
 		on:add-column={addColumn}
 		on:delete={deleteCurrent}
+		vertical={offsetWidth < 300}
 	/>
 	{/if}
 </div>
