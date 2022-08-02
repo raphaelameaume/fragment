@@ -1,11 +1,26 @@
 <script context="module">
-let moduleCount = new Map();
+export let moduleNames = [
+    "monitor",
+    "params",
+    "mouse",
+    "midi",
+    "keyboard",
+    "console",
+    "exports",
+    "output",
+    "appearance",
+    "audioanalyser",
+];
+
+let MODULE_ID = 0; 
+
+export let getModuleID = () => {
+    return MODULE_ID++;
+};
+
 </script>
 
 <script>
-import { setContext, getContext, onMount, onDestroy } from "svelte";
-import { get, writable } from "svelte/store";
-import { current as currentLayout } from "../stores/layout.js";
 import Monitor from "../modules/Monitor.svelte";
 import Console from "../modules/Console.svelte";
 import Output from "../modules/Output.svelte";
@@ -14,9 +29,14 @@ import MousePanel from "../modules/MousePanel.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
 import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 import Exports from "../modules/Exports.svelte";
+import { getContext } from "svelte";
+import Appearance from "../modules/Appearance.svelte";
+import AudioAnalyser from "../modules/AudioAnalyser.svelte";
 
-export let module;
-export let index;
+const parent = getContext('parent');
+
+export let mID;
+export let name;
 
 const moduleList = {
     "monitor": Monitor,
@@ -26,47 +46,25 @@ const moduleList = {
     "keyboard": KeyboardPanel,
     "console": Console,
     "exports": Exports,
-    "output": Output
+    "output": Output,
+    "appearance": Appearance,
+    "audioanalyser": AudioAnalyser
 };
 
-Object.keys(moduleList).forEach(() => {
-    if (!moduleCount.has(module.name)) {
-        moduleCount.set(module.name, 0);
-    }
-})
+$: component = moduleList[name];
 
-$: component = moduleList[module.name];
+const current = {
+    mID: !isNaN(mID) ? mID : MODULE_ID++,
+    type: "module",
+    name,
+};
 
-moduleCount.set(module.name, moduleCount.get(module.name) + 1);
+MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
 
-// onMount(() => {
-//     console.log(module.name, moduleCount.get(module.name));
-// });
+parent.registerChild(current);
 
-onDestroy(() => {
-    moduleCount.set(module.name, moduleCount.get(module.name) - 1);
-});
-
-setContext("moduleIndex", index);
-
-let rowIndex = getContext("rowIndex");
-let colIndex = getContext("colIndex");
-
-const currentModule = writable($currentLayout.rows[rowIndex].cols[colIndex].modules[index]);
-
-currentModule.subscribe((value) => {
-    $currentLayout.rows[rowIndex].cols[colIndex].modules[index] = value;
-});
-
-if (!$currentModule.params) {
-    $currentModule = {
-        ...$currentModule,
-        params: {
-            moduleTypeIndex: moduleCount.get(module.name)
-        }
-    }
-}
-setContext("currentModule", currentModule);
+const m = getContext('module');
+m.set(current);
 
 </script>
 

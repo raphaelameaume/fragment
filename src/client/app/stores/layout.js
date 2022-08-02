@@ -1,28 +1,7 @@
 import { writable, get } from "svelte/store";
 import { sketchesCount } from "@fragment/props";
-import { defaultLayouts } from "../data/LayoutData";
-import { getPersistentStore, keepInSync, rehydrate } from "./utils";
-import { afterUpdate, beforeUpdate, onDestroy, onMount, tick } from "svelte";
-
-const isMany = sketchesCount > 1;
-const key = `fragment.layout.current.${isMany ? 'multiple' : 'single'}`;
-
-export const outputLayout = defaultLayouts.find((layout) => layout.name === "Output");
-export const singleLayout = defaultLayouts.find((layout) => layout.name === "Single");
-export const sketchLayout = defaultLayouts.find((layout) => layout.name === "Sketching");
-
-let defaultLayout = sketchLayout;
-
-if (__PRODUCTION__) {
-    defaultLayout = singleLayout;
-}
-
-let override = !window.location.search.includes('?output');
-override = __PRODUCTION__ ? false : true;
-
-if (window.location.search.includes('?output')) {
-    defaultLayout = outputLayout;
-}
+import { getPersistentStore } from "./utils";
+import { onDestroy, onMount } from "svelte";
 
 export let tree = getPersistentStore("fragment.layout.current", false, {});
 
@@ -45,14 +24,8 @@ export function traverse(fn = () => {}, node = get(tree)) {
     }
 };
 
-tree.subscribe((value) => {
-    // console.log("Tree was updated");
-    // console.log(value);
-});
-
 let data = [];
 
-let root;
 export const current = writable({
     editing: false,
     registerChild: (component, children) => {
@@ -62,7 +35,6 @@ export const current = writable({
             component.children = children();
 
             if (component.root) {
-                root = component;
                 tree.set(cleanNodes(component));
             }
         });
@@ -102,7 +74,7 @@ export const updateModule = (m, { name } = {}) => {
 
         return t;
     });
-}
+};
 
 export const swapRoot = (newRoot) => {
     tree.update((t) => {

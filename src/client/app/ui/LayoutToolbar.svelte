@@ -4,7 +4,7 @@ import { createEventDispatcher } from "svelte";
 import Field from "./Field.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 import Select from "./fields/Select.svelte";
-import { moduleNames } from "./ModuleRendererNew.svelte";
+import { moduleNames } from "./ModuleRenderer.svelte";
 
 const defaultValue = "Select a module";
 
@@ -105,11 +105,6 @@ const options = [
 				</div>
 			{/if}
 		</div>
-		
-		<!-- <Field key="module" value={moduleName} params={{options: ["Select a module", ...moduleNames] }} on:change={handleModuleChange} />
-		<Field key="column" value={handleAddColumn} params={{ label: "add"}} />
-		<Field key="row" value={handleAddRow} params={{ label: "add"}} />
-		<Field key="delete" value={handleDelete} /> -->
 	</div>
 </div>
 
@@ -170,7 +165,6 @@ const options = [
 .toolbar.split-rows:before {
 	opacity: 1;
 }
-
 
 .toolbar.root {
 	align-items: flex-start;

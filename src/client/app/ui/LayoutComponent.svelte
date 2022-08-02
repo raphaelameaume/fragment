@@ -3,13 +3,12 @@ let ID = 0;
 </script>
 
 <script>
-import { getContext, hasContext, onDestroy, setContext, onMount } from "svelte";
+import { getContext, hasContext, onDestroy, setContext } from "svelte";
 import { writable } from "svelte/store";
-import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, traverse, updateModule } from "../stores/layout";
-import LayoutToolbar from "./LayoutToolbar.svelte";
-import ModuleRendererNew, { getModuleID }  from "./ModuleRendererNew.svelte";
-
-import ResizerNew from "./ResizerNew.svelte";
+import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
+import Toolbar from "./LayoutToolbar.svelte";
+import Resizer from "./LayoutResizer.svelte";
+import ModuleRendererNew, { getModuleID }  from "./ModuleRenderer.svelte";
 
 export let size = 1;
 export let type = "column";
@@ -214,7 +213,7 @@ let offsetWidth;
 		<slot></slot>
 	{/if}
 	{#if $currentLayout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
-	<LayoutToolbar
+	<Toolbar
 		{isRoot}
 		moduleName={$children[0].name}
 		on:change={handleModuleChange}
@@ -226,7 +225,7 @@ let offsetWidth;
 	{/if}
 </div>
 {#if !isRoot }
-<ResizerNew direction={isColumn ? "vertical" : "horizontal"} {current} {parent} />
+<Resizer direction={isColumn ? "vertical" : "horizontal"} {current} {parent} />
 {/if}
 
 

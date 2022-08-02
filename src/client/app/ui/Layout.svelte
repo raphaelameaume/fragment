@@ -1,100 +1,40 @@
 <script>
-import Row from "./Row.svelte";
-import RowToolBar from "./RowToolBar.svelte";
-import Column from "./Column.svelte";
+import Column from "./LayoutColumn.svelte"; 
 import ModuleRenderer from "./ModuleRenderer.svelte";
-import Resizer from "./Resizer.svelte";
-import { singleLayout } from "../stores/layout.js"; 
-import { defaultLayouts } from "../data/LayoutData";
-import { onKeyDown } from "../triggers/Keyboard";
+import Row from "./LayoutRow.svelte"; 
+import Root from "./LayoutRoot.svelte";
+import { current as currentLayout, tree } from "../stores/layout.js";
+import { onDestroy, onMount, setContext } from "svelte";
+import { onKeyPress } from "../triggers";
 
-import { current as currentLayout } from "../stores/layout.js";
-import { onDestroy, onMount } from "svelte";
+setContext('layout', currentLayout);
 
 let trigger;
 
 onMount(() => {
-    let prev;
-
-    trigger = onKeyDown('o', () => {
-        currentLayout.update((curr) => {
-            let layout = prev ? prev : singleLayout;
-
-            prev = {...curr};
-
-            return layout;
-        });
-    });
+	trigger = onKeyPress('w', () => {
+		$currentLayout.editing = !$currentLayout.editing;
+	});
 });
 
 onDestroy(() => {
-    trigger.destroy();
-    trigger = null;
-})
-
-let style = "";
-
-$: {
-    const templateRows = $currentLayout.rows.map((r, i) => {
-        const size = r.size ? `minmax(25px, ${r.size}fr)` : 'auto';
-
-        return i !== $currentLayout.rows.length - 1 ? `${size} 0px` : `${size}`;
-    });
-
-    style = `grid-template-rows: ${templateRows.join(' ')};`
-}
+	trigger.destroy();
+});
 
 </script>
 
-<div class="layout" style={style}>
-    {#each $currentLayout.rows as row, rowIndex}
-        <Row current={row} index={rowIndex}>
-            {#if row.cols && row.cols.length >0 }
-                {#each row.cols as col, colIndex}
-                    <Column current={col} index={colIndex}>
-                        {#if col.modules && col.modules.length > 0}
-                            {#each col.modules as module, moduleIndex (module.name)}
-                                <div style="height: 100%;">
-                                    <ModuleRenderer module={module} index={moduleIndex} />
-                                </div>
-                                {#if moduleIndex !== col.modules.length - 1}
-                                    <Resizer
-                                        direction="horizontal"
-                                        rowIndex={rowIndex}
-                                    />
-                                {/if}
-                            {/each}
-                        {/if}
-                    </Column>
-                    {#if colIndex !== row.cols.length - 1}
-                        <Resizer
-                            direction="vertical"
-                            rowIndex={rowIndex}
-                            colIndex={colIndex}
-                        />
-                    {/if}
-                {/each}
-            {/if}
-        </Row>
-        {#if rowIndex !== $currentLayout.rows.length - 1}
-            <Resizer
-                direction="horizontal"
-                rowIndex={rowIndex}
-            />
-        {/if}
-    {/each}
-    {#if $currentLayout.editable }
-        <RowToolBar />
-    {/if }
-</div>
-
-<style>
-.layout {
-    position: relative;
-    display: grid;
-    width: 100%;
-    height: 100%;
-    align-content: flex-start;
-}
-
-</style>
+<Root>
+	<Row size={1}>
+		<Column size={0.65}>
+			<ModuleRenderer name="monitor" />
+		</Column>
+		<Column size={0.35}>
+			<Row size={1}>
+				<ModuleRenderer name="exports" />
+			</Row>
+			<Row size={1}>
+				<ModuleRenderer name="params" />
+			</Row>
+		</Column>
+	</Row>
+</Root>
