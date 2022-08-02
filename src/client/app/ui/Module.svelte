@@ -10,7 +10,7 @@ export let hasHeader = true
 
 </script>
 
-<div class="module module--{name}" class:scrollable={scrollable} class:no-header={!hasHeader}>
+<div class="module module--{name}" class:scrollable={scrollable} class:no-header={!hasHeader} class:editing={$currentLayout.editing}>
     {#if hasHeader && name}
         <header class="module__header" >
             <div class="header__col">
@@ -92,6 +92,10 @@ export let hasHeader = true
 
 .module.scrollable .module__container {
     overflow-y: auto;
+}
+
+.module.editing.scrollable .module__container {
+    overflow-y: hidden;
 }
 
 .module__container::-webkit-scrollbar {
