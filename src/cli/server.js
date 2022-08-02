@@ -15,8 +15,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function start({ options, filepaths, entries, fragment }) {
-    log.warning(`Starting server...`);
-
     const root = path.join(__dirname, '/../client');
     const cwd = process.cwd();
     const app = path.join(root, 'app');
@@ -91,6 +89,7 @@ export async function start({ options, filepaths, entries, fragment }) {
             }
         });
     } else {
+        log.warning(`Starting server...`);
         const server = await createServer(config);
 
         server.middlewares.use('/db', (req, res, next) => {
