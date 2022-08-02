@@ -60,6 +60,5 @@ function handleClickClear(event) {
             disabled: true
         }}
     >
-        <ButtonInput slot="input" label={"Clear"} on:click={handleClickClear} />
     </Field>
 </Module>
