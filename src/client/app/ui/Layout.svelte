@@ -1,27 +1,20 @@
 <script>
-import Column from "./LayoutColumn.svelte"; 
-import ModuleRenderer from "./ModuleRenderer.svelte";
-import Row from "./LayoutRow.svelte"; 
+import { setContext } from "svelte";
 import Root from "./LayoutRoot.svelte";
-import { current as currentLayout, tree } from "../stores/layout.js";
-import { onDestroy, onMount, setContext } from "svelte";
-import { onKeyPress } from "../triggers";
+import Column from "./LayoutColumn.svelte"; 
+import Row from "./LayoutRow.svelte"; 
+import ModuleRenderer from "./ModuleRenderer.svelte";
+import { current as currentLayout } from "../stores/layout.js";
+import KeyBinding from "../components/KeyBinding.svelte";
 
 setContext('layout', currentLayout);
 
-let trigger;
-
-onMount(() => {
-	trigger = onKeyPress('w', () => {
-		$currentLayout.editing = !$currentLayout.editing;
-	});
-});
-
-onDestroy(() => {
-	trigger.destroy();
-});
+function toggleEdition() {
+	$currentLayout.editing = !$currentLayout.editing
+}
 
 </script>
+
 
 <Root>
 	<Row size={1}>
@@ -38,3 +31,4 @@ onDestroy(() => {
 		</Column>
 	</Row>
 </Root>
+<KeyBinding key="w" on:trigger={toggleEdition} />

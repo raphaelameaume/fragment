@@ -3,8 +3,6 @@ import { keepInSync, rehydrate } from "./utils";
 
 export const IMAGE_ENCODINGS = ["png", "jpeg", "webp"];
 
-
-
 export const VIDEO_FORMATS = {
 	FRAMES: "frames",
 	MP4: "mp4",
@@ -24,7 +22,6 @@ export const exports = writable({
 		videoQuality: 100,
 	}, false)
 });
-
 
 keepInSync(`fragment.exports`, exports);
 

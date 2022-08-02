@@ -1,6 +1,6 @@
 <script>
 import { onDestroy, onMount } from "svelte";
-import { derived, writable } from "svelte/store";
+import { derived } from "svelte/store";
 import { all as allSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
@@ -12,9 +12,9 @@ import { emit, TRANSITION_CHANGE } from "../events";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
 import { transitions } from "../transitions/index.js";
 import { findRenderer } from "../stores/renderers";
-import { onKeyDown } from "../triggers/Keyboard.js";
 import { removeHotListeners } from "../triggers/index.js";
 import { recording } from "../stores/exports.js";
+import KeyBinding from "../components/KeyBinding.svelte";
 
 export let key;
 export let index = 0;
@@ -397,8 +397,6 @@ async function save() {
     paused = false;
 }
 
-let keyboardShortcutSave, keyboardShortcutPause, keyboardShortcutRefresh;
-
 allSketches.subscribe(() => {
     if (_created || _errored) {
         createSketch(key);
@@ -429,43 +427,39 @@ onMount(() => {
 
     render();
 
-    keyboardShortcutSave = onKeyDown('s', (event) => {
-        if (event.metaKey || event.ctrlKey) {
-            event.preventDefault();
-            save();
-        }
-    });
-
-    keyboardShortcutPause = onKeyDown(' ', (event) => {
-        if (!event.metaKey || !event.ctrlKey) {
-            event.preventDefault();
-            paused = !paused;
-            then = Date.now();
-        }
-    });
-
-    keyboardShortcutRefresh = onKeyDown('r', (event) => {
-        if (!event.metaKey && !event.ctrlKey) {
-            event.preventDefault();
-            createSketch(key);
-        }
-    });
-
     resizeObserver.observe(node);
 })
+
+function checkForPause(event) {
+    const keyboardEvent = event.detail;
+
+    if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
+        keyboardEvent.preventDefault();
+        paused = !paused;
+        then = Date.now();
+    }
+}
+
+function checkForSave(event) {
+    const keyboardEvent = event.detail;
+
+    if (keyboardEvent.metaKey || keyboardEvent.ctrlKey) {
+        keyboardEvent.preventDefault();
+        save();
+    }
+}
+
+function checkForRefresh(event) {
+    const keyboardEvent = event.detail;
+    if (!keyboardEvent.metaKey && !keyboardEvent.ctrlKey) {
+        keyboardEvent.preventDefault();
+        createSketch(key);
+    }
+}
 
 onDestroy(() => {
     resizeObserver.unobserve(node);
     cancelAnimationFrame(_raf);
-
-    keyboardShortcutSave.destroy();
-    keyboardShortcutSave = null;
-
-    keyboardShortcutPause.destroy();
-    keyboardShortcutPause = null;
-
-    keyboardShortcutRefresh.destroy();
-    keyboardShortcutRefresh = null;
 
     if (renderer && typeof renderer.onDestroyPreview === "function") {
         renderer.onDestroyPreview({ index, canvas });
@@ -516,6 +510,9 @@ $: {
         <span class="record">REC</span>
     {/if}
 </div>
+<KeyBinding type="down" key=" " on:trigger={checkForPause} />
+<KeyBinding type="down" key="r" on:trigger={checkForRefresh} />
+<KeyBinding type="down" key="s" on:trigger={checkForSave} />
 
 <style>
 .sketch-renderer {
