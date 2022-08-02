@@ -19,13 +19,12 @@ onMount(() => {
 
 onDestroy(() => {
 	trigger.destroy();
-})
+});
 
 </script>
 
 <LayoutComponent tree={$tree}>
 	<Row size={1}>
-		<!-- <ModuleRenderer name="exports" /> -->
 		<Column size={0.65}>
 			<ModuleRenderer name="monitor" />
 		</Column>

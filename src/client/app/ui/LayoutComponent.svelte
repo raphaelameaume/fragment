@@ -3,31 +3,28 @@ let ID = 0;
 </script>
 
 <script>
-import { afterUpdate, beforeUpdate, getContext, hasContext, onDestroy, onMount, setContext } from "svelte";
+import { getContext, hasContext, onDestroy, setContext, onMount } from "svelte";
 import { writable } from "svelte/store";
-import { addSibling, current as currentLayout, remove, replaceChildren, updateModule } from "../stores/layout";
-import Field from "./Field.svelte";
+import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
 import LayoutToolbar from "./LayoutToolbar.svelte";
-import ModuleRendererNew, { moduleNames } from "./ModuleRendererNew.svelte";
+import ModuleRendererNew  from "./ModuleRendererNew.svelte";
 
 import ResizerNew from "./ResizerNew.svelte";
+
 
 export let size = 1;
 export let type = "column";
 export let tree = { children: [] };
 
-const layout = getContext('layout');
-const parent = hasContext('parent') ? getContext('parent') : null;
-const depth = hasContext('depth') ? (getContext('depth') + 1) : 0;
-const module = writable({});
+let layout = getContext('layout');
+let parent = hasContext('parent') ? getContext('parent') : null;
+let depth = hasContext('depth') ? (getContext('depth') + 1) : 0;
+let module = writable({});
 setContext('depth', depth);
 setContext('module', module);
 
-const children = writable([]);
-
-$: isColumn = type === "column";
-$: isRow = !isColumn;
 let isRoot = parent === null;
+let children = writable([]);
 
 let style = "";
 
@@ -63,6 +60,15 @@ let current = createComponent({
 	parent,
 	type,
 });
+
+$: isColumn = type === "column";
+$: isRow = !isColumn;
+
+onMount(() => {
+	if (isRoot) {
+		console.log(`Root mounted`, current.id);
+	}
+})
 
 const context = {
 	id: current.id,
@@ -113,68 +119,63 @@ $: {
 	}
 }
 
-function addColumn() {
-	const isNewChild = type === "row";
+function addComponent(newType) {
+	const isSibling = newType === type;
 
 	const newborn = createComponent({
 		id: ID++,
-		parent: isNewChild ? context : parent,
-		depth: isNewChild ? (depth + 1) : depth,
-		type: isNewChild ? "column" : type,
+		parent: isSibling ? parent : context,
+		depth: isSibling ? depth : depth + 1,
+		type: newType,
 		children: [
 			{ id: ID++, type: "module" },
 		]
 	});
 
-	if (isNewChild && $children.length <= 1) {
-		replaceChildren(current, [
-			...$children.map((c, i) => createComponent({
+	if (isSibling) {
+		if (isRoot) {
+			const newRoot = createComponent({
 				id: ID++,
-				type: isNewChild ? "column" : "row",
-				depth: depth + 1,
+				depth,
+				type: newType === "column" ? "row" : "column",
+				root: true,
 				children: [
-					c,
+					current,
+					newborn,
 				]
-			})),
-			newborn
-		]);
+			});
 
-		module.set({});
+			swapRoot(current, newborn, newRoot);
+		} else {
+			addSibling(current, newborn);
+		}
 	} else {
-		addSibling(current, newborn);
+		if ($children.length === 1 && $children[0].type === "module") {
+			replaceChildren(current, [
+				...$children.map((c, i) => createComponent({
+					id: ID++,
+					type: type === "row" ? "column" : "row",
+					depth: depth + 1,
+					children: [
+						c,
+					]
+				})),
+				newborn
+			]);
+
+			module.set({});
+		} else {
+			addChildren(current, newborn);
+		}
 	}
 }
 
+function addColumn() {
+	addComponent('column');
+}
+
 function addRow() {
-	const isNewChild = type === "column";
-
-	const newborn = createComponent({
-		id: ID++,
-		parent: isNewChild ? context : parent,
-		depth: isNewChild ? (depth + 1) : depth,
-		type: isNewChild ? "row" : type,
-		children: [
-			{ id: ID++, type: "module" },
-		]
-	});
-
-	if (isNewChild && $children.length <= 1) {
-		replaceChildren(current, [
-			...$children.map((c, i) => createComponent({
-				id: ID++,
-				type: isNewChild ? "row" : "column",
-				depth: depth + 1,
-				children: [
-					c,
-				]
-			})),
-			newborn
-		]);
-
-		module.set({});
-	} else {
-		addSibling(current, newborn);
-	}
+	addComponent("row");
 }
 
 function deleteCurrent() {
@@ -187,7 +188,6 @@ function deleteCurrent() {
 }
 
 function handleModuleChange(event) {
-	console.log("receive change", event.detail, this);
 	$children[0].name = event.detail; // keep state when replacingChildren
 	updateModule($module, {
 		name: event.detail,

@@ -24,7 +24,7 @@ if (window.location.search.includes('?output')) {
     defaultLayout = outputLayout;
 }
 
-export let tree = getPersistentStore("fragment.layout.current", false, {});
+export let tree = getPersistentStore("fragment.layout.current", true, {});
 
 function cleanNodes(value) {
     return JSON.parse(JSON.stringify(value, (key, value) => {
@@ -39,8 +39,6 @@ export function traverse(fn = () => {}, node = get(tree)) {
 
     fn(node);
 
-    
-
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
         traverse(fn, child);
@@ -48,8 +46,8 @@ export function traverse(fn = () => {}, node = get(tree)) {
 };
 
 tree.subscribe((value) => {
-    // console.log("Tree was updated");
-    // console.log(value);
+    console.log("Tree was updated");
+    console.log(value);
 });
 
 let data = [];
@@ -107,6 +105,20 @@ export const updateModule = (m, { name } = {}) => {
     });
 }
 
+export const swapRoot = (component, newborn, newRoot) => {
+    tree.update((t) => {
+        traverse((c) => {
+            c.depth = c.depth + 1;
+        }, newRoot);
+
+        component.root = false;
+        component.parent = newRoot.id;
+        newborn.parent = newRoot.id;
+
+        return newRoot;
+    })
+};
+
 export const addSibling = (component, sibling) => {
     tree.update((t) => {
         traverse((c) => {
@@ -131,6 +143,21 @@ export const addSibling = (component, sibling) => {
     })
 };
 
+export const addChildren = (component, newChild) => {
+    tree.update((t) => {
+        traverse((c) => {
+            if (c.id === component.id) {
+                c.children = [
+                    ...c.children,
+                    newChild,
+                ];
+            }
+        }, t);
+
+        return t;
+    })
+};
+
 export const remove = (node, createEmptyModule) => {
     tree.update((t) => {
         traverse((c) => {
@@ -139,13 +166,10 @@ export const remove = (node, createEmptyModule) => {
 
             if (childIndex >= 0) {
                 const newChildren = [...children];
-                const childSize = children[childIndex].size;
                 newChildren.splice(childIndex, 1);
 
-                const totalSize = newChildren.reduce((total, k) => total + k.size, 0);
-
                 newChildren.forEach((k) => {
-                    k.size = k.size / totalSize;
+                    k.size = 1. / newChildren.length;
                 });
 
                 if (newChildren.length === 0) {
