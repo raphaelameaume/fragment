@@ -14,13 +14,10 @@ import Field from "../ui/Field.svelte";
 import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
-let currentModule = getContext("currentModule");
-let index = isFinite($currentModule.params.index) ? $currentModule.params.index : instances;
+let index = instances;
 instances++;
 
-$currentModule.params.index = index;
-
-let selected = isFinite($currentModule.params.selected) ? $currentModule.params.selected : index;
+let selected = index;
 let options = [], sketchKey, sketchProps = {};
 
 $: {
@@ -34,8 +31,6 @@ $: {
     if ($monitors.length > selected) {
         sketchKey = $monitors[selected].selected;
     }
-
-    $currentModule.params.selected = selected;
 }
 
 onMount(() => {
