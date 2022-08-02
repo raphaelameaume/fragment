@@ -5,6 +5,7 @@ precision highp float;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform float uRadius;
+uniform float uShift;
 
 in vec2 vUv;
 out vec4 FragColor;
@@ -27,21 +28,26 @@ float disc(vec2 st, float radius, vec2 center) {
 }
 
 void main() {
-    float radius = uRadius;
+    float gridFactor = 40.;
+    vec2 smallgrid = vUv * 40.;
+
+    float borderRadius = uRadius;
     float c = 0.;
-    c += disc(vUv, radius, vec2(1. - radius, 1. - radius));
-    c += disc(vUv, radius, vec2(radius, 1. - radius));
-    c += disc(vUv, radius, vec2(radius, radius));
-    c += disc(vUv, radius, vec2(1. - radius, radius));
+    c += disc(vUv, borderRadius, vec2(1. - borderRadius, 1. - borderRadius));
+    c += disc(vUv, borderRadius, vec2(borderRadius, 1. - borderRadius));
+    c += disc(vUv, borderRadius, vec2(borderRadius, borderRadius));
+    c += disc(vUv, borderRadius, vec2(1. - borderRadius, borderRadius));
 
     float q = 0.;
-    float qv = min(step(radius, vUv.x), step(vUv.x, 1. - radius));
-    float qh = min(step(radius, vUv.y), step(vUv.y, 1. - radius));
+    float qv = min(step(borderRadius, vUv.x), step(vUv.x, 1. - borderRadius));
+    float qh = min(step(borderRadius, vUv.y), step(vUv.y, 1. - borderRadius));
 
     q = max(qh, qv);
     q = clamp(q, 0., 1.);
     c += q; 
     c = clamp(c, 0., 1.);
+
+    float t = 1.;
 
     vec3 color = vec3(0.);
 
@@ -61,71 +67,30 @@ void main() {
     pattern += c2 * r2;
     pattern = 1. - pattern;
     
-    // pattern = ;
+    float gradient = 1. - mod(floor(vUv.x * (gridFactor * 2. + 1.)), 2.) > 0. ? 0. : 1.;
 
-    // pattern *= step(uvp.y, 0.5);
+    vec2 p0 = vec2(0.5);
+    vec2 p1 = p0 + (1. / (gridFactor * 2. + 1.)) * 7. * t;
+    vec2 p2 = p0 - (1. / (gridFactor * 2. + 1.)) * 7. * t;
 
-    float record = disc(vUv, 0.25, vec2(0.5, 0.6));
-    // record *= 1. - disc(vUv, 0.05);
+    float r = (1. / gridFactor * 10.) * t;
 
-    // pause
-    float pauseWidth = 0.01;
-    float pauseHeight = 0.7;
-    float pauseSpace = 0.1;
-    float pause = 0.;
-
-    pause = max(pause, step(vUv.x, 0.5 - pauseSpace * 0.5));
-    pause = min(pause, step(0.5 - pauseSpace * 0.5 - pauseWidth, vUv.x));
-    pause = max(pause, step(1. - vUv.x, 0.5 - pauseSpace * 0.5));
-    pause = min(pause, step(0.5 - pauseSpace * 0.5 - pauseWidth, 1. - vUv.x));
-    // pause *= record;
-
-    // pattern *= 1. - record;
-    // pattern *= 1. - pause;
-
-    // color += vec3(pattern);
-    // color += vec3(1., 0., 0.) * (record);
-
-    float gradient = 1. - mod(floor(vUv.x * 61.), 2.) > 0. ? 0. : 1.;
-    // gradient *= record;
-
-    float ra1 = disc(vUv, 0.25, vec2(0.4, 0.4));
-    float ra2 = disc(vUv, 0.25, vec2(0.5, 0.5));
-    float ra3 = disc(vUv, 0.25, vec2(0.6, 0.6));
+    float ra1 = disc(vUv, r, p2);
+    float ra2 = disc(vUv, r, p0);
+    float ra3 = disc(vUv, r, p1);
 
     ra1 *= gradient;
     ra2 *= (1. - gradient);
     ra3 *= gradient;
 
-    float raU = max(ra1, ra2);
-    raU = max(raU, ra3);
-
-
-    // raU = max(raU, ra2);
-    // ra1 -= pattern;
-    // ra2 -= pattern;
-    // ra3 -= pattern;
-
-    // pattern -= ra1;
-    // pattern -= ra2;
-    // pattern -= raU;
-
     pattern *= 1. - c;
     pattern += 0.9 * (1. - c);
-    // pattern = clamp(pattern, 0., 1.);
 
-    // color += patter;
-
-
-
-    color += vec3(pattern);
     color += vec3(1., 0., 0.) * ra1;
     color += vec3(0., 1., 0.) * ra2;
     color += vec3(0., 0., 1.) * ra3;
 
     float alpha = 1.;
-
-    vec2 smallgrid = vUv * 40.;
 
     float gx = fract(smallgrid.x);
     float gy = fract(smallgrid.y);
@@ -136,6 +101,8 @@ void main() {
     g = clamp(g, 0., 1.);
 
     color += g * vec3(0.1);
+
+    alpha *= c;
 
     FragColor = vec4(color, alpha);
 }

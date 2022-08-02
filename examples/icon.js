@@ -9,12 +9,29 @@ export let props = {
 			max: 0.5,
 			step: 0.01,
 		}
-	}
+	},
+	shift: {
+		value: 0.05,
+		params: {
+			min: 0,
+			max: 1,
+			step: 0.001,
+		}
+	},
+	progress: {
+		value: 0,
+		params: {
+			min: 0,
+			max: 1,
+			step: 0.001,
+		}
+	},
 };
 
 let uniforms = {
 	uTime: { value: 0, type: "float" },
 	uRadius: { value: props.radius.value, type: "float" },
+	uShift: { value: props.shift.value, type: "float" },
 };
 
 export let fps = 0;
@@ -38,6 +55,7 @@ void main(){
 export let update = ({ frag, deltaTime }) => {
 	uniforms.uTime.value += deltaTime;
 	uniforms.uRadius.value = props.radius.value;
+	uniforms.uShift.value = props.shift.value;
 
 	frag.render();
 };
