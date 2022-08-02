@@ -14,12 +14,8 @@ import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
 
 export let name = "monitor";
 
-let currentModule = getContext('currentModule');
-
-let index = isFinite($currentModule.params.index) ? $currentModule.params.index : instances;
+let index = instances;
 instances++;
-
-$currentModule.params.index = index;
 
 let paused = false;
 
@@ -66,7 +62,7 @@ $: hasHeader = $currentLayout.name !== "Single" && !__PRODUCTION__;
 
 </script>
 
-<Module name={moduleName} {hasHeader}>
+<Module name={moduleName} {hasHeader} scrollable={false}>
     <svelte:fragment slot="header-right">
         <ModuleHeaderSelectSketch {index} />
     </svelte:fragment>
