@@ -18,7 +18,6 @@ const triggerType = triggers[type];
 let trigger;
 
 onMount(() => {
-	console.log("KeyBinding", typeof key, key);
 	trigger = triggerType(key, (event) => {
 		dispatch('trigger', event);
 	});
