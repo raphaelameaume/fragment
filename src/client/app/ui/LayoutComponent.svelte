@@ -5,12 +5,11 @@ let ID = 0;
 <script>
 import { getContext, hasContext, onDestroy, setContext, onMount } from "svelte";
 import { writable } from "svelte/store";
-import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
+import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, traverse, updateModule } from "../stores/layout";
 import LayoutToolbar from "./LayoutToolbar.svelte";
-import ModuleRendererNew  from "./ModuleRendererNew.svelte";
+import ModuleRendererNew, { getModuleID }  from "./ModuleRendererNew.svelte";
 
 import ResizerNew from "./ResizerNew.svelte";
-
 
 export let size = 1;
 export let type = "column";
@@ -61,13 +60,15 @@ let current = createComponent({
 	type,
 });
 
+ID = Math.max(ID, !isNaN(current.id) ? current.id + 1 : 0);
+console.log({ ID });
+
 $: isColumn = type === "column";
 $: isRow = !isColumn;
 
 const context = {
 	id: current.id,
 	children,
-	getID: () => ID++,
 	registerChild: (child) => {
 		$children = [...$children, child];
 
@@ -123,7 +124,7 @@ function addComponent(newType) {
 		depth: isSibling ? depth : depth + 1,
 		type: newType,
 		children: [
-			{ id: ID++, type: "module" },
+			{ mID: getModuleID(), type: "module" },
 		]
 	});
 
@@ -178,6 +179,8 @@ function addRow() {
 
 function deleteCurrent() {
 	remove(current);
+
+	$children = current.children;
 }
 
 function handleModuleChange(event) {
@@ -195,7 +198,7 @@ function handleModuleChange(event) {
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRendererNew name={child.name} id={child.id} />
+				<ModuleRendererNew name={child.name} mID={child.mID} />
 			{/if}
 		{/each}
 	{:else}

@@ -9,7 +9,15 @@ export let moduleNames = [
     "exports",
     "output",
     "appearance",
+    "audioanalyser",
 ];
+
+let MODULE_ID = 0; 
+
+export let getModuleID = () => {
+    return MODULE_ID++;
+};
+
 </script>
 
 <script>
@@ -23,10 +31,11 @@ import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 import Exports from "../modules/Exports.svelte";
 import { getContext } from "svelte";
 import Appearance from "../modules/Appearance.svelte";
+import AudioAnalyser from "../modules/AudioAnalyser.svelte";
 
 const parent = getContext('parent');
 
-export let id = parent.getID();
+export let mID;
 export let name;
 
 const moduleList = {
@@ -38,16 +47,19 @@ const moduleList = {
     "console": Console,
     "exports": Exports,
     "output": Output,
-    "appearance": Appearance
+    "appearance": Appearance,
+    "audioanalyser": AudioAnalyser
 };
 
 $: component = moduleList[name];
 
 const current = {
-    id,
+    mID: !isNaN(mID) ? mID : MODULE_ID++,
     type: "module",
     name,
 };
+
+MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
 
 parent.registerChild(current);
 

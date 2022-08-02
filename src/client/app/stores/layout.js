@@ -46,12 +46,11 @@ export function traverse(fn = () => {}, node = get(tree)) {
 };
 
 tree.subscribe((value) => {
-    console.log("Tree was updated");
-    console.log(value);
+    // console.log("Tree was updated");
+    // console.log(value);
 });
 
 let data = [];
-
 
 let root;
 export const current = writable({
@@ -96,7 +95,7 @@ export const replaceChildren = (component, newChildren) => {
 export const updateModule = (m, { name } = {}) => {
     tree.update((t) => {
         traverse((c) => {
-            if (c.id === m.id) {
+            if (c.mID === m.mID) {
                 c.name = name;
             }
         }, t);
@@ -112,14 +111,6 @@ export const swapRoot = (newRoot) => {
                 c.depth = c.depth + 1;
             }
         }, newRoot);
-        // console.log("swap root", newRoot.type);
-        return newRoot;
-
-        
-
-        component.root = false;
-        component.parent = newRoot.id;
-        newborn.parent = newRoot.id;
 
         return newRoot;
     })
@@ -143,7 +134,7 @@ export const addSibling = (component, sibling) => {
 
                 c.children = newChildren;
             }
-        })
+        });
 
         return t;
     })
@@ -174,22 +165,15 @@ export const remove = (node) => {
                 const newChildren = [...children];
                 newChildren.splice(childIndex, 1);
 
-                console.log("remove child", node.id);
-
                 newChildren.forEach((k) => {
                     k.size = 1. / newChildren.length;
                 });
 
                 if (newChildren.length === 0) {
-                    console.log("remove child as well", node.id);
                     remove(c);
                 }
 
-
-
                 c.children = newChildren;
-            } else {
-                console.log("cannot find component with id", node.id);
             }
         }, t);
 

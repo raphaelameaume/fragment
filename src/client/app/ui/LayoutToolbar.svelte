@@ -33,7 +33,7 @@ function handleDelete() {
 }
 
 const options = [
-	{ value: defaultValue, label: defaultValue, disabled: true },
+	{ value: undefined, label: defaultValue, disabled: true },
 	...moduleNames.map((name) => ({ value: name, label: name }))
 ]
 
@@ -110,7 +110,7 @@ const options = [
 	position: absolute;
 	top: 0;
 	left: 0;
-	z-index: 2;
+	/* z-index: 200; */
 
 	display: grid;
 	justify-content: center;
