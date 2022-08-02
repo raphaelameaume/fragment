@@ -2,7 +2,7 @@
 import { createEventDispatcher } from "svelte";
 
 export let options = [];
-export let name;
+export let name = "";
 export let value;
 export let triggers = [];
 export let disabled = false;
