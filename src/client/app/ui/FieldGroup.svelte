@@ -29,6 +29,7 @@ function handleClick() {
 
     display: grid;
     width: 100%;
+    
 }
 
 .field-group:after {
@@ -45,6 +46,7 @@ function handleClick() {
 }
 
 .header {
+    padding: 3px 6px;
     border-bottom: 1px solid #323233;
 }
 
