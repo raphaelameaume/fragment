@@ -61,7 +61,6 @@ let current = createComponent({
 });
 
 ID = Math.max(ID, !isNaN(current.id) ? current.id + 1 : 0);
-console.log({ ID });
 
 $: isColumn = type === "column";
 $: isRow = !isColumn;
