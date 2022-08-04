@@ -30,8 +30,8 @@ import MidiPanel from "../modules/MidiPanel.svelte";
 import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 import Exports from "../modules/Exports.svelte";
 import { getContext } from "svelte";
-import Appearance from "../modules/Appearance.svelte";
-import AudioAnalyser from "../modules/AudioAnalyser.svelte";
+// import Appearance from "../modules/Appearance.svelte";
+// import AudioAnalyser from "../modules/AudioAnalyser.svelte";
 
 const parent = getContext('parent');
 
@@ -47,8 +47,8 @@ const moduleList = {
     "console": Console,
     "exports": Exports,
     "output": Output,
-    "appearance": Appearance,
-    "audioanalyser": AudioAnalyser
+    // "appearance": Appearance,
+    // "audioanalyser": AudioAnalyser
 };
 
 $: component = moduleList[name];
