@@ -43,16 +43,24 @@ function onFocus() {
     isFocused = true;
 }
 
-function onBlur() {
+function onBlur(event) {
     isFocused = false;
-    dispatch('change', currentValue);
+
+    if (!controlled) {
+        currentValue = sanitize(event.currentTarget.value, suffix);
+        composedValue = composeValue(currentValue);
+
+        dispatch('change', currentValue);
+    } else {
+        dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value, suffix))));
+    }
 }
 
 function onKeyDown(event) {
     if ([38, 40].includes(event.keyCode)) {
         event.preventDefault();
 
-        const diff = Keyboard.getStepFromEvent(event);
+        const diff = Keyboard.getStepFromEvent(event) * step;
         const direction = event.keyCode === 38 ? 1 : -1;
         const newValue = sanitize(composedValue, suffix) + direction * (diff);
 
@@ -67,15 +75,8 @@ function onKeyDown(event) {
 
 function onKeyPress(event) {
     if (event.key === 'Enter') {
-        // onBlur();
-        if (!controlled) {
-            currentValue = sanitize(event.currentTarget.value, suffix);
-            composedValue = composeValue(currentValue);
-
-            dispatch('change', currentValue);
-        } else {
-            dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value, suffix))));
-        }
+        onBlur(event);
+        event.currentTarget.blur();
     }
 }
 
