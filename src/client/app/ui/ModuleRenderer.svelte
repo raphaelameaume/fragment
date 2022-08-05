@@ -7,9 +7,6 @@ export let moduleNames = [
     "keyboard",
     "console",
     "exports",
-    "output",
-    "appearance",
-    "audioanalyser",
 ];
 
 let MODULE_ID = 0; 
@@ -47,8 +44,6 @@ const moduleList = {
     "console": Console,
     "exports": Exports,
     "output": Output,
-    // "appearance": Appearance,
-    // "audioanalyser": AudioAnalyser
 };
 
 $: component = moduleList[name];
