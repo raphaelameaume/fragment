@@ -15,7 +15,6 @@ function toggleEdition() {
 
 </script>
 
-
 <Root>
 	<Row size={1}>
 		<Column size={0.65}>

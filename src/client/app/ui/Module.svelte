@@ -1,13 +1,9 @@
 <script>
-import { getContext, setContext } from "svelte";
 import { current as currentLayout } from "../stores/layout.js";
-import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
-
 
 export let name;
 export let scrollable = true;
-export let hasHeader = true
-
+export let hasHeader = true;
 </script>
 
 <div class="module module--{name}" class:scrollable={scrollable} class:no-header={!hasHeader} class:editing={$currentLayout.editing}>
