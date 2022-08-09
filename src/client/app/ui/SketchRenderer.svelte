@@ -219,26 +219,31 @@ async function createSketch(key) {
             ...params,
         });
 
+        _created = true;
+        _errored = false;
+
         _renderSketch = createRenderLoop();
 
         requestAnimationFrame(() => {
             needsRender = true;
 
-            if (!_raf) {
+            if (_raf !== null) {
                 render();
             }
         });
 
-        _created = true;
-        _errored = false;
+        
     } catch(error) {
-        _errored = true;
-        console.error(error);
-
-        cancelAnimationFrame(_raf);
-        _raf = null;
+        onError(error);
     }
-    
+}
+
+function onError(error) {
+    _errored = true;
+    console.error(error);
+
+    cancelAnimationFrame(_raf);
+    _raf = null;
 }
 
 let record = $recording;
@@ -300,36 +305,42 @@ function createRenderLoop() {
         needsRender = false;
         then = time;
 
-        onBeforeUpdatePreview({ index, canvas }); 
+        try {
+            onBeforeUpdatePreview({ index, canvas }); 
 
-        let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
+            let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
 
-        if (hasDuration && framerate > 0) {
-            playhead = (t / 1000) / duration;
-            playhead %= 1;
-            playhead = Math.floor(playhead / interval) * interval;
-            playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
+            if (hasDuration && framerate > 0) {
+                playhead = (t / 1000) / duration;
+                playhead %= 1;
+                playhead = Math.floor(playhead / interval) * interval;
+                playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
+            }
+
+            draw({
+                ...renderer,
+                ...params,
+                props: sketch.props,
+                playhead,
+                playcount,
+                width: width * pixelRatio,
+                height: height * pixelRatio,
+                pixelRatio,
+                time: t,
+                deltaTime,
+            });
+            onAfterUpdatePreview({ index, canvas });
+        } catch(error) {
+            onError(error);
         }
-
-        draw({
-            ...renderer,
-            ...params,
-            props: sketch.props,
-            playhead,
-            playcount,
-            width: width * pixelRatio,
-            height: height * pixelRatio,
-            pixelRatio,
-            time: t,
-            deltaTime,
-        });
-        onAfterUpdatePreview({ index, canvas });
     };
 }
 
 let then = performance.now();
 
 function render() {
+    _raf = requestAnimationFrame(render);
+
     if (!paused) {
         let now = performance.now();
         let deltaTime = now - then;
@@ -352,8 +363,6 @@ function render() {
     if (needsRender) {
         _renderSketch();
     }
-
-    _raf = requestAnimationFrame(render);
 }
 
 $: {
@@ -429,8 +438,6 @@ onMount(() => {
     }
     
     emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
-
-    render();
 
     resizeObserver.observe(node);
 })
