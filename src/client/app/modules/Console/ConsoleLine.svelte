@@ -1,5 +1,5 @@
 <script>
-	import JSONNode from 'svelte-json-tree';
+	import JSONTree from 'svelte-json-tree';
 	// import ConsoleTable from './ConsoleTable.svelte';
 
 	export let log;
@@ -41,10 +41,16 @@
 			{arg}
 		{/each}
 	{:else if log.level === 'table'}
-		<JSONNode value={log.args[0]} />
+		<JSONTree value={log.args[0]} />
 	{:else}
 		{#each log.args as arg}
-			<JSONNode value={arg} />
+			{#if typeof arg === "string"}
+				<span class="string">{typeof arg} {arg}</span>
+			{:else if typeof arg === "function"}
+				<div class="function">{arg.toString()}</div>
+			{:else}
+				<JSONTree value={arg} />
+			{/if}
 		{/each}
 	{/if}
 	{#each new Array(level - 1) as _, idx}
@@ -77,6 +83,7 @@
 		--json-tree-boolean-color: var(--color-active);
 		--json-tree-function-color: var(--color-active);
 		/* --json-tree-number-color: #3029cf; */
+		--json-tree-property-color: var(--color-text);
 		--json-tree-label-color: var(--color-active);
 		--json-tree-arrow-color: #727272;
 		--json-tree-null-color: #8d8d8d;
@@ -92,6 +99,18 @@
 
 		color: rgba(255, 255, 255, 0.5);
 		/* font-weight: 700; */
+	}
+
+	.string {
+		display: block;
+		font-size: var(--font-size-input);
+	}
+
+	.function {
+		font-size: var(--font-size-input);
+		font-style: italic;
+		white-space: pre;
+		tab-size: 2em;
 	}
 
 	.log:first-child:not(.console-error) {
