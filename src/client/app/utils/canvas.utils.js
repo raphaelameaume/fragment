@@ -13,22 +13,22 @@ import GIFRecorder from "../lib/canvas-recorder/GIFRecorder";
 import FrameRecorder from "../lib/canvas-recorder/FrameRecorder";
 import { exportCanvas } from "../lib/canvas-recorder/utils";
 
-export async function saveDataURL(dataURL, options) {
+export async function saveDataURL(dataURL, options, blob) {
     async function onError(err) {
         if (typeof options.onError === "function") {
             options.onError(err);
-            
         }
 
-        console.log(err);
+        if (!blob) {
+            blob = await createBlobFromDataURL(dataURL);
+        }
 
-        const blob = await createBlobFromDataURL(dataURL);
         await downloadBlob(blob, options);
     }
 
     try {
         const body = {
-            dataURL,
+            dataURL: dataURL.split(',')[1], // remove extension,
             ...options,
         };
         const response = await fetch('/save', {
@@ -72,7 +72,7 @@ export async function createDataURLFromBlob(blob) {
 export async function saveBlob(blob, options) {
     const dataURL = await createDataURLFromBlob(blob);
 
-    return saveDataURL(dataURL, options);
+    return saveDataURL(dataURL, options, blob);
 };
 
 function createBlobFromDataURL(dataURL) {
@@ -80,7 +80,7 @@ function createBlobFromDataURL(dataURL) {
         const splitIndex = dataURL.indexOf(',');
 
         if (splitIndex === -1) {
-            resolve(new window.Blob());
+            reject(new Error(`createBlobFromDataURL: dataURL doesn't contain extension data.`))
             return;
         }
 
@@ -146,9 +146,7 @@ export async function screenshotCanvas(canvas, {
     if (imageEncoding !== "webp" && pixelsPerInch !== 72) {
         dataURL = changeDpiDataUrl(dataURL, exportParams.pixelsPerInch);
     }
-
-    dataURL = dataURL.split(',')[1]; // remove extension
-
+    
     await saveDataURL(dataURL, {
         filename: `${name}${extension}`,
         onError: () => {
