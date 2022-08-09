@@ -3,12 +3,19 @@ import Module from "../ui/Module.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import { current as currentLogs } from "../stores/console";
 import ConsoleLine from "./Console/ConsoleLine.svelte";
+import { afterUpdate } from "svelte";
 
-$: logs = $currentLogs;
+let scrollableContainer;
 
 function clear() {
     $currentLogs = [];
 }
+
+afterUpdate(() => {
+    if (scrollableContainer) {
+        scrollableContainer.scrollTop = scrollableContainer.scrollHeight;
+    }
+})
 
 </script>
 
@@ -18,8 +25,8 @@ function clear() {
     </svelte:fragment>
     <div class="container">
         <div class="list">
-            <div class="scroll">
-                {#each logs as log}
+            <div class="scroll" bind:this={scrollableContainer}>
+                {#each $currentLogs as log}
                     <ConsoleLine {log} />
                 {/each}
             </div>
