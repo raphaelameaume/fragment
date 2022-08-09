@@ -6,7 +6,7 @@ export default function screenshot({ cwd }) {
 	return {
 		name: 'screenshot',
 		configureServer(server){
-			server.middlewares.use(bodyParser.json({ limit: '50mb'}))
+			server.middlewares.use(bodyParser.json({ limit: '100mb'}))
 			server.middlewares.use('/save', (req, res, next) => {
 				if (req.method === "POST") {
 					const { filename, dataURL } = req.body;
