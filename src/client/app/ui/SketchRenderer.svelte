@@ -227,7 +227,7 @@ async function createSketch(key) {
         requestAnimationFrame(() => {
             needsRender = true;
 
-            if (_raf !== null) {
+            if (!_raf) {
                 render();
             }
         });
