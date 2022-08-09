@@ -205,6 +205,7 @@ async function createSketch(key) {
         init({
             width,
             height,
+            pixelRatio,
             props,
             ...params,
         });
@@ -300,7 +301,7 @@ function createRenderLoop() {
 
         let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
 
-        if (hasDuration) {
+        if (hasDuration && framerate > 0) {
             playhead = (t / 1000) / duration;
             playhead %= 1;
             playhead = Math.floor(playhead / interval) * interval;
@@ -315,6 +316,7 @@ function createRenderLoop() {
             playcount,
             width: width * pixelRatio,
             height: height * pixelRatio,
+            pixelRatio,
             time: t,
             deltaTime,
         });
