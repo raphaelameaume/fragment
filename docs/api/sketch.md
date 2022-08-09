@@ -20,15 +20,18 @@ sketch.update();
 `fragment` leverages the power of [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export), meaning that you can export various properties from your sketch entry point and they will be picked up on runtime.
 
 #### `init`
-- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, ...params: {...InitParams, ...MountParams }}) => void`
+- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, pixelRatio, ...params: {...InitParams, ...MountParams }}) => void`
 
 | name | type | description |
 |---|---|---|
 | canvas | `HTMLCanvasElement` | The canvas element used for drawing |
 | width | `number` | Width of the canvas |
 | height | `number` | Height of the canvas |
+| pixelRatio | `number` | PixelRatio of the canvas |
 
 Depending on the rendering context, params can contain different things.
+
+> ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined here are available directly if you want:
 
 ##### `rendering = "2d"`
 | name | type | description |
@@ -47,8 +50,6 @@ Depending on the rendering context, params can contain different things.
 | name | type | description |
 |---|---|---|
 | `frag` | `fragmentInstance` | The fragment instance |
-
-> ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined above are available directly if you want:
 
 ```js
 export let rendering = "2d";
