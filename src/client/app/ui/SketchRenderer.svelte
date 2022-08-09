@@ -294,8 +294,11 @@ function createRenderLoop() {
     let frameCount = framerate * duration;
     let interval = 1 / frameCount;
 
-    return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
+    let then = $currentTime.time;
+
+    return ({ time = $currentTime.time, deltaTime = time - then } = {}) => {
         needsRender = false;
+        then = time;
 
         onBeforeUpdatePreview({ index, canvas }); 
 
@@ -324,11 +327,11 @@ function createRenderLoop() {
     };
 }
 
-let then = Date.now();
+let then = performance.now();
 
 function render() {
     if (!paused) {
-        let now = Date.now();
+        let now = performance.now();
         let deltaTime = now - then;
         then = now;
 
