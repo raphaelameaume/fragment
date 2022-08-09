@@ -168,7 +168,7 @@ export let update = ({ context }) => {
 };
 ```
 
-You can also force a type on a prop by assigning a `type` to your object like so:
+You can force a type on a prop by assigning a `type` to your object like so:
 
 ```js
 export let props = {
@@ -188,6 +188,23 @@ export let props = {
 | `download` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
 | `vec2` | `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
 | `vec3` | `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
+
+You can also add a listener if you want to trigger a function when the prop value changes.
+
+```js
+function onColorChange({ value }) {
+  console.log("color has changed!", value);
+}
+
+export let props = {
+  color: {
+    value: [255, 0, 255],
+    type: "color",
+    onChange: onColorChange,
+  }
+}
+```
+
 ## Templates
 
 `fragment` comes with a bunch of pre-defined templates. See [CLI docs](./CLI.md#templates) for details.

@@ -91,6 +91,10 @@ $: sketchProps = $props[sketchKey];
                     }}
                     on:change={(event) => {
                         $props[sketchKey][key].value = event.detail;
+
+                        if (typeof $props[sketchKey][key].onChange === 'function') {
+                            $props[sketchKey][key].onChange($props[sketchKey][key]);
+                        }
                     }}
                 />
             {/each}
