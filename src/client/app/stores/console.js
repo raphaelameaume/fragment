@@ -7,7 +7,6 @@ let mirrored = ["log", "warn", "error", "dir"];
 let enabled = false;
 let refs = {};
 
-
 tree.subscribe((t) => {
 	let hasConsole = false;
 	traverse((c) => {
@@ -42,9 +41,10 @@ function enable() {
 				if (isFromVite) return logs;
 
 				if (logs.length > 0) {
-					const lastArgs = logs[logs.length - 1].args;
+					const lastLog = logs[logs.length - 1];
+					const { level: lastLevel, args: lastArgs } = lastLog;
 
-					if (lastArgs[0] === args[0]) {
+					if (lastLevel === key && lastArgs[0] === args[0]) {
 						logs[logs.length - 1].count++;
 						return logs;
 					}
