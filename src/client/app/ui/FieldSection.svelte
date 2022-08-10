@@ -71,14 +71,14 @@ export let onClickLabel = () => {};
     align-items: center;
     justify-content: space-between;
     
-    color: #f0f0f0;
+    color: var(--color-text);
 }
 
 .field__label {
     font-size: var(--font-size-input);
     user-select: none;
 
-    opacity: 0.5;
+    opacity: 0.6;
     transition: opacity 0.1s ease;
 }
 
