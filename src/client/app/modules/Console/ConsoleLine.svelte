@@ -76,7 +76,7 @@
 
 <style>
 .log {
-	--json-tree-string-color: rgba(255, 255, 255, 0.5);
+	--json-tree-string-color: rgba(240, 240, 240, 0.6);
 	--arrow-sign: rgba(255, 255, 255, 0.5);
 	--json-tree-font-size: var(--font-size-input);
 	--json-tree-font-family: var(--font-mono);
@@ -129,10 +129,6 @@
 	border-top: none;
 }
 
-.log:last-child:not(.console-error) {
-	border-bottom: none;
-}
-
 .log:not(:first-child) {
 	margin-top: -1px;
 }
@@ -145,11 +141,13 @@
 	--json-tree-string-color: #F3AB26;
 	background: #332B00;
 	border-color: #665600;
+	color: var(--json-tree-string-color);
 }
 
 .console-error, .console-assert {
 	--json-tree-string-color: #FF8081;
 
+	color: var(--json-tree-string-color);
 	background: #2A0000;
 	border-color: #5C0000;
 }
