@@ -1,14 +1,14 @@
 <script>
 import Module from "../ui/Module.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
-import { current as currentLogs } from "../stores/console";
+import { logs } from "../stores/console";
 import ConsoleLine from "./Console/ConsoleLine.svelte";
 import { afterUpdate } from "svelte";
 
 let scrollableContainer;
 
 function clear() {
-    $currentLogs = [];
+    $logs = [];
 }
 
 afterUpdate(() => {
@@ -26,7 +26,7 @@ afterUpdate(() => {
     <div class="container">
         <div class="list">
             <div class="scroll" bind:this={scrollableContainer}>
-                {#each $currentLogs as log}
+                {#each $logs as log}
                     <ConsoleLine {log} />
                 {/each}
             </div>
