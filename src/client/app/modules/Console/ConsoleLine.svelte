@@ -80,13 +80,13 @@
 	--arrow-sign: rgba(255, 255, 255, 0.5);
 	--json-tree-font-size: var(--font-size-input);
 	--json-tree-font-family: var(--font-mono);
-	--json-tree-number-color: var(--color-active);
+	--json-tree-number-color: #9980FF;
 	--json-tree-symbol-color: #cb3f41;
-	--json-tree-boolean-color: var(--color-active);
+	--json-tree-boolean-color: #9980FF;
 	--json-tree-function-color: var(--color-active);
 	/* --json-tree-number-color: #3029cf; */
-	--json-tree-property-color: var(--color-text);
-	--json-tree-label-color: var(--color-active);
+	--json-tree-property-color: #5DB0D7;
+	--json-tree-label-color: #17d08e;
 	--json-tree-arrow-color: #727272;
 	--json-tree-null-color: #8d8d8d;
 	--json-tree-undefined-color: #8d8d8d;
@@ -121,7 +121,7 @@
 	tab-size: 2em;
 }
 
-:global(.log ul > .Number) {
+:global(.log ul > .Number, .log ul > .Boolean, .log ul > .Date, .log ul > .Undefined) {
 	margin-left: calc(var(--li-identation) * -1);
 }
 
@@ -132,6 +132,10 @@
 .log:not(:first-child) {
 	margin-top: -1px;
 }
+
+/* :global(.console-warn  .console-log) {
+	border-top-color: transparent;
+} */
 
 /* .log > :global(*) {
 	margin-right: 10px;
