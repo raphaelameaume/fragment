@@ -1,12 +1,16 @@
 <script context="module">
-let instances = 0;
+import { writable } from "svelte/store";
+
+export const params = writable([]);
+
+let ID = 0;
+
 </script>
 
 <script>
-import { getContext, onDestroy, onMount } from "svelte";
-import { sketchesCount } from "@fragment/props";
+import { onMount, onDestroy } from "svelte";
 import { props } from "../stores";
-import { monitors } from "../stores/rendering.js";
+import { monitors } from "../modules/Monitor.svelte";
 import { all as sketches } from "../stores/sketches.js";
 
 import Module from "../ui/Module.svelte";
@@ -14,43 +18,40 @@ import Field from "../ui/Field.svelte";
 import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 
-let index = instances;
-instances++;
-
-let selected = index;
-let options = [], sketchKey, sketchProps = {};
-
-$: {
-    options = $monitors
-        .sort((a, b) => a.index < b.index ? -1 : 1)
-        .map((monitor) => {
-            return { value: monitor.index, label: `monitor ${monitor.index}`}
-        })
-
-
-    if ($monitors.length > selected) {
-        sketchKey = $monitors[selected].selected;
-    }
-}
+let id = ID++;
+let selected = id;
+let sketchKey, sketchProps = {};
 
 onMount(() => {
-    if (!selected) {
-        const lastOption = options[Math.min(index, options.length - 1)];
-
-        if (lastOption) {
-            selected = lastOption.value;
-        }
+    if ($params.length === 1) {
+        selected = "output";
     }
+
+    params.update((all) => {
+        return [
+            ...all,
+            {
+                id,
+            }
+        ]
+    })
 });
 
 onDestroy(() => {
-    instances--;
-})
+    params.update((all) => {
+        return all.filter(m => m.id !== id);
+    });
+});
 
-function handleChangeSelect(event) {
-    selected = Number(event.currentTarget.value);
-}
+$: options = [
+    ...$monitors.map((monitor, index) => {
+        return { value: index, label: `monitor ${index + 1}`}
+    }),
+    ...$params.length > 1 ? [{ value: "output", label: "output"}] : [],
+];
 
+$: monitor = $monitors[Math.min(selected, $monitors.length - 1)];
+$: sketchKey = monitor ? monitor.selected : undefined;
 $: sketch = $sketches[sketchKey];
 $: sketchProps = $props[sketchKey];
 
@@ -58,17 +59,17 @@ $: sketchProps = $props[sketchKey];
 
 <Module name={`Parameters`}>
     <div slot="header-right">
-        {#if $monitors.length > 1 }
+        {#if options.length > 1 }
         <ModuleHeaderAction
             value={selected}
             permanent
             border
-            on:change={handleChangeSelect}
+            on:change={(event) => selected = event.currentTarget.value}
             options={options}
         />
         {/if }
     </div>
-    {#if Number(selected) === $monitors.length - 1 && sketchesCount === 1}
+    {#if $params.length === 1 || selected === "output" }
         <OutputParams />
     {/if}
 
@@ -99,8 +100,5 @@ $: sketchProps = $props[sketchKey];
                 />
             {/each}
         {/if}
-    {/if}
-    {#if !sketch}
-        <OutputParams />
     {/if}
 </Module>

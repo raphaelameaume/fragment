@@ -1,4 +1,4 @@
-import loadMP4Module, { isWebCodecsSupported } from "https://unpkg.com/mp4-wasm@1.0.6";
+// import loadMP4Module, { isWebCodecsSupported } from "https://unpkg.com/mp4-wasm@1.0.6";
 import CanvasRecorder from "./CanvasRecorder";
 
 let MP4;
@@ -6,7 +6,7 @@ let MP4;
 class MP4Recorder extends CanvasRecorder {
 
 	static loaded = false;
-	static isSupported = isWebCodecsSupported;
+	static isSupported = true;
 	
 	constructor(canvas, options) {
 		super(canvas, options);

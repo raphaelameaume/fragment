@@ -1,5 +1,5 @@
 <script>
-import { onDestroy, onMount } from "svelte";
+import { getContext, onDestroy, onMount } from "svelte";
 import { derived } from "svelte/store";
 import { all as allSketches } from "../stores/sketches.js";
 import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
@@ -17,7 +17,7 @@ import { recording } from "../stores/exports.js";
 import KeyBinding from "../components/KeyBinding.svelte";
 
 export let key;
-export let index = 0;
+export let id = 0;
 export let paused = false;
 export let visible = true;
 
@@ -28,6 +28,7 @@ let elapsedRenderingTime = 0;
 let canvas;
 let _raf;
 let _key = key;
+let monitorID = getContext('monitorID');
 
 let sketch;
 let _created = false, _errored = false;
@@ -97,8 +98,6 @@ function createCanvas(canvas = document.createElement('canvas')) {
     canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
     canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
 
-    canvas._index = index;
-
     canvas.onmousedown = (event) => checkForTriggersDown(event, key);
     canvas.onmousemove = (event) => checkForTriggersMove(event, key);
     canvas.onmouseup = (event) => checkForTriggersUp(event, key);
@@ -116,6 +115,11 @@ function destroyCanvas(canvas) {
     let copy = [...$canvases];
     copy.splice(canvasIndex, 1);
     $canvases = copy;
+
+    canvas.onmousedown = null;
+    canvas.onmousemove = null;
+    canvas.onmouseup = null;
+    canvas.onclick = null;
     
     if (canvas.parentNode === container) {
         canvas.parentNode.removeChild(canvas);
@@ -151,17 +155,17 @@ async function createSketch(key) {
         currentRendering.update((curr) => ({...curr, ...overrides}));
     }
 
-    renderer = await findRenderer(sketch.rendering);
-
-    if (!container) return;
-
     if (canvas) {
-        if (typeof renderer.onDestroyPreview === "function") {
-            renderer.onDestroyPreview({ index, canvas });
+        if (renderer && typeof renderer.onDestroyPreview === "function") {
+            renderer.onDestroyPreview({ id, canvas });
         }
 
         destroyCanvas(canvas);
     }
+
+    renderer = await findRenderer(sketch.rendering);
+
+    if (!container) return;
 
     canvas = createCanvas();
     removeHotListeners(key);
@@ -170,7 +174,7 @@ async function createSketch(key) {
 
     if (typeof renderer.onMountPreview === "function") {
         mountParams = renderer.onMountPreview({
-            index,
+            id,
             canvas,
             width: $currentRendering.width,
             height: $currentRendering.height,
@@ -306,7 +310,7 @@ function createRenderLoop() {
         then = time;
 
         try {
-            onBeforeUpdatePreview({ index, canvas }); 
+            onBeforeUpdatePreview({ id, canvas }); 
 
             let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
 
@@ -329,7 +333,7 @@ function createRenderLoop() {
                 time: t,
                 deltaTime,
             });
-            onAfterUpdatePreview({ index, canvas });
+            onAfterUpdatePreview({ id, canvas });
         } catch(error) {
             onError(error);
         }
@@ -394,7 +398,6 @@ currentRendering.subscribe((current) => {
 
         _renderSketch = createRenderLoop();
         needsRender = true;
-        // _renderSketch();
     }
 });
 
@@ -430,7 +433,7 @@ onMount(() => {
         if (framerate === 0) {
             needsRender = true;
         }
-    }); 
+    });
    
     if (!$currentRendering.transition) {
         let transitionOptions = Object.keys(transitions);
@@ -474,8 +477,10 @@ onDestroy(() => {
     cancelAnimationFrame(_raf);
 
     if (renderer && typeof renderer.onDestroyPreview === "function") {
-        renderer.onDestroyPreview({ index, canvas });
+        renderer.onDestroyPreview({ id, canvas });
     }
+
+    renderer = null;
 
     if (canvas) {
         destroyCanvas(canvas);
@@ -489,7 +494,7 @@ $: {
 
     if (renderer && typeof renderer.onResizePreview === "function") {
         renderer.onResizePreview({
-            index,
+            id,
             width: $currentRendering.width,
             height: $currentRendering.height,
             pixelRatio: $currentRendering.pixelRatio,

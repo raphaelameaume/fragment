@@ -31,7 +31,6 @@ keepInSync(`fragment.rendering`, current);
 export const threshold = writable(rehydrate("fragment.threshold", 0, false));
 keepInSync("fragment.threshold", threshold);
 
-export const monitors = writable([]);
 export const canvases = writable([]);
 
 /* multisampling store */

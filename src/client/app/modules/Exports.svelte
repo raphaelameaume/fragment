@@ -46,16 +46,16 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 	<FieldGroup name="video">
 		<Field
 			key="framerate"
+			name="Video export framerate"
 			value={$exports.framerate}
 			on:change={((e) => {
 				$exports.framerate = e.detail;
-
-				console.log($exports.framerate);
 			})}
 		/>
 		<Field
 			key="format"
 			value={$exports.videoFormat}
+			name="Video export format"
 			params={{ options: Object.values(VIDEO_FORMATS) }}
 			on:change={((e) => {
 				$exports.videoFormat = e.detail;
@@ -63,6 +63,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="quality"
+			name="Video export quality"
 			value={$exports.videoQuality}
 			params={{ min: 1, max: 100, step: 1, suffix: "%" }}
 			on:change={((e) => {
@@ -71,6 +72,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="useDuration"
+			name="Use sketch duration"
 			value={$exports.useDuration}
 			on:change={((e) => {
 				$exports.useDuration = e.detail;
@@ -79,6 +81,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		{#if $exports.useDuration }
 		<Field
 			key="loopCount"
+			name="Video export loop count"
 			value={$exports.loopCount}
 			params={{ step: 1 }}
 			on:change={((e) => {
@@ -88,6 +91,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		{/if}
 		<Field
 			key="record"
+			name={`${label} recording`}
 			value={record}
 			params={{ label }}
 		/>

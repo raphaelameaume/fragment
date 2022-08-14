@@ -22,7 +22,11 @@ export function inferFromParams(params) {
 }
 
 export function inferFromValue(value) {
-    if (typeof value === "number") {
+    if (value === undefined || value === null) return undefined;
+
+    if (value.isColor) {
+        return "color";
+    } else if (typeof value === "number") {
         return "number";
     } else if (typeof value === "function") {
         return "button";

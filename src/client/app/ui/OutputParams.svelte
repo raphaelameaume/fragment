@@ -1,6 +1,7 @@
 <script>
 import { emit, TRANSITION_CHANGE } from "../events";
-import { current as currentRendering, canvases, SIZES, threshold, multisampling, monitors } from "../stores/rendering.js";
+import { monitors } from "../modules/Monitor.svelte";
+import { current as currentRendering, canvases, SIZES, threshold, multisampling } from "../stores/rendering.js";
 import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
 import FieldGroup from "./FieldGroup.svelte";
@@ -204,7 +205,7 @@ $: {
     }}
 />
 {/if}
-{#if sketchesCount > 1 }
+{#if sketchesCount > 1 && $monitors.length > 1 }
 <FieldGroup name="monitors">
     <Field
         key="sampler0"

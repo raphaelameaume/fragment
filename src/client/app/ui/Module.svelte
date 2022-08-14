@@ -1,12 +1,30 @@
 <script>
-import { current as currentLayout } from "../stores/layout.js";
+import { getContext } from "svelte";
+import { layout, updateComponent } from "../stores/layout.js";
 
 export let name;
 export let scrollable = true;
 export let hasHeader = true;
+
+let layoutComponent = getContext('parent');
+
+function minimize() {
+    updateComponent(layoutComponent, (component) => {
+        console.log(component);
+        return {
+            minimized: !component.minimized
+        }
+    });
+}
+
 </script>
 
-<div class="module module--{name}" class:scrollable={scrollable} class:no-header={!hasHeader} class:editing={$currentLayout.editing}>
+<div
+    class="module module--{name}"
+    class:scrollable={scrollable}
+    class:no-header={!hasHeader}
+    class:editing={$layout.editing}
+>
     {#if hasHeader && name}
         <header class="module__header" >
             <div class="header__col">
@@ -15,7 +33,7 @@ export let hasHeader = true;
                 </div>
             </div>
             <div class="header__col">
-                <h3 class="module__title">{name}</h3>
+                <button class="module__title" on:click={minimize}>{name}</button>
             </div>
             <div class="header__col">
                 <div class="slot slot--right">
@@ -80,6 +98,7 @@ export let hasHeader = true;
     font-size: 10px;
     text-transform: capitalize;
     cursor: pointer;
+    background-color: transparent;
 }
 
 .module__container {

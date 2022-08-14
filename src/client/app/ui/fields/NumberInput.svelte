@@ -76,7 +76,6 @@ function onKeyDown(event) {
 function onKeyPress(event) {
     if (event.key === 'Enter') {
         onBlur(event);
-        event.currentTarget.blur();
     }
 }
 

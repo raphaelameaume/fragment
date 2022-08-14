@@ -18,6 +18,7 @@ import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
 
 export let key = '';
+export let name = key;
 export let value = null;
 export let context = null;
 export let params = {};
@@ -84,27 +85,19 @@ $: {
 let offsetWidth;
 let secondaryVisible = false;
 
-let sizes = [
-    ["small", 320],
-    ["xsmall", 260],
-    ["xxsmall", 200],
-];
-
-let sizeClassName = "";
-
-$: {
-    for (let i = 0; i < sizes.length; i++) {
-        const [name, size] = sizes[i];
-
-        if (offsetWidth < size) {
-            sizeClassName = name;
-        }
-    }
-}
+$: xxsmall = offsetWidth < 200;
+$: xsmall = !xxsmall && offsetWidth < 260;
+$: small = !xxsmall && !xsmall && offsetWidth < 320;
 
 </script>
 
-<div class="field {sizeClassName} {disabled ? "disabled": ""}">
+<div class="field"
+    class:disabled={disabled}
+    class:xxsmall={xxsmall}
+    class:xsmall={xsmall}
+    class:small={small}
+    bind:offsetWidth={offsetWidth}
+>
     <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
         <div slot="infos" class="field__actions">
             {#if params.triggers && params.triggers.length && !disabled }
@@ -138,7 +131,7 @@ $: {
         <svelte:component
             this={input}
             {value}
-            name={key}
+            name={name}
             {...settings}
             on:change={(e) => dispatch('change', e.detail)}
             on:click={onTrigger}

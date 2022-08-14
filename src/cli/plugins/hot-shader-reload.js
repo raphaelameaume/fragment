@@ -16,13 +16,19 @@ ${keyword}${shaderParts[1]}
     }
 
     let modulesToReload = [];
+
+    function compile(shader) {
+        return glslify(shader, {
+            basedir: process.cwd()
+        });
+    }
     
     return {
         name: 'hot-shader-reload',
         handleHotUpdate: async ({ modules, file, read }) => {
             if (fileRegex.test(file)) {
                 let src = await read();
-                let source = glslify(src);
+                let source = compile(src);
                 source = addShaderFilepath(source, file);
 
                 wss.send({
@@ -54,7 +60,7 @@ ${keyword}${shaderParts[1]}
         },
         transform: (src, id) => {
             if (fileRegex.test(id)) {
-                let source = glslify(src);
+                let source = compile(src);
                 source = addShaderFilepath(source, id);
 
                 return {

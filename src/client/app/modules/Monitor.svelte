@@ -1,74 +1,69 @@
 <script context="module">
-let instances = 0;
+import { writable } from "svelte/store";
+
+export const monitors = writable([]);
+
+let ID = 0;
+
 </script>
 
 <script>
-import { onMount, onDestroy, getContext } from "svelte";
-import { monitors } from "../stores/rendering.js";
+import { onMount, onDestroy, setContext } from "svelte";
 import Module from "../ui/Module.svelte";
 import { current as currentSketches } from "../stores/sketches.js";
-import { current as currentLayout } from "../stores/layout.js";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
 import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
 
-export let name = "monitor";
 
-let index = instances;
-instances++;
+let id = ID++;
+let name = "monitor";
+let selected = $currentSketches[Math.min(id, $currentSketches.length - 1)];
 
-let paused = false;
-
-$: selected = $currentSketches[Math.min(index, $currentSketches.length - 1)];
+setContext('monitorID', id);
 
 onMount(() => {
-    monitors.update((v) => {
+    monitors.update((all) => {
         return [
-            ...v,
+            ...all,
             {
+                id,
                 isSketch: true,
-                index,
                 selected,
             }
         ]
     })
 });
 
-$: moduleName = `${name} ${instances > 1 ? index : ""}`; 
+monitors.subscribe((all) => {
+    const current = all.find((monitor) => monitor.id === id);
+
+    if (current && current.selected !== selected) {
+        selected = current.selected;
+    }
+})
 
 onDestroy(() => {
-    instances--;
-
-    monitors.update((value) => {
-        return value.filter(m => m.index !== index);
+    monitors.update((all) => {
+        return all.filter(m => m.id !== id);
     });
 });
 
-$: {
-    monitors.update((ms) => {
-        return ms.map((m, i) => {
-            if (index !== m.index) return m;
-
-            return {
-                index,
-                isSketch: true,
-                selected
-            }
-        });
-    })
-}
-
-$: hasHeader = $currentLayout.name !== "Single" && !__PRODUCTION__;
-
+$: index = $monitors.findIndex(monitor => monitor.id === id);
+$: moduleName = `${name} ${$monitors.length > 1 ? (index + 1) : ""}`;
+$: hasHeader = !__PRODUCTION__;
 </script>
 
 <Module name={moduleName} {hasHeader} scrollable={false}>
     <svelte:fragment slot="header-right">
-        <ModuleHeaderSelectSketch {index} />
+        <ModuleHeaderSelectSketch
+            monitorID={id}
+            monitorIndex={index}
+        />
     </svelte:fragment>
     {#if selected && selected !== "output"}
-        <SketchRenderer key={selected} {index} {paused} />
+        <SketchRenderer key={selected} {id} />
     {:else if selected }
-        <OutputRenderer {paused} />
+        <OutputRenderer />
     {/if}
 </Module>
