@@ -2,7 +2,7 @@
 import { onDestroy, onMount } from "svelte";
 import { fragment, Texture } from "../lib/gl";
 import { transitions } from "../transitions/index.js";
-import { current as currentRendering, monitors } from "../stores/rendering.js";
+import { rendering, monitors } from "../stores/rendering.js";
 import { multisampling, threshold, transition } from "../stores/multisampling.js";
 
 export let paused = false;
@@ -58,7 +58,7 @@ onMount(() => {
     resize();
     render();
 
-    currentRendering.subscribe(() => {
+    rendering.subscribe(() => {
         resize();
     });
 
@@ -102,7 +102,7 @@ function render() {
 function resize() {
     if (!output) return;
 
-    const { width, height, pixelRatio } = $currentRendering;
+    const { width, height, pixelRatio } = $rendering;
 
     output.resize({
         width,
@@ -114,7 +114,7 @@ function resize() {
 </script>
 
 <div class="output-renderer">
-    <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
+    <div class="canvas-container" style="max-width: {$rendering.width}px;">
         <canvas bind:this={canvas}></canvas>
     </div>
 </div>

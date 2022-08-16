@@ -14,7 +14,7 @@ import { all as sketches } from "../stores/sketches.js";
 
 import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
-import OutputParams from "../ui/OutputParams.svelte";
+import OutputParams from "../ui/ParamsOutput.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import { monitors } from "../stores/rendering";
 

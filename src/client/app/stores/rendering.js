@@ -10,7 +10,7 @@ export const SIZES = {
     SCALE: "scale",
 };
 
-export const current = createPersistentStore(`rendering`, false, {
+export const rendering = createPersistentStore(`rendering`, false, {
     width: 500,
     height: 500,
     pixelRatio: 1,

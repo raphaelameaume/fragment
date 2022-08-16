@@ -1,34 +1,34 @@
-import { current as currentRendering } from "./rendering";
+import { rendering } from "./rendering";
 
 export let renderers = {};
 
-function loadRenderer(rendering) {
-	if (rendering === "three") {
+function loadRenderer(renderingMode) {
+	if (renderingMode === "three") {
 		return import(/* @vite-ignore */"../renderers/THREERenderer.js");
 	}
 
-	if (rendering === "fragment") {
+	if (renderingMode === "fragment") {
 		return import(/* @vite-ignore */"../renderers/FragmentRenderer.js");
 	}
 
-	if (rendering === "p5") {
+	if (renderingMode === "p5") {
 		return import(/* @vite-ignore */"../renderers/P5Renderer.js");
 	}
 
 	return import(/* @vite-ignore */"../renderers/2DRenderer.js");
 }
 
-export async function findRenderer(rendering) {
-	if (renderers[rendering]) return renderers[rendering];
+export async function findRenderer(renderingMode) {
+	if (renderers[renderingMode]) return renderers[renderingMode];
 
 	// load and save
-	renderers[rendering] = await loadRenderer(rendering);
+	renderers[renderingMode] = await loadRenderer(renderingMode);
 
 	// get
-	let renderer = renderers[rendering];
+	let renderer = renderers[renderingMode];
 	let initialized = false;
 
-	currentRendering.subscribe((current) => {
+	rendering.subscribe((current) => {
 		let r;
 
 		if (!initialized) {

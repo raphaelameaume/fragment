@@ -1,13 +1,13 @@
 <script>
-import { current as currentRendering, SIZES, monitors } from "../stores/rendering.js";
+import { rendering, SIZES, monitors } from "../stores/rendering.js";
 import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
 import presets, { getDimensionsForPreset } from "../lib/presets";
 import { exports } from "../stores";
 import ParamsMultisampling from "./ParamsMultisampling.svelte";
 
-let canvasWidth = $currentRendering.width;
-let canvasHeight = $currentRendering.height;
+let canvasWidth = $rendering.width;
+let canvasHeight = $rendering.height;
 
 function handleChangeDimensions(event) {
     const [width, height] = event.detail;
@@ -17,7 +17,7 @@ function handleChangeDimensions(event) {
         canvasWidth = width;
         canvasHeight = height;
 
-        currentRendering.update((curr) => {
+        rendering.update((curr) => {
             return {
                 ...curr,
                 width,
@@ -28,14 +28,14 @@ function handleChangeDimensions(event) {
 }
 
 let sizes = Object.values(SIZES);
-$: dimensionsEnabled = [SIZES.FIXED, SIZES.SCALE].includes($currentRendering.resizing);
+$: dimensionsEnabled = [SIZES.FIXED, SIZES.SCALE].includes($rendering.resizing);
 
 $: {
-    if ($currentRendering.resizing === SIZES.PRESET) {
-        const { preset } = $currentRendering;
+    if ($rendering.resizing === SIZES.PRESET) {
+        const { preset } = $rendering;
         const [ width, height ] = getDimensionsForPreset(preset, { pixelsPerInch: 300 });
 
-        currentRendering.update((curr) => {
+        rendering.update((curr) => {
             return {
                 ...curr,
                 width,
@@ -50,8 +50,8 @@ $: {
 <Field
     key="dimensions"
     value={[
-        $currentRendering.width,
-        $currentRendering.height,
+        $rendering.width,
+        $rendering.height,
     ]}
     on:change={handleChangeDimensions}
     params={{
@@ -63,19 +63,19 @@ $: {
 />
 <Field
     key="canvasSize"
-    value={$currentRendering.resizing}
+    value={$rendering.resizing}
     on:change={(event) => {
         const resizing = event.detail;
         let aspectRatio = 1;
 
         if (resizing === SIZES.ASPECT_RATIO) {
             // compute aspect ratio based on previous props
-            aspectRatio = $currentRendering.width / $currentRendering.height;
+            aspectRatio = $rendering.width / $rendering.height;
         }
 
         $exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
 
-        currentRendering.update((curr) => {
+        rendering.update((curr) => {
             return {
                 ...curr,
                 resizing,
@@ -87,36 +87,36 @@ $: {
         options: sizes,
     }}
 />
-{#if $currentRendering.resizing === SIZES.ASPECT_RATIO}
+{#if $rendering.resizing === SIZES.ASPECT_RATIO}
 <Field
     key="aspectRatio"
-    value={$currentRendering.aspectRatio}
+    value={$rendering.aspectRatio}
     on:change={(event) => {
-        $currentRendering.aspectRatio = event.detail;
+        $rendering.aspectRatio = event.detail;
     }}
     params={{
         step: 0.01,
     }}
 />
 {/if}
-{#if $currentRendering.resizing === SIZES.SCALE}
+{#if $rendering.resizing === SIZES.SCALE}
 <Field
     key="zoom"
-    value={$currentRendering.scale}
+    value={$rendering.scale}
     on:change={(event) => {
-        $currentRendering.scale = event.detail;
+        $rendering.scale = event.detail;
     }}
     params={{
         step: 0.01,
     }}
 />
 {/if}
-{#if $currentRendering.resizing === SIZES.PRESET}
+{#if $rendering.resizing === SIZES.PRESET}
 <Field
     key="preset"
-    value={$currentRendering.preset}
+    value={$rendering.preset}
     on:change={(event) => {
-        $currentRendering.preset = event.detail;
+        $rendering.preset = event.detail;
     }}
     params={{
         options: presets,
@@ -124,11 +124,11 @@ $: {
 />
 {/if}
 
-{#if $currentRendering.resizing !== SIZES.PRESET }
+{#if $rendering.resizing !== SIZES.PRESET }
 <Field
     key="pixelRatio"
-    value={$currentRendering.pixelRatio}
-    on:change={(event) => $currentRendering.pixelRatio = event.detail }
+    value={$rendering.pixelRatio}
+    on:change={(event) => $rendering.pixelRatio = event.detail }
     params={{
         step: 0.1,
     }}

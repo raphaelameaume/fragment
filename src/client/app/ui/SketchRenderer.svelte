@@ -2,7 +2,7 @@
 import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
 import { all as allSketches } from "../stores/sketches.js";
-import { current as currentRendering, SIZES, sync, monitors } from "../stores/rendering.js";
+import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
@@ -36,16 +36,16 @@ let _renderSketch = noop;
 function checkForResize() {
     if (!node) return;
 
-    let needsUpdate = $currentRendering.resizing === SIZES.WINDOW || $currentRendering.resizing === SIZES.ASPECT_RATIO;
+    let needsUpdate = $rendering.resizing === SIZES.WINDOW || $rendering.resizing === SIZES.ASPECT_RATIO;
 
     let newWidth, newHeight;
 
-    if ($currentRendering.resizing === SIZES.WINDOW) {
+    if ($rendering.resizing === SIZES.WINDOW) {
         newWidth = node.offsetWidth;
         newHeight = node.offsetHeight;
-    } else if ($currentRendering.resizing === SIZES.ASPECT_RATIO) {
+    } else if ($rendering.resizing === SIZES.ASPECT_RATIO) {
         const { offsetWidth, offsetHeight } = node;
-        const aspectRatio = $currentRendering.aspectRatio;
+        const aspectRatio = $rendering.aspectRatio;
         const monitorRatio = offsetWidth / offsetHeight;
 
         if (aspectRatio < monitorRatio) {
@@ -57,10 +57,10 @@ function checkForResize() {
         }
     }
 
-    needsUpdate = needsUpdate && (newWidth !== $currentRendering.width || newHeight !== $currentRendering.height);
+    needsUpdate = needsUpdate && (newWidth !== $rendering.width || newHeight !== $rendering.height);
 
     if (needsUpdate) {
-        currentRendering.update(curr => {
+        rendering.update(curr => {
             return {
                 ...curr,
                 width: newWidth,
@@ -92,8 +92,8 @@ sketchProps.subscribe(() => {
 });
 
 function createCanvas(canvas = document.createElement('canvas')) {
-    canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
-    canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
+    canvas.width = $rendering.width * $rendering.pixelRatio;
+    canvas.height = $rendering.height * $rendering.pixelRatio;
 
     canvas.onmousedown = (event) => checkForTriggersDown(event, key);
     canvas.onmousemove = (event) => checkForTriggersMove(event, key);
@@ -150,7 +150,7 @@ async function createSketch(key) {
             overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
         }
 
-        currentRendering.update((curr) => ({...curr, ...overrides}));
+        rendering.update((curr) => ({...curr, ...overrides}));
     }
 
     if (canvas) {
@@ -174,9 +174,9 @@ async function createSketch(key) {
         mountParams = renderer.onMountPreview({
             id,
             canvas,
-            width: $currentRendering.width,
-            height: $currentRendering.height,
-            pixelRatio: $currentRendering.pixelRatio,
+            width: $rendering.width,
+            height: $rendering.height,
+            pixelRatio: $rendering.pixelRatio,
         });
     }
 
@@ -194,7 +194,7 @@ async function createSketch(key) {
 
     const init = sketch.setup || sketch.init || noop;
     const resize = sketch.resize || noop;
-    const { width, height, pixelRatio } = $currentRendering;
+    const { width, height, pixelRatio } = $rendering;
 
     try {
         _created = false;
@@ -286,7 +286,7 @@ $: {
 }
 
 function createRenderLoop() {
-    const { width, height, pixelRatio } = $currentRendering;
+    const { width, height, pixelRatio } = $rendering;
     const draw = sketch.draw || sketch.update;
     const { duration } = sketch;
 
@@ -375,7 +375,7 @@ $: {
     }
 }
 
-currentRendering.subscribe((current) => {
+rendering.subscribe((current) => {
     if (canvas && _created) {
         if (current.resizing === SIZES.SCALE) {
             canvas.style.transform = `scale(${current.scale})`;
@@ -486,17 +486,17 @@ $: {
     if (renderer && typeof renderer.onResizePreview === "function") {
         renderer.onResizePreview({
             id,
-            width: $currentRendering.width,
-            height: $currentRendering.height,
-            pixelRatio: $currentRendering.pixelRatio,
+            width: $rendering.width,
+            height: $rendering.height,
+            pixelRatio: $rendering.pixelRatio,
         });
     }
 
     if (canvas) {
-        const pixelRatio = $currentRendering.pixelRatio;
+        const pixelRatio = $rendering.pixelRatio;
 
-        canvas.width = $currentRendering.width * pixelRatio;
-        canvas.height = $currentRendering.height * pixelRatio;
+        canvas.width = $rendering.width * pixelRatio;
+        canvas.height = $rendering.height * pixelRatio;
     }
 }
 
@@ -511,7 +511,7 @@ $: {
 >
     <div
         class="canvas-container"
-        style="max-width: {$currentRendering.width}px; max-height: {$currentRendering.height}px;"
+        style="max-width: {$rendering.width}px; max-height: {$rendering.height}px;"
         bind:this={container}>
     </div>
     {#if $recording}
