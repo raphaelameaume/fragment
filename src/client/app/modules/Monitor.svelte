@@ -1,14 +1,5 @@
 <script context="module">
-import { writable } from "svelte/store";
-
-export const monitors = writable([]);
-
-monitors.subscribe((all) => {
-    console.log(all);
-})
-
 let ID = 0;
-
 </script>
 
 <script>
@@ -17,26 +8,21 @@ import Module from "../ui/Module.svelte";
 import { current as currentSketches } from "../stores/sketches.js";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
-import ModuleHeaderSelectSketch from "../ui/ModuleHeaderSelectSketch.svelte";
-
+import SketchSelect from "../ui/SketchSelect.svelte";
+import { monitors } from "../stores/rendering";
 
 let id = ID++;
 let name = "monitor";
 let selected = $currentSketches[Math.min(id, $currentSketches.length - 1)];
 
-setContext('monitorID', id);
-
 onMount(() => {
-    monitors.update((all) => {
-        return [
-            ...all,
-            {
-                id,
-                isSketch: true,
-                selected,
-            }
-        ]
-    })
+    $monitors = [
+        ...$monitors,
+        {
+            id,
+            selected,
+        }
+    ];
 });
 
 monitors.subscribe((all) => {
@@ -48,9 +34,7 @@ monitors.subscribe((all) => {
 })
 
 onDestroy(() => {
-    monitors.update((all) => {
-        return all.filter(m => m.id !== id);
-    });
+    $monitors = $monitors.filter((m) => m.id !== id);
 });
 
 $: index = $monitors.findIndex(monitor => monitor.id === id);
@@ -60,9 +44,9 @@ $: hasHeader = !__PRODUCTION__;
 
 <Module name={moduleName} {hasHeader} scrollable={false}>
     <svelte:fragment slot="header-right">
-        <ModuleHeaderSelectSketch
+        <SketchSelect
             monitorID={id}
-            monitorIndex={index}
+            {selected}
         />
     </svelte:fragment>
     {#if selected && selected !== "output"}

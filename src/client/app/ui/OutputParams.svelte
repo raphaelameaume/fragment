@@ -1,6 +1,5 @@
 <script>
-import { monitors } from "../modules/Monitor.svelte";
-import { current as currentRendering, SIZES } from "../stores/rendering.js";
+import { current as currentRendering, SIZES, monitors } from "../stores/rendering.js";
 import { sketchesCount } from "@fragment/props";
 import Field from "./Field.svelte";
 import presets, { getDimensionsForPreset } from "../lib/presets";

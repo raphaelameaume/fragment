@@ -1,9 +1,8 @@
 <script>
-import { monitors } from "../modules/Monitor.svelte";
-import { getContext, onDestroy, onMount } from "svelte";
+import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
 import { all as allSketches } from "../stores/sketches.js";
-import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
+import { current as currentRendering, SIZES, sync, monitors } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";

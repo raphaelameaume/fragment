@@ -1,12 +1,10 @@
 <script>
 import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
 import { all as allSketches, current as currentSketches } from "../stores/sketches.js";
-import { monitors } from "../modules/Monitor.svelte";
+import { monitors } from "../stores/rendering";
 
-export let monitorIndex;
 export let monitorID;
-
-let selected;
+export let selected;
 
 $: options = [
     ...Object.keys($allSketches).map((key) => ({
@@ -22,10 +20,11 @@ $: {
             { value: "output", label: "output" },
         ];
     }
-
+    
     if (selected === undefined) {
         selected = options[0].value;
     }
+
 }
 
 function handleChangeSelect(event) {

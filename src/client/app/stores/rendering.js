@@ -29,6 +29,7 @@ export const current = writable({
 keepInSync(`fragment.rendering`, current);
 
 export const canvases = writable([]);
+export const monitors = writable([]);
 
 /* sync across clients */
 let isSynchronized = false;

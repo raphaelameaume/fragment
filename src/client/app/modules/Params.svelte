@@ -10,37 +10,29 @@ let ID = 0;
 <script>
 import { onMount, onDestroy } from "svelte";
 import { props } from "../stores";
-import { monitors } from "../modules/Monitor.svelte";
 import { all as sketches } from "../stores/sketches.js";
 
 import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import OutputParams from "../ui/OutputParams.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
+import { monitors } from "../stores/rendering";
 
 let id = ID++;
 let selected = id;
 let sketchKey, sketchProps = {};
 
 onMount(() => {
-    if ($params.length === 1) {
-        selected = "output";
-    }
-
-    params.update((all) => {
-        return [
-            ...all,
-            {
-                id,
-            }
-        ]
-    })
+    $params = [
+        ...$params,
+        {
+            id,
+        }
+    ];
 });
 
 onDestroy(() => {
-    params.update((all) => {
-        return all.filter(m => m.id !== id);
-    });
+    $params = $params.filter((p) => p.id !== id);
 });
 
 $: options = [
@@ -50,13 +42,17 @@ $: options = [
     ...$params.length > 1 ? [{ value: "output", label: "output"}] : [],
 ];
 
-$: monitor = $monitors[Math.min(selected, $monitors.length - 1)];
-$: sketchKey = monitor ? monitor.selected : undefined;
-$: sketch = $sketches[sketchKey];
-$: sketchProps = $props[sketchKey];
-$: showOutputParams = (monitor && monitor.selected === "output") ||
-    ($params.length === 1) ||
-    (selected === "output");
+let monitor, sketch, showOutputParams;
+
+monitors.subscribe((value) => {
+    monitor = $monitors[Math.min(selected, $monitors.length - 1)];
+    sketchKey = monitor ? monitor.selected : undefined;
+    sketch = $sketches[sketchKey];
+    sketchProps = $props[sketchKey];
+    showOutputParams = (monitor && monitor.selected === "output") ||
+        ($params.length === 1) ||
+        (selected === "output");
+});
 
 </script>
 

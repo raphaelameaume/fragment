@@ -1,6 +1,6 @@
 <script>
-import { monitors } from "../modules/Monitor.svelte";
 import { multisampling, threshold, transition } from "../stores/multisampling.js";
+import { monitors } from "../stores/rendering.js";
 import { transitions } from "../transitions/index.js";
 import Field from "./Field.svelte";
 import FieldGroup from "./FieldGroup.svelte";

@@ -1,9 +1,8 @@
 <script>
 import { onDestroy, onMount } from "svelte";
 import { fragment, Texture } from "../lib/gl";
-import { monitors } from "../modules/Monitor.svelte";
 import { transitions } from "../transitions/index.js";
-import { canvases, current as currentRendering } from "../stores/rendering.js";
+import { current as currentRendering, monitors } from "../stores/rendering.js";
 import { multisampling, threshold, transition } from "../stores/multisampling.js";
 
 export let paused = false;
@@ -75,7 +74,7 @@ onDestroy(() => {
 
 function assignTextures([monitorID0, monitorID1] = $multisampling) {
     if (!output) return;
-    
+
     uniforms.uSampler0.value.image = $monitors.find((monitor) => monitor.id === monitorID0).canvas;
     uniforms.uSampler1.value.image = $monitors.find((monitor) => monitor.id === monitorID1).canvas;
 }
