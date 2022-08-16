@@ -22,6 +22,8 @@ export function inferFromParams(params) {
 }
 
 export function inferFromValue(value) {
+    if (value === undefined || value === null) return undefined;
+    
     if (typeof value === "number") {
         return "number";
     } else if (typeof value === "function") {
