@@ -1,5 +1,4 @@
 import { current as currentRendering } from "./rendering";
-import { on, TRANSITION_CHANGE } from "../events";
 
 export let renderers = {};
 
@@ -41,23 +40,6 @@ export async function findRenderer(rendering) {
 					height: current.height,
 				});
 			}
-
-			let events = [
-				{ name: "onTransitionChange", event: TRANSITION_CHANGE },
-			];
-
-			events.forEach(({ name, event }) => {
-			    if (typeof renderer[`${name}`] === "function") {
-			        on(event, (event) => {
-			            renderer[`${name}`]({
-							...event,
-							width: current.width,
-							height: current.height,
-							pixelRatio: current.pixelRatio,
-						});
-			        });
-			    }
-			});
 		}
 
 		initialized = true;

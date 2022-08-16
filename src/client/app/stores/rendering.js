@@ -28,14 +28,7 @@ export const current = writable({
 
 keepInSync(`fragment.rendering`, current);
 
-export const threshold = writable(rehydrate("fragment.threshold", 0, false));
-keepInSync("fragment.threshold", threshold);
-
 export const canvases = writable([]);
-
-/* multisampling store */
-export const multisampling = writable(rehydrate("multisampling", [], true));
-keepInSync("multisampling", multisampling);
 
 /* sync across clients */
 let isSynchronized = false;

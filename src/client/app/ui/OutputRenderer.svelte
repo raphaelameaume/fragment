@@ -1,7 +1,8 @@
 <script>
 import { onDestroy, onMount } from "svelte";
 import { fragment, Texture } from "../lib/gl";
-import { canvases, current as currentRendering, multisampling, threshold } from "../stores/rendering.js";
+import { canvases, current as currentRendering } from "../stores/rendering.js";
+import { multisampling, threshold } from "../stores/multisampling.js";
 
 export let paused = false;
 

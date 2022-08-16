@@ -3,6 +3,10 @@ import { writable } from "svelte/store";
 
 export const monitors = writable([]);
 
+monitors.subscribe((all) => {
+    console.log(all);
+})
+
 let ID = 0;
 
 </script>

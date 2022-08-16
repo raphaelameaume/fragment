@@ -8,9 +8,7 @@ import { exports, props } from "../stores/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 
 import { client } from "../client";
-import { emit, TRANSITION_CHANGE } from "../events";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
-import { transitions } from "../transitions/index.js";
 import { findRenderer } from "../stores/renderers";
 import { removeHotListeners } from "../triggers/index.js";
 import { recording } from "../stores/exports.js";
@@ -434,13 +432,6 @@ onMount(() => {
             needsRender = true;
         }
     });
-   
-    if (!$currentRendering.transition) {
-        let transitionOptions = Object.keys(transitions);
-        $currentRendering.transition = transitionOptions[0];
-    }
-    
-    emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
 
     resizeObserver.observe(node);
 })

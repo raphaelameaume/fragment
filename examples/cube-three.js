@@ -29,8 +29,6 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
 export let resize = ({ width, height }) => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-
-	console.log("THREECube :: resize", width, height);
 };
 
 export let rendering = "three";
