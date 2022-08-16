@@ -1,4 +1,5 @@
 <script>
+import { monitors } from "../modules/Monitor.svelte";
 import { getContext, onDestroy, onMount } from "svelte";
 import { derived } from "svelte/store";
 import { all as allSketches } from "../stores/sketches.js";
@@ -26,7 +27,6 @@ let elapsedRenderingTime = 0;
 let canvas;
 let _raf;
 let _key = key;
-let monitorID = getContext('monitorID');
 
 let sketch;
 let _created = false, _errored = false;
@@ -103,17 +103,18 @@ function createCanvas(canvas = document.createElement('canvas')) {
 
     container.appendChild(canvas);
 
-    $canvases = [...$canvases, canvas];
+    $monitors = $monitors.map((monitor) => {
+        if (monitor.id === id) {
+            return {...monitor, canvas };
+        }
+
+        return monitor;
+    })
 
     return canvas;
 }
 
 function destroyCanvas(canvas) {
-    let canvasIndex = $canvases.findIndex(c => c === canvas);
-    let copy = [...$canvases];
-    copy.splice(canvasIndex, 1);
-    $canvases = copy;
-
     canvas.onmousedown = null;
     canvas.onmousemove = null;
     canvas.onmouseup = null;

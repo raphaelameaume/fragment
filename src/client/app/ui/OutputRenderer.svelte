@@ -1,8 +1,10 @@
 <script>
 import { onDestroy, onMount } from "svelte";
 import { fragment, Texture } from "../lib/gl";
+import { monitors } from "../modules/Monitor.svelte";
+import { transitions } from "../transitions/index.js";
 import { canvases, current as currentRendering } from "../stores/rendering.js";
-import { multisampling, threshold } from "../stores/multisampling.js";
+import { multisampling, threshold, transition } from "../stores/multisampling.js";
 
 export let paused = false;
 
@@ -16,7 +18,7 @@ let uniforms = {
     uSampler1: { value: null, type: "sampler2D" },
 }
 
-let fragmentShader = /* glsl */`
+let defaultFragmentShader = /* glsl */`
 precision highp float;
 
 uniform float threshold;
@@ -35,8 +37,13 @@ void main() {
 }
 `;
 
-$: canvas0 = $canvases.find(c => c._index === $multisampling[0]);
-$: canvas1 = $canvases.find(c => c._index === $multisampling[1]);
+$: t = transitions[$transition];
+$: fragmentShader = t ? t.fragmentShader : defaultFragmentShader;
+$: {
+    if (output) {
+        output.fragmentShader = fragmentShader;
+    }
+}
 
 onMount(() => {
     output = fragment({
@@ -48,6 +55,7 @@ onMount(() => {
     uniforms.uSampler0.value = new Texture(output.gl);
     uniforms.uSampler1.value = new Texture(output.gl);
 
+    assignTextures();
     resize();
     render();
 
@@ -65,12 +73,14 @@ onDestroy(() => {
     output = null;
 });
 
-$: {
-    if (_mounted) {
-        uniforms.uSampler0.value.image = canvas0;
-        uniforms.uSampler1.value.image = canvas1;
-    }
+function assignTextures([monitorID0, monitorID1] = $multisampling) {
+    if (!output) return;
+    
+    uniforms.uSampler0.value.image = $monitors.find((monitor) => monitor.id === monitorID0).canvas;
+    uniforms.uSampler1.value.image = $monitors.find((monitor) => monitor.id === monitorID1).canvas;
 }
+
+multisampling.subscribe(assignTextures);
 
 function render() {
     uniforms.threshold.value = $threshold;

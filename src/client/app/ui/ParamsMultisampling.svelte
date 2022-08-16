@@ -1,16 +1,23 @@
 <script>
 import { monitors } from "../modules/Monitor.svelte";
-import { current as currentRendering, canvases } from "../stores/rendering.js";
-import { multisampling, threshold } from "../stores/multisampling.js";
+import { multisampling, threshold, transition } from "../stores/multisampling.js";
 import { transitions } from "../transitions/index.js";
 import Field from "./Field.svelte";
 import FieldGroup from "./FieldGroup.svelte";
 
-let transition = $threshold;
-
 let monitorDisabled = false;
 let sampler0 = -1;
 let sampler1 = -1;
+
+const transitionOptions = Object.keys(transitions).map((key) => {
+    const transition = transitions[key];
+    const label = transition.name ? transition.name : key;
+    return { value: key, label };
+});
+
+if (!$transition) {
+    $transition = transitionOptions[0].value;
+}
 
 $: samplerOptions = $monitors
 	.map((monitor, index) => ({ label: `monitor ${index+1}`, value: monitor.id })) // set index first so it matches <Monitor>
@@ -39,19 +46,6 @@ $: {
     }
 
     $multisampling = [sampler0, sampler1];
-
-	console.log("update multisampling");
-}
-
-let transitionOptions = Object.keys(transitions).map((key) => {
-    const transition = transitions[key];
-    const label = transition.name ? transition.name : key;
-    return { value: key, label };
-});
-
-function handleChangeTransition(event) {
-    transition = event.detail;
-    $currentRendering.transition = transition;
 }
 
 </script>
@@ -85,6 +79,16 @@ function handleChangeTransition(event) {
 </FieldGroup>
 <FieldGroup name="transition">
     <Field
+        key="type"
+        value={$transition}
+        on:change={(event) => {
+            $transition = event.detail;
+        }}
+        params={{
+            options: transitionOptions,
+        }}
+    />
+    <Field
         key="threshold"
         value={$threshold}
         on:change={(event) => $threshold = event.detail }
@@ -93,21 +97,13 @@ function handleChangeTransition(event) {
             min: 0,
             max: 1,
         }}
-    >
-        <Field
-            key="switch"
-            value={() => $threshold = 1 - Math.round($threshold)}
-            params={{
-                label: `switch ${Math.round($threshold) > 0 ? `<` : `>`}`
-            }}
-        />
-    </Field>
+    />
     <Field
-        key="type"
-        value={transition}
-        on:change={handleChangeTransition}
+        key="switch"
+        value={() => $threshold = 1 - Math.round($threshold)}
         params={{
-            options: transitionOptions,
+            label: `switch ${Math.round($threshold) > 0 ? `<` : `>`}`
         }}
     />
+    
 </FieldGroup>
