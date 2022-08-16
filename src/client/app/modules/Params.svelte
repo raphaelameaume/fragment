@@ -47,12 +47,14 @@ let monitor, sketch, showOutputParams;
 monitors.subscribe((value) => {
     monitor = $monitors[Math.min(selected, $monitors.length - 1)];
     sketchKey = monitor ? monitor.selected : undefined;
-    sketch = $sketches[sketchKey];
-    sketchProps = $props[sketchKey];
+    
     showOutputParams = (monitor && monitor.selected === "output") ||
         ($params.length === 1) ||
         (selected === "output");
 });
+
+$: sketch = $sketches[sketchKey];
+$: sketchProps = $props[sketchKey];
 
 </script>
 

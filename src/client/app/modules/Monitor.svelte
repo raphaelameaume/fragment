@@ -3,12 +3,12 @@ let ID = 0;
 </script>
 
 <script>
-import { onMount, onDestroy, setContext } from "svelte";
+import { onMount, onDestroy } from "svelte";
 import Module from "../ui/Module.svelte";
-import { current as currentSketches } from "../stores/sketches.js";
 import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
 import SketchSelect from "../ui/SketchSelect.svelte";
+import { current as currentSketches } from "../stores/sketches.js";
 import { monitors } from "../stores/rendering";
 
 let id = ID++;
