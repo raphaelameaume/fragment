@@ -32,7 +32,7 @@ import { getContext } from "svelte";
 
 const parent = getContext('parent');
 
-export let mID;
+export let mID = undefined;
 export let name;
 
 const moduleList = {

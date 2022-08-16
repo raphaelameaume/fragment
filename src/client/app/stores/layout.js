@@ -2,7 +2,7 @@ import { writable, get } from "svelte/store";
 import { getPersistentStore } from "./utils";
 import { onMount } from "svelte";
 
-export const tree = getPersistentStore("fragment.layout.current", false, {});
+export const tree = getPersistentStore("layout.current", false, {});
 
 export const layout = writable({
     editing: false,

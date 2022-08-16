@@ -42,17 +42,31 @@ export const keepInSync = (key, store) => {
 
 let persistentStores = new Map();
 
+/**
+ * 
+ * @param {string} key 
+ * @param {boolean} reset 
+ * @param {any} initialValue 
+ * @returns {Svelte.store} store
+ */
 export const createPersistentStore = (key, reset = false, initialValue) => {
     let store = writable(
-        rehydrate(key, initialValue, reset),
+        rehydrate(`fragment.${key}`, initialValue, reset),
     );
-    keepInSync(key, store);
+    keepInSync(`fragment.${key}`, store);
 
     persistentStores.set(key, store);
 
     return store;
 };
 
+/**
+ * 
+ * @param {string} key 
+ * @param {boolean} reset 
+ * @param {any} initialValue 
+ * @returns {Svelte.store} store
+ */
 export const getPersistentStore = (key, reset = false, initialValue) => {
     if (!persistentStores.has(key)) {
         return createPersistentStore(key, reset, initialValue);

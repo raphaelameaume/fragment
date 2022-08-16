@@ -75,8 +75,13 @@ onDestroy(() => {
 function assignTextures([monitorID0, monitorID1] = $multisampling) {
     if (!output) return;
 
-    uniforms.uSampler0.value.image = $monitors.find((monitor) => monitor.id === monitorID0).canvas;
-    uniforms.uSampler1.value.image = $monitors.find((monitor) => monitor.id === monitorID1).canvas;
+    if (monitorID0 >= 0) {
+        uniforms.uSampler0.value.image = $monitors.find((monitor) => monitor.id === monitorID0).canvas;
+    }
+
+    if (monitorID1 >= 0) {
+        uniforms.uSampler1.value.image = $monitors.find((monitor) => monitor.id === monitorID1).canvas;
+    }
 }
 
 multisampling.subscribe(assignTextures);
