@@ -3,7 +3,6 @@ export let moduleNames = [
     "monitor",
     "params",
     "midi",
-    "keyboard",
     "console",
     "exports",
 ];
@@ -22,7 +21,6 @@ import Console from "../modules/Console.svelte";
 import Output from "../modules/Output.svelte";
 import Params from "../modules/Params.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
-import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 import Exports from "../modules/Exports.svelte";
 import { getContext } from "svelte";
 // import Appearance from "../modules/Appearance.svelte";
@@ -37,7 +35,6 @@ const moduleList = {
     "monitor": Monitor,
     "params": Params,
     "midi": MidiPanel,
-    "keyboard": KeyboardPanel,
     "console": Console,
     "exports": Exports,
     "output": Output,
