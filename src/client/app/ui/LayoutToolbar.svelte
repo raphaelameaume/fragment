@@ -173,7 +173,7 @@ const options = [
 }
 
 .module {
-	max-width: 130px;
+	min-width: 130px;
 	width: 100%;
 }
 
@@ -263,6 +263,7 @@ const options = [
 
 .content {
 	position: relative;
+	z-index: 200;
 
 	display: flex;
 	align-items: center;
