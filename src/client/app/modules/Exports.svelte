@@ -28,10 +28,10 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="quality"
-			value={$exports.quality}
-			params={{ step: 0.01, min: 0.01, max: 1 }}
+			value={$exports.imageQuality}
+			params={{ min: 1, max: 100, suffix: "%" }}
 			on:change={((e) => {
-				$exports.quality = e.detail;
+				$exports.imageQuality = e.detail;
 			})}
 		/>
 		<Field

@@ -11,13 +11,13 @@ export const VIDEO_FORMATS = {
 };
 
 export const exports = createPersistentStore(`exports`, false, {
-	quality: 0.92,
 	imageEncoding: IMAGE_ENCODINGS[0],
 	videoFormat: Object.values(VIDEO_FORMATS)[0],
 	pixelsPerInch: 72,
 	framerate: 60,
 	useDuration: true,
 	loopCount: 1,
+	imageQuality: 100,
 	videoQuality: 100,
 });
 

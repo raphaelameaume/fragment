@@ -12,6 +12,7 @@ import MP4Recorder from "../lib/canvas-recorder/MP4Recorder";
 import GIFRecorder from "../lib/canvas-recorder/GIFRecorder";
 import FrameRecorder from "../lib/canvas-recorder/FrameRecorder";
 import { exportCanvas } from "../lib/canvas-recorder/utils";
+import { map } from "./math.utils";
 
 export async function saveDataURL(dataURL, options, blob) {
     async function onError(err) {
@@ -134,10 +135,10 @@ export async function screenshotCanvas(canvas, {
     pattern = defaultFilenamePattern,
     params = {},
 }) {
-    const { imageEncoding, quality, pixelsPerInch } = get(exports);
+    const { imageEncoding, imageQuality, pixelsPerInch } = get(exports);
     let { extension, dataURL } = exportCanvas(canvas, {
         encoding: `image/${imageEncoding}`,
-        encodingQuality: quality,
+        encodingQuality: map(imageQuality, 1, 100, 0, 1),
     });
 
     let patternParams = getFilenameParams();
