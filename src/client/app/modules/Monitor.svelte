@@ -10,6 +10,8 @@ import OutputRenderer from "../ui/OutputRenderer.svelte";
 import SketchSelect from "../ui/SketchSelect.svelte";
 import { current as currentSketches } from "../stores/sketches.js";
 import { monitors } from "../stores/rendering";
+import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
+import PopupWindow from "../ui/PopupWindow.svelte";
 
 let id = ID++;
 let name = "monitor";
@@ -40,9 +42,17 @@ onDestroy(() => {
 $: index = $monitors.findIndex(monitor => monitor.id === id);
 $: moduleName = `${name} ${$monitors.length > 1 ? (index + 1) : ""}`;
 $: hasHeader = !__PRODUCTION__;
+
+let popup = false;
+function openWindow() {
+    popup = !popup;
+}
 </script>
 
 <Module name={moduleName} {hasHeader} scrollable={false}>
+    <svelte:fragment slot="header-left">
+        <ModuleHeaderAction on:click={openWindow} label="Open ↗" />
+    </svelte:fragment>
     <svelte:fragment slot="header-right">
         <SketchSelect
             monitorID={id}
@@ -53,5 +63,8 @@ $: hasHeader = !__PRODUCTION__;
         <SketchRenderer key={selected} {id} />
     {:else if selected }
         <OutputRenderer />
+    {/if}
+    {#if popup }
+        <PopupWindow />
     {/if}
 </Module>

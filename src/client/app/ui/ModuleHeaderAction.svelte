@@ -20,7 +20,7 @@ $: disabled = options.length === 1;
         <ModuleHeaderButton label={label} on:click>
             <slot name="text">
                 <div class="text">
-                    <slot></slot>
+                    <slot>{label}</slot>
                 </div>
             </slot>
             <slot name="icon"></slot>
