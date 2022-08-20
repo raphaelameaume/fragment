@@ -28,3 +28,6 @@ function toggleEdition() {
 	</Row>
 </Root>
 <KeyBinding key="w" on:trigger={toggleEdition} />
+{#if $layout.editing}
+	<KeyBinding key="Escape" type="down" on:trigger={toggleEdition} />
+{/if}
