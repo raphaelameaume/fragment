@@ -142,7 +142,7 @@ function handleMouseMove(event) {
     position: relative;
 }
 
-.resizer:last-child {
+[class~='resizer']:last-of-type {
 	display: none;
 }
 
