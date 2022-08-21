@@ -3,14 +3,14 @@
 
 # Triggers
 
-Triggers are a set of functions you can call imperatively from your sketch file to make it *interactive*. They can also be triggered when a prop changes when setted up through the UI.
+Triggers are functions you can call imperatively from your sketch file to make it *interactive*. They can also be triggered when a prop changes when setted up through the UI.
 
 They are automatically cleanup on each reload.
 
 Instead of setting up the listener manually:
 ```js
 export let init = ({ canvas }) => {
-	canvas.addEventListener('click', (event) => {
+    canvas.addEventListener('click', (event) => {
 		console.log("canvas clicked");
 	});
 }
