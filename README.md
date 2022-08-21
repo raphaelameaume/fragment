@@ -88,7 +88,7 @@ Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you w
 
 ## Credits
 
-- [Vite.js](https://vitejs.dev/)
+- [Vite](https://vitejs.dev/)
 - [Svelte](https://svelte.dev/)
 - The font used for display is the [JetBrains Mono](https://www.jetbrains.com/lp/mono/).
 - A special thanks to [Matt Deslauriers](https://www.mattdesl.com/) for [canvas-sketch](https://github.com/mattdesl/canvas-sketch) and his multiple projects around generative-art tools.
