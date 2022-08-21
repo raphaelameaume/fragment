@@ -3,7 +3,7 @@ export function createBlobFromDataURL(dataURL) {
         const splitIndex = dataURL.indexOf(',');
 
         if (splitIndex === -1) {
-            resolve(new window.Blob());
+            reject(new Error(`createBlobFromDataURL: dataURL doesn't contain extension data.`))
             return;
         }
 

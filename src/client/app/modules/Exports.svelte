@@ -3,7 +3,7 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import { exports } from "../stores";
-import { IMAGE_ENCODINGS, recording, VIDEO_FORMATS } from "../stores/exports";
+import { recording, capturing, IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
 
 const LABEL_RECORD = "start";
 const LABEL_RECORDING = "stop";
@@ -12,7 +12,11 @@ function record () {
 	$recording = !$recording;
 }
 
-$: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
+function capture() {
+	$capturing = !$capturing;
+}
+
+$: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 
 </script>
 
@@ -41,6 +45,11 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 			on:change={((e) => {
 				$exports.pixelsPerInch = e.detail;
 			})}
+		/>
+		<Field
+			key="screenshot"
+			value={capture}
+			params={{ label: "capture" }}
 		/>
 	</FieldGroup>
 	<FieldGroup name="video">
@@ -91,9 +100,9 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		{/if}
 		<Field
 			key="record"
-			name={`${label} recording`}
+			name={`${recordLabel} recording`}
 			value={record}
-			params={{ label }}
+			params={{ label: recordLabel }}
 		/>
 	</FieldGroup>
 </Module>

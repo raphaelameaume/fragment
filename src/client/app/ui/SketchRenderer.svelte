@@ -7,7 +7,7 @@ import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
 import { findRenderer } from "../stores/renderers";
-import { recording } from "../stores/exports.js";
+import { recording, capturing } from "../stores/exports.js";
 import { removeHotListeners } from "../triggers/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
@@ -248,6 +248,7 @@ function onError(error) {
 }
 
 let record = $recording;
+let capture = $capturing;
 
 $: {
     if ($recording && !record) {
@@ -281,6 +282,12 @@ $: {
     if (record && !$recording) {
         record.stop();
         record = false;
+    }
+}
+
+$: {
+    if (!capture && $capturing) {
+        save();
     }
 }
 
@@ -409,6 +416,7 @@ async function save() {
         }
     });
     paused = false;
+    $capturing = false;
 }
 
 allSketches.subscribe(() => {
@@ -452,6 +460,13 @@ function checkForSave(event) {
         keyboardEvent.preventDefault();
         save();
     }
+}
+
+function checkForRecord(event) {
+    const keyboardEvent = event.detail;
+    keyboardEvent.preventDefault();
+
+    $recording = !$recording;
 }
 
 function checkForRefresh(event) {
@@ -520,6 +535,7 @@ $: {
 <KeyBinding type="down" key=" " on:trigger={checkForPause} />
 <KeyBinding type="down" key="r" on:trigger={checkForRefresh} />
 <KeyBinding type="down" key="s" on:trigger={checkForSave} />
+<KeyBinding type="down" key="S" on:trigger={checkForRecord} />
 
 <style>
 .sketch-renderer {

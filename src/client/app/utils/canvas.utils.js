@@ -6,7 +6,7 @@ import { changeDpiDataUrl } from "changedpi";
 import { get } from "svelte/store";
 import { exports } from "../stores";
 import { VIDEO_FORMATS } from "../stores/exports";
-import { downloadBlob } from "./file.utils";
+import { downloadBlob, createBlobFromDataURL } from "./file.utils";
 import WebMRecorder from "../lib/canvas-recorder/WebMRecorder";
 import MP4Recorder from "../lib/canvas-recorder/MP4Recorder";
 import GIFRecorder from "../lib/canvas-recorder/GIFRecorder";
@@ -28,6 +28,8 @@ export async function saveDataURL(dataURL, options, blob) {
     }
 
     try {
+        console.log(dataURL, dataURL.split(',')[1]);
+
         const body = {
             dataURL: dataURL.split(',')[1], // remove extension,
             ...options,
@@ -61,9 +63,7 @@ export async function createDataURLFromBlob(blob) {
         };
 
         reader.onload = (e) => {
-            let base64 = e.target.result.split(',')[1];
-
-            resolve(base64);
+            resolve(e.target.result);
         };
 
         reader.readAsDataURL(blob);
@@ -75,30 +75,6 @@ export async function saveBlob(blob, options) {
 
     return saveDataURL(dataURL, options, blob);
 };
-
-function createBlobFromDataURL(dataURL) {
-    return new Promise((resolve) => {
-        const splitIndex = dataURL.indexOf(',');
-
-        if (splitIndex === -1) {
-            reject(new Error(`createBlobFromDataURL: dataURL doesn't contain extension data.`))
-            return;
-        }
-
-        const base64 = dataURL.slice(splitIndex + 1);
-        const byteString = window.atob(base64);
-        const type = dataURL.slice(0, splitIndex);
-        const mimeMatch = /data:([^;]+)/.exec(type);
-        const mime = (mimeMatch ? mimeMatch[1] : '') || undefined;
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (var i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-        
-        resolve(new window.Blob([ ab ], { type: mime }));
-    });
-}
 
 function getFilenameParams() {
     const now = new Date();

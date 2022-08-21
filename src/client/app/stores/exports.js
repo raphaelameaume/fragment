@@ -22,3 +22,4 @@ export const exports = createPersistentStore(`exports`, false, {
 });
 
 export const recording = writable(false);
+export const capturing = writable(false);
