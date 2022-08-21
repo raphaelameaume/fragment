@@ -4,7 +4,7 @@
 
 | shortcut | action |
 |---|---|
-|Cmd/Ctrl + S| Save a screenshot in your working folder
-|R| Reload sketch
-|W| Modify layout
+|Cmd/Ctrl + S| Save a screenshot in working folder
+|r| Reload sketch
+|w| Modify layout
 |Space| Pause rendering
