@@ -28,8 +28,6 @@ export async function saveDataURL(dataURL, options, blob) {
     }
 
     try {
-        console.log(dataURL, dataURL.split(',')[1]);
-
         const body = {
             dataURL: dataURL.split(',')[1], // remove extension,
             ...options,
