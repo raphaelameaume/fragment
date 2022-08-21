@@ -1,18 +1,17 @@
 <script>
 import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
+import KeyBinding from "../components/KeyBinding.svelte";
 import { all as allSketches } from "../stores/sketches.js";
 import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
+import { findRenderer } from "../stores/renderers";
+import { recording } from "../stores/exports.js";
+import { removeHotListeners } from "../triggers/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
-
 import { client } from "../client";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
-import { findRenderer } from "../stores/renderers";
-import { removeHotListeners } from "../triggers/index.js";
-import { recording } from "../stores/exports.js";
-import KeyBinding from "../components/KeyBinding.svelte";
 
 export let key;
 export let id = 0;
