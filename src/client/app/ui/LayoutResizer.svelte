@@ -8,8 +8,8 @@ export const DIRECTIONS = {
 </script>
 
 <script>
-import { map, clamp } from "lemonade-math";
 import { layout, resize, traverse, tree } from "../stores/layout.js";
+import { clamp, map } from "../utils/math.utils.js";
 
 export let direction = DIRECTIONS.HORIZONTAL;
 export let current;

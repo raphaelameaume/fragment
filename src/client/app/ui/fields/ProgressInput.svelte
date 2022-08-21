@@ -1,6 +1,6 @@
 <script>
 import { createEventDispatcher } from "svelte";
-import { map, clamp } from "lemonade-math";
+import { map } from "../../utils/math.utils.js";
 
 export let value;
 export let min;
