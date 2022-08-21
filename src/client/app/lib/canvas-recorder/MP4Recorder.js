@@ -1,4 +1,4 @@
-import loadMP4Module, { isWebCodecsSupported } from "https://unpkg.com/mp4-wasm@1.0.6";
+import loadMP4Module, { isWebCodecsSupported } from "./mp4.js";
 import CanvasRecorder from "./CanvasRecorder";
 
 let MP4;
