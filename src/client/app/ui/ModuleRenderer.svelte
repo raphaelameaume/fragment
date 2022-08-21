@@ -2,9 +2,7 @@
 export let moduleNames = [
     "monitor",
     "params",
-    "mouse",
     "midi",
-    "keyboard",
     "console",
     "exports",
 ];
@@ -22,25 +20,20 @@ import Monitor from "../modules/Monitor.svelte";
 import Console from "../modules/Console.svelte";
 import Output from "../modules/Output.svelte";
 import Params from "../modules/Params.svelte";
-import MousePanel from "../modules/MousePanel.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
-import KeyboardPanel from "../modules/KeyboardPanel.svelte";
 import Exports from "../modules/Exports.svelte";
 import { getContext } from "svelte";
-// import Appearance from "../modules/Appearance.svelte";
 // import AudioAnalyser from "../modules/AudioAnalyser.svelte";
 
 const parent = getContext('parent');
 
-export let mID;
+export let mID = undefined;
 export let name;
 
 const moduleList = {
     "monitor": Monitor,
     "params": Params,
-    "mouse": MousePanel,
     "midi": MidiPanel,
-    "keyboard": KeyboardPanel,
     "console": Console,
     "exports": Exports,
     "output": Output,

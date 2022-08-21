@@ -1,24 +1,15 @@
 <script>
 import Range from "./Range.svelte";
+import { audioAnalysis } from "../../stores/audioAnalysis";
 
-export let range = 10;
-export let rows = 8;
-
-const ranges = [];
-
-for (let i = 0; i < range; i++) {
-	ranges.push({});
-}
+$: ranges = audioAnalysis.getRanges();
 
 </script>
 
-
-<div class="spectrum" style={`grid-template-columns: repeat(${range}, 1fr)`}>
-	{#each ranges as r }
-		<Range count={rows} />
+<div class="spectrum" style={`grid-template-columns: repeat(${ranges.length}, 1fr)`}>
+	{#each ranges as r, rangeIndex }
+		<Range rowCount={12} index={rangeIndex} />
 	{/each}
-	<div class="split" style="left: 33%"></div>
-	<div class="split" style="left: 75%"></div>
 </div>
 
 <style>
@@ -35,17 +26,6 @@ for (let i = 0; i < range; i++) {
 	border-radius: var(--border-radius-input);
     background-color: var(--color-background-input);
     box-shadow: inset 0 0 0 1px var(--color-border-input);
-}
-
-.split {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-
-	width: 1px;
-	left: 33%;
-
-	background-color: rgba(255, 255, 255, 0.2);
 }
 
 </style>

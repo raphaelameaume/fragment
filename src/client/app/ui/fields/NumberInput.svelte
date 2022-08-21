@@ -1,10 +1,10 @@
 <script>
 import { createEventDispatcher } from "svelte";
-import ProgressInput from "./ProgressInput.svelte";
-import Input from "./Input.svelte";
-import { clamp } from "lemonade-math";
-import Keyboard from "../../inputs/Keyboard.js";
 import FieldInputRow from "./FieldInputRow.svelte";
+import Input from "./Input.svelte";
+import ProgressInput from "./ProgressInput.svelte";
+import Keyboard from "../../inputs/Keyboard.js";
+import { clamp } from "../../utils/math.utils.js";
 
 function round(value, step) {
     return Math.round(value * (1 / step)) / (1 / step);
@@ -76,7 +76,6 @@ function onKeyDown(event) {
 function onKeyPress(event) {
     if (event.key === 'Enter') {
         onBlur(event);
-        event.currentTarget.blur();
     }
 }
 

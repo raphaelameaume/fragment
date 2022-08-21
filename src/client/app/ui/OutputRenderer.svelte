@@ -1,7 +1,9 @@
 <script>
 import { onDestroy, onMount } from "svelte";
 import { fragment, Texture } from "../lib/gl";
-import { canvases, current as currentRendering, multisampling, threshold } from "../stores/rendering.js";
+import { transitions } from "../transitions/index.js";
+import { rendering, monitors } from "../stores/rendering.js";
+import { multisampling, threshold, transition } from "../stores/multisampling.js";
 
 export let paused = false;
 
@@ -15,7 +17,7 @@ let uniforms = {
     uSampler1: { value: null, type: "sampler2D" },
 }
 
-let fragmentShader = /* glsl */`
+let defaultFragmentShader = /* glsl */`
 precision highp float;
 
 uniform float threshold;
@@ -34,8 +36,13 @@ void main() {
 }
 `;
 
-$: canvas0 = $canvases.find(c => c._index === $multisampling[0]);
-$: canvas1 = $canvases.find(c => c._index === $multisampling[1]);
+$: t = transitions[$transition];
+$: fragmentShader = t ? t.fragmentShader : defaultFragmentShader;
+$: {
+    if (output) {
+        output.fragmentShader = fragmentShader;
+    }
+}
 
 onMount(() => {
     output = fragment({
@@ -47,10 +54,11 @@ onMount(() => {
     uniforms.uSampler0.value = new Texture(output.gl);
     uniforms.uSampler1.value = new Texture(output.gl);
 
+    assignTextures();
     resize();
     render();
 
-    currentRendering.subscribe(() => {
+    rendering.subscribe(() => {
         resize();
     });
 
@@ -64,12 +72,19 @@ onDestroy(() => {
     output = null;
 });
 
-$: {
-    if (_mounted) {
-        uniforms.uSampler0.value.image = canvas0;
-        uniforms.uSampler1.value.image = canvas1;
+function assignTextures([monitorID0, monitorID1] = $multisampling) {
+    if (!output) return;
+
+    if (monitorID0 >= 0) {
+        uniforms.uSampler0.value.image = $monitors.find((monitor) => monitor.id === monitorID0).canvas;
+    }
+
+    if (monitorID1 >= 0) {
+        uniforms.uSampler1.value.image = $monitors.find((monitor) => monitor.id === monitorID1).canvas;
     }
 }
+
+multisampling.subscribe(assignTextures);
 
 function render() {
     uniforms.threshold.value = $threshold;
@@ -87,7 +102,7 @@ function render() {
 function resize() {
     if (!output) return;
 
-    const { width, height, pixelRatio } = $currentRendering;
+    const { width, height, pixelRatio } = $rendering;
 
     output.resize({
         width,
@@ -99,7 +114,7 @@ function resize() {
 </script>
 
 <div class="output-renderer">
-    <div class="canvas-container" style="max-width: {$currentRendering.width}px;">
+    <div class="canvas-container" style="max-width: {$rendering.width}px;">
         <canvas bind:this={canvas}></canvas>
     </div>
 </div>

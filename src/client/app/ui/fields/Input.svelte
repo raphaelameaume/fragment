@@ -12,11 +12,13 @@ let el;
     {#if label }
         <span class="label">{label}</span>
     {/if}
+    <label class="visually-hidden" for={name}>{label ? label : name}</label>
     <input
         class="input"
         bind:this={el}
         bind:value={value}
         name={name}
+        id={name}
         on:change
         on:input
         on:keypress

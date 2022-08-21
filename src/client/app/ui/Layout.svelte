@@ -1,16 +1,13 @@
 <script>
-import { setContext } from "svelte";
 import Root from "./LayoutRoot.svelte";
 import Column from "./LayoutColumn.svelte"; 
 import Row from "./LayoutRow.svelte"; 
 import ModuleRenderer from "./ModuleRenderer.svelte";
-import { current as currentLayout } from "../stores/layout.js";
+import { layout } from "../stores/layout.js";
 import KeyBinding from "../components/KeyBinding.svelte";
 
-setContext('layout', currentLayout);
-
 function toggleEdition() {
-	$currentLayout.editing = !$currentLayout.editing
+	$layout.editing = !$layout.editing;
 }
 
 </script>
@@ -31,3 +28,6 @@ function toggleEdition() {
 	</Row>
 </Root>
 <KeyBinding key="w" on:trigger={toggleEdition} />
+{#if $layout.editing}
+	<KeyBinding key="Escape" type="down" on:trigger={toggleEdition} />
+{/if}

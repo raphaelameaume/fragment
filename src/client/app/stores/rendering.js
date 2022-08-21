@@ -1,8 +1,6 @@
 import { writable } from "svelte/store";
 import { client } from "../client";
-import { keepInSync, rehydrate } from "./utils";
-
-const key = "rendering";
+import { createPersistentStore } from "./utils";
 
 export const SIZES = {
     FIXED: "fixed",
@@ -12,31 +10,17 @@ export const SIZES = {
     SCALE: "scale",
 };
 
-
-
-export const current = writable({
-    ...rehydrate(`fragment.rendering`, {
-        width: 500,
-        height: 500,
-        pixelRatio: 1,
-        resizing: SIZES.FIXED,
-        aspectRatio: 1,
-        scale: 1,
-        preset: 'a4',
-    })
+export const rendering = createPersistentStore(`rendering`, false, {
+    width: 500,
+    height: 500,
+    pixelRatio: 1,
+    resizing: SIZES.FIXED,
+    aspectRatio: 1,
+    scale: 1,
+    preset: 'a4',
 });
 
-keepInSync(`fragment.rendering`, current);
-
-export const threshold = writable(rehydrate("fragment.threshold", 0, false));
-keepInSync("fragment.threshold", threshold);
-
 export const monitors = writable([]);
-export const canvases = writable([]);
-
-/* multisampling store */
-export const multisampling = writable(rehydrate("multisampling", [], true));
-keepInSync("multisampling", multisampling);
 
 /* sync across clients */
 let isSynchronized = false;

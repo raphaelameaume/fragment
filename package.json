@@ -33,9 +33,8 @@
     "get-port": "^6.0.0",
     "glslify": "^7.1.1",
     "kleur": "^4.1.4",
-    "lemonade-math": "^1.0.2",
     "svelte": "^3.48.0",
-    "svelte-json-tree": "^0.1.0",
+    "svelte-json-tree": "^1.0.0",
     "vite": "^2.9.8",
     "webm-writer": "^1.0.0",
     "ws": "^8.2.3"

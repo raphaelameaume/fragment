@@ -3,7 +3,7 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import { exports } from "../stores";
-import { IMAGE_ENCODINGS, recording, VIDEO_FORMATS } from "../stores/exports";
+import { recording, capturing, IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
 
 const LABEL_RECORD = "start";
 const LABEL_RECORDING = "stop";
@@ -12,7 +12,11 @@ function record () {
 	$recording = !$recording;
 }
 
-$: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
+function capture() {
+	$capturing = !$capturing;
+}
+
+$: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 
 </script>
 
@@ -28,10 +32,10 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="quality"
-			value={$exports.quality}
-			params={{ step: 0.01, min: 0.01, max: 1 }}
+			value={$exports.imageQuality}
+			params={{ min: 1, max: 100, suffix: "%" }}
 			on:change={((e) => {
-				$exports.quality = e.detail;
+				$exports.imageQuality = e.detail;
 			})}
 		/>
 		<Field
@@ -42,20 +46,25 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 				$exports.pixelsPerInch = e.detail;
 			})}
 		/>
+		<Field
+			key="screenshot"
+			value={capture}
+			params={{ label: "capture" }}
+		/>
 	</FieldGroup>
 	<FieldGroup name="video">
 		<Field
 			key="framerate"
+			name="Video export framerate"
 			value={$exports.framerate}
 			on:change={((e) => {
 				$exports.framerate = e.detail;
-
-				console.log($exports.framerate);
 			})}
 		/>
 		<Field
 			key="format"
 			value={$exports.videoFormat}
+			name="Video export format"
 			params={{ options: Object.values(VIDEO_FORMATS) }}
 			on:change={((e) => {
 				$exports.videoFormat = e.detail;
@@ -63,6 +72,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="quality"
+			name="Video export quality"
 			value={$exports.videoQuality}
 			params={{ min: 1, max: 100, step: 1, suffix: "%" }}
 			on:change={((e) => {
@@ -71,6 +81,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="useDuration"
+			name="Use sketch duration"
 			value={$exports.useDuration}
 			on:change={((e) => {
 				$exports.useDuration = e.detail;
@@ -79,6 +90,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		{#if $exports.useDuration }
 		<Field
 			key="loopCount"
+			name="Video export loop count"
 			value={$exports.loopCount}
 			params={{ step: 1 }}
 			on:change={((e) => {
@@ -88,8 +100,9 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		{/if}
 		<Field
 			key="record"
+			name={`${recordLabel} recording`}
 			value={record}
-			params={{ label }}
+			params={{ label: recordLabel }}
 		/>
 	</FieldGroup>
 </Module>

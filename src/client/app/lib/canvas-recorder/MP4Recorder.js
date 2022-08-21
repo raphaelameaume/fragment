@@ -6,7 +6,7 @@ let MP4;
 class MP4Recorder extends CanvasRecorder {
 
 	static loaded = false;
-	static isSupported = isWebCodecsSupported;
+	static isSupported = true;
 	
 	constructor(canvas, options) {
 		super(canvas, options);

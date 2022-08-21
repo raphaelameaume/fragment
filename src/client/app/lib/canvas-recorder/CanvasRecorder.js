@@ -39,7 +39,7 @@ class CanvasRecorder {
 			return;
 		}
 
-		console.log(`CanvasRecorder - start rendering ${this.frameTotal} frames`, this.framerate, this.duration);
+		console.log(`CanvasRecorder - start rendering ${this.frameTotal} frames at ${this.framerate}fps for ${this.duration}s.`);
 
 		this.frameCount = 0;
 		this.started = true;

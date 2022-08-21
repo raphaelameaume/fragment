@@ -1,10 +1,10 @@
 <script>
-import { createEventDispatcher, getContext, onMount } from "svelte"; 
 import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
-import { sketchFiles } from "@fragment/props";
 import { all as allSketches, current as currentSketches } from "../stores/sketches.js";
+import { monitors } from "../stores/rendering";
 
-export let index;
+export let monitorID;
+export let selected;
 
 $: options = [
     ...Object.keys($allSketches).map((key) => ({
@@ -14,23 +14,39 @@ $: options = [
 ];
 
 $: {
-    if (sketchFiles.length > 1) {
+    if ($currentSketches.length > 1 && !options.some((opt) => opt.value === "output")) {
         options = [
             ...options,
             { value: "output", label: "output" },
         ];
     }
+    
+    if (selected === undefined) {
+        selected = options[0].value;
+    }
+
 }
 
-
 function handleChangeSelect(event) {
-    $currentSketches[index] = event.currentTarget.value;
+    selected = event.currentTarget.value;
 };
+
+$: {
+    monitors.update((all) => {
+        return all.map((monitor) => {
+            if (monitor.id === monitorID) {
+                monitor.selected = selected;
+            }
+
+            return monitor;
+        });
+    });
+}
 
 </script>
 
 <ModuleHeaderAction
-    value={$currentSketches[index]}
+    value={selected}
     permanent
     border
     on:change={handleChangeSelect}

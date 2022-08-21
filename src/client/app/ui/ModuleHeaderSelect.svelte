@@ -1,19 +1,20 @@
 <script>
+import SelectChevrons from "./SelectChevrons.svelte";
+
 export let value;
 export let options = [];
+export let disabled = false;
 </script>
 
 <div class="module-header-select">
-    <select class="select" on:change>
+    <select class="select" on:change class:single={options.length === 1} disabled={disabled}>
         {#each options as option}
             <option value={option.value} selected={value === option.value}>{option.label}</option>
         {/each}
     </select>
-    <div class="chevrons">
-        <svg class="chevron chevron-bottom" width="15" height="15" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.25 10.75L12 14.25L8.75 10.75"></path>
-        </svg>
-    </div>
+    {#if options.length > 1 }
+        <SelectChevrons width={15} height={15} --color="rgba(255, 255, 255, 0.75)" />
+    {/if}
 </div>
 
 <style>
@@ -25,7 +26,7 @@ export let options = [];
 
 .select {
     font-size: 10px;
-    padding: 1px 15px 1px 3px;
+    padding: 1px 3px;
     
     color: inherit;
     background: transparent;
@@ -34,17 +35,8 @@ export let options = [];
     user-select: none;
 }
 
-.chevrons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    width: 15px;
-
-    color: rgba(255, 255, 255, 0.75);
-    pointer-events: none;
+.select:not(.single) {
+    padding-right: 15px;
 }
 
 </style>

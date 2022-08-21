@@ -5,7 +5,7 @@ let ID = 0;
 <script>
 import { getContext, hasContext, onDestroy, setContext } from "svelte";
 import { writable } from "svelte/store";
-import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
+import { addChildren, addSibling, layout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
 import Toolbar from "./LayoutToolbar.svelte";
 import Resizer from "./LayoutResizer.svelte";
 import ModuleRendererNew, { getModuleID }  from "./ModuleRenderer.svelte";
@@ -14,7 +14,6 @@ export let size = 1;
 export let type = "column";
 export let tree = { children: [] };
 
-let layout = getContext('layout');
 let parent = hasContext('parent') ? getContext('parent') : null;
 let depth = hasContext('depth') ? (getContext('depth') + 1) : 0;
 let module = writable({});
@@ -88,7 +87,6 @@ $: {
 	let property = ``, value = ``;
 
 	const nodes = tree.children;
-	
 
 	if (Array.isArray(nodes) && nodes.length > 1) {
 		if (isColumn) {
@@ -190,6 +188,8 @@ function handleModuleChange(event) {
 
 let offsetWidth;
 
+$: minimized = current.minimized;
+
 </script>
 
 <div
@@ -197,7 +197,7 @@ let offsetWidth;
 	class:column={isColumn}
 	class:root={isRoot}
 	class:row={isRow}
-	class:minimized={current.minimized}
+	class:minimized={minimized}
 	bind:this={current.node}
 	bind:offsetWidth={offsetWidth}
 >
@@ -212,7 +212,7 @@ let offsetWidth;
 	{:else}
 		<slot></slot>
 	{/if}
-	{#if $currentLayout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
+	{#if $layout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
 	<Toolbar
 		{isRoot}
 		moduleName={$children[0].name}

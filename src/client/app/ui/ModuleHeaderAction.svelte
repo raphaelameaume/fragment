@@ -9,11 +9,13 @@ export let border = false;
 export let margin = true;
 export let options = [];
 
+$: disabled = options.length === 1;
+
 </script>
 
-<div class="module-header-action" class:permanent={permanent} class:border={border} class:no-margin={!margin}>
+<div class="module-header-action" class:permanent={permanent} class:border={border} class:no-margin={!margin} class:disabled={disabled}>
     {#if options.length > 0}
-        <ModuleHeaderSelect options={options} value={value} on:change />
+        <ModuleHeaderSelect {options} {value} {disabled} on:change/>
     {:else}
         <ModuleHeaderButton label={label} on:click>
             <slot name="text">
@@ -37,7 +39,7 @@ export let options = [];
     margin: 0 2px;
 }
 
-.module-header-action:hover {
+.module-header-action:not(.disabled):hover {
     color: rgba(255, 255, 255, 1);
 }
 
@@ -59,7 +61,7 @@ export let options = [];
     border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.module-header-action.border:hover {
+.module-header-action:not(.disabled).border:hover {
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 

@@ -2,7 +2,7 @@ import p5 from "p5";
 
 let previews = [];
 
-export let onMountPreview = ({ index, width, height }) => {
+export let onMountPreview = ({ id, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
 			sketch.createCanvas(width, height);
@@ -10,7 +10,7 @@ export let onMountPreview = ({ index, width, height }) => {
 	});
 
 	const preview = {
-		index,
+		id,
 		p,
 	};
 
@@ -22,16 +22,16 @@ export let onMountPreview = ({ index, width, height }) => {
     };
 };
 
-export let onResizePreview = ({ index, width, height, pixelRatio }) => {
-	const preview = previews.find(p => p.index === index);
+export let onResizePreview = ({ id, width, height, pixelRatio }) => {
+	const preview = previews.find(p => p.id === id);
 
 	if (preview) {
 		preview.p.resizeCanvas(width * pixelRatio, height * pixelRatio, false);
 	}
 };
 
-export let onDestroyPreview = ({ index }) => {
-	const preview = previews.find(p => p.index === index);
+export let onDestroyPreview = ({ id }) => {
+	const preview = previews.find(p => p.id === id);
 
 	if (preview) {
 		preview.p.remove();

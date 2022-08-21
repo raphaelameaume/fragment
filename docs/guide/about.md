@@ -12,4 +12,4 @@ In 2019, I became a freelance creative developer and extended the variety of my 
 - fast as possible
 - images, videos or live exports
 
-So I spend the last 3 years building my own tool.
+So I spent the last 3 years building my own tool.
