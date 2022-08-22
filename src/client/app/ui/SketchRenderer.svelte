@@ -473,6 +473,7 @@ function checkForRefresh(event) {
     const keyboardEvent = event.detail;
     if (!keyboardEvent.metaKey && !keyboardEvent.ctrlKey) {
         keyboardEvent.preventDefault();
+        console.log(`[fragment] ${key} reloaded.`);
         createSketch(key);
     }
 }
