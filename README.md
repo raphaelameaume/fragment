@@ -1,6 +1,7 @@
 <h1 align="center">Fragment</h1>
 <div align="center">A web development environment for creative coding</div>
 <br>
+![UI is splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colos, variables and exports](/screenshot.png "Screencapture of Fragment")
 
 `fragment` aims to provide a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
 
