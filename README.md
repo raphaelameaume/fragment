@@ -2,7 +2,7 @@
 <div align="center">A web development environment for creative coding</div>
 <br/>
 
-![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/blob/master/screenshot.png "Screen Capture of Fragment")
+![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/main/screenshot.png "Screen Capture of Fragment")
 
 `fragment` provides a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
 
