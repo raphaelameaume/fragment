@@ -2,9 +2,9 @@
 <div align="center">A web development environment for creative coding</div>
 <br/>
 
-![UI is splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/add-screencapture-to-readme/screenshot.png "Screencapture of Fragment")
+![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/add-screencapture-to-readme/screenshot.png "Screen Capture of Fragment")
 
-`fragment` aims to provide a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
+`fragment` provides a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
 
 ## Features
 
