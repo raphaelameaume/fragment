@@ -14,5 +14,4 @@
 - [CLI](./api/CLI.md)
 - [Sketch](./api/sketch.md)
 - [Renderers](./api/renderers.md)
-- [Modules](./api/modules.md)
 - [Triggers](./api/triggers.md)
