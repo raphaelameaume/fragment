@@ -19,7 +19,6 @@ export let min = -Infinity;
 export let max = Infinity;
 export let controlled = false;
 export let disabled = false;
-export let triggers = [];
 
 let node;
 $: isFocused = false;
@@ -102,6 +101,7 @@ function handleChangeProgress(event) {
                 bind:this={node}
                 {name}
                 {label}
+                {disabled}
                 on:keypress={onKeyPress}
                 on:keydown={onKeyDown}
                 on:focus={onFocus}

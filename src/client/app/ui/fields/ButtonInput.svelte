@@ -1,6 +1,5 @@
 <script>
 export let value = null;
-export let name = "";
 export let label;
 export let disabled = false;
 export let showLabel = true;

@@ -5,7 +5,6 @@ import SelectChevrons from "../SelectChevrons.svelte";
 export let options = [];
 export let name = "";
 export let value;
-export let triggers = [];
 export let disabled = false;
 export let title = "";
 
@@ -109,22 +108,6 @@ function handleChange(event) {
 
 .select-input:not(.disabled) .select:hover {
     color: var(--color-text);
-}
-
-.chevrons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    width: 20px;
-
-    pointer-events: none;
-}
-
-.select-input.disabled .chevrons {
-    opacity: 0.5;
 }
 
 </style>

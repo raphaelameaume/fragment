@@ -18,12 +18,10 @@ import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
 
 export let key = '';
-export let name = key;
 export let value = null;
 export let context = null;
 export let params = {};
 export let type = null;
-export let triggers = [];
 
 const dispatch = createEventDispatcher();
 const fields = {
@@ -131,7 +129,6 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
         <svelte:component
             this={input}
             {value}
-            name={name}
             {...settings}
             on:change={(e) => dispatch('change', e.detail)}
             on:click={onTrigger}
@@ -158,14 +155,6 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
 
     padding: 3px 6px 3px 12px;
     border-bottom: 1px solid var(--color-spacing);
-}
-
-.field__section {
-    position: relative;
-    
-    display: grid;
-    grid-template-columns: 0.5fr 1fr;
-    column-gap: 10px;
 }
 
 :global(.field__input .field) {

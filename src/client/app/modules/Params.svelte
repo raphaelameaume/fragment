@@ -86,7 +86,6 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                     value={sketchProps[key].value}
                     params={sketchProps[key].params || {}}
                     type={sketchProps[key].type}
-                    triggers={sketchProps[key].triggers || []}
                     on:click={() => {
                         $props[sketchKey][key].value._refresh = true;
                     }}

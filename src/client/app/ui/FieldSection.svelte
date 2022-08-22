@@ -1,5 +1,4 @@
 <script>
-export let className = "";
 export let visible = true;
 export let secondary = false;
 export let label = "";

@@ -3,7 +3,6 @@ import { afterUpdate } from "svelte";
 
 export let disabled;
 export let value = null;
-export let name = "";
 
 let container;
 

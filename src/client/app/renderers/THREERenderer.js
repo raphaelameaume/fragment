@@ -117,7 +117,7 @@ client.on('shader-update', (data) => {
             const shaderPath = getShaderPath(shader);
 
             if (shaderPath === filepath) {
-                console.log(`[fragment] HotShaderReload : ${shaderPath.replace(__CWD__, "")}`);
+                console.log(`[fragment] shader update ${shaderPath.replace(__CWD__, "")}`);
                 material[key] = source;
                 material.needsUpdate = true;
             }

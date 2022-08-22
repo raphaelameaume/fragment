@@ -4,13 +4,11 @@ import FieldInputRow from "./FieldInputRow.svelte";
 import NumberInput from "./NumberInput.svelte";
 
 export let value;
-export let name;
 export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
-export let triggers = [];
 export let disabled = false;
 
 function sanitize(value, type) {
@@ -76,7 +74,7 @@ function onValueChange(index, newValue) {
                 {max}
                 {step}
                 {suffix}
-                {name}
+                {disabled}
                 label={curr.label}
                 value={curr.value}
                 on:change={(event) => onValueChange(index, event.detail)}

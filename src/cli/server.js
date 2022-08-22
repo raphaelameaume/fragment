@@ -22,7 +22,7 @@ export async function start({ options, filepaths, entries, fragment }) {
     const config = defineConfig({
         configFile: false,
         root,
-        // logLevel: "silent",
+        logLevel: options.development ? "info" : "silent",
         resolve: {
             alias: [
                 { find: '@fragment/sketches', replacement: filepaths[0] },
@@ -40,8 +40,11 @@ export async function start({ options, filepaths, entries, fragment }) {
             svelte({
                 configFile: false,
                 onwarn: (warning, handler) => {
-                    // return;
-                    handler(warning);
+                    if (options.development) {
+                        handler(warning);
+                    } else {
+                        return;
+                    }
                 }
             }),
             hotSketchReload({
