@@ -11,7 +11,6 @@ function round(value, step) {
 }
 
 export let value = null;
-export let name = "";
 export let label = "";
 export let step = 1;
 export let suffix = "";
@@ -99,7 +98,6 @@ function handleChangeProgress(event) {
             />
             <Input 
                 bind:this={node}
-                {name}
                 {label}
                 {disabled}
                 on:keypress={onKeyPress}
@@ -112,7 +110,6 @@ function handleChangeProgress(event) {
     {:else}
         <Input 
             bind:this={node}
-            {name}
             {label}
             on:keypress={onKeyPress}
             on:keydown={onKeyDown}

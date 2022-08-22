@@ -5,7 +5,6 @@ import TextInput from "./TextInput.svelte";
 import Field from "../Field.svelte";
 
 export let value;
-export let name;
 
 const dispatch = createEventDispatcher();
 
@@ -124,9 +123,9 @@ function onInput() {
     <div class="layout">
         <div class="mirror" style="--currentColor: {hexValue}; --opacity: {alpha}">
             <!-- svelte-ignore -->
-            <input class="input" type="color" bind:value={hexValue} {name} on:blur={handleBlur} on:input={onInput} />
+            <input class="input" type="color" bind:value={hexValue} on:blur={handleBlur} on:input={onInput} />
         </div>
-        <TextInput value={textValue} on:input={onChangeText} {name} on:change={onChangeText} />
+        <TextInput value={textValue} on:input={onChangeText} on:change={onChangeText} />
     </div>
     {#if hasAlpha }
         <Field key="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}} on:change={onChangeAlpha}></Field>
