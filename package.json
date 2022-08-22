@@ -1,11 +1,8 @@
 {
   "name": "fragment",
   "version": "0.1.0",
-  "description": "",
+  "description": "A web development environment for creative coding",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "bin": {
     "fragment": "bin/index.js"
   },
