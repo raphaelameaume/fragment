@@ -12,7 +12,7 @@
     "url": "git+https://github.com/raphaelameaume/fragment.git"
   },
   "author": "Raphaël Améaume",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/raphaelameaume/fragment/issues"
   },
