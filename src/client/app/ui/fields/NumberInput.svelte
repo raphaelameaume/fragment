@@ -62,12 +62,8 @@ function onKeyDown(event) {
         const direction = event.keyCode === 38 ? 1 : -1;
         const newValue = sanitize(composedValue, suffix) + direction * (diff);
 
-        if (!controlled) {
-            currentValue = newValue;
-            dispatch('change', currentValue);
-        } else {
-            dispatch('change', newValue);
-        }
+        currentValue = newValue;
+        dispatch('change', currentValue);
     }
 }
 
