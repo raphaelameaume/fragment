@@ -1,5 +1,6 @@
 <script>
 import { createEventDispatcher } from "svelte";
+import IconCross from "../components/IconCross.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 import FieldInputRow from "./fields/FieldInputRow.svelte";
 import Select from "./fields/Select.svelte";
@@ -182,18 +183,21 @@ function onClickActivity() {
         {/if}
         <ButtonInput
             label="delete"
+            showLabel={false}
             on:click={handleClickDelete}
             --color-text="white"
             --background-color="var(--color-red)"
             --box-shadow-color-active="var(--color-lightred)"
-        />
+        >
+            <IconCross />
+        </ButtonInput>
     </FieldInputRow>
 </div>
 
 <style>
 
 .field-trigger {
-    --width-delete: 50px;
+    --width-delete: var(--height-input);
     --width-input: 90px;
     --width-activity: 16px;
     --width-cols: 1fr;

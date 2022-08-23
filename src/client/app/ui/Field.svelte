@@ -71,6 +71,10 @@ $: onTrigger = onTriggers[fieldType];
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 $: disabled = params.disabled;
+$: triggerable = params.triggerable !== false && (
+    (fieldType === "number" && isFinite(params.min) && isFinite(params.max)) ||
+    (fieldType === "button")
+);
 
 $: {
     if (fieldType === "download" || fieldType === "button") {
@@ -81,11 +85,17 @@ $: {
 }
 
 let offsetWidth;
-let secondaryVisible = false;
+let showTriggers = false;
 
 $: xxsmall = offsetWidth < 200;
 $: xsmall = !xxsmall && offsetWidth < 260;
 $: small = !xxsmall && !xsmall && offsetWidth < 320;
+
+function toggleTriggers(event) {
+    event.preventDefault();
+
+    showTriggers = !showTriggers;
+}
 
 </script>
 
@@ -96,21 +106,15 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
     class:small={small}
     bind:offsetWidth={offsetWidth}
 >
-    <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
+    <FieldSection name={key} label={label} interactive={triggerable} on:click={toggleTriggers}>
         <div slot="infos" class="field__actions">
-            {#if params.triggers && params.triggers.length && !disabled }
-                <button class="field__action field__action--triggers">
-                    <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"></path>
-                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
-                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
-                    </svg>
-                </button>
+            {#if triggerable && !disabled }
+                <button
+                    on:click={toggleTriggers}
+                    class="field__action field__action--triggers"
+                    class:active={true}></button>
             {/if}
-            {#if (type === "vec2" || type === "vec3") && !disabled }
+            {#if (fieldType === "vec2" || fieldType === "vec3") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
                     {#if params.locked}
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -135,8 +139,8 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
         />
         <slot></slot>
     </FieldSection>
-    {#if onTrigger }
-        <FieldSection visible={secondaryVisible} secondary>
+    {#if triggerable }
+        <FieldSection visible={showTriggers} secondary>
             <FieldTriggers
                 {key}
                 {onTrigger}
@@ -175,16 +179,55 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
     align-items: center;
 }
 
-.field__action--triggers .action__icon {
-    transform: rotate(90deg);
-}
-
 .field__action {
     display: flex;
     align-items: center;
 
     background: transparent;
-    opacity: 0.5;
+    transition: opacity 0.1s ease;
+}
+
+.field__action:hover {
+    opacity: 1;
+}
+
+.field__action--triggers {
+    --background-color: rgba(255, 255, 255, 0.5);
+
+    position: relative;
+
+    width: 16px;
+    height: 16px;
+
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.field__action--triggers.active {
+    --background-color: var(--color-green);
+}
+
+.field__action--triggers:before {
+    --size: 4px;
+
+    content: '';
+
+    position: absolute;
+    top: calc(50% - var(--size) * 0.5);
+    left: calc(50% - var(--size) * 0.5);
+
+    width: var(--size);
+    height: var(--size);
+    border-radius: 2px;
+
+    background-color: var(--background-color);
+}
+
+.field__action--lock {
+    color: var(--color-text);
+
+    opacity: 0.6;
+    background-color: transparent;
     transition: opacity 0.1s ease;
 }
 

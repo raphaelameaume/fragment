@@ -1,7 +1,6 @@
 <script>
 import { createEventDispatcher } from "svelte";
-
-import Field from "./Field.svelte";
+import IconCross from "../components/IconCross.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
 import Select from "./fields/Select.svelte";
 import { moduleNames } from "./ModuleRenderer.svelte";
@@ -97,10 +96,7 @@ const options = [
 						--background-color="var(--color-red)"
 						--box-shadow-color-active="var(--color-lightred)"
 					>
-						<div class="icon-cross">
-							<div class="icon-cross-side"></div>
-							<div class="icon-cross-side"></div>
-						</div>
+						<IconCross />
 					</ButtonInput>
 				</div>
 			{/if}
@@ -175,29 +171,6 @@ const options = [
 .module {
 	min-width: 130px;
 	width: 100%;
-}
-
-.icon-cross {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-.icon-cross-side {
-	--size: 10px;
-	position: absolute;
-	top: calc(50% - 1px);
-	left: calc(50% - var(--size) * 0.5);
-	width: var(--size);
-	height: 2px;
-
-	transform: rotate(45deg);
-
-	background-color: #551717;
-}
-
-.icon-cross-side:last-child {
-	transform: rotate(-45deg);
 }
 
 .icon-layout {
