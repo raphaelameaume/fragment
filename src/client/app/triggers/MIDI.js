@@ -61,16 +61,14 @@ function createTrigger(eventName, collection) {
             fn = key;
             key = "*";
 
-            if (typeof options.key === 'string') {
+            if (options.key) {
                 key = options.key;
             }
         }
 
         const { hot, enabled, ...params } = options;
+        const keys = Array.isArray(key) ? key : [key];
 
-        let keys = key.split('').includes(',') ? key.split(',') : [key];
-        keys = keys.filter((k) => k !== '');
-        
         const trigger = new Trigger({
             inputType: 'MIDI',
             eventName,
@@ -79,8 +77,8 @@ function createTrigger(eventName, collection) {
             hot,
             enabled,
             destroy : () => {
-                keys.forEach((k) => {
-                    removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+                keys.forEach((key) => {
+                    removeFromMapArray(collection, key, (item) => item.id === trigger.id);
                 });
             }
         });

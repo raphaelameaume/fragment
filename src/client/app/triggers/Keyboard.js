@@ -58,32 +58,31 @@ function createTrigger(eventName, collection) {
             fn = key;
             key = "*";
 
-            if (typeof options.key === 'string') {
+            if (options.key) {
                 key = options.key;
             }
         }
 
         const { hot, enabled, ...params } = options;
 
-        let keys = key.split('').includes(',') ? key.split(',') : [key];
-        keys = keys.filter((k) => k !== '');
+        const keys = Array.isArray(key) ? key : [key];
         
         const trigger = new Trigger({
             inputType: 'Keyboard',
             eventName,
             fn,
-            params: {...params, key },
+            params: {...params, key: keys },
             hot,
             enabled,
             destroy: () => {
-                keys.forEach((k) => {
-                    removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+                keys.forEach((key) => {
+                    removeFromMapArray(collection, key, (item) => item.id === trigger.id);
                 });
             }
         });
 
-        keys.forEach(k => {
-            addToMapArray(collection, k, trigger);
+        keys.forEach(key => {
+            addToMapArray(collection, key, trigger);
         });
 
         return trigger;

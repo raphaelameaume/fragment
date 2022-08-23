@@ -1,24 +1,5 @@
-<script>
-import { createEventDispatcher } from "svelte";
-import IconCross from "../components/IconCross.svelte";
-import ButtonInput from "./fields/ButtonInput.svelte";
-import FieldInputRow from "./fields/FieldInputRow.svelte";
-import Select from "./fields/Select.svelte";
-import TextInput from "./fields/TextInput.svelte";
-
-export let trigger;
-export let controllable = false;
-export let triggerable = false;
-
-let inputType = trigger.inputType;
-let eventName = trigger.eventName;
-let params = trigger.params;
-
-$: isValid = inputType && eventName;
-
-const dispatch = createEventDispatcher();
-
-let inputs = {
+<script context="module">
+const inputs = {
     "Mouse": {
         events: [
             { name: "onMouseDown", triggerable: true, controllable: false },
@@ -44,6 +25,101 @@ let inputs = {
         ],
     }
 };
+</script>
+
+<script>
+import IconCross from "../components/IconCross.svelte";
+import ButtonInput from "./fields/ButtonInput.svelte";
+import FieldInputRow from "./fields/FieldInputRow.svelte";
+import Select from "./fields/Select.svelte";
+import TextInput from "./fields/TextInput.svelte";
+import * as triggersMap from "../triggers/index.js";
+import { createEventDispatcher, onDestroy, onMount } from "svelte";
+
+export let index;
+export let inputType = undefined;
+export let eventName = undefined;
+export let enabled = true;
+export let controllable = false;
+export let triggerable = false;
+export let context;
+export let onTrigger = () => {};
+export let params = { key: []};
+
+let trigger;
+let dispatch = createEventDispatcher();
+
+function registerTrigger() {
+    if (trigger) {
+        enabled = trigger.enabled;
+
+        trigger.destroy();
+        trigger = null;
+    }
+
+    const createTrigger = triggersMap[eventName];
+
+    trigger = createTrigger(onTrigger, {
+        ...params,
+        context,
+        hot: false,
+        enabled,
+    });
+}
+
+function onTypeChange(event) {
+    inputType = event.currentTarget.value;
+
+    if (!eventOptions.includes(eventName)) {
+        eventName = undefined;
+        key = null;
+    }
+
+    if (trigger) {
+        trigger.destroy();
+        trigger = null;
+    }
+}
+
+function onEventChange(event) {
+    eventName = event.currentTarget.value;
+
+    if (inputType === "Mouse") {
+        registerTrigger();
+    }
+}
+
+function onTextChange(e) {
+    params.key = e.currentTarget.value.split(',');
+
+    registerTrigger();
+}
+
+function handleClickDelete() {
+    dispatch('delete', index);
+}
+
+function toggleTrigger() {
+    if (trigger) {
+        trigger.enabled = !trigger.enabled;
+    }
+}
+
+onMount(() => {
+    if (
+        (inputType === "Mouse" && eventName) ||
+        (inputType && eventName && params.keys)
+    ) {
+        registerTrigger();
+    }
+});
+
+onDestroy(() => {
+    if (trigger) {
+        trigger.destroy();
+        trigger = null;
+    }
+});
 
 $: validInputs = [...Object.keys(inputs)].reduce((all, inputName) => {
     const input = inputs[inputName];
@@ -72,67 +148,8 @@ $: eventOptions = inputType ? [
     ...validInputs[inputType].events.map(event => ({ value: event.name }))
 ] : [];
 
-
-function dispatchEvent() {
-    trigger.inputType = inputType;
-    trigger.eventName = eventName;
-    trigger.params = params;
-
-    dispatch('change', trigger);
-}
-
-function onInputChange(e) {
-    const needsDispatch = inputType && inputType !== e.detail;
-
-    inputType = e.detail;
-    eventName = undefined;
-
-    if (needsDispatch) {
-        dispatchEvent();
-    }
-}
-
-function onEventChange(e) {
-    let prevEventName = eventName;
-
-    eventName = e.detail;
-
-    let keepParams = (
-        inputType === 'Keyboard' ||
-        inputType === "MIDI" && (
-            (["onNoteOn", "onNoteOff"].includes(prevEventName) && ["onNoteOn", "onNoteOff"].includes(eventName)) ||
-            (["onNumberOn", "onNumberOff"].includes(prevEventName) && ["onNumberOn", "onNumberOff"].includes(eventName))
-        )
-    );
-
-    keepParams = false;
-
-    if (!keepParams) {
-        params = {};
-    }
-
-    if (!keepParams || (keepParams && (params.key && params.key !== ''))) {
-        trigger.enabled = typeof inputType === "string" && typeof eventName === "string";
-        dispatchEvent();
-    }
-}
-
-function onTextChange(e) {
-    params.key = e.currentTarget.value;
-
-    console.log("params key", params);
-
-    dispatchEvent();
-}
-
-function handleClickDelete() {
-    dispatch('delete', trigger);
-}
-
-function onClickActivity() {
-    trigger.enabled = !trigger.enabled;
-    dispatchEvent();
-}
+$: isValid = inputType && eventName;
+$: key = params.key && params.key.length ? params.key.join(',') : "";
 
 </script>
 
@@ -141,34 +158,34 @@ function onClickActivity() {
         <button
             class="activity"
             class:valid={isValid}
-            class:enabled={trigger.enabled}
-            class:disabled={!trigger.enabled}
-            on:click={onClickActivity}
+            class:enabled={trigger && trigger.enabled}
+            class:disabled={!trigger || !trigger.enabled}
+            on:click={toggleTrigger}
         ></button>
         <Select
             name="trigger-input"
             value={inputType}
             options={inputOptions}
-            on:change={onInputChange}
+            on:change={onTypeChange}
         />
         {#if inputType }
         <Select
             options={eventOptions}
-            value={eventName}
+            bind:value={eventName}
+            disabled={inputType === undefined}
             on:change={onEventChange}
-            disabled={inputType === '-'}
         />
         {/if}
         {#if inputType === 'Keyboard'}
             <TextInput
-                value={params.key ? params.key : ""}
+                bind:value={key}
                 label="key"
                 on:input={onTextChange}
             />
         {/if}
         {#if inputType === 'MIDI'}
             <TextInput
-                value={params.key ? params.key : ""}
+                bind:value={key}
                 label={["onNoteOn", "onNoteOff"].includes(eventName) ? "note" : "number"}
                 on:input={onTextChange}
             />

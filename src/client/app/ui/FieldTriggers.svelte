@@ -1,10 +1,8 @@
 <script>
-import { createEventDispatcher } from "svelte";
 import FieldTrigger from "./FieldTrigger.svelte";
-import * as triggersMap from "../triggers/index.js";
 import ButtonInput from "./fields/ButtonInput.svelte";
-import Trigger from "../triggers/Trigger";
 import { getPersistentStore } from "../stores/utils";
+import { writable } from "svelte/store";
 
 export let key;
 export let context;
@@ -13,94 +11,54 @@ export let persist = true;
 export let triggerable = false;
 export let controllable = false;
 
-const dispatch = createEventDispatcher();
 const store = getPersistentStore(context, !persist, { props: {}});
-
 if (!$store.props[key]) {
     $store.props[key] = { triggers: [] };
 }
 
-let triggers = $store.props[key].triggers
-    .filter(t => triggersMap[t.eventName])
-    .map(t => {
-        const { eventName, enabled, params } = t;
-        const createTrigger = triggersMap[eventName];
-        const trigger = createTrigger(onTrigger, {
-            ...params,
-            context,
-            hot: false,
-            enabled,
-        });
+let triggers = writable($store.props[key].triggers.filter((trigger) => trigger.inputType !== undefined));
 
-        return trigger;
+triggers.subscribe((all) => {
+    store.update((curr) => {
+        curr.props[key].triggers = all;
+
+        return curr;
     });
-
-function onTriggerChange(e) {
-    let trigger = e.detail;
-    const { eventName, params, enabled } = trigger;
-
-    triggers = triggers.map((t) => {
-        if (t.id !== trigger.id) return t;
-
-        const createTrigger = triggersMap[eventName];
-
-        if (createTrigger) {
-            // destroy previous one
-            trigger.destroy();
-            return createTrigger(onTrigger, {
-                ...params,
-                context,
-                enabled,
-                hot: false,
-             });
-        }
-
-        return trigger;
-    });
-}
+})
 
 function onTriggerDelete(e) {
-    let trigger = e.detail;
-    triggers = triggers.filter((t) => t.id !== trigger.id);
+    const triggerIndex = e.detail;
 
-    trigger.destroy();
+    $triggers = $triggers.filter((t, i) => i !== triggerIndex);
 }
 
-function handleClickAdd() {
-    let trigger = new Trigger();
-    triggers = [
-        ...triggers,
-        trigger,
-    ]
-}
-
-$: {
-    dispatch('change', triggers);
-
-    store.update((curr) => {
-        let clone = {...curr};
-
-        if (!clone.props[key]) {
-            clone.props[key] = { triggers: [] };
-        }
-
-        clone.props[key].triggers = triggers;
-
-        return clone;
+function handleClickAdd() {
+    triggers.update((current) => {
+        return [
+            ...current,
+            {
+                inputType: undefined,
+                eventName: undefined,
+            },
+        ]
     });
 }
-
 </script>
 
 {#if onTrigger }
     <ButtonInput label="add trigger" on:click={handleClickAdd} />
     <div class="field-triggers">
-    {#each triggers as trigger, index}
+    {#each $triggers as trigger, index}
         <FieldTrigger
-            {trigger}
+            {index}
+            bind:inputType={trigger.inputType}
+            bind:eventName={trigger.eventName}
+            bind:params={trigger.params}
+            bind:enabled={trigger.enabled}
+            {onTrigger}
+            {context}
             {controllable}
             {triggerable}
-            on:change={onTriggerChange}
             on:delete={onTriggerDelete}
         />
     {/each}
@@ -116,4 +74,3 @@ $: {
     margin-top: var(--column-gap);
 }
 </style>
-<!-- <ButtonInput label={"Add"} on:click={addTrigger} /> -->

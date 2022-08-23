@@ -12,7 +12,7 @@ class Trigger {
         inputType,
         eventName,
         fn,
-        params = {},
+        params = { keys: [] },
         destroy = () => {},
         enabled = typeof inputType === "string" && typeof eventName === "string",
         hot = true,
@@ -54,6 +54,15 @@ class Trigger {
         this.params = null;
         this.enabled = null;
         this._destroy = null;
+    }
+
+    toJSON() {
+        return {
+            inputType: this.inputType,
+            eventName: this.eventName,
+            enabled: this.enabled,
+            params: this.params,
+        };
     }
 }
 

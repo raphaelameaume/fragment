@@ -11,15 +11,10 @@ export let moduleName = undefined;
 export let isRoot = false;
 export let vertical = false;
 
-
 const dispatch = createEventDispatcher();
 
 let splitColumns = false;
 let splitRows = false;
-
-function handleModuleChange(event) {
-	dispatch('change', event.detail);
-}
 
 function handleAddRow() {
 	dispatch('add-row');
@@ -53,7 +48,7 @@ const options = [
 				<Select
 					value={moduleName}
 					options={options}
-					on:change={handleModuleChange}
+					on:change
 					title="Switch module"
 				/>
 			</div>

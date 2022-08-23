@@ -29,6 +29,7 @@ class MIDI extends Input {
 	}
 
 	start() {
+		console.log("start");
 		this.access.onstatechange = (event) => this.onStateChange(event);
 		this.attachListeners();
 	}
@@ -86,6 +87,8 @@ class MIDI extends Input {
 
 	onStateChange(e) {
 		const event = e.port.state;
+
+		console.log(event, e);
 
 		this.emit(event, e);
 		this.attachListeners();
