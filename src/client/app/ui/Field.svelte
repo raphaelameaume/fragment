@@ -66,7 +66,7 @@ const onTriggers = {
 };
 
 $: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
-$: settings = {...params};
+$: fieldProps = composeFieldProps(params);
 $: onTrigger = onTriggers[fieldType];
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
@@ -79,7 +79,7 @@ $: triggerable = params.triggerable !== false && (
 $: {
     if (fieldType === "download" || fieldType === "button") {
         if (params.label === undefined) {
-            settings.label = fieldType === "download" ? "download" : "run";
+            fieldProps.label = fieldType === "download" ? "download" : "run";
         }
     }
 }
@@ -95,6 +95,12 @@ function toggleTriggers(event) {
     event.preventDefault();
 
     showTriggers = !showTriggers;
+}
+
+function composeFieldProps(params) {
+    const { triggerable, controllable, ...rest } = params;
+
+    return rest;
 }
 
 </script>
@@ -133,7 +139,7 @@ function toggleTriggers(event) {
         <svelte:component
             this={input}
             {value}
-            {...settings}
+            {...fieldProps}
             on:change={(e) => dispatch('change', e.detail)}
             on:click={onTrigger}
         />
@@ -145,6 +151,8 @@ function toggleTriggers(event) {
                 {key}
                 {onTrigger}
                 {context}
+                triggerable={fieldType === "button"}
+                controllable={fieldType === "number"}
             />
         </FieldSection>
     {/if}

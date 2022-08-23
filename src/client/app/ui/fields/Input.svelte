@@ -3,7 +3,13 @@ export let label = null;
 export let value;
 export let disabled = false;
 
-let el;
+let node;
+
+function onKeyPress(event) {
+    if (event.key === 'Enter') {
+        node.blur();
+    }
+}
 
 </script>
 
@@ -13,11 +19,11 @@ let el;
     {/if}
     <input
         class="input"
-        bind:this={el}
+        bind:this={node}
         bind:value={value}
         on:change
         on:input
-        on:keypress
+        on:keypress={onKeyPress}
         on:keydown
         on:focus
         on:blur

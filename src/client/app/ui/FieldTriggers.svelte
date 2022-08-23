@@ -10,6 +10,8 @@ export let key;
 export let context;
 export let onTrigger;
 export let persist = true;
+export let triggerable = false;
+export let controllable = false;
 
 const dispatch = createEventDispatcher();
 const store = getPersistentStore(context, !persist, { props: {}});
@@ -96,6 +98,8 @@ $: {
     {#each triggers as trigger, index}
         <FieldTrigger
             {trigger}
+            {controllable}
+            {triggerable}
             on:change={onTriggerChange}
             on:delete={onTriggerDelete}
         />

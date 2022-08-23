@@ -7,6 +7,8 @@ import Select from "./fields/Select.svelte";
 import TextInput from "./fields/TextInput.svelte";
 
 export let trigger;
+export let controllable = false;
+export let triggerable = false;
 
 let inputType = trigger.inputType;
 let eventName = trigger.eventName;
@@ -19,64 +21,55 @@ const dispatch = createEventDispatcher();
 let inputs = {
     "Mouse": {
         events: [
-            "onMouseDown",
-            "onMouseUp",
-            "onMouseMove",
-            "onClick",
+            { name: "onMouseDown", triggerable: true, controllable: false },
+            { name: "onMouseUp", triggerable: true, controllable: false },
+            { name: "onMouseMove", triggerable: true, controllable: false },
+            { name: "onClick", triggerable: true, controllable: false },
         ]
-    },
-    "Touch": {
-        events: [
-            "onTouchStart",
-            "onTouchEnd",
-            "onTouchMove",
-            "onClick",
-        ],
-        disabled: true,
-    },
-    "Pointer": {
-        events: [
-            "onDown",
-            "onUp",
-            "onMove",
-            "onClick",
-        ],
-        disabled: true,
     },
     "Keyboard": {
         events: [
-            "onKeyDown",
-            "onKeyPress",
-            "onKeyUp",
+            { name: "onKeyDown", triggerable: true, controllable: false },
+            { name: "onKeyPress", triggerable: true, controllable: false },
+            { name: "onKeyUp", triggerable: true, controllable: false },
         ]
     },
     "MIDI": {
         events: [
-            "onNoteOn",
-            "onNoteOff",
-            "onNumberOn",
-            "onNumberOff",
-            "onControlChange"
+            { name: "onNoteOn", triggerable: true, controllable: false },
+            { name: "onNoteOff", triggerable: true, controllable: false },
+            { name: "onNumberOn", triggerable: true, controllable: false },
+            { name: "onNumberOff", triggerable: true, controllable: false },
+            { name: "onControlChange", triggerable: false, controllable: true },
         ],
-        disabled: false,
-    },
-    "Audio": {
-        events: [],
-        disabled: true,
     }
 };
 
+$: validInputs = [...Object.keys(inputs)].reduce((all, inputName) => {
+    const input = inputs[inputName];
+    const { disabled, events } = input;
+    const filteredEvents = events.filter((event) => {
+        return event.triggerable === triggerable && event.controllable === controllable;
+    });
+
+    if (filteredEvents.length > 0) {
+        all[inputName] = { events: filteredEvents, disabled };
+    };
+    
+    return all;
+}, {});
+
 $: inputOptions = [
     { label: "Select input", value: undefined, disabled: true },
-    ...Object.keys(inputs).map((inputName) => ({
+    ...Object.keys(validInputs).map((inputName) => ({
         value: inputName,
-        disabled: inputs[inputName].disabled,
+        disabled: validInputs[inputName].disabled,
     }))
 ];
 
 $: eventOptions = inputType ? [
     { label: "-", value: undefined, disabled: true },
-    ...inputs[inputType].events.map(e => ({ value: e }))
+    ...validInputs[inputType].events.map(event => ({ value: event.name }))
 ] : [];
 
 
@@ -127,6 +120,8 @@ function onEventChange(e) {
 function onTextChange(e) {
     params.key = e.currentTarget.value;
 
+    console.log("params key", params);
+
     dispatchEvent();
 }
 
@@ -162,12 +157,10 @@ function onClickActivity() {
             value={eventName}
             on:change={onEventChange}
             disabled={inputType === '-'}
-            name="trigger-event"
         />
         {/if}
         {#if inputType === 'Keyboard'}
             <TextInput
-                name="trigger-custom"
                 value={params.key ? params.key : ""}
                 label="key"
                 on:input={onTextChange}
@@ -175,7 +168,6 @@ function onClickActivity() {
         {/if}
         {#if inputType === 'MIDI'}
             <TextInput
-                name="trigger-custom"
                 value={params.key ? params.key : ""}
                 label={["onNoteOn", "onNoteOff"].includes(eventName) ? "note" : "number"}
                 on:input={onTextChange}
