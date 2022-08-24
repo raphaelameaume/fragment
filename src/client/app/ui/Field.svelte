@@ -16,6 +16,7 @@ import FieldTriggers from "./FieldTriggers.svelte";
 import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
+import frameDebounce from "../lib/helpers/frameDebounce.js";
 
 export let key = '';
 export let value = null;
@@ -37,6 +38,43 @@ const fields = {
     "download": ButtonInput,
     "image": ImageInput,
 };
+
+
+function debounce(fn){
+    let lastTime = performance.now();
+    let needCall = false;
+    let _raf;
+    let timeout = 1000;
+    let a;
+
+    function loop() {
+        const now = performance.now();
+
+        if (needCall) {
+            needCall = false;
+            lastTime = now;
+            
+            fn.apply(this, a);
+            lastTime = now;
+        }
+
+        if (now - lastTime > timeout && _raf > -1) {
+            cancelAnimationFrame(_raf);
+            _raf = null;
+        } else {
+            _raf = requestAnimationFrame(loop);
+        }
+    }
+
+    return (...args) => {
+        needCall = true;
+        a = args;
+
+        if (!_raf) {
+            loop();
+        }
+    };
+}
 
 const onTriggers = {
     'checkbox': () => {
@@ -67,7 +105,7 @@ const onTriggers = {
 
 $: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
 $: fieldProps = composeFieldProps(params);
-$: onTrigger = onTriggers[fieldType];
+$: onTrigger = frameDebounce(onTriggers[fieldType]);
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 $: disabled = params.disabled;

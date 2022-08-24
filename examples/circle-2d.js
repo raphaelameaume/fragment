@@ -8,6 +8,8 @@ export let props = {
   }
 };
 
+export let fps = 0;
+
 export let update = ({ context, width, height }) => {
   // draw background
   context.fillStyle = '#000000';
