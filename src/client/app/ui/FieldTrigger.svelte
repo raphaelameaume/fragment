@@ -108,7 +108,7 @@ function toggleTrigger() {
 onMount(() => {
     if (
         (inputType === "Mouse" && eventName) ||
-        (inputType && eventName && params.keys)
+        (inputType && eventName && params.key)
     ) {
         registerTrigger();
     }
