@@ -116,7 +116,7 @@ $: {
     key="preset"
     value={$rendering.preset}
     on:change={(event) => {
-        $rendering.preset = event.detail;
+        $rendering.preset = event.currentTarget.value;
     }}
     params={{
         options: presets,
