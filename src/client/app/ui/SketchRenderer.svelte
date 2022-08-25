@@ -31,6 +31,7 @@ let _created = false, _errored = false;
 let renderer;
 let noop = () => {};
 let _renderSketch = noop;
+let backgroundColor = "inherit";
 
 function checkForResize() {
     if (!node) return;
@@ -130,6 +131,10 @@ async function createSketch(key) {
 
     if (!key || !sketch) return;
 
+    if (sketch.backgroundColor) {
+        backgroundColor = sketch.backgroundColor;
+    }
+
     if (__PRODUCTION__) {
         const { buildConfig = {} } = sketch;
 
@@ -147,6 +152,10 @@ async function createSketch(key) {
         if (buildConfig.pixelRatio) {
             const { pixelRatio } = buildConfig;
             overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
+        }
+
+        if (buildConfig.backgroundColor) {
+            backgroundColor = buildConfig.backgroundColor;
         }
 
         rendering.update((curr) => ({...curr, ...overrides}));
@@ -515,6 +524,8 @@ $: {
     }
 }
 
+
+
 </script>
 
 <div
@@ -522,7 +533,7 @@ $: {
     class="sketch-renderer"
     class:visible={visible}
     class:recording={$recording}
-    style={`--background-color: ${sketch && sketch.backgroundColor ? sketch.backgroundColor : "inherit"}`}
+    style={`--background-color: ${backgroundColor}`}
 >
     <div
         class="canvas-container"
