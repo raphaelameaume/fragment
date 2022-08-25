@@ -17,12 +17,32 @@ import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
 import frameDebounce from "../lib/helpers/frameDebounce.js";
+import { getPersistentStore } from "../stores/utils";
+import { writable } from "svelte/store";
 
 export let key = '';
 export let value = null;
 export let context = null;
 export let params = {};
 export let type = null;
+
+let offsetWidth;
+let showTriggers = false;
+let persist = true;
+
+const store = getPersistentStore(context, !persist, { props: {}});
+if (!$store.props[key]) {
+    $store.props[key] = { triggers: [] };
+}
+
+let triggers = writable($store.props[key].triggers.filter((trigger) => trigger.inputType !== undefined));
+triggers.subscribe((all) => {
+    store.update((curr) => {
+        curr.props[key].triggers = all;
+
+        return curr;
+    });
+})
 
 const dispatch = createEventDispatcher();
 const fields = {
@@ -38,43 +58,6 @@ const fields = {
     "download": ButtonInput,
     "image": ImageInput,
 };
-
-
-function debounce(fn){
-    let lastTime = performance.now();
-    let needCall = false;
-    let _raf;
-    let timeout = 1000;
-    let a;
-
-    function loop() {
-        const now = performance.now();
-
-        if (needCall) {
-            needCall = false;
-            lastTime = now;
-            
-            fn.apply(this, a);
-            lastTime = now;
-        }
-
-        if (now - lastTime > timeout && _raf > -1) {
-            cancelAnimationFrame(_raf);
-            _raf = null;
-        } else {
-            _raf = requestAnimationFrame(loop);
-        }
-    }
-
-    return (...args) => {
-        needCall = true;
-        a = args;
-
-        if (!_raf) {
-            loop();
-        }
-    };
-}
 
 const onTriggers = {
     'checkbox': () => {
@@ -113,7 +96,6 @@ $: triggerable = params.triggerable !== false && (
     (fieldType === "number" && isFinite(params.min) && isFinite(params.max)) ||
     (fieldType === "button")
 );
-
 $: {
     if (fieldType === "download" || fieldType === "button") {
         if (params.label === undefined) {
@@ -121,13 +103,10 @@ $: {
         }
     }
 }
-
-let offsetWidth;
-let showTriggers = false;
-
 $: xxsmall = offsetWidth < 200;
 $: xsmall = !xxsmall && offsetWidth < 260;
 $: small = !xxsmall && !xsmall && offsetWidth < 320;
+$: triggersActive = $triggers.length > 0;
 
 function toggleTriggers(event) {
     event.preventDefault();
@@ -156,7 +135,16 @@ function composeFieldProps(params) {
                 <button
                     on:click={toggleTriggers}
                     class="field__action field__action--triggers"
-                    class:active={true}></button>
+                    class:active={triggersActive}>
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"/>
+                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                    </svg>
+                </button>
             {/if}
             {#if (fieldType === "vec2" || fieldType === "vec3") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
@@ -186,7 +174,7 @@ function composeFieldProps(params) {
     {#if triggerable }
         <FieldSection visible={showTriggers} secondary>
             <FieldTriggers
-                {key}
+                {triggers}
                 {onTrigger}
                 {context}
                 triggerable={fieldType === "button"}
@@ -249,32 +237,20 @@ function composeFieldProps(params) {
     cursor: pointer;
 }
 
-.field__action--triggers.active {
-    --background-color: var(--color-green);
+.field__action--triggers:not(.active) {
+    display: none;
 }
 
-.field__action--triggers:before {
-    --size: 4px;
-
-    content: '';
-
-    position: absolute;
-    top: calc(50% - var(--size) * 0.5);
-    left: calc(50% - var(--size) * 0.5);
-
-    width: var(--size);
-    height: var(--size);
-    border-radius: 2px;
-
-    background-color: var(--background-color);
-}
-
-.field__action--lock {
+.field__action {
     color: var(--color-text);
 
     opacity: 0.6;
     background-color: transparent;
     transition: opacity 0.1s ease;
+}
+
+.field__action--triggers svg {
+    transform: rotate(90deg);
 }
 
 .field__action:hover {

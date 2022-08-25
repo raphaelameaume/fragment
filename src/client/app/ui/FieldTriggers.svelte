@@ -1,30 +1,12 @@
 <script>
 import FieldTrigger from "./FieldTrigger.svelte";
 import ButtonInput from "./fields/ButtonInput.svelte";
-import { getPersistentStore } from "../stores/utils";
-import { writable } from "svelte/store";
 
-export let key;
 export let context;
 export let onTrigger;
-export let persist = true;
+export let triggers;
 export let triggerable = false;
 export let controllable = false;
-
-const store = getPersistentStore(context, !persist, { props: {}});
-if (!$store.props[key]) {
-    $store.props[key] = { triggers: [] };
-}
-
-let triggers = writable($store.props[key].triggers.filter((trigger) => trigger.inputType !== undefined));
-
-triggers.subscribe((all) => {
-    store.update((curr) => {
-        curr.props[key].triggers = all;
-
-        return curr;
-    });
-})
 
 function onTriggerDelete(e) {
     const triggerIndex = e.detail;
