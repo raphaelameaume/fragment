@@ -23,7 +23,6 @@ import Params from "../modules/Params.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
 import Exports from "../modules/Exports.svelte";
 import { getContext } from "svelte";
-// import AudioAnalyser from "../modules/AudioAnalyser.svelte";
 
 const parent = getContext('parent');
 

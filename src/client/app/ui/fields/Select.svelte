@@ -8,8 +8,6 @@ export let value;
 export let disabled = false;
 export let title = "";
 
-const dispatch = createEventDispatcher();
-
 let node;
 let sanitizedOptions = [];
 
@@ -35,16 +33,15 @@ $: {
     }
 }
 
-
-function handleChange(event) {
-    dispatch('change', event.currentTarget.value);
-}
-
 </script>
 
-<div class="select-input" class:disabled={disabled} class:single={sanitizedOptions.length === 1}>
+<div
+    class="select-input"
+    class:disabled={disabled}
+    class:single={sanitizedOptions.length === 1}
+>
     <div class="container">
-        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled} {title}>
+        <select class="select" bind:this={node} on:change {name} {disabled} {title} bind:value={value}>
             {#each sanitizedOptions as option}
                 <option value={option.value} selected={value === option.value} disabled={option.disabled}>{option.label}</option>
             {/each}

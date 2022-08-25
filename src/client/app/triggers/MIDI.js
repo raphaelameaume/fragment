@@ -1,25 +1,24 @@
 import Trigger from "./Trigger";
 import MIDI from "../inputs/MIDI.js";
 import { addToMapArray, removeFromMapArray } from "../utils";
+import { wildcard, getContext } from "./shared";
 
-const wildcard = "*";
 const noteons = new Map();
 const noteoffs = new Map();
 const numberons = new Map();
 const numberoffs = new Map();
 const controlchanges = new Map();
 
-export const removeHotListeners = (key) => {
+/**
+ * Remove listeners from a specific context
+ * @param {string} context 
+ */
+export const removeHotListeners = (context) => {
     function removeHotFrom(collection) {
-        const triggers = collection.get(key);
-
-        if (triggers && triggers.length > 0) {
-            const hotListeners = triggers.filter(t => t.hot);
-            const rest = triggers.filter(t => !t.hot);
-
-            hotListeners.forEach(t => t.destroy());
-
-            collection.set(key, rest);
+        for (let trigger of collection) {
+            const [key, triggers] = trigger;
+            
+            collection.set(key, triggers.filter((trigger) => trigger.context !== context));
         }
     }
 
@@ -30,6 +29,12 @@ export const removeHotListeners = (key) => {
     removeHotFrom(controlchanges);
 };
 
+/**
+ * Check all registered listeners for a specific key
+ * @param {Map} collection 
+ * @param {function} getKey 
+ * @returns {function} listener
+ */
 function createEventListener(collection, getKey = (event) => event.key) {
     return (event) => {
         const key = getKey(event);
@@ -48,6 +53,12 @@ function createEventListener(collection, getKey = (event) => event.key) {
     };
 }
 
+/**
+ * Create a registering function for a specific event
+ * @param {string} eventName 
+ * @param {Map} collection 
+ * @returns {function} createListener 
+ */
 function createTrigger(eventName, collection) {
     return (key, fn, options = {}) => {
         if (typeof key === "function") {
@@ -61,26 +72,31 @@ function createTrigger(eventName, collection) {
             fn = key;
             key = "*";
 
-            if (typeof options.key === 'string') {
+            if (options.key) {
                 key = options.key;
             }
         }
 
         const { hot, enabled, ...params } = options;
+        const keys = Array.isArray(key) ? key : [key];
 
-        let keys = key.split('').includes(',') ? key.split(',') : [key];
-        keys = keys.filter((k) => k !== '');
-        
+        if (!MIDI.enabled) {
+            MIDI.request();
+        }
+
+        const context = getContext();
+
         const trigger = new Trigger({
             inputType: 'MIDI',
             eventName,
             fn,
             params: {...params, key: keys },
             hot,
+            context,
             enabled,
             destroy : () => {
-                keys.forEach((k) => {
-                    removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+                keys.forEach((key) => {
+                    removeFromMapArray(collection, key, (item) => item.id === trigger.id);
                 });
             }
         });
@@ -95,9 +111,9 @@ function createTrigger(eventName, collection) {
 
 MIDI.addEventListener("noteon", createEventListener(noteons, (event) => event.note.name));
 MIDI.addEventListener("noteoff", createEventListener(noteoffs, (event) => event.note.name));
-MIDI.addEventListener("noteon", createEventListener(numberons, (event) => String(event.note.number)));
-MIDI.addEventListener("noteoff", createEventListener(numberoffs, (event) => String(event.note.number)));
-MIDI.addEventListener("controlchange", createEventListener(controlchanges, (event) => String(event.note.number)));
+MIDI.addEventListener("noteon", createEventListener(numberons, (event) => event.note.number));
+MIDI.addEventListener("noteoff", createEventListener(numberoffs, (event) => event.note.number));
+MIDI.addEventListener("controlchange", createEventListener(controlchanges, (event) => event.note.number));
 
 export const onNoteOn = createTrigger('onNoteOn', noteons);
 export const onNoteOff = createTrigger('onNoteOff', noteoffs);

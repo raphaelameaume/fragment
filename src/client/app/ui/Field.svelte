@@ -16,12 +16,33 @@ import FieldTriggers from "./FieldTriggers.svelte";
 import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
+import frameDebounce from "../lib/helpers/frameDebounce.js";
+import { getPersistentStore } from "../stores/utils";
+import { writable } from "svelte/store";
 
 export let key = '';
 export let value = null;
 export let context = null;
 export let params = {};
 export let type = null;
+
+let offsetWidth;
+let showTriggers = false;
+let persist = true;
+
+const store = getPersistentStore(context, !persist, { props: {}});
+if (!$store.props[key]) {
+    $store.props[key] = { triggers: [] };
+}
+
+let triggers = writable($store.props[key].triggers.filter((trigger) => trigger.inputType !== undefined));
+triggers.subscribe((all) => {
+    store.update((curr) => {
+        curr.props[key].triggers = all;
+
+        return curr;
+    });
+})
 
 const dispatch = createEventDispatcher();
 const fields = {
@@ -66,26 +87,38 @@ const onTriggers = {
 };
 
 $: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
-$: settings = {...params};
-$: onTrigger = onTriggers[fieldType];
+$: fieldProps = composeFieldProps(params);
+$: onTrigger = frameDebounce(onTriggers[fieldType]);
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 $: disabled = params.disabled;
-
+$: triggerable = params.triggerable !== false && (
+    (fieldType === "number" && isFinite(params.min) && isFinite(params.max)) ||
+    (fieldType === "button")
+);
 $: {
     if (fieldType === "download" || fieldType === "button") {
         if (params.label === undefined) {
-            settings.label = fieldType === "download" ? "download" : "run";
+            fieldProps.label = fieldType === "download" ? "download" : "run";
         }
     }
 }
-
-let offsetWidth;
-let secondaryVisible = false;
-
 $: xxsmall = offsetWidth < 200;
 $: xsmall = !xxsmall && offsetWidth < 260;
 $: small = !xxsmall && !xsmall && offsetWidth < 320;
+$: triggersActive = $triggers.length > 0;
+
+function toggleTriggers(event) {
+    event.preventDefault();
+
+    showTriggers = !showTriggers;
+}
+
+function composeFieldProps(params) {
+    const { triggerable, controllable, ...rest } = params;
+
+    return rest;
+}
 
 </script>
 
@@ -96,21 +129,24 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
     class:small={small}
     bind:offsetWidth={offsetWidth}
 >
-    <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
+    <FieldSection name={key} label={label} interactive={triggerable} on:click={toggleTriggers}>
         <div slot="infos" class="field__actions">
-            {#if params.triggers && params.triggers.length && !disabled }
-                <button class="field__action field__action--triggers">
-                    <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"></path>
-                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
-                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
+            {#if triggerable && !disabled }
+                <button
+                    on:click={toggleTriggers}
+                    class="field__action field__action--triggers"
+                    class:active={triggersActive}>
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"/>
+                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
                     </svg>
                 </button>
             {/if}
-            {#if (type === "vec2" || type === "vec3") && !disabled }
+            {#if (fieldType === "vec2" || fieldType === "vec3") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
                     {#if params.locked}
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -129,18 +165,20 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
         <svelte:component
             this={input}
             {value}
-            {...settings}
+            {...fieldProps}
             on:change={(e) => dispatch('change', e.detail)}
             on:click={onTrigger}
         />
         <slot></slot>
     </FieldSection>
-    {#if onTrigger }
-        <FieldSection visible={secondaryVisible} secondary>
+    {#if triggerable }
+        <FieldSection visible={showTriggers} secondary>
             <FieldTriggers
-                {key}
+                {triggers}
                 {onTrigger}
                 {context}
+                triggerable={fieldType === "button"}
+                controllable={fieldType === "number"}
             />
         </FieldSection>
     {/if}
@@ -175,17 +213,44 @@ $: small = !xxsmall && !xsmall && offsetWidth < 320;
     align-items: center;
 }
 
-.field__action--triggers .action__icon {
-    transform: rotate(90deg);
-}
-
 .field__action {
     display: flex;
     align-items: center;
 
     background: transparent;
-    opacity: 0.5;
     transition: opacity 0.1s ease;
+}
+
+.field__action:hover {
+    opacity: 1;
+}
+
+.field__action--triggers {
+    --background-color: rgba(255, 255, 255, 0.5);
+
+    position: relative;
+
+    width: 16px;
+    height: 16px;
+
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.field__action--triggers:not(.active) {
+    display: none;
+}
+
+.field__action {
+    color: var(--color-text);
+
+    opacity: 0.6;
+    background-color: transparent;
+    transition: opacity 0.1s ease;
+}
+
+.field__action--triggers svg {
+    transform: rotate(90deg);
 }
 
 .field__action:hover {

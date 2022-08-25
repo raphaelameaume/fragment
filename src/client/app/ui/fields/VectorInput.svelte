@@ -69,7 +69,6 @@ function onValueChange(index, newValue) {
     <FieldInputRow --grid-template-columns={currentValue.map(() => "1fr").join(" ")}>
         {#each currentValue as curr, index}
             <NumberInput
-                controlled
                 {min}
                 {max}
                 {step}

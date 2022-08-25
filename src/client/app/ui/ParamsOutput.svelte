@@ -127,7 +127,7 @@ $: {
 {#if $rendering.resizing !== SIZES.PRESET }
 <Field
     key="pixelRatio"
-    value={$rendering.pixelRatio}
+    value={Number($rendering.pixelRatio)}
     on:change={(event) => $rendering.pixelRatio = event.detail }
     params={{
         step: 0.1,

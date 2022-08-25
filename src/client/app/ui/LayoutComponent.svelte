@@ -180,9 +180,10 @@ function deleteCurrent() {
 }
 
 function handleModuleChange(event) {
-	$children[0].name = event.detail; // keep state when replacingChildren
+	const moduleName = event.currentTarget.value;
+	$children[0].name = moduleName; // keep state when replacingChildren
 	updateModule($module, {
-		name: event.detail,
+		name: moduleName,
 	});
 }
 

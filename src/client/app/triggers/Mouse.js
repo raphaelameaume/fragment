@@ -1,31 +1,26 @@
-import { get } from "svelte/store";
 import Trigger from "./Trigger";
-import Mouse from "../inputs/Mouse";
+import { wildcard, getContext } from "./shared.js";
 import { addToMapArray, removeFromMapArray } from "../utils";
 
 window.mouseIsPressed = false;
 window.mouseX = 0;
 window.mouseY = 0;
 
-const wildcard = "*";
-
 const downs = new Map();
 const ups = new Map();
 const moves = new Map();
 const clicks = new Map();
 
-export let sketchFiles = [];
-
-export const reset = (key) => {
-    downs.delete(key);
-    ups.delete(key);
-    moves.delete(key);
-    clicks.delete(key);
+export const reset = (context) => {
+    downs.delete(context);
+    ups.delete(context);
+    moves.delete(context);
+    clicks.delete(context);
 }
 
-export const removeHotListeners = (key) => {
+export const removeHotListeners = (context) => {
     function removeHotFrom(collection) {
-        const triggers = collection.get(key);
+        const triggers = collection.get(context);
 
         if (triggers && triggers.length > 0) {
             const hotListeners = triggers.filter(t => t.hot);
@@ -33,7 +28,7 @@ export const removeHotListeners = (key) => {
 
             hotListeners.forEach(t => t.destroy());
 
-            collection.set(key, rest);
+            collection.set(context, rest);
         }
     }
 
@@ -43,12 +38,7 @@ export const removeHotListeners = (key) => {
     removeHotFrom(clicks);
 };
 
-export const assignSketchFiles = (files) => {
-    sketchFiles.push(...files);
-}
-
 const checkForTriggers = (collection, event, scope) => {
-
     const triggers = [
         ...(collection.has(scope) ? collection.get(scope) : []),
         ...(collection.has(wildcard) ? collection.get(wildcard) : []),
@@ -68,30 +58,7 @@ const createTrigger = (eventName, collection) => {
     return (fn, { context, hot, enabled } = {}) => {
         try {
             if (!context) {
-                const { stack } = new Error();
-                const { url } = import.meta;
-
-                const callstack = stack.split('\n');
-                const index = callstack.findIndex((call) => call.includes(url));
-
-                if (index >= 0) {
-                    callstack.splice(0, index + 1);
-                }
-
-                for (let i = 0; i < callstack.length; i++) {
-                    for (let j = 0; j < sketchFiles.length; j++) {
-                        const sketchFile = sketchFiles[j];
-
-                        if (callstack[i].includes(sketchFile)) {
-                            context = sketchFile;
-                            break;
-                        }
-                    }
-                }
-
-                if (!context) {
-                    context = wildcard;
-                }
+                context = getContext();
             }
 
             const trigger = new Trigger({
@@ -99,6 +66,7 @@ const createTrigger = (eventName, collection) => {
                 eventName,
                 fn,
                 params: { context },
+                context,
                 hot,
                 enabled,
                 destroy: () => {

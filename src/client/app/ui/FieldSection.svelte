@@ -1,16 +1,16 @@
 <script>
 export let visible = true;
 export let secondary = false;
+export let interactive = false;
 export let label = "";
 export let name = "";
-export let onClickLabel = () => {};
 </script>
 
 <div class="field__section" class:visible={visible} class:secondary={secondary} class:no-label={label === null}>
-    <div class="field__infos" on:click={onClickLabel}>
-        {#if label !== null }
-            {#if name !== ""}
-                <label class="field__label" for={name}>{label}</label>
+    <div class="field__infos">
+        {#if label !== null}
+            {#if interactive}
+                <button class="field__label" on:click>{label}</button>
             {:else}
                 <span class="field__label">{label}</span>
             {/if}
@@ -74,11 +74,23 @@ export let onClickLabel = () => {};
 }
 
 .field__label {
+    color: inherit;
     font-size: var(--font-size-input);
     user-select: none;
 
     opacity: 0.6;
+    background-color: transparent;
     transition: opacity 0.1s ease;
+}
+
+button.field__label {
+    cursor: pointer;
+}
+
+.field__label:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 2px var(--color-text);
+    border-radius: 2px;
 }
 
 .field__section.secondary {

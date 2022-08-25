@@ -1,23 +1,18 @@
 import Trigger from "./Trigger";
 import Keyboard from "../inputs/Keyboard";
+import { wildcard, getContext } from "./shared";
 import { addToMapArray, removeFromMapArray } from "../utils";
 
-const wildcard = "*";
 const pressedKeys = new Map();
 const upKeys = new Map();
 const downKeys = new Map();
 
-export const removeHotListeners = (key) => {
+export const removeHotListeners = (context) => {
     function removeHotFrom(collection) {
-        const triggers = collection.get(key);
-
-        if (triggers && triggers.length > 0) {
-            const hotListeners = triggers.filter(t => t.hot);
-            const rest = triggers.filter(t => !t.hot);
-
-            hotListeners.forEach(t => t.destroy());
-
-            collection.set(key, rest);
+        for (let trigger of collection) {
+            const [key, triggers] = trigger;
+            
+            collection.set(key, triggers.filter((trigger) => trigger.context !== context));
         }
     }
 
@@ -58,32 +53,33 @@ function createTrigger(eventName, collection) {
             fn = key;
             key = "*";
 
-            if (typeof options.key === 'string') {
+            if (options.key) {
                 key = options.key;
             }
         }
 
         const { hot, enabled, ...params } = options;
+        const context = getContext();
 
-        let keys = key.split('').includes(',') ? key.split(',') : [key];
-        keys = keys.filter((k) => k !== '');
+        const keys = Array.isArray(key) ? key : [key];
         
         const trigger = new Trigger({
             inputType: 'Keyboard',
             eventName,
             fn,
-            params: {...params, key },
+            context,
+            params: {...params, key: keys },
             hot,
             enabled,
             destroy: () => {
-                keys.forEach((k) => {
-                    removeFromMapArray(collection, k, (item) => item.id === trigger.id);
+                keys.forEach((key) => {
+                    removeFromMapArray(collection, key, (item) => item.id === trigger.id);
                 });
             }
         });
 
-        keys.forEach(k => {
-            addToMapArray(collection, k, trigger);
+        keys.forEach(key => {
+            addToMapArray(collection, key, trigger);
         });
 
         return trigger;

@@ -33,7 +33,7 @@ $: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		<Field
 			key="quality"
 			value={$exports.imageQuality}
-			params={{ min: 1, max: 100, suffix: "%" }}
+			params={{ min: 1, max: 100, suffix: "%", triggerable: false }}
 			on:change={((e) => {
 				$exports.imageQuality = e.detail;
 			})}
@@ -49,7 +49,7 @@ $: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		<Field
 			key="screenshot"
 			value={capture}
-			params={{ label: "capture" }}
+			params={{ label: "capture", triggerable: false }}
 		/>
 	</FieldGroup>
 	<FieldGroup name="video">
@@ -71,7 +71,7 @@ $: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		<Field
 			key="quality"
 			value={$exports.videoQuality}
-			params={{ min: 1, max: 100, step: 1, suffix: "%" }}
+			params={{ min: 1, max: 100, step: 1, suffix: "%", triggerable: false }}
 			on:change={((e) => {
 				$exports.videoQuality = e.detail;
 			})}
@@ -96,7 +96,7 @@ $: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		<Field
 			key="record"
 			value={record}
-			params={{ label: recordLabel }}
+			params={{ label: recordLabel, triggerable: false }}
 		/>
 	</FieldGroup>
 </Module>
