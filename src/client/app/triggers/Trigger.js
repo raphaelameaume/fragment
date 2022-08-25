@@ -13,7 +13,7 @@ class Trigger {
         eventName,
         fn,
         context,
-        params = { keys: [] },
+        params = { key: [] },
         destroy = () => {},
         enabled = typeof inputType === "string" && typeof eventName === "string",
         hot = true,
