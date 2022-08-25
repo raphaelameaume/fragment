@@ -18,6 +18,9 @@ import OutputParams from "../ui/ParamsOutput.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import { monitors } from "../stores/rendering";
 
+export let mID;
+export let hasHeader = true;
+
 let id = ID++;
 let selected = id;
 let sketchKey, sketchProps = {};
@@ -57,7 +60,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
 
 </script>
 
-<Module name={`Parameters`}>
+<Module {mID} name={`Parameters`} slug="params" {hasHeader}>
     <div slot="header-right">
         {#if options.length > 1 }
         <ModuleHeaderAction

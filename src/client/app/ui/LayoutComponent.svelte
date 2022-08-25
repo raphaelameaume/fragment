@@ -8,7 +8,8 @@ import { writable } from "svelte/store";
 import { addChildren, addSibling, layout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
 import Toolbar from "./LayoutToolbar.svelte";
 import Resizer from "./LayoutResizer.svelte";
-import ModuleRendererNew, { getModuleID }  from "./ModuleRenderer.svelte";
+import { getModuleID } from "./Module.svelte"; 
+import ModuleRenderer  from "./ModuleRenderer.svelte";
 
 export let size = 1;
 export let type = "column";
@@ -124,6 +125,8 @@ function addComponent(newType) {
 		]
 	});
 
+	
+
 	if (isSibling) {
 		if (isRoot) {
 			const newSibling = createComponent({
@@ -182,6 +185,8 @@ function deleteCurrent() {
 function handleModuleChange(event) {
 	const moduleName = event.currentTarget.value;
 	$children[0].name = moduleName; // keep state when replacingChildren
+
+	console.log("moduleName", moduleName);
 	updateModule($module, {
 		name: moduleName,
 	});
@@ -207,13 +212,13 @@ $: minimized = current.minimized;
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRendererNew name={child.name} mID={child.mID} />
+				<ModuleRenderer {...child} />
 			{/if}
 		{/each}
 	{:else}
 		<slot></slot>
 	{/if}
-	{#if $layout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
+	{#if $layout.editing && (($children.length === 1 && $children[0].type === "module") || $children.length === 0 || isRoot) }
 	<Toolbar
 		{isRoot}
 		moduleName={$children[0].name}

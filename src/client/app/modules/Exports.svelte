@@ -5,6 +5,8 @@ import FieldGroup from "../ui/FieldGroup.svelte";
 import { exports } from "../stores";
 import { recording, capturing, IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
 
+export let mID;
+
 const LABEL_RECORD = "start";
 const LABEL_RECORDING = "stop";
 
@@ -20,7 +22,7 @@ $: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 
 </script>
 
-<Module name="exports">
+<Module {mID} name="exports">
 	<FieldGroup name="image">
 		<Field
 			key="encoding"

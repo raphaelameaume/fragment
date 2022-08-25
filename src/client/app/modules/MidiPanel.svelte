@@ -4,6 +4,8 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import MIDI from "../inputs/MIDI.js";
 
+export let mID;
+
 let input, output;
 let inputs = [], outputs = [];
 
@@ -75,7 +77,7 @@ onMount(async () => {
 
 </script>
 
-<Module name="MIDI" {...$$props}>
+<Module {mID} name="MIDI" {...$$props} slug="midi">
     <Field
         key="inputs"
         value={input}

@@ -1,6 +1,7 @@
 <script>
 import Root from "./LayoutRoot.svelte";
 import Column from "./LayoutColumn.svelte"; 
+import Build from "./Build.svelte";
 import Row from "./LayoutRow.svelte"; 
 import ModuleRenderer from "./ModuleRenderer.svelte";
 import { layout } from "../stores/layout.js";
@@ -13,6 +14,9 @@ function toggleEdition() {
 </script>
 
 <Root>
+	{#if __PRODUCTION__}
+		<Build />
+	{:else}
 	<Row size={1}>
 		<Column size={0.65}>
 			<ModuleRenderer name="monitor" />
@@ -26,8 +30,11 @@ function toggleEdition() {
 			</Row>
 		</Column>
 	</Row>
+	{/if}
 </Root>
-<KeyBinding key="w" on:trigger={toggleEdition} />
+{#if !__PRODUCTION__}
+	<KeyBinding key="w" on:trigger={toggleEdition} />
+{/if}
 {#if $layout.editing}
 	<KeyBinding key="Escape" type="down" on:trigger={toggleEdition} />
 {/if}

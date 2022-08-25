@@ -11,6 +11,9 @@ import SketchSelect from "../ui/SketchSelect.svelte";
 import { current as currentSketches } from "../stores/sketches.js";
 import { monitors } from "../stores/rendering";
 
+export let mID;
+export let hasHeader = true;
+
 let id = ID++;
 let name = "monitor";
 let selected = $currentSketches[Math.min(id, $currentSketches.length - 1)];
@@ -39,10 +42,9 @@ onDestroy(() => {
 
 $: index = $monitors.findIndex(monitor => monitor.id === id);
 $: moduleName = `${name} ${$monitors.length > 1 ? (index + 1) : ""}`;
-$: hasHeader = !__PRODUCTION__;
 </script>
 
-<Module name={moduleName} {hasHeader} scrollable={false}>
+<Module {mID} slug="monitor" name={moduleName} {hasHeader} scrollable={false}>
     <svelte:fragment slot="header-right">
         <SketchSelect
             monitorID={id}

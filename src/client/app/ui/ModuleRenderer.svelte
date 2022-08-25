@@ -6,28 +6,19 @@ export let moduleNames = [
     "console",
     "exports",
 ];
-
-let MODULE_ID = 0; 
-
-export let getModuleID = () => {
-    return MODULE_ID++;
-};
-
 </script>
 
 <script>
 import Monitor from "../modules/Monitor.svelte";
 import Console from "../modules/Console.svelte";
-import Output from "../modules/Output.svelte";
 import Params from "../modules/Params.svelte";
 import MidiPanel from "../modules/MidiPanel.svelte";
 import Exports from "../modules/Exports.svelte";
-import { getContext } from "svelte";
-
-const parent = getContext('parent');
+import Module from "./Module.svelte";
 
 export let mID = undefined;
 export let name;
+export let hasHeader = true;
 
 const moduleList = {
     "monitor": Monitor,
@@ -35,24 +26,13 @@ const moduleList = {
     "midi": MidiPanel,
     "console": Console,
     "exports": Exports,
-    "output": Output,
 };
 
 $: component = moduleList[name];
-
-const current = {
-    mID: !isNaN(mID) ? mID : MODULE_ID++,
-    type: "module",
-    name,
-};
-
-MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
-
-parent.registerChild(current);
-
-const m = getContext('module');
-m.set(current);
-
 </script>
 
-<svelte:component this={component} />
+{#if component}
+    <svelte:component this={component} {mID} {hasHeader} />
+{:else}
+    <Module hasHeader={false} {mID}/>
+{/if}
