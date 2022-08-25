@@ -30,9 +30,6 @@ function createDeviceOptions(deviceMap = new Map()) {
     return options;
 }
 
-let prevInput = "";
-let prevOutput = "";
-
 let messages = [];
 
 $: {

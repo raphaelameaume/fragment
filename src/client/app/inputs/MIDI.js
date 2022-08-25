@@ -8,16 +8,24 @@ const commands = {
 
 const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
+const LOCAL_STORAGE_KEY = "midi.requested";
+
 class MIDI extends Input {
 
 	constructor() {
 		super();
 
 		this.access = null;
+		this.requesting = false;
+		this.enabled = false;
 
 		this.listeners = new Map();
 		this.selectedInputID = null;
 		this.selectedOutputID = null;
+
+		if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+			this.request();
+		}
 	}
 
 	get inputs() {
@@ -29,9 +37,22 @@ class MIDI extends Input {
 	}
 
 	start() {
-		console.log("start");
 		this.access.onstatechange = (event) => this.onStateChange(event);
 		this.attachListeners();
+
+		if (this.inputs.size === 1) {
+			const [entry] = this.inputs.values();
+			const { id } = entry; 
+
+			this.selectedInputID = id;
+		}
+
+		if (this.outputs.size === 1) {
+			const [entry] = this.outputs.values();
+			const { id } = entry; 
+
+			this.selectedOutputID = id;
+		}
 	}
 
 	attachListeners() {
@@ -88,8 +109,6 @@ class MIDI extends Input {
 	onStateChange(e) {
 		const event = e.port.state;
 
-		console.log(event, e);
-
 		this.emit(event, e);
 		this.attachListeners();
 	}
@@ -108,8 +127,12 @@ class MIDI extends Input {
 
 	async request() {
 		try {
-			if (!this.access) {
-				this.access = await navigator.requestMIDIAccess()
+			if (!this.requesting && !this.access) {
+				localStorage.setItem(LOCAL_STORAGE_KEY, true);
+				this.requesting = true;
+				this.access = await navigator.requestMIDIAccess();
+				this.enabled = true;
+				this.requesting = false;
 				this.start();
 			}
 		} catch(error) {

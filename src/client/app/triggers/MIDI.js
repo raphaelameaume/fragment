@@ -69,6 +69,10 @@ function createTrigger(eventName, collection) {
         const { hot, enabled, ...params } = options;
         const keys = Array.isArray(key) ? key : [key];
 
+        if (!MIDI.enabled) {
+            MIDI.request();
+        }
+
         const trigger = new Trigger({
             inputType: 'MIDI',
             eventName,
