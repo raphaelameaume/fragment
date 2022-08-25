@@ -12,6 +12,7 @@ class Trigger {
         inputType,
         eventName,
         fn,
+        context,
         params = { keys: [] },
         destroy = () => {},
         enabled = typeof inputType === "string" && typeof eventName === "string",
@@ -21,6 +22,7 @@ class Trigger {
         this.inputType = inputType;
         this.eventName = eventName;
         this.fn = fn;
+        this.context = context;
         this.params = params;
         this.enabled = enabled;
         this.hot = hot;

@@ -18,6 +18,4 @@ class Keyboard extends Input {
 
 }
 
-
-
 export default new Keyboard();

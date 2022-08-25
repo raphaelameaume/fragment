@@ -1,23 +1,18 @@
 import Trigger from "./Trigger";
 import Keyboard from "../inputs/Keyboard";
+import { wildcard, getContext } from "./shared";
 import { addToMapArray, removeFromMapArray } from "../utils";
 
-const wildcard = "*";
 const pressedKeys = new Map();
 const upKeys = new Map();
 const downKeys = new Map();
 
-export const removeHotListeners = (key) => {
+export const removeHotListeners = (context) => {
     function removeHotFrom(collection) {
-        const triggers = collection.get(key);
-
-        if (triggers && triggers.length > 0) {
-            const hotListeners = triggers.filter(t => t.hot);
-            const rest = triggers.filter(t => !t.hot);
-
-            hotListeners.forEach(t => t.destroy());
-
-            collection.set(key, rest);
+        for (let trigger of collection) {
+            const [key, triggers] = trigger;
+            
+            collection.set(key, triggers.filter((trigger) => trigger.context !== context));
         }
     }
 
@@ -64,6 +59,7 @@ function createTrigger(eventName, collection) {
         }
 
         const { hot, enabled, ...params } = options;
+        const context = getContext();
 
         const keys = Array.isArray(key) ? key : [key];
         
@@ -71,6 +67,7 @@ function createTrigger(eventName, collection) {
             inputType: 'Keyboard',
             eventName,
             fn,
+            context,
             params: {...params, key: keys },
             hot,
             enabled,
