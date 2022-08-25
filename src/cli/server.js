@@ -85,12 +85,20 @@ export async function start({ options, filepaths, entries, fragment }) {
     });
 
     if (options.build) {
+        const outDir = options.outDir ? options.outDir :
+            entries.length === 1 ? entries[0].split('.js')[0] :
+            'dist';
+
         await build({
             ...config,
+            logLevel: "info",
             build: {
-                outDir: path.join(process.cwd(), options.outDir),
+                outDir: path.join(process.cwd(), outDir),
             }
         });
+
+        log.success(`Built files for:`);
+        entries.forEach(entry => console.log(`- ${entry}`));
     } else {
         log.warning(`Starting server...`);
         const server = await createServer(config);

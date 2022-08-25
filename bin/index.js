@@ -11,7 +11,7 @@ sade('fragment [entry]')
     .option('-p, --port', 'Port to bind', 3000)
     .option('-dev, --development', 'Enable development mode', false)
     .option('-b, --build', 'Export sketch to static files', false)
-    .option('--outDir', 'Directory used for static build', 'dist')
+    .option('--outDir', 'Directory used for static build', null)
     .action((entry, options) => {
         run(entry, options);
     })
