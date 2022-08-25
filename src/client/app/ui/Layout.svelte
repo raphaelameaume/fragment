@@ -11,10 +11,14 @@ function toggleEdition() {
 	$layout.editing = !$layout.editing;
 }
 
+function togglePreview() {
+	$layout.previewing = !$layout.previewing;
+}
+
 </script>
 
 <Root>
-	{#if __PRODUCTION__}
+	{#if __PRODUCTION__ || $layout.previewing }
 		<Build />
 	{:else}
 	<Row size={1}>
@@ -34,6 +38,7 @@ function toggleEdition() {
 </Root>
 {#if !__PRODUCTION__}
 	<KeyBinding key="w" on:trigger={toggleEdition} />
+	<KeyBinding key="p" on:trigger={togglePreview} />
 {/if}
 {#if $layout.editing}
 	<KeyBinding key="Escape" type="down" on:trigger={toggleEdition} />

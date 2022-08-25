@@ -10,6 +10,7 @@ import Toolbar from "./LayoutToolbar.svelte";
 import Resizer from "./LayoutResizer.svelte";
 import { getModuleID } from "./Module.svelte"; 
 import ModuleRenderer  from "./ModuleRenderer.svelte";
+import Preview from "./Preview.svelte";
 
 export let size = 1;
 export let type = "column";
@@ -209,12 +210,14 @@ $: minimized = current.minimized;
 	bind:this={current.node}
 	bind:offsetWidth={offsetWidth}
 >
-	{#if tree && Array.isArray(tree.children) && tree.children.length > 0 }
+	{#if isRoot && $layout.previewing}
+		<Preview />
+	{:else if tree && Array.isArray(tree.children) && tree.children.length > 0 }
 		{#each tree.children as child (child.id) }
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRenderer {...child} />
+				<ModuleRenderer name={child.name} mID={child.mID} hasHeader={child.hasHeader} />
 			{/if}
 		{/each}
 	{:else}

@@ -6,6 +6,7 @@ export const tree = getPersistentStore("layout.current", __PRODUCTION__, {});
 
 export const layout = writable({
     editing: false,
+    previewing: false,
     registerChild: (component, children) => {
         onMount(() => {
             component.children = children();
