@@ -86,6 +86,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                 <Field key="duration" value={sketch.duration} params={{disabled: true, suffix: "s"}}/>
             {/if }
             {#each Object.keys(sketchProps) as key, i}
+                {#if !sketchProps[key].hidden}
                 <Field
                     context={sketchKey}
                     key={key}
@@ -103,6 +104,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                         }
                     }}
                 />
+                {/if}
             {/each}
         {/if}
     {/if}
