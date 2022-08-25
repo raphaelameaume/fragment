@@ -20,6 +20,7 @@ import { monitors } from "../stores/rendering";
 
 export let mID;
 export let hasHeader = true;
+export let output = true;
 
 let id = ID++;
 let selected = id;
@@ -72,14 +73,16 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
         />
         {/if }
     </div>
-    {#if showOutputParams }
+    {#if showOutputParams && output }
         <OutputParams />
     {/if}
 
     {#if sketch }
         {#if typeof props === "object"}
-            <Field key="framerate" value={isFinite(sketch.fps) ? sketch.fps : 60} params={{disabled: true}}/>
-            {#if sketch.duration && sketch.duration > 0 }
+            {#if output}
+                <Field key="framerate" value={isFinite(sketch.fps) ? sketch.fps : 60} params={{disabled: true}}/>
+            {/if}
+            {#if sketch.duration && sketch.duration > 0 && output }
                 <Field key="duration" value={sketch.duration} params={{disabled: true, suffix: "s"}}/>
             {/if }
             {#each Object.keys(sketchProps) as key, i}

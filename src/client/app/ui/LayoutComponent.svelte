@@ -82,7 +82,9 @@ if (parent) {
 	parent.registerChild(current);
 }
 
-$layout.registerChild(current, () => $children);
+if (!__PRODUCTION__) {
+	$layout.registerChild(current, () => $children);
+}
 
 $: {
 	let property = ``, value = ``;

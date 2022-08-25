@@ -16,8 +16,6 @@ export let slug = name;
 export let scrollable = true;
 export let hasHeader = true;
 
-console.log("Module", {name, hasHeader})
-
 const parent = getContext('parent');
 
 const current = {
@@ -120,6 +118,8 @@ m.set(current);
 
 .module__container {
     position: relative;
+
+    background-color: var(--color-background);
 }
 
 .module.scrollable .module__container {
