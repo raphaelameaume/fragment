@@ -2,7 +2,7 @@
 
 # Using triggers
 
-Triggers are functions you can call imperatively from your sketch file to make it *interactive*. They can also be triggered when a prop changes when setted up through the UI.
+Triggers are functions you can call imperatively from your sketch file to make it *interactive*. They can also be assigned on a prop through the UI.
 
 ## From a sketch
 
@@ -34,4 +34,4 @@ Triggers can also added on specific type of fields from the UI, by clicking on t
 
 They are saved in localStorage so they persist between refreshs. This is useful when you want to quickly test or prototype values.
 
-![Screen capture of Fragment, displaying a "color" field with the triggers UI opened and 3 triggers (onMouseDown, onKeyDown and onNoteOn setted](https://github.com/raphaelameaume/fragment/raw/triggers-filtering/triggers.png "Screen Capture of Fragment UI for triggers")
+![Screen capture of Fragment, displaying a "color" field with the triggers UI opened and 3 triggers (onMouseDown, onKeyDown and onNoteOn setted](https://github.com/raphaelameaume/fragment/blob/triggers-filtering/docs/guide/triggers.png?raw=true "Screen Capture of Fragment UI for triggers")
