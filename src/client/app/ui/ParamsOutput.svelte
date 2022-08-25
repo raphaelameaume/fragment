@@ -65,7 +65,7 @@ $: {
     key="canvasSize"
     value={$rendering.resizing}
     on:change={(event) => {
-        const resizing = event.detail;
+        const resizing = event.currentTarget.value;
         let aspectRatio = 1;
 
         if (resizing === SIZES.ASPECT_RATIO) {

@@ -166,7 +166,7 @@ function composeFieldProps(params) {
             this={input}
             {value}
             {...fieldProps}
-            on:change={(e) => dispatch('change', e.detail)}
+            on:change
             on:click={onTrigger}
         />
         <slot></slot>
