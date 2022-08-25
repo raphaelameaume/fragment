@@ -111,9 +111,9 @@ function createTrigger(eventName, collection) {
 
 MIDI.addEventListener("noteon", createEventListener(noteons, (event) => event.note.name));
 MIDI.addEventListener("noteoff", createEventListener(noteoffs, (event) => event.note.name));
-MIDI.addEventListener("noteon", createEventListener(numberons, (event) => String(event.note.number)));
-MIDI.addEventListener("noteoff", createEventListener(numberoffs, (event) => String(event.note.number)));
-MIDI.addEventListener("controlchange", createEventListener(controlchanges, (event) => String(event.note.number)));
+MIDI.addEventListener("noteon", createEventListener(numberons, (event) => event.note.number));
+MIDI.addEventListener("noteoff", createEventListener(numberoffs, (event) => event.note.number));
+MIDI.addEventListener("controlchange", createEventListener(controlchanges, (event) => event.note.number));
 
 export const onNoteOn = createTrigger('onNoteOn', noteons);
 export const onNoteOff = createTrigger('onNoteOff', noteoffs);

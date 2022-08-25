@@ -90,7 +90,11 @@ function onEventChange(event) {
 }
 
 function onTextChange(e) {
-    params.key = e.currentTarget.value.split(',');
+    const castToNumber = ["onControlChange", "onNumberOn", "onNumberOff"].includes(eventName);
+
+    params.key = e.currentTarget.value.split(',').map((value) => {
+        return castToNumber ? Number(value) : value;
+    });
 
     registerTrigger();
 }
