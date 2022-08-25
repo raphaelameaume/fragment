@@ -54,7 +54,7 @@ $: {
         key="sampler0"
         value={sampler0}
         on:change={event => {
-            sampler0 = Number(event.detail);
+            sampler0 = Number(event.currentTarget.value);
         }}
         params={
             {
@@ -82,7 +82,7 @@ $: {
         key="type"
         value={$transition}
         on:change={(event) => {
-            $transition = event.detail;
+            $transition = event.currentTarget.value;
         }}
         params={{
             options: transitionOptions,
