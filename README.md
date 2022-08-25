@@ -83,9 +83,6 @@ Learn how to write your own sketch in the [API docs](./docs/api/sketch.md) or re
 ## Contributing
 
 If you find issues, please [file one](https://github.com/raphaelameaume/fragment/issues) with details on how to reproduce it.
-
-As for new features, I'm not looking into contributors for now, I'm moving at my own pace on this personal project.
-
 Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you want to discuss the project.
 
 ## Credits
