@@ -79,7 +79,8 @@ const onTriggers = {
 
         if (isValueInRange && isFinite(params.min) && isFinite(params.max)) {
             let v = map(event.value, 0, 1, params.min, params.max);
-            let value = Math.round(v * (1 / params.step)) / (1 / params.step);
+            let step = params.step ? params.step : 1;
+            let value = Math.round(v * (1 / step)) / (1 / step);
 
             dispatch('change', value);
         }
