@@ -12,6 +12,7 @@ import { removeHotListeners } from "../triggers/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
+import { getDimensionsForPreset } from "../lib/presets";
 
 export let key;
 export let id = 0;
@@ -133,6 +134,8 @@ async function createSketch(key) {
 
     if (sketch.backgroundColor) {
         backgroundColor = sketch.backgroundColor;
+    } else {
+        backgroundColor = "inherit";
     }
 
     if (__PRODUCTION__) {
@@ -147,6 +150,39 @@ async function createSketch(key) {
             const { dimensions } = buildConfig;
             overrides.width = dimensions[0];
             overrides.height = dimensions[1];
+        }
+
+        if (resizing === SIZES.PRESET) {
+            if (buildConfig.preset) {
+                const [ width, height ] = getDimensionsForPreset(buildConfig.preset, { pixelsPerInch: 300 });
+
+                overrides.width = width;
+                overrides.height = height;
+            } else {
+                overrides.resizing = SIZES.WINDOW;
+                console.warn(`Cannot apply canvasSize preset if 'preset' is not specified in buildConfig.`);
+            }
+        }
+
+        if (resizing === SIZES.ASPECT_RATIO) {
+            if (isNaN(buildConfig.aspectRatio)) {
+                overrides.resizing = SIZES.WINDOW;
+                console.warn(`Cannot apply canvasSize:"aspectRatio" if 'aspectRatio' is not specified in buildConfig.`);
+            }
+        }
+
+        if (resizing === SIZES.SCALE) {
+            if (!buildConfig.dimensions) {
+                console.warn(`Cannot apply canvasSize:"scale" if no dimensions are specified.`);
+                overrides.resizing = SIZES.WINDOW;
+            }
+
+            if (isNaN(buildConfig.scale)) {
+                console.warn(`Cannot apply canvasSize:"scale" if 'scale' is not specified in buildConfig.`);
+                overrides.resizing = SIZES.WINDOW;
+            } else {
+                overrides.scale = buildConfig.scale;
+            }
         }
 
         if (buildConfig.pixelRatio) {
@@ -174,6 +210,13 @@ async function createSketch(key) {
     if (!container) return;
 
     canvas = createCanvas();
+
+    if ($rendering.resizing === SIZES.SCALE) {
+        canvas.style.transform = `scale(${$rendering.scale})`;
+    } else {
+        canvas.style.transform = null;
+    }
+
     removeHotListeners(key);
 
     let mountParams = {};
