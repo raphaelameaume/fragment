@@ -6,6 +6,7 @@ import ConsoleLine from "./Console/ConsoleLine.svelte";
 import { afterUpdate } from "svelte";
 
 export let mID;
+export let hasHeader;
 
 let scrollableContainer;
 
@@ -21,7 +22,7 @@ afterUpdate(() => {
 
 </script>
 
-<Module {mID} name="Console" scrollable={false} slug="console">
+<Module {mID} {hasHeader} name="console" scrollable={false}>
     <svelte:fragment slot="header-right">
         <ModuleHeaderAction border label="Clear" on:click={() => clear()}>clear</ModuleHeaderAction>
     </svelte:fragment>

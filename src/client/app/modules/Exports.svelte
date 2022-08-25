@@ -6,6 +6,7 @@ import { exports } from "../stores";
 import { recording, capturing, IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
 
 export let mID;
+export let hasHeader = true;
 
 const LABEL_RECORD = "start";
 const LABEL_RECORDING = "stop";
@@ -22,7 +23,7 @@ $: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 
 </script>
 
-<Module {mID} name="exports">
+<Module {mID} {hasHeader} name="exports">
 	<FieldGroup name="image">
 		<Field
 			key="encoding"

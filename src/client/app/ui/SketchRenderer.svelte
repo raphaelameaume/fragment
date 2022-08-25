@@ -150,6 +150,10 @@ async function createSketch(key) {
             const { dimensions } = buildConfig;
             overrides.width = dimensions[0];
             overrides.height = dimensions[1];
+
+            if (!buildConfig.canvasSize) {
+                overrides.resizing = SIZES.FIXED;
+            }
         }
 
         if (resizing === SIZES.PRESET) {

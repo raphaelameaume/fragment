@@ -61,7 +61,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
 
 </script>
 
-<Module {mID} name={`Parameters`} slug="params" {hasHeader}>
+<Module {mID} {hasHeader} name={`Parameters`} slug="params" >
     <div slot="header-right">
         {#if options.length > 1 }
         <ModuleHeaderAction
