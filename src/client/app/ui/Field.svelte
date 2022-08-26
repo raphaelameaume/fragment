@@ -17,7 +17,7 @@ import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
 import frameDebounce from "../lib/helpers/frameDebounce.js";
-import { getPersistentStore } from "../stores/utils";
+import { getStore } from "../stores/utils";
 import { writable } from "svelte/store";
 
 export let key = '';
@@ -28,9 +28,11 @@ export let type = null;
 
 let offsetWidth;
 let showTriggers = false;
-let persist = true;
 
-const store = getPersistentStore(context, !persist, { props: {}});
+const store = getStore(context, { props: {}}, {
+    persist: context !== null,
+});
+
 if (!$store.props[key]) {
     $store.props[key] = { triggers: [] };
 }

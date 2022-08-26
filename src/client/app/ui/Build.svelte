@@ -1,6 +1,7 @@
 <script>
 import Monitor from "../modules/Monitor.svelte";
 import Params from "../modules/Params.svelte";
+import { override } from "../stores/rendering";
 import { all, names } from "../stores/sketches";
 import FloatingParams from "./FloatingParams.svelte";
 import Column from "./LayoutColumn.svelte";
@@ -18,7 +19,12 @@ let defaultGUIConfig = {
 let guiConfig = defaultGUIConfig;
 
 $: sketch = $all[names[0]];
+
 $: {
+	if (sketch.buildConfig) {
+		override(sketch.buildConfig);
+	}
+
 	const config = sketch.buildConfig ? sketch.buildConfig : {};
 	gui = config.gui;
 

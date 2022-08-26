@@ -3,7 +3,8 @@ import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
 import KeyBinding from "../components/KeyBinding.svelte";
 import { all as allSketches } from "../stores/sketches.js";
-import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
+import { layout } from "../stores/layout.js";
+import { rendering, SIZES, sync, monitors, override } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
 import { findRenderer } from "../stores/renderers";
@@ -12,7 +13,6 @@ import { removeHotListeners } from "../triggers/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
-import { getDimensionsForPreset } from "../lib/presets";
 
 export let key;
 export let id = 0;
@@ -92,6 +92,10 @@ sketchProps.subscribe(() => {
     }
 });
 
+layout.subscribe(() => {
+    setBackgroundColor();
+});
+
 function createCanvas(canvas = document.createElement('canvas')) {
     canvas.width = $rendering.width * $rendering.pixelRatio;
     canvas.height = $rendering.height * $rendering.pixelRatio;
@@ -127,79 +131,26 @@ function destroyCanvas(canvas) {
     canvas = null;
 }
 
+function setBackgroundColor() {
+    if (sketch) {
+        if (($layout.previewing || __PRODUCTION__) && sketch.buildConfig && sketch.buildConfig.backgroundColor) {
+            backgroundColor = sketch.buildConfig.backgroundColor;
+        } else if (!$layout.previewing && sketch.backgroundColor) {
+            backgroundColor = sketch.backgroundColor;
+        } else {
+            backgroundColor = "inherit";    
+        }
+    } else {
+        backgroundColor = "inherit";
+    }
+}
+
 async function createSketch(key) {
     sketch = $allSketches[key];
 
     if (!key || !sketch) return;
 
-    if (sketch.backgroundColor) {
-        backgroundColor = sketch.backgroundColor;
-    } else {
-        backgroundColor = "inherit";
-    }
-
-    if (__PRODUCTION__) {
-        const { buildConfig = {} } = sketch;
-
-        const resizing = sketch.buildConfig.canvasSize || SIZES.WINDOW;
-        const overrides = {
-            resizing,
-        };
-
-        if (buildConfig.dimensions && buildConfig.dimensions.length === 2) {
-            const { dimensions } = buildConfig;
-            overrides.width = dimensions[0];
-            overrides.height = dimensions[1];
-
-            if (!buildConfig.canvasSize) {
-                overrides.resizing = SIZES.FIXED;
-            }
-        }
-
-        if (resizing === SIZES.PRESET) {
-            if (buildConfig.preset) {
-                const [ width, height ] = getDimensionsForPreset(buildConfig.preset, { pixelsPerInch: 300 });
-
-                overrides.width = width;
-                overrides.height = height;
-            } else {
-                overrides.resizing = SIZES.WINDOW;
-                console.warn(`Cannot apply canvasSize preset if 'preset' is not specified in buildConfig.`);
-            }
-        }
-
-        if (resizing === SIZES.ASPECT_RATIO) {
-            if (isNaN(buildConfig.aspectRatio)) {
-                overrides.resizing = SIZES.WINDOW;
-                console.warn(`Cannot apply canvasSize:"aspectRatio" if 'aspectRatio' is not specified in buildConfig.`);
-            }
-        }
-
-        if (resizing === SIZES.SCALE) {
-            if (!buildConfig.dimensions) {
-                console.warn(`Cannot apply canvasSize:"scale" if no dimensions are specified.`);
-                overrides.resizing = SIZES.WINDOW;
-            }
-
-            if (isNaN(buildConfig.scale)) {
-                console.warn(`Cannot apply canvasSize:"scale" if 'scale' is not specified in buildConfig.`);
-                overrides.resizing = SIZES.WINDOW;
-            } else {
-                overrides.scale = buildConfig.scale;
-            }
-        }
-
-        if (buildConfig.pixelRatio) {
-            const { pixelRatio } = buildConfig;
-            overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
-        }
-
-        if (buildConfig.backgroundColor) {
-            backgroundColor = buildConfig.backgroundColor;
-        }
-
-        rendering.update((curr) => ({...curr, ...overrides}));
-    }
+    setBackgroundColor();
 
     if (canvas) {
         if (renderer && typeof renderer.onDestroyPreview === "function") {

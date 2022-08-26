@@ -1,76 +1,66 @@
 import { writable } from "svelte/store";
 
+let stores = new Map();
+
 /**
- * 
+ * Returns the value stored in localStorage for key or return defaultValue if it doesn't exist
  * @param {string} key 
  * @param {any} defaultValue 
  * @param {boolean} override 
  * @returns {any} result
  */
-export const rehydrate = (key, defaultValue, override = false) => {
-    const storedValue = localStorage.getItem(key);
-    const value = (storedValue && !override) ? JSON.parse(storedValue) : defaultValue;
+export function rehydrate(key, defaultValue) {
+    const storedValue = localStorage.getItem(`fragment.${key}`);
 
-    try {
-        const result = typeof value === "string" ? JSON.parse(value) : value;
-        return result;
-    } catch(error) {
-        return defaultValue;
+    if (storedValue) {
+        return typeof storedValue === "string" ? JSON.parse(storedValue) : storedValue;
     }
+
+    return defaultValue;
 };
 
 /**
- * 
+ * Save value in localStorage
  * @param {string} key 
  * @param {any} value 
  */
-export const save = (key, value) => {
-    localStorage.setItem(key, JSON.stringify(value));
+export function save(key, value) {
+    localStorage.setItem(`fragment.${key}`, JSON.stringify(value));
 };
 
 /**
- * 
+ * Create store and register it for later usage
  * @param {string} key 
- * @returns {void}
- */
-export const keepInSync = (key, store) => {
-    store.subscribe((value) => {
-        save(key, value);
-    });
-};
-
-
-let persistentStores = new Map();
-
-/**
- * 
- * @param {string} key 
- * @param {boolean} reset 
  * @param {any} initialValue 
- * @returns {Svelte.store} store
+ * @param {object} options
+ * @returns {object} store
  */
-export const createPersistentStore = (key, reset = false, initialValue) => {
-    let store = writable(
-        rehydrate(`fragment.${key}`, initialValue, reset),
-    );
-    keepInSync(`fragment.${key}`, store);
+export function createStore(key, initialValue, { persist = false, reset = false } = {}) {
+    const value = (persist && !reset) ? rehydrate(key, initialValue) : initialValue;
+    const store = writable(value);
 
-    persistentStores.set(key, store);
+    if (persist) {
+        store.subscribe((current) => {
+            save(key, current);
+        });
+    }
+    
+    stores.set(key, store);
 
     return store;
 };
 
 /**
- * 
+ * Get an existing store from key or create it if it doesn't exist yet
  * @param {string} key 
- * @param {boolean} reset 
  * @param {any} initialValue 
- * @returns {Svelte.store} store
+ * @param {object} options
+ * @returns {object} store
  */
-export const getPersistentStore = (key, reset = false, initialValue) => {
-    if (!persistentStores.has(key)) {
-        return createPersistentStore(key, reset, initialValue);
+export function getStore(key, initialValue, { persist = false, reset = false } = {}) {
+    if (!stores.has(key)) {
+        return createStore(key, initialValue, { persist, reset });
     }
 
-    return persistentStores.get(key);
+    return stores.get(key);
 };
