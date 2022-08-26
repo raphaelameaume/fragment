@@ -1,11 +1,14 @@
 <script>
 import Monitor from "../modules/Monitor.svelte";
 import Params from "../modules/Params.svelte";
-import { override } from "../stores/rendering";
+import { layout } from "../stores/layout";
+import { override, preview } from "../stores/rendering";
 import { all, names } from "../stores/sketches";
 import FloatingParams from "./FloatingParams.svelte";
 import Column from "./LayoutColumn.svelte";
 import Row from "./LayoutRow.svelte";
+
+console.log(`Made with Fragment. https://fragment.tools`);
 
 let gui;
 let defaultGUIConfig = {
@@ -17,8 +20,8 @@ let defaultGUIConfig = {
 };
 
 let guiConfig = defaultGUIConfig;
-
-$: sketch = $all[names[0]];
+$: sketchKey = ($layout.previewing && $preview) ? $preview : names[0];
+$: sketch = $all[sketchKey];
 
 $: {
 	if (sketch.buildConfig) {
@@ -52,7 +55,7 @@ $: {
 	<Row>
 		{#if guiConfig.align === "right"}
 			<Column size={1 - guiConfig.size}>
-				<Monitor hasHeader={false} />
+				<Monitor hasHeader={false}  {sketchKey} />
 			</Column>
 			<Column size={guiConfig.size}>
 				<Params hasHeader={false} {output}/>
@@ -62,12 +65,12 @@ $: {
 				<Params hasHeader={false} {output}/>
 			</Column>
 			<Column size={1 - guiConfig.size}>
-				<Monitor hasHeader={false} />
+				<Monitor hasHeader={false}  {sketchKey} />
 			</Column>
 		{/if}
 	</Row>
 	{:else}
-		<Monitor hasHeader={false}/>
+		<Monitor hasHeader={false} {sketchKey} />
 		<FloatingParams
 			output={guiConfig.output}
 			align={guiConfig.align}
