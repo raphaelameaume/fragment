@@ -20,7 +20,7 @@ export const rendering = createStore(`rendering`, {
     scale: 1,
     preset: 'a4',
 }, {
-    persist: true,
+    persist: !__PRODUCTION__,
     reset: false, 
 });
 
