@@ -1,5 +1,6 @@
 import path from "path";
 import os from 'os';
+import fs from "fs/promises";
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig, build } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
@@ -18,6 +19,19 @@ export async function start({ options, filepaths, entries, fragment }) {
     const root = path.join(__dirname, '/../client');
     const cwd = process.cwd();
     const app = path.join(root, 'app');
+
+    const entriesPaths = entries.map((entry ) => path.join(cwd, entry));
+
+    const regex = /\bexport[\s]*\b(let|const)[\s]*\brendering\b[\s]*=[\s]*["'](.*?)["']/;
+
+    const renderings = await Promise.all(entriesPaths.map(async (entry) => {
+        const content = await fs.readFile(entry, { encoding: "utf-8" });
+        const match = content.match(regex);
+
+        if (match && match[2]) {
+            return match[2];
+        }
+    }));
 
     const config = defineConfig({
         configFile: false,
@@ -75,11 +89,15 @@ export async function start({ options, filepaths, entries, fragment }) {
             '__START_TIME__': Date.now(),
             '__SEED__': Date.now(),
             '__PRODUCTION__': options.build,
+            '__THREE_RENDERER__': options.build ? renderings.some((rendering) => rendering === "three") : true,
+            '__P5_RENDERER__': options.build ? renderings.some((rendering) => rendering === "p5") : true,
+            '__FRAGMENT_RENDERER__': options.build ? renderings.some((rendering) => rendering === "fragment") : true,
+            '__2D_RENDERER__': options.build ? renderings.some((rendering) => rendering === "2d") : true,
         },
         optimizeDeps: {
             exclude: [
                 ...filepaths,
-                ...entries.map((entry ) => path.join(process.cwd(), entry)),
+                ...entriesPaths,
             ]
         }
     });

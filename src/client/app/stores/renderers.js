@@ -3,19 +3,21 @@ import { rendering } from "./rendering";
 export let renderers = {};
 
 function loadRenderer(renderingMode) {
-	if (renderingMode === "three") {
+	if (__THREE_RENDERER__ && renderingMode === "three") {
 		return import(/* @vite-ignore */"../renderers/THREERenderer.js");
 	}
 
-	if (renderingMode === "fragment") {
+	if (__FRAGMENT_RENDERER__ && renderingMode === "fragment") {
 		return import(/* @vite-ignore */"../renderers/FragmentRenderer.js");
 	}
 
-	if (renderingMode === "p5") {
+	if (__P5_RENDERER__ && renderingMode === "p5") {
 		return import(/* @vite-ignore */"../renderers/P5Renderer.js");
 	}
 
-	return import(/* @vite-ignore */"../renderers/2DRenderer.js");
+	if (__2D_RENDERER__ && renderingMode === "2d") {
+		return import(/* @vite-ignore */"../renderers/2DRenderer.js");
+	}
 }
 
 export async function findRenderer(renderingMode) {
