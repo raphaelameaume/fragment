@@ -9,14 +9,17 @@ import SketchRenderer from "../ui/SketchRenderer.svelte";
 import OutputRenderer from "../ui/OutputRenderer.svelte";
 import SketchSelect from "../ui/SketchSelect.svelte";
 import { current as currentSketches } from "../stores/sketches.js";
-import { monitors } from "../stores/rendering";
+import { monitors, preview } from "../stores/rendering";
 
 export let mID;
 export let hasHeader = true;
+export let sketchKey = null;
 
 let id = ID++;
 let name = "monitor";
-let selected = $currentSketches[Math.min(id, $currentSketches.length - 1)];
+let selected = sketchKey ?
+    sketchKey :
+    ($preview ? $preview : $currentSketches[Math.min(id, $currentSketches.length - 1)]);
 
 onMount(() => {
     $monitors = [

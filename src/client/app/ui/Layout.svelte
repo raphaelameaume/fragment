@@ -6,12 +6,17 @@ import Row from "./LayoutRow.svelte";
 import ModuleRenderer from "./ModuleRenderer.svelte";
 import { layout } from "../stores/layout.js";
 import KeyBinding from "../components/KeyBinding.svelte";
+import { monitors, preview } from "../stores/rendering";
 
 function toggleEdition() {
 	$layout.editing = !$layout.editing;
 }
 
 function togglePreview() {
+	if ($monitors.length === 1 && !$layout.previewing) {
+		$preview = $monitors[0].selected;
+	}
+	
 	$layout.previewing = !$layout.previewing;
 }
 

@@ -24,7 +24,8 @@ export const rendering = createStore(`rendering`, {
     reset: false, 
 });
 
-export const monitors = writable([]);
+export const monitors = createStore('monitors', []);
+export const preview = createStore('preview', null);
 
 export const override = (config) => {
     const { canvasSize = SIZES.WINDOW } = config;
