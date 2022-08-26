@@ -24,7 +24,6 @@ setContext('module', module);
 
 let isRoot = parent === null;
 let children = writable([]);
-
 let style = "";
 
 function createComponent({
@@ -72,7 +71,7 @@ const context = {
 		$children = [...$children, child];
 
 		onDestroy(() => {
-			$children = $children.filter((c) => c.id !== child.id);
+			$children = $children.filter((c) => c !== child);
 		});
 	}
 };
@@ -127,8 +126,6 @@ function addComponent(newType) {
 			{ mID: getModuleID(), type: "module" },
 		]
 	});
-
-	
 
 	if (isSibling) {
 		if (isRoot) {
@@ -189,7 +186,6 @@ function handleModuleChange(event) {
 	const moduleName = event.currentTarget.value;
 	$children[0].name = moduleName; // keep state when replacingChildren
 
-	console.log("moduleName", moduleName);
 	updateModule($module, {
 		name: moduleName,
 	});
@@ -223,7 +219,7 @@ $: minimized = current.minimized;
 	{:else}
 		<slot></slot>
 	{/if}
-	{#if $layout.editing && (($children.length === 1 && $children[0].type === "module") || $children.length === 0 || isRoot) }
+	{#if $layout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
 	<Toolbar
 		{isRoot}
 		moduleName={$children[0].name}
