@@ -45,7 +45,7 @@ $: moduleName = `${name} ${$monitors.length > 1 ? (index + 1) : ""}`;
 </script>
 
 <Module {hasHeader} {mID} slug="monitor" name={moduleName} scrollable={false}>
-    <svelte:fragment slot="header-right">
+    <svelte:fragment slot="header-left">
         <SketchSelect
             monitorID={id}
             {selected}
