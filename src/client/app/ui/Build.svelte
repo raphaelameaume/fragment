@@ -1,4 +1,6 @@
 <script>
+import { onDestroy } from "svelte";
+
 import Monitor from "../modules/Monitor.svelte";
 import Params from "../modules/Params.svelte";
 import { layout } from "../stores/layout";
@@ -10,7 +12,7 @@ import Row from "./LayoutRow.svelte";
 
 console.log(`Made with Fragment. https://fragment.tools`);
 
-let gui;
+let gui, style, head;
 let defaultGUIConfig = {
 	position: "float",
 	align: "right",
@@ -41,13 +43,24 @@ $: {
 	const { styles = "" } = config;
 
 	if (styles !== "") {
-		const head = document.getElementsByTagName('head')[0];
-		const style = document.createElement('style');
+		head = document.getElementsByTagName('head')[0];
+
+		if (style) {
+			head.removeChild(style);
+		}
+
+		style = document.createElement('style');
 		style.setAttribute('type', 'text/css');
 		style.appendChild(document.createTextNode(styles));
 		head.appendChild(style);
 	}
 }
+
+onDestroy(() => {
+	if (style && head) {
+		head.removeChild(style);
+	}
+});
 </script>
 
 {#if gui}
