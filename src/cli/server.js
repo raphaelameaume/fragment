@@ -95,9 +95,12 @@ export async function start({ options, filepaths, entries, fragment }) {
     });
 
     if (options.build) {
-        const outDir = options.outDir ? options.outDir :
-            entries.length === 1 ? entries[0].split('.js')[0] :
-            'dist';
+        if (entries.length > 1) {
+            log.error(`fragment can only build one sketch at a time.`);
+            return;
+        }
+
+        const outDir = options.outDir ? options.outDir : entries[0].split('.js')[0];
 
         await build({
             ...config,
