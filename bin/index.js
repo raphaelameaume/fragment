@@ -12,6 +12,7 @@ sade('fragment [entry]')
     .option('-dev, --development', 'Enable development mode', false)
     .option('-b, --build', 'Export sketch to static files', false)
     .option('--outDir', 'Directory used for static build', null)
+    .option('--emptyOutDir', "Empty outDir before static build", false)
     .action((entry, options) => {
         run(entry, options);
     })

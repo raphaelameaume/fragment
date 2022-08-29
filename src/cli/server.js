@@ -11,6 +11,7 @@ import dbPlugin from "./plugins/db.js";
 import log from "./log.js";
 import db from "./db.js";
 import screenshotPlugin from "./plugins/screenshot.js";
+import checkDependencies from "./plugins/check-dependencies.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,17 +22,6 @@ export async function start({ options, filepaths, entries, fragment }) {
     const app = path.join(root, 'app');
 
     const entriesPaths = entries.map((entry ) => path.join(cwd, entry));
-
-    const regex = /\bexport[\s]*\b(let|const)[\s]*\brendering\b[\s]*=[\s]*["'](.*?)["']/;
-
-    const renderings = await Promise.all(entriesPaths.map(async (entry) => {
-        const content = await fs.readFile(entry, { encoding: "utf-8" });
-        const match = content.match(regex);
-
-        if (match && match[2]) {
-            return match[2];
-        }
-    }));
 
     const config = defineConfig({
         configFile: false,
@@ -77,6 +67,12 @@ export async function start({ options, filepaths, entries, fragment }) {
             },
             dbPlugin(),
             screenshotPlugin({ cwd }),
+            checkDependencies({
+                cwd,
+                app,
+                entriesPaths,
+                build: options.build,
+            })
         ],
         server: {
             port: options.port,
@@ -89,10 +85,6 @@ export async function start({ options, filepaths, entries, fragment }) {
             '__START_TIME__': Date.now(),
             '__SEED__': Date.now(),
             '__PRODUCTION__': options.build,
-            '__THREE_RENDERER__': options.build ? renderings.some((rendering) => rendering === "three") : true,
-            '__P5_RENDERER__': options.build ? renderings.some((rendering) => rendering === "p5") : true,
-            '__FRAGMENT_RENDERER__': options.build ? renderings.some((rendering) => rendering === "fragment") : true,
-            '__2D_RENDERER__': options.build ? renderings.some((rendering) => rendering === "2d") : true,
         },
         optimizeDeps: {
             exclude: [
@@ -112,7 +104,8 @@ export async function start({ options, filepaths, entries, fragment }) {
             logLevel: "info",
             build: {
                 outDir: path.join(process.cwd(), outDir),
-            }
+                emptyOutDir: options.emptyOutDir,
+            },
         });
 
         log.success(`Built files for:`);

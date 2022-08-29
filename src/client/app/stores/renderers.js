@@ -4,19 +4,19 @@ export let renderers = {};
 
 function loadRenderer(renderingMode) {
 	if (__THREE_RENDERER__ && renderingMode === "three") {
-		return import(/* @vite-ignore */"../renderers/THREERenderer.js");
+		return import("../renderers/THREERenderer.js");
 	}
 
 	if (__FRAGMENT_RENDERER__ && renderingMode === "fragment") {
-		return import(/* @vite-ignore */"../renderers/FragmentRenderer.js");
+		return import("../renderers/FragmentRenderer.js");
 	}
 
 	if (__P5_RENDERER__ && renderingMode === "p5") {
-		return import(/* @vite-ignore */"../renderers/P5Renderer.js");
+		return import("../renderers/P5Renderer.js");
 	}
 
 	if (__2D_RENDERER__ && renderingMode === "2d") {
-		return import(/* @vite-ignore */"../renderers/2DRenderer.js");
+		return import("../renderers/2DRenderer.js");
 	}
 }
 
