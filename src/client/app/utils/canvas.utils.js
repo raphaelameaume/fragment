@@ -119,7 +119,7 @@ export async function screenshotCanvas(canvas, {
     let name = pattern({ filename, ...params, ...patternParams });
 
     if (imageEncoding !== "webp" && pixelsPerInch !== 72) {
-        dataURL = changeDpiDataUrl(dataURL, exportParams.pixelsPerInch);
+        dataURL = changeDpiDataUrl(dataURL, pixelsPerInch);
     }
     
     await saveDataURL(dataURL, {
