@@ -83,10 +83,6 @@ export const override = (config) => {
         overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
     }
 
-    // if (config.backgroundColor) {
-    //     backgroundColor = config.backgroundColor;
-    // }
-
     rendering.update((curr) => ({...curr, ...overrides}));
 };
 
