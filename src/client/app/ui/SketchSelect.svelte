@@ -27,10 +27,6 @@ $: {
 
 }
 
-function handleChangeSelect(event) {
-    selected = event.currentTarget.value;
-};
-
 $: {
     monitors.update((all) => {
         return all.map((monitor) => {
@@ -49,6 +45,6 @@ $: {
     value={selected}
     permanent
     border
-    on:change={handleChangeSelect}
+    on:change={(event) => selected = event.detail}
     options={options}
 />

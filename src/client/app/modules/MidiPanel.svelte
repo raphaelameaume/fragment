@@ -82,7 +82,7 @@ onMount(async () => {
     <Field
         key="inputs"
         value={input}
-        on:change={(event) => input = event.currentTarget.value}
+        on:change={(event) => input = event.detail}
         params={{
             options: inputs,
         }}
@@ -90,7 +90,7 @@ onMount(async () => {
     <Field
         key="outputs"
         value={output}
-        on:change={(event) => output = event.currentTarget.value}
+        on:change={(event) => output = event.detail}
         params={{
             options: outputs,
         }}

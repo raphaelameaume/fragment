@@ -1,14 +1,23 @@
 <script>
+import { createEventDispatcher } from "svelte";
+
+
 export let label = null;
 export let value;
 export let disabled = false;
 
 let node;
 
+const dispatch = createEventDispatcher();
+
 function onKeyPress(event) {
     if (event.key === 'Enter') {
         node.blur();
     }
+}
+
+function handleChange(event) {
+    dispatch('change', event.currentTarget.value);
 }
 
 </script>
@@ -21,7 +30,7 @@ function onKeyPress(event) {
         class="input"
         bind:this={node}
         bind:value={value}
-        on:change
+        on:change={handleChange}
         on:input
         on:keypress={onKeyPress}
         on:keydown

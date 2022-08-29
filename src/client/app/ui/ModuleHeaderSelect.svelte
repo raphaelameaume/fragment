@@ -1,13 +1,21 @@
 <script>
+import { createEventDispatcher } from "svelte";
+
 import SelectChevrons from "./SelectChevrons.svelte";
 
 export let value;
 export let options = [];
 export let disabled = false;
+
+const dispatch = createEventDispatcher();
+
+function handleChange(event) {
+    dispatch("change", event.currentTarget.value);
+}
 </script>
 
 <div class="module-header-select">
-    <select class="select" on:change class:single={options.length === 1} disabled={disabled}>
+    <select class="select" on:change={handleChange} class:single={options.length === 1} disabled={disabled}>
         {#each options as option}
             <option value={option.value} selected={value === option.value}>{option.label}</option>
         {/each}

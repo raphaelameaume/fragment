@@ -68,7 +68,7 @@ function registerTrigger() {
 }
 
 function onTypeChange(event) {
-    inputType = event.currentTarget.value;
+    inputType = event.detail;
 
     if (!eventOptions.includes(eventName)) {
         eventName = undefined;
@@ -82,7 +82,7 @@ function onTypeChange(event) {
 }
 
 function onEventChange(event) {
-    eventName = event.currentTarget.value;
+    eventName = event.detail;
 
     if (inputType === "Mouse") {
         registerTrigger();
@@ -92,7 +92,7 @@ function onEventChange(event) {
 function onTextChange(e) {
     const castToNumber = ["onControlChange", "onNumberOn", "onNumberOff"].includes(eventName);
 
-    params.key = e.currentTarget.value.split(',').map((value) => {
+    params.key = e.detail.split(',').map((value) => {
         return castToNumber ? Number(value) : value;
     });
 

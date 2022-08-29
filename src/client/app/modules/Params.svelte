@@ -68,7 +68,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
             value={selected}
             permanent
             border
-            on:change={(event) => selected = event.currentTarget.value}
+            on:change={(event) => selected = event.detail}
             options={options}
         />
         {/if }
