@@ -6,6 +6,7 @@ import { all as allSketches } from "../stores/sketches.js";
 import { layout } from "../stores/layout.js";
 import { rendering, SIZES, sync, monitors, override } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
+import { errors, displayError, clearErrors } from "../stores/errors.js";
 import { exports, props } from "../stores/index.js";
 import { findRenderer } from "../stores/renderers";
 import { recording, capturing } from "../stores/exports.js";
@@ -13,6 +14,7 @@ import { removeHotListeners } from "../triggers/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
+import ErrorOverlay from "./ErrorOverlay.svelte";
 
 export let key;
 export let id = 0;
@@ -150,6 +152,8 @@ async function createSketch(key) {
 
     if (!key || !sketch) return;
 
+    clearErrors(key);
+
     setBackgroundColor();
 
     if (canvas) {
@@ -246,9 +250,18 @@ async function createSketch(key) {
     }
 }
 
+/**
+ * 
+ * @param {Error} error
+ */
 function onError(error) {
     _errored = true;
     console.error(error);
+
+    const callstack = error.stack.split('\n');
+    console.log(callstack[1]);
+
+    displayError(error, key);    
 
     cancelAnimationFrame(_raf);
     _raf = null;
@@ -546,6 +559,10 @@ $: {
 <KeyBinding type="down" key="r" on:trigger={checkForRefresh} />
 <KeyBinding type="down" key="s" on:trigger={checkForSave} />
 <KeyBinding type="down" key="S" on:trigger={checkForRecord} />
+
+{#if key && $errors[key] && $errors[key].length > 0}
+    <ErrorOverlay error={$errors[key][0]} />
+{/if}
 
 <style>
 .sketch-renderer {

@@ -27,6 +27,9 @@ function e(method, fn) {
 	})
 }
 
+const FRAGMENT_SHADER = 35632;
+const VERTEX_SHADER = 35633;
+
 const programs = new Map();
 const shaders = new Map();
 
@@ -41,9 +44,9 @@ e('attachShader', function(res, args) {
 	const program = programs.get(args[0].__uuid);
 	const shader = shaders.get(args[1].__uuid);
 
-	if (shader.__type === 35632) {
+	if (shader.__type === FRAGMENT_SHADER) {
 		program.__fragmentShader = shader; 
-	} else if (shader.__type === 35633) {
+	} else if (shader.__type === VERTEX_SHADER) {
 		program.__vertexShader = shader;
 	}
 });
@@ -61,23 +64,31 @@ e('createProgram', function(res, args) {
 	programs.set(res.__uuid, res);
 });
 
-e('linkProgram', function(res, args) {
+// e('linkProgram', function(res, args) {
+// 	const gl = this;
+// 	const program = args[0];
+
+// 	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+// 		const vertexErrors = getShaderErrors(gl, program.__vertexShader, VERTEX_SHADER);
+// 		const fragmentErrors = getShaderErrors(gl, program.__fragmentShader, FRAGMENT_SHADER);
+
+// 		console.log(vertexErrors);
+// 		console.log(fragmentErrors);
+
+// 		// console.log({ vertexErrors, fragmentErrors });
+
+// 		// throw new Error(`Could not compile WebGL program. \n\n${info}`);
+// 	}
+// });
+
+e('compileShader', function(res, args) {
 	const gl = this;
-	const program = args[0];
-	const p = programs.get(program.__uuid);
+	const shader = args[0];
 
-	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		const info = gl.getProgramInfoLog(program);
-		console.error(`Could not compile WebGL program`);
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+		const errors = getShaderErrors(gl, shader, shader.__type);
 
-		const vertexErrors = getShaderErrors(gl, program.__vertexShader, 'vertex');
-		const fragmentErrors = getShaderErrors(gl, program.__fragmentShader, 'fragment');
-
-		console.error(fragmentErrors);
-
-		// console.log({ vertexErrors, fragmentErrors });
-
-		// throw new Error(`Could not compile WebGL program. \n\n${info}`);
+		console.log(errors);
 	}
 });
 
@@ -90,7 +101,10 @@ function getShaderErrors(gl, shader, type) {
 	const errorMatches = /ERROR: 0:(\d+)/.exec( errors );
 	if ( errorMatches ) {
 		const errorLine = parseInt( errorMatches[ 1 ] );
-		return type.toUpperCase() + '\n\n' + errors + '\n\n' + handleSource( gl.getShaderSource( shader ), errorLine );
+
+		const shaderType = type === VERTEX_SHADER ? "vertex" : "fragment"; 
+
+		return shaderType.toUpperCase() + '\n\n' + errors + '\n\n' + handleSource( gl.getShaderSource( shader ), errorLine );
 	} else {
 		return errors;
 	}
