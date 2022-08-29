@@ -6,29 +6,30 @@ import { changeDpiDataUrl } from "changedpi";
 import { get } from "svelte/store";
 import { exports } from "../stores";
 import { VIDEO_FORMATS } from "../stores/exports";
-import { downloadBlob } from "./file.utils";
+import { downloadBlob, createBlobFromDataURL } from "./file.utils";
 import WebMRecorder from "../lib/canvas-recorder/WebMRecorder";
 import MP4Recorder from "../lib/canvas-recorder/MP4Recorder";
 import GIFRecorder from "../lib/canvas-recorder/GIFRecorder";
 import FrameRecorder from "../lib/canvas-recorder/FrameRecorder";
 import { exportCanvas } from "../lib/canvas-recorder/utils";
+import { map } from "./math.utils";
 
-export async function saveDataURL(dataURL, options) {
+export async function saveDataURL(dataURL, options, blob) {
     async function onError(err) {
         if (typeof options.onError === "function") {
             options.onError(err);
-            
         }
 
-        console.log(err);
+        if (!blob) {
+            blob = await createBlobFromDataURL(dataURL);
+        }
 
-        const blob = await createBlobFromDataURL(dataURL);
         await downloadBlob(blob, options);
     }
 
     try {
         const body = {
-            dataURL,
+            dataURL: dataURL.split(',')[1], // remove extension,
             ...options,
         };
         const response = await fetch('/save', {
@@ -60,9 +61,7 @@ export async function createDataURLFromBlob(blob) {
         };
 
         reader.onload = (e) => {
-            let base64 = e.target.result.split(',')[1];
-
-            resolve(base64);
+            resolve(e.target.result);
         };
 
         reader.readAsDataURL(blob);
@@ -72,32 +71,8 @@ export async function createDataURLFromBlob(blob) {
 export async function saveBlob(blob, options) {
     const dataURL = await createDataURLFromBlob(blob);
 
-    return saveDataURL(dataURL, options);
+    return saveDataURL(dataURL, options, blob);
 };
-
-function createBlobFromDataURL(dataURL) {
-    return new Promise((resolve) => {
-        const splitIndex = dataURL.indexOf(',');
-
-        if (splitIndex === -1) {
-            resolve(new window.Blob());
-            return;
-        }
-
-        const base64 = dataURL.slice(splitIndex + 1);
-        const byteString = window.atob(base64);
-        const type = dataURL.slice(0, splitIndex);
-        const mimeMatch = /data:([^;]+)/.exec(type);
-        const mime = (mimeMatch ? mimeMatch[1] : '') || undefined;
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (var i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-        
-        resolve(new window.Blob([ ab ], { type: mime }));
-    });
-}
 
 function getFilenameParams() {
     const now = new Date();
@@ -134,21 +109,19 @@ export async function screenshotCanvas(canvas, {
     pattern = defaultFilenamePattern,
     params = {},
 }) {
-    const { imageEncoding, quality, pixelsPerInch } = get(exports);
+    const { imageEncoding, imageQuality, pixelsPerInch } = get(exports);
     let { extension, dataURL } = exportCanvas(canvas, {
         encoding: `image/${imageEncoding}`,
-        encodingQuality: quality,
+        encodingQuality: map(imageQuality, 1, 100, 0, 1),
     });
 
     let patternParams = getFilenameParams();
     let name = pattern({ filename, ...params, ...patternParams });
 
     if (imageEncoding !== "webp" && pixelsPerInch !== 72) {
-        dataURL = changeDpiDataUrl(dataURL, exportParams.pixelsPerInch);
+        dataURL = changeDpiDataUrl(dataURL, pixelsPerInch);
     }
-
-    dataURL = dataURL.split(',')[1]; // remove extension
-
+    
     await saveDataURL(dataURL, {
         filename: `${name}${extension}`,
         onError: () => {

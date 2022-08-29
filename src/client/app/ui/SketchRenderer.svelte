@@ -1,23 +1,21 @@
 <script>
-import { onDestroy, onMount } from "svelte";
+import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
+import KeyBinding from "../components/KeyBinding.svelte";
 import { all as allSketches } from "../stores/sketches.js";
-import { current as currentRendering, SIZES, canvases, sync } from "../stores/rendering.js";
+import { layout } from "../stores/layout.js";
+import { rendering, SIZES, sync, monitors, override } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
-import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
-
-import { client } from "../client";
-import { emit, TRANSITION_CHANGE } from "../events";
-import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
-import { transitions } from "../transitions/index.js";
 import { findRenderer } from "../stores/renderers";
+import { recording, capturing } from "../stores/exports.js";
 import { removeHotListeners } from "../triggers/index.js";
-import { recording } from "../stores/exports.js";
-import KeyBinding from "../components/KeyBinding.svelte";
+import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
+import { client } from "../client";
+import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
 
 export let key;
-export let index = 0;
+export let id = 0;
 export let paused = false;
 export let visible = true;
 
@@ -34,20 +32,21 @@ let _created = false, _errored = false;
 let renderer;
 let noop = () => {};
 let _renderSketch = noop;
+let backgroundColor = "inherit";
 
 function checkForResize() {
     if (!node) return;
 
-    let needsUpdate = $currentRendering.resizing === SIZES.WINDOW || $currentRendering.resizing === SIZES.ASPECT_RATIO;
+    let needsUpdate = $rendering.resizing === SIZES.WINDOW || $rendering.resizing === SIZES.ASPECT_RATIO;
 
     let newWidth, newHeight;
 
-    if ($currentRendering.resizing === SIZES.WINDOW) {
+    if ($rendering.resizing === SIZES.WINDOW) {
         newWidth = node.offsetWidth;
         newHeight = node.offsetHeight;
-    } else if ($currentRendering.resizing === SIZES.ASPECT_RATIO) {
+    } else if ($rendering.resizing === SIZES.ASPECT_RATIO) {
         const { offsetWidth, offsetHeight } = node;
-        const aspectRatio = $currentRendering.aspectRatio;
+        const aspectRatio = $rendering.aspectRatio;
         const monitorRatio = offsetWidth / offsetHeight;
 
         if (aspectRatio < monitorRatio) {
@@ -59,10 +58,10 @@ function checkForResize() {
         }
     }
 
-    needsUpdate = needsUpdate && (newWidth !== $currentRendering.width || newHeight !== $currentRendering.height);
+    needsUpdate = needsUpdate && (newWidth !== $rendering.width || newHeight !== $rendering.height);
 
     if (needsUpdate) {
-        currentRendering.update(curr => {
+        rendering.update(curr => {
             return {
                 ...curr,
                 width: newWidth,
@@ -93,11 +92,13 @@ sketchProps.subscribe(() => {
     }
 });
 
-function createCanvas(canvas = document.createElement('canvas')) {
-    canvas.width = $currentRendering.width * $currentRendering.pixelRatio;
-    canvas.height = $currentRendering.height * $currentRendering.pixelRatio;
+layout.subscribe(() => {
+    setBackgroundColor();
+});
 
-    canvas._index = index;
+function createCanvas(canvas = document.createElement('canvas')) {
+    canvas.width = $rendering.width * $rendering.pixelRatio;
+    canvas.height = $rendering.height * $rendering.pixelRatio;
 
     canvas.onmousedown = (event) => checkForTriggersDown(event, key);
     canvas.onmousemove = (event) => checkForTriggersMove(event, key);
@@ -106,16 +107,22 @@ function createCanvas(canvas = document.createElement('canvas')) {
 
     container.appendChild(canvas);
 
-    $canvases = [...$canvases, canvas];
+    $monitors = $monitors.map((monitor) => {
+        if (monitor.id === id) {
+            return {...monitor, canvas };
+        }
+
+        return monitor;
+    })
 
     return canvas;
 }
 
 function destroyCanvas(canvas) {
-    let canvasIndex = $canvases.findIndex(c => c === canvas);
-    let copy = [...$canvases];
-    copy.splice(canvasIndex, 1);
-    $canvases = copy;
+    canvas.onmousedown = null;
+    canvas.onmousemove = null;
+    canvas.onmouseup = null;
+    canvas.onclick = null;
     
     if (canvas.parentNode === container) {
         canvas.parentNode.removeChild(canvas);
@@ -124,57 +131,58 @@ function destroyCanvas(canvas) {
     canvas = null;
 }
 
+function setBackgroundColor() {
+    if (sketch) {
+        if (($layout.previewing || __PRODUCTION__) && sketch.buildConfig && sketch.buildConfig.backgroundColor) {
+            backgroundColor = sketch.buildConfig.backgroundColor;
+        } else if (!$layout.previewing && sketch.backgroundColor) {
+            backgroundColor = sketch.backgroundColor;
+        } else {
+            backgroundColor = "inherit";    
+        }
+    } else {
+        backgroundColor = "inherit";
+    }
+}
+
 async function createSketch(key) {
     sketch = $allSketches[key];
 
     if (!key || !sketch) return;
 
-    if (__PRODUCTION__) {
-        const { buildConfig = {} } = sketch;
+    setBackgroundColor();
 
-        const resizing = sketch.buildConfig.canvasSize || SIZES.WINDOW;
-        const overrides = {
-            resizing,
-        };
-
-        if (buildConfig.dimensions && buildConfig.dimensions.length === 2) {
-            const { dimensions } = buildConfig;
-            overrides.width = dimensions[0];
-            overrides.height = dimensions[1];
+    if (canvas) {
+        if (renderer && typeof renderer.onDestroyPreview === "function") {
+            renderer.onDestroyPreview({ id, canvas });
         }
 
-        if (buildConfig.pixelRatio) {
-            const { pixelRatio } = buildConfig;
-            overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
-        }
-
-        currentRendering.update((curr) => ({...curr, ...overrides}));
+        destroyCanvas(canvas);
     }
 
     renderer = await findRenderer(sketch.rendering);
 
     if (!container) return;
 
-    if (canvas) {
-        if (typeof renderer.onDestroyPreview === "function") {
-            renderer.onDestroyPreview({ index, canvas });
-        }
+    canvas = createCanvas();
 
-        destroyCanvas(canvas);
+    if ($rendering.resizing === SIZES.SCALE) {
+        canvas.style.transform = `scale(${$rendering.scale})`;
+    } else {
+        canvas.style.transform = null;
     }
 
-    canvas = createCanvas();
     removeHotListeners(key);
 
     let mountParams = {};
 
     if (typeof renderer.onMountPreview === "function") {
         mountParams = renderer.onMountPreview({
-            index,
+            id,
             canvas,
-            width: $currentRendering.width,
-            height: $currentRendering.height,
-            pixelRatio: $currentRendering.pixelRatio,
+            width: $rendering.width,
+            height: $rendering.height,
+            pixelRatio: $rendering.pixelRatio,
         });
     }
 
@@ -192,7 +200,7 @@ async function createSketch(key) {
 
     const init = sketch.setup || sketch.init || noop;
     const resize = sketch.resize || noop;
-    const { width, height, pixelRatio } = $currentRendering;
+    const { width, height, pixelRatio } = $rendering;
 
     try {
         _created = false;
@@ -205,6 +213,7 @@ async function createSketch(key) {
         init({
             width,
             height,
+            pixelRatio,
             props,
             ...params,
         });
@@ -218,6 +227,9 @@ async function createSketch(key) {
             ...params,
         });
 
+        _created = true;
+        _errored = false;
+
         _renderSketch = createRenderLoop();
 
         requestAnimationFrame(() => {
@@ -228,19 +240,22 @@ async function createSketch(key) {
             }
         });
 
-        _created = true;
-        _errored = false;
+        
     } catch(error) {
-        _errored = true;
-        console.error(error);
-
-        cancelAnimationFrame(_raf);
-        _raf = null;
+        onError(error);
     }
-    
+}
+
+function onError(error) {
+    _errored = true;
+    console.error(error);
+
+    cancelAnimationFrame(_raf);
+    _raf = null;
 }
 
 let record = $recording;
+let capture = $capturing;
 
 $: {
     if ($recording && !record) {
@@ -277,8 +292,14 @@ $: {
     }
 }
 
+$: {
+    if (!capture && $capturing) {
+        save();
+    }
+}
+
 function createRenderLoop() {
-    const { width, height, pixelRatio } = $currentRendering;
+    const { width, height, pixelRatio } = $rendering;
     const draw = sketch.draw || sketch.update;
     const { duration } = sketch;
 
@@ -293,40 +314,50 @@ function createRenderLoop() {
     let frameCount = framerate * duration;
     let interval = 1 / frameCount;
 
-    return ({ time = $currentTime.time, deltaTime = $currentTime.deltaTime } = {}) => {
+    let then = $currentTime.time;
+
+    return ({ time = $currentTime.time, deltaTime = time - then } = {}) => {
         needsRender = false;
+        then = time;
 
-        onBeforeUpdatePreview({ index, canvas }); 
+        try {
+            onBeforeUpdatePreview({ id, canvas }); 
 
-        let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
+            let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
 
-        if (hasDuration) {
-            playhead = (t / 1000) / duration;
-            playhead %= 1;
-            playhead = Math.floor(playhead / interval) * interval;
-            playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
+            if (hasDuration && framerate > 0) {
+                playhead = (t / 1000) / duration;
+                playhead %= 1;
+                playhead = Math.floor(playhead / interval) * interval;
+                playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
+            }
+
+            draw({
+                ...renderer,
+                ...params,
+                props: sketch.props,
+                playhead,
+                playcount,
+                width: width * pixelRatio,
+                height: height * pixelRatio,
+                pixelRatio,
+                time: t,
+                deltaTime,
+            });
+            onAfterUpdatePreview({ id, canvas });
+        } catch(error) {
+            onError(error);
         }
-
-        draw({
-            ...renderer,
-            ...params,
-            props: sketch.props,
-            playhead,
-            playcount,
-            width: width * pixelRatio,
-            height: height * pixelRatio,
-            time: t,
-            deltaTime,
-        });
-        onAfterUpdatePreview({ index, canvas });
     };
 }
 
-let then = Date.now();
+let then = performance.now();
 
 function render() {
+    _raf = requestAnimationFrame(render);
+
     if (!paused) {
-        let now = Date.now();
+        let now = performance.now();
         let deltaTime = now - then;
         then = now;
 
@@ -347,8 +378,6 @@ function render() {
     if (needsRender) {
         _renderSketch();
     }
-
-    _raf = requestAnimationFrame(render);
 }
 
 $: {
@@ -359,7 +388,7 @@ $: {
     }
 }
 
-currentRendering.subscribe((current) => {
+rendering.subscribe((current) => {
     if (canvas && _created) {
         if (current.resizing === SIZES.SCALE) {
             canvas.style.transform = `scale(${current.scale})`;
@@ -380,7 +409,6 @@ currentRendering.subscribe((current) => {
 
         _renderSketch = createRenderLoop();
         needsRender = true;
-        // _renderSketch();
     }
 });
 
@@ -395,6 +423,7 @@ async function save() {
         }
     });
     paused = false;
+    $capturing = false;
 }
 
 allSketches.subscribe(() => {
@@ -416,16 +445,7 @@ onMount(() => {
         if (framerate === 0) {
             needsRender = true;
         }
-    }); 
-   
-    if (!$currentRendering.transition) {
-        let transitionOptions = Object.keys(transitions);
-        $currentRendering.transition = transitionOptions[0];
-    }
-    
-    emit(TRANSITION_CHANGE, transitions[$currentRendering.transition]);
-
-    render();
+    });
 
     resizeObserver.observe(node);
 })
@@ -449,10 +469,18 @@ function checkForSave(event) {
     }
 }
 
+function checkForRecord(event) {
+    const keyboardEvent = event.detail;
+    keyboardEvent.preventDefault();
+
+    $recording = !$recording;
+}
+
 function checkForRefresh(event) {
     const keyboardEvent = event.detail;
     if (!keyboardEvent.metaKey && !keyboardEvent.ctrlKey) {
         keyboardEvent.preventDefault();
+        console.log(`[fragment] ${key} reloaded.`);
         createSketch(key);
     }
 }
@@ -462,8 +490,10 @@ onDestroy(() => {
     cancelAnimationFrame(_raf);
 
     if (renderer && typeof renderer.onDestroyPreview === "function") {
-        renderer.onDestroyPreview({ index, canvas });
+        renderer.onDestroyPreview({ id, canvas });
     }
+
+    renderer = null;
 
     if (canvas) {
         destroyCanvas(canvas);
@@ -477,20 +507,22 @@ $: {
 
     if (renderer && typeof renderer.onResizePreview === "function") {
         renderer.onResizePreview({
-            index,
-            width: $currentRendering.width,
-            height: $currentRendering.height,
-            pixelRatio: $currentRendering.pixelRatio,
+            id,
+            width: $rendering.width,
+            height: $rendering.height,
+            pixelRatio: $rendering.pixelRatio,
         });
     }
 
     if (canvas) {
-        const pixelRatio = $currentRendering.pixelRatio;
+        const pixelRatio = $rendering.pixelRatio;
 
-        canvas.width = $currentRendering.width * pixelRatio;
-        canvas.height = $currentRendering.height * pixelRatio;
+        canvas.width = $rendering.width * pixelRatio;
+        canvas.height = $rendering.height * pixelRatio;
     }
 }
+
+
 
 </script>
 
@@ -499,11 +531,11 @@ $: {
     class="sketch-renderer"
     class:visible={visible}
     class:recording={$recording}
-    style={`--background-color: ${sketch && sketch.backgroundColor ? sketch.backgroundColor : "inherit"}`}
+    style={`--background-color: ${backgroundColor}`}
 >
     <div
         class="canvas-container"
-        style="max-width: {$currentRendering.width}px; max-height: {$currentRendering.height}px;"
+        style="max-width: {$rendering.width}px; max-height: {$rendering.height}px;"
         bind:this={container}>
     </div>
     {#if $recording}
@@ -513,6 +545,7 @@ $: {
 <KeyBinding type="down" key=" " on:trigger={checkForPause} />
 <KeyBinding type="down" key="r" on:trigger={checkForRefresh} />
 <KeyBinding type="down" key="s" on:trigger={checkForSave} />
+<KeyBinding type="down" key="S" on:trigger={checkForRecord} />
 
 <style>
 .sketch-renderer {

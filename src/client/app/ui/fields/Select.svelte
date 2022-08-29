@@ -1,17 +1,17 @@
 <script>
 import { createEventDispatcher } from "svelte";
+import SelectChevrons from "../SelectChevrons.svelte";
 
 export let options = [];
 export let name = "";
 export let value;
-export let triggers = [];
 export let disabled = false;
 export let title = "";
 
-const dispatch = createEventDispatcher();
-
 let node;
 let sanitizedOptions = [];
+
+const dispatch = createEventDispatcher();
 
 $: {
     sanitizedOptions = [];
@@ -35,25 +35,26 @@ $: {
     }
 }
 
-
 function handleChange(event) {
-    dispatch('change', event.currentTarget.value);
+    dispatch("change", event.currentTarget.value);
 }
 
 </script>
 
-<div class="select-input" class:disabled={disabled}>
+<div
+    class="select-input"
+    class:disabled={disabled}
+    class:single={sanitizedOptions.length === 1}
+>
     <div class="container">
-        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled} {title}>
+        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled} {title} bind:value={value}>
             {#each sanitizedOptions as option}
                 <option value={option.value} selected={value === option.value} disabled={option.disabled}>{option.label}</option>
             {/each}
         </select>
-        <div class="chevrons">
-            <svg class="chevron chevron-bottom" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.25 10.75L12 14.25L8.75 10.75"></path>
-            </svg>
-        </div>
+        {#if sanitizedOptions.length > 1 }
+            <SelectChevrons />
+        {/if}
     </div>
 </div>
 
@@ -110,22 +111,6 @@ function handleChange(event) {
 
 .select-input:not(.disabled) .select:hover {
     color: var(--color-text);
-}
-
-.chevrons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    width: 20px;
-
-    pointer-events: none;
-}
-
-.select-input.disabled .chevrons {
-    opacity: 0.5;
 }
 
 </style>

@@ -4,6 +4,9 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import MIDI from "../inputs/MIDI.js";
 
+export let mID;
+export let hasHeader;
+
 let input, output;
 let inputs = [], outputs = [];
 
@@ -30,9 +33,6 @@ function createDeviceOptions(deviceMap = new Map()) {
     return options;
 }
 
-let prevInput = "";
-let prevOutput = "";
-
 let messages = [];
 
 $: {
@@ -50,15 +50,13 @@ onMount(async () => {
         inputs = createDeviceOptions(MIDI.inputs);
         outputs = createDeviceOptions(MIDI.outputs);
 
-        input = prevInput ? prevInput : inputs[0].value;
-        output = prevOutput ? prevOutput : outputs[0].value;
+        // if a single device is connected, select it by default
+        input = (inputs.length === 2 ? inputs[1].value : inputs[0].value);
+        output = (outputs.length === 2 ? outputs[1].value : outputs[0].value);
     }
 
     MIDI.addEventListener("connected", refresh);
     MIDI.addEventListener("disconnected", () => {
-        prevInput = input;
-        prevOutput = output;
-
         refresh();
     });
 
@@ -80,7 +78,7 @@ onMount(async () => {
 
 </script>
 
-<Module name="MIDI" {...$$props}>
+<Module {mID} {hasHeader} name="MIDI" {...$$props} slug="midi">
     <Field
         key="inputs"
         value={input}

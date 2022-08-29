@@ -1,75 +1,76 @@
 import { writable } from "svelte/store";
+import { tree, traverse } from "./layout";
 
-import { traverse } from "./layout";
-
-
-const modules = [];
-traverse((m) => {
-	modules.push(m);
-});
-
-export let enabled = modules.some(m => m.name === "console");
-
-export const current = writable([
-    // { level: "", args: ["hello world"], count: 1207 },
-    // { level: "", args: [{"key": "value"}], count: 2 },
-    // { level: "", args: [["hello", "world", "hello"]]},
-    // { level: "", args: ["hello world"]},
-	// { level: "warn", args: ["Expected some stuff"]},
-    // { level: "error", args: ["Uncaughted promise"]},
-]);
+export const logs = writable([]);
 
 let mirrored = ["log", "warn", "error", "dir"];
+let enabled = false;
+let refs = {};
 
-mirrored.forEach((key) => {
-	if (!enabled) return;
-
-	let temp = console[`${key}`];
-
-	console[`${key}`] = (...args) => {
-		let isFromVite = args.some((log) => typeof log === "string" && log.includes('[vite]'));
-		isFromVite = false;
-
-		if (!isFromVite) {
-			temp(...args);
+tree.subscribe((t) => {
+	let hasConsole = false;
+	traverse((c) => {
+		if (c.type === "module" && c.name === "console") {
+			hasConsole = true;
 		}
+	}, t);
 
-		current.update((logs) => {
-			if (isFromVite) return logs;
-
-			if (logs.length > 0 && arraySame(logs[logs.length - 1].args, args)) {
-				logs[logs.length - 1].count++;
-
-				return logs;
-			}
-
-			return [
-				...logs,
-				{ level: key, args, count: 1 },
-			];
-		});
-	};
-});
-
-
-function arraySame(prev, next) {
-	if (prev.length !== next.length) return false;
-
-	let isSame = true;
-
-	for (let i = 0; i < prev.length; i++) {
-		if (prev[i] !== next[i]) {
-			isSame = false;
-			break;
-		}
+	if (hasConsole && !enabled) {
+		enable();
+	} else if (enabled && !hasConsole) {
+		disable();
 	}
-
-	return isSame;
-}
+});
 
 let clear = console.clear;
 
-console.clear = () => {
-	clear();
-	current.update(() => []);
-};
+function enable() {
+	enabled = true;
+	mirrored.forEach((key) => {
+		const ref = console[`${key}`]
+		refs[`${key}`] = ref;
+
+		console[`${key}`] = (...args) => {
+			let isFromVite = args.some((log) => typeof log === "string" && log.includes('[vite]'));
+
+			if (!isFromVite) {
+				ref(...args);
+			}
+
+			logs.update((logs) => {
+				if (isFromVite) return logs;
+
+				if (logs.length > 0) {
+					const lastLog = logs[logs.length - 1];
+					const { level: lastLevel, args: lastArgs } = lastLog;
+
+					if (lastLevel === key && lastArgs[0] === args[0]) {
+						logs[logs.length - 1].count++;
+						return logs;
+					}
+				}
+
+				return [
+					...logs,
+					{ level: key, args, count: 1 },
+				];
+			});
+		};
+	});
+
+	console.clear = () => {
+		clear();
+		logs.update(() => []);
+	};
+}
+
+function disable() {
+	enabled = false;
+	mirrored.forEach((key) => {
+		const ref = refs[key];
+
+		console[`${key}`] = ref;
+	});
+
+	console.clear = clear;
+}

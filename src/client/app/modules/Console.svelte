@@ -1,25 +1,35 @@
 <script>
 import Module from "../ui/Module.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
-import { current as currentLogs } from "../stores/console";
+import { logs } from "../stores/console";
 import ConsoleLine from "./Console/ConsoleLine.svelte";
+import { afterUpdate } from "svelte";
 
-$: logs = $currentLogs;
+export let mID;
+export let hasHeader;
+
+let scrollableContainer;
 
 function clear() {
-    $currentLogs = [];
+    $logs = [];
 }
+
+afterUpdate(() => {
+    if (scrollableContainer) {
+        scrollableContainer.scrollTop = scrollableContainer.scrollHeight;
+    }
+})
 
 </script>
 
-<Module name="Console" scrollable={false}>
+<Module {mID} {hasHeader} name="console" scrollable={false}>
     <svelte:fragment slot="header-right">
         <ModuleHeaderAction border label="Clear" on:click={() => clear()}>clear</ModuleHeaderAction>
     </svelte:fragment>
     <div class="container">
         <div class="list">
-            <div class="scroll">
-                {#each logs as log}
+            <div class="scroll" bind:this={scrollableContainer}>
+                {#each $logs as log}
                     <ConsoleLine {log} />
                 {/each}
             </div>

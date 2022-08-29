@@ -1,9 +1,7 @@
 <script>
 import { createEventDispatcher } from "svelte";
 
-export let name;
 export let value;
-export let triggers = [];
 
 const dispatch = createEventDispatcher();
 
@@ -14,7 +12,7 @@ function handleChange() {
 </script>
 
 <div class="checkbox">
-    <input class="input" bind:checked={value} type="checkbox" on:change={handleChange} {name} />
+    <input class="input" bind:checked={value} type="checkbox" on:change={handleChange} />
     <div class="checked">
     </div>
 </div>

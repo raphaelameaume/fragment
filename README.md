@@ -1,15 +1,19 @@
 <h1 align="center">Fragment</h1>
 <div align="center">A web development environment for creative coding</div>
-<br>
+<br/>
 
-`fragment` aims to provide a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
+![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/main/screenshot.png "Screen Capture of Fragment")
+
+`fragment` provides a simple API to work with `<canvas>`.
 
 ## Features
 
 - Multiple rendering modes: [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/), [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
 - Built-in GUI from sketch files
-- Export `<canvas>` to images on the fly (.png, .webm, .jpg)
+- Export `<canvas>` to images (.png, .webm, .jpg) or videos (.mp4, .webm, .gif) on the fly
 - Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
+- Interactive sketches using *triggers*
+- Static build for production deployment
 
 ## Installation
 
@@ -82,15 +86,14 @@ Learn how to write your own sketch in the [API docs](./docs/api/sketch.md) or re
 
 If you find issues, please [file one](https://github.com/raphaelameaume/fragment/issues) with details on how to reproduce it.
 
-As for new features, I'm not looking into contributors for now, I'm moving at my own pace on this personal project.
-
 Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you want to discuss the project.
 
 ## Credits
 
-- [Vite.js](https://vitejs.dev/)
+- [Vite](https://vitejs.dev/)
 - [Svelte](https://svelte.dev/)
 - The font used for display is the [JetBrains Mono](https://www.jetbrains.com/lp/mono/).
+- Icons are from [Iconic](https://iconic.app/)
 - A special thanks to [Matt Deslauriers](https://www.mattdesl.com/) for [canvas-sketch](https://github.com/mattdesl/canvas-sketch) and his multiple projects around generative-art tools.
 
 ## License

@@ -29,7 +29,6 @@ float disc(vec2 st, float radius, vec2 center) {
 
 void main() {
     float gridFactor = 40.;
-    vec2 smallgrid = vUv * 40.;
 
     float borderRadius = uRadius;
     float c = 0.;
@@ -91,17 +90,6 @@ void main() {
     color += vec3(0., 0., 1.) * ra3;
 
     float alpha = 1.;
-
-    float gx = fract(smallgrid.x);
-    float gy = fract(smallgrid.y);
-
-    float gridWidth = 0.03;
-    float g = max(step(gx, gridWidth), step(1. - gridWidth, gx));
-    g += max(g, max(step(gy, gridWidth), step(1. - gridWidth, gy)));
-    g = clamp(g, 0., 1.);
-
-    color += g * vec3(0.1);
-
     alpha *= c;
 
     FragColor = vec4(color, alpha);

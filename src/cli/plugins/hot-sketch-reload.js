@@ -1,4 +1,5 @@
 import path from "path";
+import kleur from "kleur";
 import log from "../log.js";
 
 export default function hotSketchReload({ cwd }) {
@@ -7,7 +8,7 @@ export default function hotSketchReload({ cwd }) {
         handleHotUpdate: async ({ server, modules, file, read }) => {
 			if (file.includes(cwd)) {
 				const filepath = path.relative(cwd, file);
-                console.log(`${log.prefix} hot updated: ${filepath}`);
+                console.log(`${log.prefix} ${kleur.green(`hmr update`)} /${filepath}`);
 			
 				server.ws.send({
 					type: 'custom',

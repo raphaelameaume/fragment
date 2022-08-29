@@ -1,27 +1,23 @@
 <script>
 import { createEventDispatcher } from "svelte";
-import ProgressInput from "./ProgressInput.svelte";
-import Input from "./Input.svelte";
-import { clamp } from "lemonade-math";
-import Keyboard from "../../inputs/Keyboard.js";
 import FieldInputRow from "./FieldInputRow.svelte";
+import Input from "./Input.svelte";
+import ProgressInput from "./ProgressInput.svelte";
+import Keyboard from "../../inputs/Keyboard.js";
+import { clamp } from "../../utils/math.utils.js";
 
 function round(value, step) {
     return Math.round(value * (1 / step)) / (1 / step);
 }
 
 export let value = null;
-export let name = "";
 export let label = "";
 export let step = 1;
 export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
-export let controlled = false;
 export let disabled = false;
-export let triggers = [];
 
-let node;
 $: isFocused = false;
 const dispatch = createEventDispatcher();
 
@@ -43,8 +39,18 @@ function onFocus() {
     isFocused = true;
 }
 
-function onBlur() {
+function onBlur(event) {
     isFocused = false;
+
+    let newValue = event.currentTarget.value;
+    let isNotValid = isNaN(Number(event.currentTarget.value));
+
+    if (isNotValid) {
+        newValue = `${value}`;
+    }
+
+    currentValue = sanitize(newValue, suffix);
+
     dispatch('change', currentValue);
 }
 
@@ -52,30 +58,12 @@ function onKeyDown(event) {
     if ([38, 40].includes(event.keyCode)) {
         event.preventDefault();
 
-        const diff = Keyboard.getStepFromEvent(event);
+        const diff = Keyboard.getStepFromEvent(event) * step;
         const direction = event.keyCode === 38 ? 1 : -1;
         const newValue = sanitize(composedValue, suffix) + direction * (diff);
 
-        if (!controlled) {
-            currentValue = newValue;
-            dispatch('change', currentValue);
-        } else {
-            dispatch('change', newValue);
-        }
-    }
-}
-
-function onKeyPress(event) {
-    if (event.key === 'Enter') {
-        // onBlur();
-        if (!controlled) {
-            currentValue = sanitize(event.currentTarget.value, suffix);
-            composedValue = composeValue(currentValue);
-
-            dispatch('change', currentValue);
-        } else {
-            dispatch('change', sanitize(composeValue(sanitize(event.currentTarget.value, suffix))));
-        }
+        currentValue = newValue;
+        dispatch('change', currentValue);
     }
 }
 
@@ -99,26 +87,21 @@ function handleChangeProgress(event) {
                 on:change={handleChangeProgress}
             />
             <Input 
-                bind:this={node}
-                {name}
                 {label}
-                on:keypress={onKeyPress}
+                {disabled}
                 on:keydown={onKeyDown}
                 on:focus={onFocus}
                 on:blur={onBlur}
-                value={composedValue}
+                bind:value={composedValue}
             />
         </FieldInputRow>
     {:else}
         <Input 
-            bind:this={node}
-            {name}
             {label}
-            on:keypress={onKeyPress}
             on:keydown={onKeyDown}
             on:focus={onFocus}
             on:blur={onBlur}
-            value={composedValue}
+            bind:value={composedValue}
         />
     {/if}
 </div>

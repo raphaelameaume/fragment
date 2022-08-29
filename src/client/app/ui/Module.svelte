@@ -1,16 +1,45 @@
+<script context="module">
+let MODULE_ID = 0; 
+
+export let getModuleID = () => {
+    return MODULE_ID++;
+};
+</script>
+
 <script>
-import { getContext, setContext } from "svelte";
-import { current as currentLayout } from "../stores/layout.js";
-import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
+import { getContext } from "svelte";
+import { layout } from "../stores/layout.js";
 
-
+export let mID = undefined;
 export let name;
+export let slug = name;
 export let scrollable = true;
-export let hasHeader = true
+export let hasHeader = true;
+
+const parent = getContext('parent');
+
+const current = {
+    mID: !isNaN(mID) ? mID : MODULE_ID++,
+    type: "module",
+    name: slug,
+    hasHeader,
+};
+
+MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
+
+parent.registerChild(current);
+
+const m = getContext('module');
+m.set(current);
 
 </script>
 
-<div class="module module--{name}" class:scrollable={scrollable} class:no-header={!hasHeader} class:editing={$currentLayout.editing}>
+<div
+    class="module module--{slug}"
+    class:scrollable={scrollable}
+    class:no-header={!hasHeader}
+    class:editing={$layout.editing}
+>
     {#if hasHeader && name}
         <header class="module__header" >
             <div class="header__col">
@@ -19,7 +48,7 @@ export let hasHeader = true
                 </div>
             </div>
             <div class="header__col">
-                <h3 class="module__title">{name}</h3>
+                <h2 class="module__title">{name}</h2>
             </div>
             <div class="header__col">
                 <div class="slot slot--right">
@@ -45,6 +74,7 @@ export let hasHeader = true
 
 .module.no-header {
     --header-height: 0px;
+    grid-template-rows: minmax(0px, auto);
 }
 
 .module__header {
@@ -83,11 +113,13 @@ export let hasHeader = true
     color: white;
     font-size: 10px;
     text-transform: capitalize;
-    cursor: pointer;
+    background-color: transparent;
 }
 
 .module__container {
     position: relative;
+
+    background-color: var(--color-background);
 }
 
 .module.scrollable .module__container {

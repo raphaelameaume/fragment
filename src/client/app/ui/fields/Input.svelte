@@ -1,10 +1,24 @@
 <script>
-export let name;
+import { createEventDispatcher } from "svelte";
+
+
 export let label = null;
 export let value;
 export let disabled = false;
 
-let el;
+let node;
+
+const dispatch = createEventDispatcher();
+
+function onKeyPress(event) {
+    if (event.key === 'Enter') {
+        node.blur();
+    }
+}
+
+function handleChange(event) {
+    dispatch('change', event.currentTarget.value);
+}
 
 </script>
 
@@ -14,12 +28,11 @@ let el;
     {/if}
     <input
         class="input"
-        bind:this={el}
+        bind:this={node}
         bind:value={value}
-        name={name}
-        on:change
+        on:change={handleChange}
         on:input
-        on:keypress
+        on:keypress={onKeyPress}
         on:keydown
         on:focus
         on:blur

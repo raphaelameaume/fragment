@@ -2,70 +2,37 @@
 export let moduleNames = [
     "monitor",
     "params",
-    "mouse",
     "midi",
-    "keyboard",
     "console",
     "exports",
-    "output",
-    "appearance",
-    "audioanalyser",
 ];
-
-let MODULE_ID = 0; 
-
-export let getModuleID = () => {
-    return MODULE_ID++;
-};
-
 </script>
 
 <script>
-import Monitor from "../modules/Monitor.svelte";
-import Console from "../modules/Console.svelte";
-import Output from "../modules/Output.svelte";
-import Params from "../modules/Params.svelte";
-import MousePanel from "../modules/MousePanel.svelte";
-import MidiPanel from "../modules/MidiPanel.svelte";
-import KeyboardPanel from "../modules/KeyboardPanel.svelte";
-import Exports from "../modules/Exports.svelte";
-import { getContext } from "svelte";
-import Appearance from "../modules/Appearance.svelte";
-import AudioAnalyser from "../modules/AudioAnalyser.svelte";
+import Module from "./Module.svelte";
 
-const parent = getContext('parent');
-
-export let mID;
+export let mID = undefined;
 export let name;
+export let hasHeader = true;
 
 const moduleList = {
-    "monitor": Monitor,
-    "params": Params,
-    "mouse": MousePanel,
-    "midi": MidiPanel,
-    "keyboard": KeyboardPanel,
-    "console": Console,
-    "exports": Exports,
-    "output": Output,
-    "appearance": Appearance,
-    "audioanalyser": AudioAnalyser
+    "monitor": () => import("../modules/Monitor.svelte"),
+    "params": () => import("../modules/Params.svelte"),
+    "midi": () => import("../modules/MidiPanel.svelte"),
+    "console": () => import("../modules/Console.svelte"),
+    "exports": () => import("../modules/Exports.svelte"),
 };
-
-$: component = moduleList[name];
-
-const current = {
-    mID: !isNaN(mID) ? mID : MODULE_ID++,
-    type: "module",
-    name,
-};
-
-MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
-
-parent.registerChild(current);
-
-const m = getContext('module');
-m.set(current);
 
 </script>
 
-<svelte:component this={component} />
+{#if moduleList[name]}
+    {#await moduleList[name]()}
+        <Module {hasHeader} {mID} {name}/>
+    {:then value}
+        <svelte:component this={value.default} {mID} {hasHeader} />
+    {:catch error}
+        <p>Something went wrong: {error.message}</p>
+    {/await}
+{:else}
+    <Module {hasHeader} {mID} {name}/>
+{/if}

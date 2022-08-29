@@ -1,35 +1,36 @@
-import { current as currentRendering } from "./rendering";
-import { on, TRANSITION_CHANGE } from "../events";
+import { rendering } from "./rendering";
 
 export let renderers = {};
 
-function loadRenderer(rendering) {
-	if (rendering === "three") {
-		return import(/* @vite-ignore */"../renderers/THREERenderer.js");
+function loadRenderer(renderingMode = "2d") {
+	if (__THREE_RENDERER__ && renderingMode === "three") {
+		return import("../renderers/THREERenderer.js");
 	}
 
-	if (rendering === "fragment") {
-		return import(/* @vite-ignore */"../renderers/FragmentRenderer.js");
+	if (__FRAGMENT_RENDERER__ && renderingMode === "fragment") {
+		return import("../renderers/FragmentRenderer.js");
 	}
 
-	if (rendering === "p5") {
-		return import(/* @vite-ignore */"../renderers/P5Renderer.js");
+	if (__P5_RENDERER__ && renderingMode === "p5") {
+		return import("../renderers/P5Renderer.js");
 	}
 
-	return import(/* @vite-ignore */"../renderers/2DRenderer.js");
+	if (__2D_RENDERER__ && renderingMode === "2d") {
+		return import("../renderers/2DRenderer.js");
+	}
 }
 
-export async function findRenderer(rendering) {
-	if (renderers[rendering]) return renderers[rendering];
+export async function findRenderer(renderingMode = "2d") {
+	if (renderers[renderingMode]) return renderers[renderingMode];
 
 	// load and save
-	renderers[rendering] = await loadRenderer(rendering);
+	renderers[renderingMode] = await loadRenderer(renderingMode);
 
 	// get
-	let renderer = renderers[rendering];
+	let renderer = renderers[renderingMode];
 	let initialized = false;
 
-	currentRendering.subscribe((current) => {
+	rendering.subscribe((current) => {
 		let r;
 
 		if (!initialized) {
@@ -41,23 +42,6 @@ export async function findRenderer(rendering) {
 					height: current.height,
 				});
 			}
-
-			let events = [
-				{ name: "onTransitionChange", event: TRANSITION_CHANGE },
-			];
-
-			events.forEach(({ name, event }) => {
-			    if (typeof renderer[`${name}`] === "function") {
-			        on(event, (event) => {
-			            renderer[`${name}`]({
-							...event,
-							width: current.width,
-							height: current.height,
-							pixelRatio: current.pixelRatio,
-						});
-			        });
-			    }
-			});
 		}
 
 		initialized = true;

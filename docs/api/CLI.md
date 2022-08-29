@@ -29,6 +29,9 @@ fragment ./sketch.js --new --template=three/orthographic
 |`--new`| `-n` | Create a new file and start | `false` |
 |`--template`| `-t` | Specify the type of template to use as source | `2d` |
 |`--port`| `-p` | Specify the server port.  | `3000` |
+|`--build`| `-b` | Build sketch for production  | `false` |
+|`--outDir`| `none` | Change directory used for production build  | `[/[sketch-name]` |
+|`--emptyOutDir`| `none` | Empty outDir before static build  | `false` |
 
 ## Templates
 

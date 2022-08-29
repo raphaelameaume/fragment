@@ -3,7 +3,10 @@ import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import FieldGroup from "../ui/FieldGroup.svelte";
 import { exports } from "../stores";
-import { IMAGE_ENCODINGS, recording, VIDEO_FORMATS } from "../stores/exports";
+import { recording, capturing, IMAGE_ENCODINGS, VIDEO_FORMATS } from "../stores/exports";
+
+export let mID;
+export let hasHeader = true;
 
 const LABEL_RECORD = "start";
 const LABEL_RECORDING = "stop";
@@ -12,11 +15,15 @@ function record () {
 	$recording = !$recording;
 }
 
-$: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
+function capture() {
+	$capturing = !$capturing;
+}
+
+$: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
 
 </script>
 
-<Module name="exports">
+<Module {mID} {hasHeader} name="exports">
 	<FieldGroup name="image">
 		<Field
 			key="encoding"
@@ -28,10 +35,10 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		/>
 		<Field
 			key="quality"
-			value={$exports.quality}
-			params={{ step: 0.01, min: 0.01, max: 1 }}
+			value={$exports.imageQuality}
+			params={{ min: 1, max: 100, suffix: "%", triggerable: false }}
 			on:change={((e) => {
-				$exports.quality = e.detail;
+				$exports.imageQuality = e.detail;
 			})}
 		/>
 		<Field
@@ -42,6 +49,11 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 				$exports.pixelsPerInch = e.detail;
 			})}
 		/>
+		<Field
+			key="screenshot"
+			value={capture}
+			params={{ label: "capture", triggerable: false }}
+		/>
 	</FieldGroup>
 	<FieldGroup name="video">
 		<Field
@@ -49,8 +61,6 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 			value={$exports.framerate}
 			on:change={((e) => {
 				$exports.framerate = e.detail;
-
-				console.log($exports.framerate);
 			})}
 		/>
 		<Field
@@ -64,7 +74,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		<Field
 			key="quality"
 			value={$exports.videoQuality}
-			params={{ min: 1, max: 100, step: 1, suffix: "%" }}
+			params={{ min: 1, max: 100, step: 1, suffix: "%", triggerable: false }}
 			on:change={((e) => {
 				$exports.videoQuality = e.detail;
 			})}
@@ -89,7 +99,7 @@ $: label = $recording ? LABEL_RECORDING : LABEL_RECORD;
 		<Field
 			key="record"
 			value={record}
-			params={{ label }}
+			params={{ label: recordLabel, triggerable: false }}
 		/>
 	</FieldGroup>
 </Module>

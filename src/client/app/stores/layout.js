@@ -1,9 +1,24 @@
 import { writable, get } from "svelte/store";
-import { sketchesCount } from "@fragment/props";
-import { getPersistentStore } from "./utils";
-import { onDestroy, onMount } from "svelte";
+import { getStore, createStore } from "./utils";
+import { onMount } from "svelte";
 
-export let tree = getPersistentStore("fragment.layout.current", false, {});
+export const tree = getStore("layout.current", {}, {
+    persist: !__PRODUCTION__
+});
+
+export const layout = createStore('layout', {
+    editing: false,
+    previewing: false,
+    registerChild: (component, children) => {
+        onMount(() => {
+            component.children = children();
+
+            if (component.root) {
+                tree.set(cleanNodes(component));
+            }
+        });
+    },
+});
 
 function cleanNodes(value) {
     return JSON.parse(JSON.stringify(value, (key, value) => {
@@ -24,51 +39,11 @@ export function traverse(fn = () => {}, node = get(tree)) {
     }
 };
 
-let data = [];
-
-export const current = writable({
-    editing: false,
-    registerChild: (component, children) => {
-        onMount(() => {
-            data = [...data, component];
-
-            component.children = children();
-
-            if (component.root) {
-                tree.set(cleanNodes(component));
-            }
-        });
-
-        onDestroy(() => {
-            const index = data.findIndex((c) => c === component);
-
-            data = data.filter((c, i) => i !== index);
-        })
-    },
-    removeChild: (child) => {
-        const index = data.findIndex((c) => c === child);
-
-        data = data.filter((c, i) => i !== index);
-    }
-});
-
 export const replaceChildren = (component, newChildren) => {
     tree.update((t) => {
         traverse((c) => {
             if (c.id === component.id) {
                 c.children = newChildren;
-            }
-        }, t);
-
-        return t;
-    });
-};
-
-export const updateModule = (m, { name } = {}) => {
-    tree.update((t) => {
-        traverse((c) => {
-            if (c.mID === m.mID) {
-                c.name = name;
             }
         }, t);
 
@@ -153,6 +128,50 @@ export const remove = (node) => {
     });
 };
 
+/**
+ * Assign new or reassign existing properties to an exisiting component in the lauout
+ * @param {Number} id - the id of the component to update
+ * @param {object} newProperties - the new properties to assign to the component
+ */
+export const updateComponent = (component, newProperties = {}) => {
+    tree.update((t) => {
+        let updated = false;
+
+        traverse((c) => {
+            if (c.id === component.id) {
+                updated = true;
+                if (typeof newProperties === "object") {
+                    Object.assign(c, newProperties);
+                } else if (typeof newProperties === "function") {
+                    Object.assign(c, newProperties(c));
+                }
+            }
+        }, t);
+
+        if (!updated) {
+            console.warn(`Cannot find component to update with id ${component.id}`);
+        }
+
+        return t;
+    });
+};
+
+export const updateModule = (m, newProperties = {}) => {
+    tree.update((t) => {
+        traverse((c) => {
+            if (c.mID === m.mID) {
+                if (typeof newProperties === "object") {
+                    Object.assign(c, newProperties);
+                } else if (typeof newProperties === "function") {
+                    Object.assign(c, newProperties(c));
+                }
+            }
+        }, t);
+
+        return t;
+    });
+};
+
 export const resize = (nodes = []) => {
     tree.update((t) => {
         traverse((c) => {
@@ -165,5 +184,4 @@ export const resize = (nodes = []) => {
 
         return t;
     });
-
 };

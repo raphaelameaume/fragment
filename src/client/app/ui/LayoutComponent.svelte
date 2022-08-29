@@ -5,16 +5,17 @@ let ID = 0;
 <script>
 import { getContext, hasContext, onDestroy, setContext } from "svelte";
 import { writable } from "svelte/store";
-import { addChildren, addSibling, current as currentLayout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
+import { addChildren, addSibling, layout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
 import Toolbar from "./LayoutToolbar.svelte";
 import Resizer from "./LayoutResizer.svelte";
-import ModuleRendererNew, { getModuleID }  from "./ModuleRenderer.svelte";
+import { getModuleID } from "./Module.svelte"; 
+import ModuleRenderer  from "./ModuleRenderer.svelte";
+import Preview from "./Preview.svelte";
 
 export let size = 1;
 export let type = "column";
 export let tree = { children: [] };
 
-let layout = getContext('layout');
 let parent = hasContext('parent') ? getContext('parent') : null;
 let depth = hasContext('depth') ? (getContext('depth') + 1) : 0;
 let module = writable({});
@@ -23,7 +24,6 @@ setContext('module', module);
 
 let isRoot = parent === null;
 let children = writable([]);
-
 let style = "";
 
 function createComponent({
@@ -71,7 +71,7 @@ const context = {
 		$children = [...$children, child];
 
 		onDestroy(() => {
-			$children = $children.filter((c) => c.id !== child.id);
+			$children = $children.filter((c) => c !== child);
 		});
 	}
 };
@@ -82,13 +82,14 @@ if (parent) {
 	parent.registerChild(current);
 }
 
-$layout.registerChild(current, () => $children);
+if (!__PRODUCTION__) {
+	$layout.registerChild(current, () => $children);
+}
 
 $: {
 	let property = ``, value = ``;
 
 	const nodes = tree.children;
-	
 
 	if (Array.isArray(nodes) && nodes.length > 1) {
 		if (isColumn) {
@@ -182,13 +183,17 @@ function deleteCurrent() {
 }
 
 function handleModuleChange(event) {
-	$children[0].name = event.detail; // keep state when replacingChildren
+	const moduleName = event.detail;
+	$children[0].name = moduleName; // keep state when replacingChildren
+
 	updateModule($module, {
-		name: event.detail,
+		name: moduleName,
 	});
 }
 
 let offsetWidth;
+
+$: minimized = current.minimized;
 
 </script>
 
@@ -197,22 +202,24 @@ let offsetWidth;
 	class:column={isColumn}
 	class:root={isRoot}
 	class:row={isRow}
-	class:minimized={current.minimized}
+	class:minimized={minimized}
 	bind:this={current.node}
 	bind:offsetWidth={offsetWidth}
 >
-	{#if tree && Array.isArray(tree.children) && tree.children.length > 0 }
+	{#if isRoot && $layout.previewing}
+		<Preview />
+	{:else if tree && Array.isArray(tree.children) && tree.children.length > 0 }
 		{#each tree.children as child (child.id) }
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRendererNew name={child.name} mID={child.mID} />
+				<ModuleRenderer name={child.name} mID={child.mID} hasHeader={child.hasHeader} />
 			{/if}
 		{/each}
 	{:else}
 		<slot></slot>
 	{/if}
-	{#if $currentLayout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
+	{#if $layout.editing && (($children.length === 1 && $children[0].type === "module") || isRoot) }
 	<Toolbar
 		{isRoot}
 		moduleName={$children[0].name}

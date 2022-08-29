@@ -16,13 +16,35 @@ import FieldTriggers from "./FieldTriggers.svelte";
 import { inferFromParams, inferFromValue } from "../utils/props.utils.js";
 import { download } from "../utils/file.utils.js";
 import { map } from "../utils/math.utils";
+import frameDebounce from "../lib/helpers/frameDebounce.js";
+import { getStore } from "../stores/utils";
+import { writable } from "svelte/store";
 
 export let key = '';
 export let value = null;
 export let context = null;
 export let params = {};
 export let type = null;
-export let triggers = [];
+
+let offsetWidth;
+let showTriggers = false;
+
+const store = getStore(context, { props: {}}, {
+    persist: context !== null,
+});
+
+if (!$store.props[key]) {
+    $store.props[key] = { triggers: [] };
+}
+
+let triggers = writable($store.props[key].triggers.filter((trigger) => trigger.inputType !== undefined));
+triggers.subscribe((all) => {
+    store.update((curr) => {
+        curr.props[key].triggers = all;
+
+        return curr;
+    });
+})
 
 const dispatch = createEventDispatcher();
 const fields = {
@@ -59,7 +81,8 @@ const onTriggers = {
 
         if (isValueInRange && isFinite(params.min) && isFinite(params.max)) {
             let v = map(event.value, 0, 1, params.min, params.max);
-            let value = Math.round(v * (1 / params.step)) / (1 / params.step);
+            let step = params.step ? params.step : 1;
+            let value = Math.round(v * (1 / step)) / (1 / step);
 
             dispatch('change', value);
         }
@@ -67,59 +90,66 @@ const onTriggers = {
 };
 
 $: fieldType = type ? type : (inferFromParams(params) || inferFromValue(value));
-$: settings = {...params};
-$: onTrigger = onTriggers[fieldType];
+$: fieldProps = composeFieldProps(params);
+$: onTrigger = frameDebounce(onTriggers[fieldType]);
 $: input = fields[fieldType];
 $: label = params.label !== undefined && typeof value !== "function" ? params.label : key;
 $: disabled = params.disabled;
-
+$: triggerable = params.triggerable !== false && (
+    (fieldType === "number" && isFinite(params.min) && isFinite(params.max)) ||
+    (fieldType === "button")
+);
 $: {
     if (fieldType === "download" || fieldType === "button") {
         if (params.label === undefined) {
-            settings.label = fieldType === "download" ? "download" : "run";
+            fieldProps.label = fieldType === "download" ? "download" : "run";
         }
     }
 }
+$: xxsmall = offsetWidth < 200;
+$: xsmall = !xxsmall && offsetWidth < 260;
+$: small = !xxsmall && !xsmall && offsetWidth < 320;
+$: triggersActive = $triggers.length > 0;
 
-let offsetWidth;
-let secondaryVisible = false;
+function toggleTriggers(event) {
+    event.preventDefault();
 
-let sizes = [
-    ["small", 320],
-    ["xsmall", 260],
-    ["xxsmall", 200],
-];
+    showTriggers = !showTriggers;
+}
 
-let sizeClassName = "";
+function composeFieldProps(params) {
+    const { triggerable, controllable, ...rest } = params;
 
-$: {
-    for (let i = 0; i < sizes.length; i++) {
-        const [name, size] = sizes[i];
-
-        if (offsetWidth < size) {
-            sizeClassName = name;
-        }
-    }
+    return rest;
 }
 
 </script>
 
-<div class="field {sizeClassName} {disabled ? "disabled": ""}">
-    <FieldSection name={key} label={label} onClickLabel={() => secondaryVisible = !secondaryVisible}>
+<div class="field"
+    class:disabled={disabled}
+    class:xxsmall={xxsmall}
+    class:xsmall={xsmall}
+    class:small={small}
+    bind:offsetWidth={offsetWidth}
+>
+    <FieldSection name={key} label={label} interactive={triggerable} on:click={toggleTriggers}>
         <div slot="infos" class="field__actions">
-            {#if params.triggers && params.triggers.length && !disabled }
-                <button class="field__action field__action--triggers">
-                    <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"></path>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"></path>
-                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
-                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></circle>
+            {#if triggerable && !disabled }
+                <button
+                    on:click={toggleTriggers}
+                    class="field__action field__action--triggers"
+                    class:active={triggersActive}>
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 8H7.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12.75 8H19.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 16H12.25"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.75 16H19.25"/>
+                        <circle cx="10" cy="8" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                        <circle cx="15" cy="16" r="2.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
                     </svg>
                 </button>
             {/if}
-            {#if (type === "vec2" || type === "vec3") && !disabled }
+            {#if (fieldType === "vec2" || fieldType === "vec3") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
                     {#if params.locked}
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -138,19 +168,20 @@ $: {
         <svelte:component
             this={input}
             {value}
-            name={key}
-            {...settings}
-            on:change={(e) => dispatch('change', e.detail)}
+            {...fieldProps}
+            on:change
             on:click={onTrigger}
         />
         <slot></slot>
     </FieldSection>
-    {#if onTrigger }
-        <FieldSection visible={secondaryVisible} secondary>
+    {#if triggerable }
+        <FieldSection visible={showTriggers} secondary>
             <FieldTriggers
-                {key}
+                {triggers}
                 {onTrigger}
                 {context}
+                triggerable={fieldType === "button"}
+                controllable={fieldType === "number"}
             />
         </FieldSection>
     {/if}
@@ -165,14 +196,6 @@ $: {
 
     padding: 3px 6px 3px 12px;
     border-bottom: 1px solid var(--color-spacing);
-}
-
-.field__section {
-    position: relative;
-    
-    display: grid;
-    grid-template-columns: 0.5fr 1fr;
-    column-gap: 10px;
 }
 
 :global(.field__input .field) {
@@ -193,17 +216,44 @@ $: {
     align-items: center;
 }
 
-.field__action--triggers .action__icon {
-    transform: rotate(90deg);
-}
-
 .field__action {
     display: flex;
     align-items: center;
 
     background: transparent;
-    opacity: 0.5;
     transition: opacity 0.1s ease;
+}
+
+.field__action:hover {
+    opacity: 1;
+}
+
+.field__action--triggers {
+    --background-color: rgba(255, 255, 255, 0.5);
+
+    position: relative;
+
+    width: 16px;
+    height: 16px;
+
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.field__action--triggers:not(.active) {
+    display: none;
+}
+
+.field__action {
+    color: var(--color-text);
+
+    opacity: 0.6;
+    background-color: transparent;
+    transition: opacity 0.1s ease;
+}
+
+.field__action--triggers svg {
+    transform: rotate(90deg);
 }
 
 .field__action:hover {

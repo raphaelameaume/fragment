@@ -3,27 +3,27 @@ import { client } from "@fragment/client";
 
 let frags = [];
 
-export let onMountPreview = ({ canvas, index }) => {
+export let onMountPreview = ({ canvas, id }) => {
 	let frag = fragment({
 		canvas,
 	});
 
 	frags.push({
-		index,
+		id,
 		frag,
 	});
 
 	return { frag };
 };
 
-export let onResizePreview = ({ index, width, height, pixelRatio }) => {
-	let { frag } = frags.find(f => f.index === index);
+export let onResizePreview = ({ id, width, height, pixelRatio }) => {
+	let { frag } = frags.find(f => f.id === id);
 
 	frag.resize({ width, height, pixelRatio });
 };
 
-export let onDestroyPreview = ({ canvas, index }) => {
-	let fragIndex = frags.findIndex(f => f.index === index);
+export let onDestroyPreview = ({ canvas, id }) => {
+	let fragIndex = frags.findIndex(f => f.id === id);
 	let { frag } = frags[fragIndex];
 
 	frag.destroy();
@@ -52,7 +52,7 @@ client.on('shader-update', (data) => {
 			const shaderPath = getShaderPath(shaders[key]);
 
 			if (shaderPath === filepath) {
-				console.log(`[fragment] HotShaderReload : ${shaderPath.replace(__CWD__, "")}`);
+				console.log(`[fragment] shader update ${shaderPath.replace(__CWD__, "")}`);
 				program[key] = source;
 				program.needsUpdate = true;
 			}

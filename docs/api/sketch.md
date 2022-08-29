@@ -20,15 +20,18 @@ sketch.update();
 `fragment` leverages the power of [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export), meaning that you can export various properties from your sketch entry point and they will be picked up on runtime.
 
 #### `init`
-- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, ...params: {...InitParams, ...MountParams }}) => void`
+- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, pixelRatio, ...params: {...InitParams, ...MountParams }}) => void`
 
 | name | type | description |
 |---|---|---|
 | canvas | `HTMLCanvasElement` | The canvas element used for drawing |
 | width | `number` | Width of the canvas |
 | height | `number` | Height of the canvas |
+| pixelRatio | `number` | PixelRatio of the canvas |
 
 Depending on the rendering context, params can contain different things.
+
+> ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined here are available directly if you want:
 
 ##### `rendering = "2d"`
 | name | type | description |
@@ -47,8 +50,6 @@ Depending on the rendering context, params can contain different things.
 | name | type | description |
 |---|---|---|
 | `frag` | `fragmentInstance` | The fragment instance |
-
-> ⚠ Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined above are available directly if you want:
 
 ```js
 export let rendering = "2d";
@@ -168,7 +169,7 @@ export let update = ({ context }) => {
 };
 ```
 
-You can also force a type on a prop by assigning a `type` to your object like so:
+You can force a type on a prop by assigning a `type` to your object like so:
 
 ```js
 export let props = {
@@ -179,15 +180,33 @@ export let props = {
 }
 ```
 
-| prop type | value type | params | field |
-|---|---|---|---|
-| `number` | `number` | { disabled?: `boolean`, step?: `number`, min:`number`, max: `number` } | `<ProgressInput?>` + `<NumberInput>` |
-| `select` | `number\|string` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
-| `text` | `string` | { disabled?: `boolean`} | `<TextInput>`|
-| `button` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
-| `download` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
-| `vec2` | `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
-| `vec3` | `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
+You can also add a listener if you want to trigger a function when the prop value changes.
+
+```js
+function onColorChange({ value }) {
+  console.log("color has changed!", value);
+}
+
+export let props = {
+  color: {
+    value: [255, 0, 255],
+    type: "color",
+    onChange: onColorChange,
+  }
+}
+```
+
+A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode.
+
+```js
+export let props = {
+  color: {
+    value: [255, 0, 255],
+    hidden: __PRODUCTION__,
+  }
+}
+```
+
 ## Templates
 
 `fragment` comes with a bunch of pre-defined templates. See [CLI docs](./CLI.md#templates) for details.

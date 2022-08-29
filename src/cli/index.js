@@ -195,8 +195,8 @@ if (import.meta.hot) {
 
     await fs.writeFile(filepath, code);
 
-    console.log(`${log.prefix} Generated ${dir}/${filename} from entries:`);
-    entries.forEach(entry => console.log(entry));
+    log.warning(`Building files for:`);
+    entries.forEach(entry => console.log(`- ${entry}`));
 
     // generate props
     const filepathProps = path.join(dirpath, 'props.js');
