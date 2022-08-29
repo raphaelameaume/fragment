@@ -78,6 +78,8 @@ export let buildConfig = {
 | `gui.output` | `string\|number` | Display canvasSize and dimensions fields in gui | `false` |
 | `styles` | `string` | Inject styles in document | `false` |
 
+A built sketch can be previewed on dev mode by typing `p`.
+
 ## Change the filename
 
 By default, `fragment` will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`. See [filenamePattern](../api/sketch.md#filenamepattern) to change this behavior.
