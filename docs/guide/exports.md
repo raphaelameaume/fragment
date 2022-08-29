@@ -76,6 +76,7 @@ export let buildConfig = {
 | `gui.align` | `string` | Change gui position. Can be `left` or `right` | `right` |
 | `gui.size` | `string\|number` | Change gui width. Can be a percentage or a number between 0 and 1 | `0.3`
 | `gui.output` | `string\|number` | Display canvasSize and dimensions fields in gui | `false` |
+| `gui.hidden` | `boolean` | Hide gui on start | `false` |
 | `styles` | `string` | Inject styles in document | `false` |
 
 A built sketch can be previewed on dev mode by typing `p`.
