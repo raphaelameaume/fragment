@@ -13,6 +13,7 @@
 - Export `<canvas>` to images (.png, .webm, .jpg) or videos (.mp4, .webm, .gif) on the fly
 - Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
 - Interactive sketches using *triggers*
+- Static build for edge deployment
 
 ## Installation
 
