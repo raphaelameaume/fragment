@@ -4,7 +4,7 @@
 
 ![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/main/screenshot.png "Screen Capture of Fragment")
 
-`fragment` provides a simple API to work with `<canvas>`. It comes with built-in GUIs and a set of *triggers* to make your sketches **interactive**.
+`fragment` provides a simple API to work with `<canvas>`.
 
 ## Features
 
@@ -12,6 +12,7 @@
 - Built-in GUI from sketch files
 - Export `<canvas>` to images (.png, .webm, .jpg) or videos (.mp4, .webm, .gif) on the fly
 - Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
+- Interactive sketches using *triggers*
 
 ## Installation
 
