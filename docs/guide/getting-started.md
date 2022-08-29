@@ -63,9 +63,9 @@ Let's create our first prop `radius`.
 
 ```js
 export let props = {
-	radius: {
-		value: 20,
-	}
+  radius: {
+    value: 20,
+  }
 };
 
 export let update = () => {
@@ -89,14 +89,14 @@ Each `prop` can have a special property `params`. If the `[propName].value` is a
 Let's add them:
 ```js
 export let props = {
-	radius: {
-		value: 20,
+  radius: {
+    value: 20,
     params: {
       min: 1,
       max: 200,
       step: 1,
     }
-	}
+  }
 };
 ```
 
