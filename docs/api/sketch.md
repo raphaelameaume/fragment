@@ -180,16 +180,6 @@ export let props = {
 }
 ```
 
-| prop type | value type | params | field |
-|---|---|---|---|
-| `number` | `number` | { disabled?: `boolean`, step?: `number`, min:`number`, max: `number` } | `<ProgressInput?>` + `<NumberInput>` |
-| `select` | `number\|string` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
-| `text` | `string` | { disabled?: `boolean`} | `<TextInput>`|
-| `button` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
-| `download` | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
-| `vec2` | `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
-| `vec3` | `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
-
 You can also add a listener if you want to trigger a function when the prop value changes.
 
 ```js
@@ -202,6 +192,17 @@ export let props = {
     value: [255, 0, 255],
     type: "color",
     onChange: onColorChange,
+  }
+}
+```
+
+A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode.
+
+```js
+export let props = {
+  color: {
+    value: [255, 0, 255],
+    hidden: __PRODUCTION__,
   }
 }
 ```
