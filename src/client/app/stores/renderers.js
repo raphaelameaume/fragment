@@ -2,7 +2,7 @@ import { rendering } from "./rendering";
 
 export let renderers = {};
 
-function loadRenderer(renderingMode) {
+function loadRenderer(renderingMode = "2d") {
 	if (__THREE_RENDERER__ && renderingMode === "three") {
 		return import("../renderers/THREERenderer.js");
 	}
@@ -20,7 +20,7 @@ function loadRenderer(renderingMode) {
 	}
 }
 
-export async function findRenderer(renderingMode) {
+export async function findRenderer(renderingMode = "2d") {
 	if (renderers[renderingMode]) return renderers[renderingMode];
 
 	// load and save
