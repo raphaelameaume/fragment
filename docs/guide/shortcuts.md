@@ -9,3 +9,4 @@
 |`r`| Reload sketch
 |`w`| Modify layout
 |`Space`| Pause rendering
+|`p`| Toggle Preview mode

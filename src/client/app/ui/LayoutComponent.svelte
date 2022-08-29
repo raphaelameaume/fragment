@@ -8,7 +8,9 @@ import { writable } from "svelte/store";
 import { addChildren, addSibling, layout, remove, replaceChildren, swapRoot, updateModule } from "../stores/layout";
 import Toolbar from "./LayoutToolbar.svelte";
 import Resizer from "./LayoutResizer.svelte";
-import ModuleRendererNew, { getModuleID }  from "./ModuleRenderer.svelte";
+import { getModuleID } from "./Module.svelte"; 
+import ModuleRenderer  from "./ModuleRenderer.svelte";
+import Preview from "./Preview.svelte";
 
 export let size = 1;
 export let type = "column";
@@ -22,7 +24,6 @@ setContext('module', module);
 
 let isRoot = parent === null;
 let children = writable([]);
-
 let style = "";
 
 function createComponent({
@@ -70,7 +71,7 @@ const context = {
 		$children = [...$children, child];
 
 		onDestroy(() => {
-			$children = $children.filter((c) => c.id !== child.id);
+			$children = $children.filter((c) => c !== child);
 		});
 	}
 };
@@ -81,7 +82,9 @@ if (parent) {
 	parent.registerChild(current);
 }
 
-$layout.registerChild(current, () => $children);
+if (!__PRODUCTION__) {
+	$layout.registerChild(current, () => $children);
+}
 
 $: {
 	let property = ``, value = ``;
@@ -182,6 +185,7 @@ function deleteCurrent() {
 function handleModuleChange(event) {
 	const moduleName = event.currentTarget.value;
 	$children[0].name = moduleName; // keep state when replacingChildren
+
 	updateModule($module, {
 		name: moduleName,
 	});
@@ -202,12 +206,14 @@ $: minimized = current.minimized;
 	bind:this={current.node}
 	bind:offsetWidth={offsetWidth}
 >
-	{#if tree && Array.isArray(tree.children) && tree.children.length > 0 }
+	{#if isRoot && $layout.previewing}
+		<Preview />
+	{:else if tree && Array.isArray(tree.children) && tree.children.length > 0 }
 		{#each tree.children as child (child.id) }
 			{#if child.type === "column" || child.type === "row"}
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === "module"}
-				<ModuleRendererNew name={child.name} mID={child.mID} />
+				<ModuleRenderer name={child.name} mID={child.mID} hasHeader={child.hasHeader} />
 			{/if}
 		{/each}
 	{:else}

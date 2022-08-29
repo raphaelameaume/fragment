@@ -1,26 +1,41 @@
+<script context="module">
+let MODULE_ID = 0; 
+
+export let getModuleID = () => {
+    return MODULE_ID++;
+};
+</script>
+
 <script>
 import { getContext } from "svelte";
-import { layout, updateComponent } from "../stores/layout.js";
+import { layout } from "../stores/layout.js";
 
+export let mID = undefined;
 export let name;
+export let slug = name;
 export let scrollable = true;
 export let hasHeader = true;
 
-let layoutComponent = getContext('parent');
+const parent = getContext('parent');
 
-function minimize() {
-    updateComponent(layoutComponent, (component) => {
-        console.log(component);
-        return {
-            minimized: !component.minimized
-        }
-    });
-}
+const current = {
+    mID: !isNaN(mID) ? mID : MODULE_ID++,
+    type: "module",
+    name: slug,
+    hasHeader,
+};
+
+MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
+
+parent.registerChild(current);
+
+const m = getContext('module');
+m.set(current);
 
 </script>
 
 <div
-    class="module module--{name}"
+    class="module module--{slug}"
     class:scrollable={scrollable}
     class:no-header={!hasHeader}
     class:editing={$layout.editing}
@@ -33,7 +48,7 @@ function minimize() {
                 </div>
             </div>
             <div class="header__col">
-                <button class="module__title" on:click={minimize}>{name}</button>
+                <h2 class="module__title">{name}</h2>
             </div>
             <div class="header__col">
                 <div class="slot slot--right">
@@ -59,6 +74,7 @@ function minimize() {
 
 .module.no-header {
     --header-height: 0px;
+    grid-template-rows: minmax(0px, auto);
 }
 
 .module__header {
@@ -97,12 +113,13 @@ function minimize() {
     color: white;
     font-size: 10px;
     text-transform: capitalize;
-    cursor: pointer;
     background-color: transparent;
 }
 
 .module__container {
     position: relative;
+
+    background-color: var(--color-background);
 }
 
 .module.scrollable .module__container {

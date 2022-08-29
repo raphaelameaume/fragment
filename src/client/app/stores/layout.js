@@ -1,11 +1,14 @@
 import { writable, get } from "svelte/store";
-import { getPersistentStore } from "./utils";
+import { getStore, createStore } from "./utils";
 import { onMount } from "svelte";
 
-export const tree = getPersistentStore("layout.current", false, {});
+export const tree = getStore("layout.current", {}, {
+    persist: !__PRODUCTION__
+});
 
-export const layout = writable({
+export const layout = createStore('layout', {
     editing: false,
+    previewing: false,
     registerChild: (component, children) => {
         onMount(() => {
             component.children = children();

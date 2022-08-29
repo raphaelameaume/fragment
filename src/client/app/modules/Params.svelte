@@ -18,6 +18,10 @@ import OutputParams from "../ui/ParamsOutput.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
 import { monitors } from "../stores/rendering";
 
+export let mID;
+export let hasHeader = true;
+export let output = true;
+
 let id = ID++;
 let selected = id;
 let sketchKey, sketchProps = {};
@@ -57,7 +61,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
 
 </script>
 
-<Module name={`Parameters`}>
+<Module {mID} {hasHeader} name={`Parameters`} slug="params" >
     <div slot="header-right">
         {#if options.length > 1 }
         <ModuleHeaderAction
@@ -69,17 +73,20 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
         />
         {/if }
     </div>
-    {#if showOutputParams }
+    {#if showOutputParams && output }
         <OutputParams />
     {/if}
 
     {#if sketch }
         {#if typeof props === "object"}
-            <Field key="framerate" value={isFinite(sketch.fps) ? sketch.fps : 60} params={{disabled: true}}/>
-            {#if sketch.duration && sketch.duration > 0 }
+            {#if output}
+                <Field key="framerate" value={isFinite(sketch.fps) ? sketch.fps : 60} params={{disabled: true}}/>
+            {/if}
+            {#if sketch.duration && sketch.duration > 0 && output }
                 <Field key="duration" value={sketch.duration} params={{disabled: true, suffix: "s"}}/>
             {/if }
             {#each Object.keys(sketchProps) as key, i}
+                {#if !sketchProps[key].hidden}
                 <Field
                     context={sketchKey}
                     key={key}
@@ -97,6 +104,7 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                         }
                     }}
                 />
+                {/if}
             {/each}
         {/if}
     {/if}

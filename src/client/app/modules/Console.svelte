@@ -5,6 +5,9 @@ import { logs } from "../stores/console";
 import ConsoleLine from "./Console/ConsoleLine.svelte";
 import { afterUpdate } from "svelte";
 
+export let mID;
+export let hasHeader;
+
 let scrollableContainer;
 
 function clear() {
@@ -19,7 +22,7 @@ afterUpdate(() => {
 
 </script>
 
-<Module name="Console" scrollable={false}>
+<Module {mID} {hasHeader} name="console" scrollable={false}>
     <svelte:fragment slot="header-right">
         <ModuleHeaderAction border label="Clear" on:click={() => clear()}>clear</ModuleHeaderAction>
     </svelte:fragment>

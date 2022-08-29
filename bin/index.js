@@ -10,8 +10,9 @@ sade('fragment [entry]')
     .option('-t, --template', 'Specify template to create the file from', '2d')
     .option('-p, --port', 'Port to bind', 3000)
     .option('-dev, --development', 'Enable development mode', false)
-    .option('-b, --build', 'Export sketch to static files', false)
-    .option('--outDir', 'Directory used for static build', 'dist')
+    .option('-b, --build', 'Build sketch for production', false)
+    .option('--outDir', 'Directory used for static build', null)
+    .option('--emptyOutDir', "Empty outDir before static build", false)
     .action((entry, options) => {
         run(entry, options);
     })

@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { createPersistentStore } from "./utils";
+import { createStore } from "./utils";
 
 export const IMAGE_ENCODINGS = ["png", "jpeg", "webp"];
 
@@ -10,7 +10,7 @@ export const VIDEO_FORMATS = {
 	WEBM: "webm",
 };
 
-export const exports = createPersistentStore(`exports`, false, {
+export const exports = createStore(`exports`, {
 	imageEncoding: IMAGE_ENCODINGS[0],
 	videoFormat: Object.values(VIDEO_FORMATS)[0],
 	pixelsPerInch: 72,
@@ -19,6 +19,9 @@ export const exports = createPersistentStore(`exports`, false, {
 	loopCount: 1,
 	imageQuality: 100,
 	videoQuality: 100,
+}, {
+	persist: !__PRODUCTION__,
+	reset: false,
 });
 
 export const recording = writable(false);

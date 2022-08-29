@@ -1,5 +1,6 @@
 import path from "path";
 import os from 'os';
+import fs from "fs/promises";
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig, build } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
@@ -10,6 +11,7 @@ import dbPlugin from "./plugins/db.js";
 import log from "./log.js";
 import db from "./db.js";
 import screenshotPlugin from "./plugins/screenshot.js";
+import checkDependencies from "./plugins/check-dependencies.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +20,8 @@ export async function start({ options, filepaths, entries, fragment }) {
     const root = path.join(__dirname, '/../client');
     const cwd = process.cwd();
     const app = path.join(root, 'app');
+
+    const entriesPaths = entries.map((entry ) => path.join(cwd, entry));
 
     const config = defineConfig({
         configFile: false,
@@ -63,6 +67,12 @@ export async function start({ options, filepaths, entries, fragment }) {
             },
             dbPlugin(),
             screenshotPlugin({ cwd }),
+            checkDependencies({
+                cwd,
+                app,
+                entriesPaths,
+                build: options.build,
+            })
         ],
         server: {
             port: options.port,
@@ -79,18 +89,30 @@ export async function start({ options, filepaths, entries, fragment }) {
         optimizeDeps: {
             exclude: [
                 ...filepaths,
-                ...entries.map((entry ) => path.join(process.cwd(), entry)),
+                ...entriesPaths,
             ]
         }
     });
 
     if (options.build) {
+        if (entries.length > 1) {
+            log.error(`fragment can only build one sketch at a time.`);
+            return;
+        }
+
+        const outDir = options.outDir ? options.outDir : entries[0].split('.js')[0];
+
         await build({
             ...config,
+            logLevel: "info",
             build: {
-                outDir: path.join(process.cwd(), options.outDir),
-            }
+                outDir: path.join(process.cwd(), outDir),
+                emptyOutDir: options.emptyOutDir,
+            },
         });
+
+        log.success(`Built files for:`);
+        entries.forEach(entry => console.log(`- ${entry}`));
     } else {
         log.warning(`Starting server...`);
         const server = await createServer(config);

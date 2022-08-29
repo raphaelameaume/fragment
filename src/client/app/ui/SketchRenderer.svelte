@@ -3,7 +3,8 @@ import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
 import KeyBinding from "../components/KeyBinding.svelte";
 import { all as allSketches } from "../stores/sketches.js";
-import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
+import { layout } from "../stores/layout.js";
+import { rendering, SIZES, sync, monitors, override } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { exports, props } from "../stores/index.js";
 import { findRenderer } from "../stores/renderers";
@@ -31,6 +32,7 @@ let _created = false, _errored = false;
 let renderer;
 let noop = () => {};
 let _renderSketch = noop;
+let backgroundColor = "inherit";
 
 function checkForResize() {
     if (!node) return;
@@ -90,6 +92,10 @@ sketchProps.subscribe(() => {
     }
 });
 
+layout.subscribe(() => {
+    setBackgroundColor();
+});
+
 function createCanvas(canvas = document.createElement('canvas')) {
     canvas.width = $rendering.width * $rendering.pixelRatio;
     canvas.height = $rendering.height * $rendering.pixelRatio;
@@ -125,32 +131,26 @@ function destroyCanvas(canvas) {
     canvas = null;
 }
 
+function setBackgroundColor() {
+    if (sketch) {
+        if (($layout.previewing || __PRODUCTION__) && sketch.buildConfig && sketch.buildConfig.backgroundColor) {
+            backgroundColor = sketch.buildConfig.backgroundColor;
+        } else if (!$layout.previewing && sketch.backgroundColor) {
+            backgroundColor = sketch.backgroundColor;
+        } else {
+            backgroundColor = "inherit";    
+        }
+    } else {
+        backgroundColor = "inherit";
+    }
+}
+
 async function createSketch(key) {
     sketch = $allSketches[key];
 
     if (!key || !sketch) return;
 
-    if (__PRODUCTION__) {
-        const { buildConfig = {} } = sketch;
-
-        const resizing = sketch.buildConfig.canvasSize || SIZES.WINDOW;
-        const overrides = {
-            resizing,
-        };
-
-        if (buildConfig.dimensions && buildConfig.dimensions.length === 2) {
-            const { dimensions } = buildConfig;
-            overrides.width = dimensions[0];
-            overrides.height = dimensions[1];
-        }
-
-        if (buildConfig.pixelRatio) {
-            const { pixelRatio } = buildConfig;
-            overrides.pixelRatio = typeof pixelRatio === "function" ? pixelRatio() : pixelRatio;
-        }
-
-        rendering.update((curr) => ({...curr, ...overrides}));
-    }
+    setBackgroundColor();
 
     if (canvas) {
         if (renderer && typeof renderer.onDestroyPreview === "function") {
@@ -165,6 +165,13 @@ async function createSketch(key) {
     if (!container) return;
 
     canvas = createCanvas();
+
+    if ($rendering.resizing === SIZES.SCALE) {
+        canvas.style.transform = `scale(${$rendering.scale})`;
+    } else {
+        canvas.style.transform = null;
+    }
+
     removeHotListeners(key);
 
     let mountParams = {};
@@ -515,6 +522,8 @@ $: {
     }
 }
 
+
+
 </script>
 
 <div
@@ -522,7 +531,7 @@ $: {
     class="sketch-renderer"
     class:visible={visible}
     class:recording={$recording}
-    style={`--background-color: ${sketch && sketch.backgroundColor ? sketch.backgroundColor : "inherit"}`}
+    style={`--background-color: ${backgroundColor}`}
 >
     <div
         class="canvas-container"

@@ -3,7 +3,7 @@
 
 # Exports
 
-`fragment` provides different ways to export sketches, whereas it's for diffusion or archive purposes. It currently supports image, video and live exports.
+`fragment` provides different ways to export sketches, whereas it's for communication or archive purposes. It currently supports image, video and live exports.
 
 Settings of the `Exports` module are saved in localStorage so they will be kept between working sessions as long as `fragment` starts on the same URL/port.
 
@@ -35,7 +35,51 @@ If `loopCount` is greater than 1, the recording will stop once fragment has enou
 
 ## Export a live version
 
-@TODO
+A sketch can be built into static files (html, js, css) to be deployed anywhere online.
+
+```
+fragment ./sketch.js --build
+```
+
+The static build can be configured from the sketch file by exporting a `buildConfig` object.
+
+```js
+export let buildConfig = {
+  backgroundColor: "red",
+  dimensions: [256, 256],
+  gui: {
+    position: "float",
+    align: "left",
+    size: 0.4,
+    output: false,
+	},
+  styles: /* css */`
+    :root {
+      --color-active: red;
+    }
+
+    canvas {
+      box-shadow: 0px 2px 12px -2px rgba(0, 0, 0, 0.35);
+    }
+  }`
+};
+```
+
+| name | type | effect | default |
+|---|---|---|---|
+| `backgroundColor` | `string` | Change the background color when canvas is not full size | `inherit` |
+| `dimensions` | `number[2]` | Change the dimensions of the canvas | Viewport size |
+| `canvasSize`| `string` | Change the resizing method of the canvas. Can be `window`, `fixed`, `scale`, `preset`, `aspect-ratio` | `window` |
+| `pixelRatio` | `number\|function` | Change the pixel ratio of the canvas. | `1` |
+| `gui` | `bool` | Display gui | `false` |
+| `gui.position` | `string` | Change gui appearance. Can be `fixed` or `float` | `float` |
+| `gui.align` | `string` | Change gui position. Can be `left` or `right` | `right` |
+| `gui.size` | `string\|number` | Change gui width. Can be a percentage or a number between 0 and 1 | `0.3`
+| `gui.output` | `string\|number` | Display canvasSize and dimensions fields in gui | `false` |
+| `gui.hidden` | `boolean` | Hide gui on start | `false` |
+| `styles` | `string` | Inject styles in document | `false` |
+
+A built sketch can be previewed on dev mode by typing `p`.
 
 ## Change the filename
 
