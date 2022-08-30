@@ -107,9 +107,6 @@ function createCanvas(canvas = document.createElement('canvas')) {
     canvas.onmouseup = (event) => checkForTriggersUp(event, key);
     canvas.onclick = (event) => checkForTriggersClick(event, key);
 
-    canvas.onwebglcontextlost = (event) => {
-        console.log("context lost");
-    };
     container.appendChild(canvas);
 
     $monitors = $monitors.map((monitor) => {
