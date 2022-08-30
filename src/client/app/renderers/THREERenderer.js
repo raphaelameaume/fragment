@@ -1,6 +1,7 @@
 import { WebGLRenderer, Scene } from "three";
 import { Texture, fragment } from "@fragment/lib/gl";
 import { client } from "@fragment/client";
+import { getShaderPath } from "../utils/glsl.utils";
 
 let renderer;
 let previews = [];
@@ -88,11 +89,6 @@ export let resize = ({ width, height, pixelRatio }) => {
 /* HOT SHADER RELOADING */
 client.on('shader-update', (data) => {
     const { filepath, source } = data;
-
-    const getShaderPath = (shader) => {
-        const match = shader.match(/<filepath:\/\/(.*)>/);
-		return match && match[1];
-    };
 
     const scenes = previews.map((preview) => preview.scene);
     const materials = [];

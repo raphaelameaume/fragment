@@ -1,30 +1,21 @@
 import { createStore } from "./utils";
 
-export const errors = createStore('errors', {});
+export const errors = createStore('errors', new Map());
 
 export function displayError(error, context) {
 	errors.update((current) => {
-		if (!current[context]) {
-			current[context] = [];
-		}
-
-		return {
-			...current,
-			[`${context}`]: [...current[context], error],
-		}
-	});
-}
-
-export function clearErrors(context) {
-	errors.update((current) => {
-		if (current[context]) {
-			current[context] = [];
-		}
+		current.set(context, error);
 
 		return current;
 	});
 }
 
-window.addEventListener('error', () => {
-	console.log(error);
-});
+export function clearErrors(context) {
+	errors.update((current) => {
+		if (current.has(context)) {
+			current.delete(context);
+		}
+
+		return current;
+	});
+}

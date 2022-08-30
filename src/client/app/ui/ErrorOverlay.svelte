@@ -1,13 +1,8 @@
 <script>
-import { names } from "../stores/sketches";
-
-
 export let error;
 
 export function getLineAndColNumber(stack) {
 	const match = stack.match(/(:([0-9]+)\:([0-9]+))/);
-
-	console.log(match);
 
 	let lineNumber, colNumber;
 
@@ -19,62 +14,41 @@ export function getLineAndColNumber(stack) {
 	return { lineNumber, colNumber };
 }
 
-$: stackLines = error.stack.split('\n')
-	.filter((line, i) => i !== 0)
-	.filter((line) => !line.includes('/app'))
-	.map((line) => {
-		let source;
-		for (let i = 0; i < names.length; i++) {
-			const name = names[i];
+$: stackLines = error.stack ?
+	error.stack.split('\n')
+		.filter((line, i, s) => s.length === 1 ? true : i !== 0)
+		.filter((line) => !line.includes('/app'))
+		.map((line) => {
+			// remove path to file in URL
+			line = line.replace(`${window.location.origin}/@fs${__CWD__}/`, "");
+			// remove vite injected params in URL
+			line = line.replace(/\?.+?\:/g, ":");
 
-			if (line.includes(name)) {
-				source = name;
-				break;
-			}
-		}
+			return line;
+		}) :
+	null;
 
-		if (source) {
-			const { lineNumber, colNumber} = getLineAndColNumber(line);
-
-			console.log(lineNumber && colNumber);
-
-			const suffix = (isFinite(lineNumber) && isFinite(colNumber)) ? `:${lineNumber}:${colNumber}` : "";
-
-			return `${line.split('(')[0]} (${source}${suffix})`;
-		}
-
-		return line;
-	});
-
-const extract = [
-	{ text: "  99: ", },
-	{ text: "  100: in vec2 vUv;", },
-	{ text: "  101: out vec4 FragColor;", },
-	{ text: "  102: ", },
-	{ text: "  103: float aastep(float threshold, float value) ", },
-	{ text: "> 104:     float afwidth = fwidth(value) * 0.5;", highlighted: true },
-	{ text: "  105:     return smoothstep(threshold - afwidth, threshold + afwidth, value);", },
-	{ text: "  106: }", },
-	{ text: "  107: ", },
-	{ text: "  108: float rand(vec2 co){ ", },
-	{ text: "  109:     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);", },
-	{ text: "  110: }", },
-]
+$: extract = error.source ?
+	error.source.split("\n").map((text, index) => ({ text, highlighted: text.includes(`> ${error.lineNumber}:`) })) : [];
 </script>
 
 <div class="error-overlay">
 	<div class="display">
 		<h2>{error.name}: {error.message}</h2>
-		<p class="stack">
-			{#each stackLines as stackLine}
-				<span>{stackLine}</span>
-			{/each}
-		</p>
+		{#if error.stack}
+			<p class="stack">
+				{#each stackLines as stackLine}
+					<span>{stackLine}</span>
+				{/each}
+			</p>
+		{/if}
+		{#if extract.length > 0}
 		<div class="extract">
 			{#each extract as line}
 				<span class="extract-line" class:highlighted={line.highlighted}>{line.text}</span>
 			{/each}
 		</div>
+		{/if}
 	</div>
 	<span class="console">Open your browser's console to further inspect this error.</span>
 </div>
@@ -112,17 +86,35 @@ h2 {
 }
 
 .extract {
+	display: flex;
+	flex-direction: column;
+	justify-content: stretch;
 	color: #2A0000;
 	padding: 12px 0;
 	font-size: var(--font-size-input);
 	background-color: #FF8081;
 	border-radius: var(--border-radius-input);
+	overflow-x: auto;
+}
+
+.extract::-webkit-scrollbar {
+    height: 5px;               /* width of the entire scrollbar */
+}
+
+.extract::-webkit-scrollbar-track {
+    background-color: #5C0000;
+}
+
+.extract::-webkit-scrollbar-thumb {
+    background-color: #f0f0f0;    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
 }
 
 .extract-line {
 	display: block;
 	white-space: pre;
 	padding: 0 12px;
+	width: 100%;
 }
 
 .extract-line.highlighted {

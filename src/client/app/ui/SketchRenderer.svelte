@@ -107,6 +107,9 @@ function createCanvas(canvas = document.createElement('canvas')) {
     canvas.onmouseup = (event) => checkForTriggersUp(event, key);
     canvas.onclick = (event) => checkForTriggersClick(event, key);
 
+    canvas.onwebglcontextlost = (event) => {
+        console.log("context lost");
+    };
     container.appendChild(canvas);
 
     $monitors = $monitors.map((monitor) => {
@@ -148,11 +151,15 @@ function setBackgroundColor() {
 }
 
 async function createSketch(key) {
-    sketch = $allSketches[key];
+    clearErrors(key);
+
+    try {
+        sketch = await $allSketches[key]();
+    } catch(error) {
+        onError(error);
+    }
 
     if (!key || !sketch) return;
-
-    clearErrors(key);
 
     setBackgroundColor();
 
@@ -257,9 +264,6 @@ async function createSketch(key) {
 function onError(error) {
     _errored = true;
     console.error(error);
-
-    const callstack = error.stack.split('\n');
-    console.log(callstack[1]);
 
     displayError(error, key);    
 
@@ -395,6 +399,7 @@ function render() {
 
 $: {
     if (canvas && _key !== key) {
+        clearErrors(_key);
         _key = key;
         sketch = null;
         createSketch(key);
@@ -535,7 +540,8 @@ $: {
     }
 }
 
-
+$: error = (key && $errors[key] && $errors[key].length > 0) ? $errors[key][0] :
+    $errors.size === 1 && $monitors.length === 1 ? $errors.get($errors.keys().next().value) : null;
 
 </script>
 
@@ -560,8 +566,8 @@ $: {
 <KeyBinding type="down" key="s" on:trigger={checkForSave} />
 <KeyBinding type="down" key="S" on:trigger={checkForRecord} />
 
-{#if key && $errors[key] && $errors[key].length > 0}
-    <ErrorOverlay error={$errors[key][0]} />
+{#if error}
+    <ErrorOverlay {error} />
 {/if}
 
 <style>
