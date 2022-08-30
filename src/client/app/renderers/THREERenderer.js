@@ -2,6 +2,8 @@ import { WebGLRenderer, Scene } from "three";
 import { Texture, fragment } from "@fragment/lib/gl";
 import { client } from "@fragment/client";
 import { getShaderPath } from "../utils/glsl.utils";
+import { createUUID } from "../utils/math.utils";
+import { clearErrors } from "../stores/errors";
 
 let renderer;
 let previews = [];
@@ -19,12 +21,15 @@ let fragmentShader = /* glsl */`
 export let init = ({ canvas }) => {
     renderer = new WebGLRenderer({ antialias: true });
 
+    renderer.getContext().__uuid = createUUID();
+
     return {
         renderer,
     };
 };
 
 export let onMountPreview = ({ id, canvas, width, height, pixelRatio }) => {
+    clearErrors(renderer.getContext().__uuid);
     let { gl, render, resize, uniforms, destroy } = fragment({
         canvas,
         shader: fragmentShader,

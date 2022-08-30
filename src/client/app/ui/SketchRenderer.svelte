@@ -540,7 +540,7 @@ $: {
 }
 
 $: error = (key && $errors.has(key)) ? $errors.get(key) :
-    $errors.size === 1 && $monitors.length === 1 ? $errors.get($errors.keys().next().value) : null;
+    $errors.size === 1 ? $errors.get($errors.keys().next().value) : null;
 </script>
 
 <div

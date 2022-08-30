@@ -21,3 +21,11 @@ export function map(value, min, max, nmin, nmax) {
 export function clamp(value, min, max) {
     return Math.max(min, Math.min(value, max));
 }
+
+export function createUUID() {
+	function s4() {
+		return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+	}
+
+	return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
