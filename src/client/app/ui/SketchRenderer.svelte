@@ -539,8 +539,11 @@ $: {
     }
 }
 
-$: error = (key && $errors.has(key)) ? $errors.get(key) :
-    $errors.size === 1 ? $errors.get($errors.keys().next().value) : null;
+$: error = (key && $errors.has(key)) ? $errors.get(key) : // display error if error context match current key
+    $errors.size === 1 && (
+        $monitors.length === 1 || // if there's only one monitor
+        !$monitors.some(m => m.selected === $errors.keys().next().value) // if none of current monitors match the key
+    ) ? $errors.get($errors.keys().next().value) : null;
 </script>
 
 <div
