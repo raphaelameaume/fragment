@@ -400,7 +400,6 @@ $: {
     if (canvas && _key !== key) {
         clearErrors(_key);
         _key = key;
-        sketch = null;
         createSketch(key);
     }
 }
