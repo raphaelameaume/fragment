@@ -6,6 +6,7 @@ import { all as allSketches } from "../stores/sketches.js";
 import { layout } from "../stores/layout.js";
 import { rendering, SIZES, sync, monitors, override } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
+import { errors, displayError, clearErrors } from "../stores/errors.js";
 import { exports, props } from "../stores/index.js";
 import { findRenderer } from "../stores/renderers";
 import { recording, capturing } from "../stores/exports.js";
@@ -13,6 +14,7 @@ import { removeHotListeners } from "../triggers/index.js";
 import { checkForTriggersDown, checkForTriggersMove, checkForTriggersUp, checkForTriggersClick } from "../triggers/Mouse.js";
 import { client } from "../client";
 import { recordCanvas, screenshotCanvas } from "../utils/canvas.utils.js";
+import ErrorOverlay from "./ErrorOverlay.svelte";
 
 export let key;
 export let id = 0;
@@ -146,7 +148,15 @@ function setBackgroundColor() {
 }
 
 async function createSketch(key) {
-    sketch = $allSketches[key];
+    clearErrors(key);
+
+    _created = false;
+
+    try {
+        sketch = await $allSketches[key]();
+    } catch(error) {
+        onError(error);
+    }
 
     if (!key || !sketch) return;
 
@@ -203,7 +213,7 @@ async function createSketch(key) {
     const { width, height, pixelRatio } = $rendering;
 
     try {
-        _created = false;
+        
         elapsedRenderingTime = 0;
 
         if (sketch.load) {
@@ -246,9 +256,15 @@ async function createSketch(key) {
     }
 }
 
+/**
+ * 
+ * @param {Error} error
+ */
 function onError(error) {
     _errored = true;
     console.error(error);
+
+    displayError(error, key);    
 
     cancelAnimationFrame(_raf);
     _raf = null;
@@ -382,8 +398,8 @@ function render() {
 
 $: {
     if (canvas && _key !== key) {
+        clearErrors(_key);
         _key = key;
-        sketch = null;
         createSketch(key);
     }
 }
@@ -522,8 +538,11 @@ $: {
     }
 }
 
-
-
+$: error = (key && $errors.has(key)) ? $errors.get(key) : // display error if error context match current key
+    $errors.size === 1 && (
+        $monitors.length === 1 || // if there's only one monitor
+        !$monitors.some(m => m.selected === $errors.keys().next().value) // if none of current monitors match the key
+    ) ? $errors.get($errors.keys().next().value) : null;
 </script>
 
 <div
@@ -546,6 +565,10 @@ $: {
 <KeyBinding type="down" key="r" on:trigger={checkForRefresh} />
 <KeyBinding type="down" key="s" on:trigger={checkForSave} />
 <KeyBinding type="down" key="S" on:trigger={checkForRecord} />
+
+{#if error}
+    <ErrorOverlay {error} />
+{/if}
 
 <style>
 .sketch-renderer {

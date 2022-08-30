@@ -8,7 +8,7 @@ function createShader(gl, type, source) {
         return shader;
     }
 
-	console.warn(`lemonade-gl.Program: Shader Info Log: ${gl.getShaderInfoLog(shader)}`);
+	console.warn(`fragment-gl.Program: Shader Info Log: ${gl.getShaderInfoLog(shader)}`);
     gl.deleteShader(shader);
 }
 
@@ -91,12 +91,12 @@ class Program {
 			${fragmentLog}
 			`);
 		} else if (programLog !== '') {
-			console.warn(`lemonade-gl.Program: Program Info Log: ${programLog}`);
+			console.warn(`fragment-gl.Program: Program Info Log: ${programLog}`);
 		}
 
 		let success = gl.getProgramParameter(_program, gl.LINK_STATUS);
 		if (!success) {
-			console.warn(`lemonade-gl.Program: Program Info Log: ${gl.getProgramInfoLog(_program)}`);
+			console.warn(`fragment-gl.Program: Program Info Log: ${gl.getProgramInfoLog(_program)}`);
 			gl.deleteProgram(_program);
 		}
 
