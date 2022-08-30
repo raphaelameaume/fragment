@@ -150,6 +150,8 @@ function setBackgroundColor() {
 async function createSketch(key) {
     clearErrors(key);
 
+    _created = false;
+
     try {
         sketch = await $allSketches[key]();
     } catch(error) {
@@ -211,7 +213,7 @@ async function createSketch(key) {
     const { width, height, pixelRatio } = $rendering;
 
     try {
-        _created = false;
+        
         elapsedRenderingTime = 0;
 
         if (sketch.load) {
@@ -537,9 +539,8 @@ $: {
     }
 }
 
-$: error = (key && $errors[key] && $errors[key].length > 0) ? $errors[key][0] :
+$: error = (key && $errors.has(key)) ? $errors.get(key) :
     $errors.size === 1 && $monitors.length === 1 ? $errors.get($errors.keys().next().value) : null;
-
 </script>
 
 <div
