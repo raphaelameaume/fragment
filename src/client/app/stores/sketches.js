@@ -21,7 +21,9 @@ async function loadAll(collection) {
 	const loadedSketches = await Promise.all(keys.map((key) => loadSketch(collection, key)));
 
 	const newSketches = keys.reduce((all, key, index) => {
-		all[key] = loadedSketches[index];
+		if (loadedSketches[index]) {
+			all[key] = loadedSketches[index];
+		}
 
 		return all;
 	}, {});

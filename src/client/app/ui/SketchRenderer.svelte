@@ -148,15 +148,22 @@ function setBackgroundColor() {
 }
 
 async function createSketch(key) {
-    clearErrors(key);
-
     _created = false;
 
     sketch = $sketches[key];
-    
 
-    if (!key || !sketch) return;
+    if (!key || !sketch) {
+        _errored = true;
 
+        if (_raf) {
+            cancelAnimationFrame(_raf);
+            _raf = null;
+        }
+
+        return;
+    }
+
+    clearErrors(key);
     setBackgroundColor();
 
     if (canvas) {
