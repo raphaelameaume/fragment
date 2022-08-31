@@ -1,4 +1,5 @@
 import { createStore } from "./utils.js";
+import { displayError } from "../stores/errors";
 import { sketches as all, onSketchReload } from "@fragment/sketches";
 
 export const sketches = createStore('sketches', {});
