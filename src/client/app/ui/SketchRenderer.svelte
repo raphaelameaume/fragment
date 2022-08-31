@@ -288,10 +288,12 @@ $: {
             },
             onStart: () => {
                 elapsedRenderingTime = 0;
+                paused = true;
             },
             onComplete: () => {
                 $recording = false;
                 record = null;
+                paused = false;
             }
         };
 
