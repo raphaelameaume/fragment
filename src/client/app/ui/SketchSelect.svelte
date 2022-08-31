@@ -20,11 +20,10 @@ $: {
             { value: "output", label: "output" },
         ];
     }
-    
-    if (selected === undefined) {
+
+    if (options.length > 0 && selected === undefined) {
         selected = options[0].value;
     }
-
 }
 
 $: {
