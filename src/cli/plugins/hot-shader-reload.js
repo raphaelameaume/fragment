@@ -25,6 +25,19 @@ ${keyword}${shaderParts[1]}
     
     return {
         name: 'hot-shader-reload',
+        config: () => ({
+            optimizeDeps: {
+                esbuildOptions: {
+                    loader: {
+                        ".frag": "text",
+                        ".vert": "text",
+                        ".glsl": "text",
+                        ".fs": "text",
+                        ".vs": "text",
+                    }
+                },
+            }
+		}),
         handleHotUpdate: async ({ modules, file, read }) => {
             if (fileRegex.test(file)) {
                 let src = await read();
