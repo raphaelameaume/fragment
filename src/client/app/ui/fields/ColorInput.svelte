@@ -37,6 +37,8 @@ $: {
         value.g =  g / 255;
         value.b =  b / 255;
     }
+
+    dispatchChange();
 }
 
 $: {
@@ -48,7 +50,7 @@ $: {
 
 function dispatchChange() {
     // support THREE.Color
-    if (color.isTHREE(value)) {
+    if (format === color.FORMATS.THREE) {
         dispatch('change', value);
     } else {
         dispatch('change', textValue);
@@ -83,13 +85,11 @@ function formatColorFromHex(hex) {
 function onChangeText(event) {
     isInputDriven = false;
 
-    const { value } = event.currentTarget;
+    const newColor = event.detail;
 
-    if (color.isColor(value)) {
-        format = color.getColorFormat(value);
-        textValue = value;
-
-        dispatch('change', value);
+    if (color.isColor(newColor)) {
+        format = color.getColorFormat(newColor);
+        textValue = newColor;
     }
 }
 
@@ -113,8 +113,6 @@ function onChangeAlpha(event) {
 
 function onInput() {
     isInputDriven = true;
-
-    dispatchChange();
 }
 
 </script>
@@ -125,7 +123,7 @@ function onInput() {
             <!-- svelte-ignore -->
             <input class="input" type="color" bind:value={hexValue} on:blur={handleBlur} on:input={onInput} />
         </div>
-        <TextInput value={textValue} on:input={onChangeText} on:change={onChangeText} />
+        <TextInput value={textValue} on:change={onChangeText} />
     </div>
     {#if hasAlpha }
         <Field key="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}} on:change={onChangeAlpha}></Field>
