@@ -61,6 +61,8 @@ export let onDestroyPreview = ({ id, canvas }) => {
     const previewIndex = previews.findIndex(p => p.id === id);
     const preview = previews[previewIndex];
 
+    clearError(renderer.getContext().__uuid);
+
     if (preview) {
         preview.texture.destroy();
         preview.destroy();
