@@ -1,5 +1,5 @@
 import { writable, get } from "svelte/store";
-import { all as sketches } from "./sketches";
+import { sketches } from "./sketches";
 
 export const props = writable({});
 
@@ -8,7 +8,6 @@ sketches.subscribe((sketches) => {
 
 	Object.keys(sketches).forEach((key) => {
 		$props[key] = reconcile(sketches[key].props, $props[key]);
-		
 	});
 
 	props.set($props);

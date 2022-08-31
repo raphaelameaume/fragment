@@ -2,9 +2,9 @@
 import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
 import KeyBinding from "../components/KeyBinding.svelte";
-import { all as allSketches } from "../stores/sketches.js";
+import { sketches } from "../stores/sketches.js";
 import { layout } from "../stores/layout.js";
-import { rendering, SIZES, sync, monitors, override } from "../stores/rendering.js";
+import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
 import { errors, displayError, clearErrors } from "../stores/errors.js";
 import { exports, props } from "../stores/index.js";
@@ -152,11 +152,8 @@ async function createSketch(key) {
 
     _created = false;
 
-    try {
-        sketch = await $allSketches[key]();
-    } catch(error) {
-        onError(error);
-    }
+    sketch = $sketches[key];
+    
 
     if (!key || !sketch) return;
 
@@ -444,7 +441,7 @@ async function save() {
     $capturing = false;
 }
 
-allSketches.subscribe(() => {
+sketches.subscribe(() => {
     if (_created || _errored) {
         createSketch(key);
     }

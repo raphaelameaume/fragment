@@ -5,7 +5,7 @@ import Monitor from "../modules/Monitor.svelte";
 import Params from "../modules/Params.svelte";
 import { layout } from "../stores/layout";
 import { override, preview } from "../stores/rendering";
-import { all, names } from "../stores/sketches";
+import { sketches, sketchesKeys } from "../stores/sketches";
 import FloatingParams from "./FloatingParams.svelte";
 import Column from "./LayoutColumn.svelte";
 import Row from "./LayoutRow.svelte";
@@ -22,8 +22,8 @@ let defaultGUIConfig = {
 };
 
 let guiConfig = defaultGUIConfig;
-$: sketchKey = ($layout.previewing && $preview) ? $preview : names[0];
-$: sketch = $all[sketchKey];
+$: sketchKey = ($layout.previewing && $preview) ? $preview : sketchesKeys[0];
+$: sketch = $sketches[sketchKey];
 
 $: {
 	if (sketch.buildConfig) {
