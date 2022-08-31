@@ -29,11 +29,11 @@ ${keyword}${shaderParts[1]}
             optimizeDeps: {
                 esbuildOptions: {
                     loader: {
-                        "frag": "text",
-                        "vert": "text",
-                        "glsl": "text",
-                        "fs": "text",
-                        "vs": "text",
+                        ".frag": "text",
+                        ".vert": "text",
+                        ".glsl": "text",
+                        ".fs": "text",
+                        ".vs": "text",
                     }
                 },
             }
