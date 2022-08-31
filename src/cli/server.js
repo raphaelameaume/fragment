@@ -36,9 +36,6 @@ export async function start({ options, filepaths, entries, fragment }) {
                 { find: 'ogl', replacement: path.join(cwd, 'node_modules/ogl') },
             ]
         },
-        fs: {
-            allow: [".."]
-        },
         plugins: [
             svelte({
                 configFile: false,
@@ -76,7 +73,10 @@ export async function start({ options, filepaths, entries, fragment }) {
         server: {
             port: options.port,
             host: true,
-            // middlewareMode: "ssr",
+            fs: {
+                strict: false,
+                allow: [".."],
+            },
         },
         define: {
             '__CWD__': `${JSON.stringify(cwd)}`,
