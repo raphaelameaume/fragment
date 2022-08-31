@@ -12,8 +12,8 @@ export const SIZES = {
 };
 
 export const rendering = createStore(`rendering`, {
-    width: 500,
-    height: 500,
+    width: 1024,
+    height: 1024,
     pixelRatio: 1,
     resizing: SIZES.FIXED,
     aspectRatio: 1,
