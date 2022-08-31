@@ -87,7 +87,7 @@ export async function start({ options, filepaths, entries, fragment }) {
         },
         optimizeDeps: {
             exclude: [
-                ...filepaths,
+                "@fragment/sketches",
                 ...entriesPaths,
             ]
         }
