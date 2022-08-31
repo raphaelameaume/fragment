@@ -1,6 +1,6 @@
 <script>
 import { rendering, SIZES, monitors } from "../stores/rendering.js";
-import { names } from "../stores/sketches.js";
+import { sketchesCount } from "../stores/sketches.js";
 import Field from "./Field.svelte";
 import presets, { getDimensionsForPreset } from "../lib/presets";
 import { exports } from "../stores";
@@ -134,6 +134,6 @@ $: {
     }}
 />
 {/if}
-{#if names.length > 1 && $monitors.length > 1 }
+{#if $sketchesCount > 1 && $monitors.length > 1 }
 <ParamsMultisampling />
 {/if}

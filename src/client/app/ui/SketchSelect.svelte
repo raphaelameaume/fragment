@@ -1,20 +1,20 @@
 <script>
 import ModuleHeaderAction from "./ModuleHeaderAction.svelte";
-import { all as allSketches, current as currentSketches } from "../stores/sketches.js";
+import { sketches, sketchesCount } from "../stores/sketches.js";
 import { monitors } from "../stores/rendering";
 
 export let monitorID;
 export let selected;
 
 $: options = [
-    ...Object.keys($allSketches).map((key) => ({
+    ...Object.keys($sketches).map((key) => ({
         value: key,
-        label: $allSketches[key].name ? $allSketches[key].name : key,
+        label: $sketches[key].name ? $sketches[key].name : key,
     })),
 ];
 
 $: {
-    if ($currentSketches.length > 1 && !options.some((opt) => opt.value === "output")) {
+    if ($sketchesCount > 1 && !options.some((opt) => opt.value === "output")) {
         options = [
             ...options,
             { value: "output", label: "output" },
