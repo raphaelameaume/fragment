@@ -150,6 +150,7 @@
 
 .console-error, .console-assert {
 	--json-tree-string-color: #FF8081;
+	--json-tree-label-color: #FF8081;
 
 	color: var(--json-tree-string-color);
 	background: #2A0000;
