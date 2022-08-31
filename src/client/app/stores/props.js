@@ -7,7 +7,12 @@ sketches.subscribe((sketches) => {
 	const $props = get(props);
 
 	Object.keys(sketches).forEach((key) => {
-		$props[key] = reconcile(sketches[key].props, $props[key]);
+		const sketch = sketches[key];
+
+		if (sketch) { // sketch can be undefined if failed to load
+			$props[key] = reconcile(sketch.props, $props[key]);
+		}
+
 	});
 
 	props.set($props);

@@ -1,7 +1,7 @@
 import { fragment } from "../lib/gl";
 import { client } from "@fragment/client";
 import { getShaderPath } from "../utils/glsl.utils";
-import { clearErrors } from "../stores/errors";
+import { clearError } from "../stores/errors";
 
 let frags = [];
 
@@ -28,13 +28,15 @@ export let onDestroyPreview = ({ canvas, id }) => {
 	let fragIndex = frags.findIndex(f => f.id === id);
 	let { frag } = frags[fragIndex];
 	
-	clearErrors(frag.gl.__uuid);
+	clearError(frag.gl.__uuid);
 
 	frag.destroy();
 	frags.splice(fragIndex, 1);
 };
 
 client.on('shader-update', (data) => {
+	frags.forEach(({ frag }) => clearError(frag.gl.__uuid));
+
 	const { filepath, source } = data;
 
 	const programs = frags.map(({ frag }) => frag.program);

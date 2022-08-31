@@ -1,4 +1,6 @@
 <script>
+import { clearErrors } from "../stores/errors";
+
 export let error;
 
 export function getLineAndColNumber(stack) {
@@ -32,7 +34,7 @@ $: extract = error.source ?
 	error.source.split("\n").map((text, index) => ({ text, highlighted: text.includes(`> ${error.lineNumber}:`) })) : [];
 </script>
 
-<div class="error-overlay">
+<div class="error-overlay" on:click={() => clearErrors()}>
 	<div class="display">
 		<h2>{error.name}: {error.message}</h2>
 		{#if error.stack}
@@ -50,7 +52,7 @@ $: extract = error.source ?
 		</div>
 		{/if}
 	</div>
-	<span class="console">Open your browser's console to further inspect this error.</span>
+	<span class="console">Open your browser's console to further inspect this error. Click to dismiss.</span>
 </div>
 
 <style>

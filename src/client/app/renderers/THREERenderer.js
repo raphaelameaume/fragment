@@ -2,7 +2,7 @@ import { WebGLRenderer, Scene } from "three";
 import { Texture, fragment } from "@fragment/lib/gl";
 import { client } from "@fragment/client";
 import { getShaderPath } from "../utils/glsl.utils";
-import { clearErrors } from "../stores/errors";
+import { clearError } from "../stores/errors";
 
 let renderer;
 let previews = [];
@@ -26,7 +26,6 @@ export let init = ({ canvas }) => {
 };
 
 export let onMountPreview = ({ id, canvas, width, height, pixelRatio }) => {
-    clearErrors(renderer.getContext().__uuid);
     let { gl, render, resize, uniforms, destroy } = fragment({
         canvas,
         shader: fragmentShader,
@@ -62,6 +61,8 @@ export let onDestroyPreview = ({ id, canvas }) => {
     const previewIndex = previews.findIndex(p => p.id === id);
     const preview = previews[previewIndex];
 
+    clearError(renderer.getContext().__uuid);
+
     if (preview) {
         preview.texture.destroy();
         preview.destroy();
@@ -90,6 +91,7 @@ export let resize = ({ width, height, pixelRatio }) => {
 
 /* HOT SHADER RELOADING */
 client.on('shader-update', (data) => {
+    clearError(renderer.getContext().__uuid);
     const { filepath, source } = data;
 
     const scenes = previews.map((preview) => preview.scene);
@@ -121,4 +123,6 @@ client.on('shader-update', (data) => {
             }
         });
     });
+
+    
 });

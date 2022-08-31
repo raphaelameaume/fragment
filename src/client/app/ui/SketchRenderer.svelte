@@ -2,11 +2,11 @@
 import { onMount, onDestroy } from "svelte";
 import { derived } from "svelte/store";
 import KeyBinding from "../components/KeyBinding.svelte";
-import { sketches } from "../stores/sketches.js";
+import { sketches, sketchesKeys } from "../stores/sketches.js";
 import { layout } from "../stores/layout.js";
 import { rendering, SIZES, sync, monitors } from "../stores/rendering.js";
 import { current as currentTime } from "../stores/time.js";
-import { errors, displayError, clearErrors } from "../stores/errors.js";
+import { errors, displayError, clearError } from "../stores/errors.js";
 import { exports, props } from "../stores/index.js";
 import { findRenderer } from "../stores/renderers";
 import { recording, capturing } from "../stores/exports.js";
@@ -148,15 +148,22 @@ function setBackgroundColor() {
 }
 
 async function createSketch(key) {
-    clearErrors(key);
-
     _created = false;
 
     sketch = $sketches[key];
-    
 
-    if (!key || !sketch) return;
+    if (!key || !sketch) {
+        _errored = true;
 
+        if (_raf) {
+            cancelAnimationFrame(_raf);
+            _raf = null;
+        }
+
+        return;
+    }
+
+    clearError(key);
     setBackgroundColor();
 
     if (canvas) {
@@ -397,7 +404,10 @@ function render() {
 
 $: {
     if (canvas && _key !== key) {
-        clearErrors(_key);
+        if (_created) {
+            clearError(_key);
+        }
+
         _key = key;
         createSketch(key);
     }
@@ -538,7 +548,9 @@ $: {
 }
 
 $: error = (key && $errors.has(key)) ? $errors.get(key) : // display error if error context match current key
-    $errors.size === 1 && (
+    $errors.size === 1 &&
+    ![...$errors.keys()].some((key) => $sketchesKeys.includes(key)) &&
+    (
         $monitors.length === 1 || // if there's only one monitor
         !$monitors.some(m => m.selected === $errors.keys().next().value) // if none of current monitors match the key
     ) ? $errors.get($errors.keys().next().value) : null;
