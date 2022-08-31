@@ -51,10 +51,6 @@ monitors.subscribe((value) => {
     sketchKey = monitor ? monitor.selected : undefined;
 });
 
-// async function load(key) {
-    
-// }
-
 $: {
     sketch = $sketches[sketchKey];
     sketchProps = $props[sketchKey];
