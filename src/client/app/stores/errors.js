@@ -10,7 +10,7 @@ export function displayError(error, context) {
 	});
 }
 
-export function clearErrors(context) {
+export function clearError(context) {
 	errors.update((current) => {
 		if (current.has(context)) {
 			current.delete(context);
@@ -18,4 +18,8 @@ export function clearErrors(context) {
 
 		return current;
 	});
+}
+
+export function clearErrors() {
+	errors.update(() => new Map());
 }

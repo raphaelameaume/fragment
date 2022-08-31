@@ -1,5 +1,4 @@
-import { clearErrors, displayError } from "../stores/errors";
-import { getContext } from "../triggers/shared";
+import { displayError } from "../stores/errors";
 import { getShaderPath, removeShaderPath } from "./glsl.utils";
 
 const methods = ['attachShader'];
@@ -35,9 +34,6 @@ function e(method, fn) {
 const FRAGMENT_SHADER = 35632;
 const VERTEX_SHADER = 35633;
 
-const programs = new Map();
-const shaders = new Map();
-
 class ShaderCompileError extends Error {
 
 	constructor({
@@ -63,13 +59,11 @@ e('createShader', function(res, args) {
 
 	res.__uuid = createUUID();
 	res.__type = args[0];
-	
-	shaders.set(res.__uuid, res);
 });
 
 e('attachShader', function(res, args) {
-	const program = programs.get(args[0].__uuid);
-	const shader = shaders.get(args[1].__uuid);
+	const program = args[0];
+	const shader = args[1];
 
 	if (shader.__type === FRAGMENT_SHADER) {
 		program.__fragmentShader = shader; 
@@ -79,7 +73,7 @@ e('attachShader', function(res, args) {
 });
 
 e('shaderSource', function(res, args) {
-	const shader = shaders.get(args[0].__uuid);
+	const shader = args[0];
 	const source = args[1];
 
 	shader.__source = source;
@@ -91,23 +85,21 @@ e('shaderSource', function(res, args) {
 
 		shader.__filepath = filepath;
 		shader.__filename = filename;
-
-		clearErrors(shader.__filename);
 	}
 });
 
 e('createProgram', function(res, args) {
 	res.__uuid = createUUID();
-
-	programs.set(res.__uuid, res);
 });
 
 e('compileShader', function(res, args) {
 	const gl = this;
 	const shader = args[0];
+	const filename = shader.__filename;
 
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		const { source, filename, lineNumber, message } = getShaderError(gl, shader, shader.__type);
+		const { source, lineNumber, message } = getShaderError(gl, shader, shader.__type);
+		
 		const error = new ShaderCompileError({
 			source,
 			message,
@@ -115,7 +107,7 @@ e('compileShader', function(res, args) {
 			lineNumber,
 		});
 
-		displayError(error, filename ? filename : this.__uuid);
+		displayError(error, this.__uuid);
 	}
 });
 
@@ -137,7 +129,6 @@ function getShaderError(gl, shader, type) {
 			message, 
 			source: source,
 			lineNumber,
-			filename: shader.__filename,
 		};
 	} else {
 		return errors;
