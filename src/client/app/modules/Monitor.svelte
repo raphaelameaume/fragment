@@ -21,6 +21,18 @@ let selected = sketchKey ?
     sketchKey :
     ($preview ? $preview : $sketchesKeys[Math.min(id, $sketchesKeys.length - 1)]);
 
+sketchesKeys.subscribe((keys) => {
+    if (!selected && keys.length > 0) {
+        $monitors = $monitors.map(monitor => {
+            if (monitor.id === id) {
+                monitor.selected = $sketchesKeys[Math.min(id, $sketchesKeys.length - 1)];
+            }
+
+            return monitor;
+        });
+    }
+});
+
 onMount(() => {
     $monitors = [
         ...$monitors,
