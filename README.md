@@ -27,7 +27,7 @@ You should now be able to run `fragment` from your command line.
 
 ```
 # create a new directory for your sketches
-mkdir ../sketches
+mkdir sketches
 
 # move into that folder
 cd sketches
