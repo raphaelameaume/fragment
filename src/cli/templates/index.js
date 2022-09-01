@@ -16,12 +16,6 @@ const templates = {
 	"three/perspective": [
 		"./templates/three-perspective.js"
 	],
-	"ogl/orthographic": [
-		"./templates/ogl-orthographic.js"
-	],
-	"ogl/perspective": [
-		"./templates/ogl-perspective.js"
-	],
 	"p5": [
 		"./templates/p5.js"
 	]
