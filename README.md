@@ -17,20 +17,11 @@
 
 ## Installation
 
-`fragment` is not yet available on [npmjs.com](npmjs.com) so you need to clone and link the project in order to use it. It's only a few steps.
-
 ```
-# clone the project
-git clone https://github.com/raphaelameaume/fragment
-
-# move to the project directory
-cd fragment
-
-# link the project
-npm link
+npm install fragment-tools -g
 ``` 
 
-You should now be able to run `fragment` from your command line. If you encounter any issues, you can read more about linking on [npmjs.com](https://docs.npmjs.com/cli/v8/commands/npm-link).
+You should now be able to run `fragment` from your command line.
 
 ## Usage
 
@@ -40,9 +31,6 @@ mkdir ../sketches
 
 # move into that folder
 cd sketches
-
-# initialize npm for linking to work
-npm init
 
 # create a sketch from a template
 fragment ./sketch.js --new --template=2d
