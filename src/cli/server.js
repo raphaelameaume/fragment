@@ -86,11 +86,17 @@ export async function start({ options, filepaths, entries, fragment }) {
             '__PRODUCTION__': options.build,
         },
         optimizeDeps: {
+            include: ['convert-length', 'webm-writer', 'changedpi'],
             exclude: [
                 "@fragment/sketches",
                 ...entriesPaths,
             ]
-        }
+        },
+        build: {
+            commonjsOptions: {
+                include: ['convert-length', 'webm-writer', 'changedpi'],
+            },
+        },
     });
 
     if (options.build) {
