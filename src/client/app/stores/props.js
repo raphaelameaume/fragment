@@ -12,33 +12,34 @@ sketches.subscribe((sketches) => {
 		if (sketch) { // sketch can be undefined if failed to load
 			$props[key] = reconcile(sketch.props, $props[key]);
 		}
-
 	});
 
 	props.set($props);
 });
 
-function reconcile(newProps = {}, existingProps = {}) {
-	Object.keys(newProps).forEach(propKey => {
-		newProps[propKey]._initialValue = newProps[propKey].value;
-	});
-
-	if (existingProps) {
-		Object.keys(existingProps).forEach((propKey) => {
+function reconcile(newProps = {}, prevProps = {}) {
+	if (prevProps) {
+		Object.keys(prevProps).forEach((propKey) => {
+			let prevProp = prevProps[propKey];
 			let newProp = newProps[propKey];
 
-			if (newProp) {
-				let prevProp = existingProps[propKey];
-				let overrideValue = 
-					typeof prevProp._initialValue === "number" && 
-					prevProp._initialValue === newProp._initialValue;
+			console.log(prevProp);
 
-				if (overrideValue) {
-					newProp.value = prevProp.value;
+			if (newProp) {
+				if (!newProp.params) {
+					newProp.params = {};
+				}
+
+				if (prevProp.params) {
+					// reconcile locked VectorInput from UI
+					if (prevProp.params.locked !== undefined) {
+						console.log("reconcile locked param", propKey, prevProp.params.locked);
+						newProp.params.locked = prevProp.params.locked;
+					}
 				}
 			}
 		});
-	};
+	}
 
 	return newProps;
 }

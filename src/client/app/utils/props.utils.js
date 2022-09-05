@@ -40,14 +40,14 @@ export function inferFromValue(value) {
         }
 
         return "text";
+    } else {
+        const isArray = Array.isArray(value);
+        const isObject = !isArray && typeof value === "object";
+        
+        const values = isObject ? Object.values(value) : value;
 
-    } else if (Array.isArray(value) && value.length === 2) {
-        return "vec2";
-    } else if (Array.isArray(value) && value.length === 3) {
-        return "vec3";
-    } else if (typeof value === "object" && Object.keys(value).length === 3) {
-        return "vec3";
-    } else if (typeof value === "object" && Object.keys(value).length === 2) {
-        return "vec2";
+        if ((isArray || isObject) && values.every(v => typeof v === "number") && values.length <= 4) {
+            return "vec";
+        }
     }
 }
