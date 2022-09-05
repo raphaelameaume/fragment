@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const app = path.join(__dirname, '../client/app');
 const timestamp = Date.now();
 const allowedExtensions = ['.js', '.ts']
 
@@ -74,16 +75,23 @@ async function createEntries(entry, options) {
             throw new Error(`Error: Template ${options.template} doesn't exist.`);
         }
 
-        const entryName = path.basename(entryPath, path.extname(entryPath));
+        let entryName = path.basename(entryPath, path.extname(entryPath));
 
         for (let i = 0; i < templateFiles.length; i++) {
             const filepath = path.join(__dirname, templateFiles[i]);
             const ext = path.extname(filepath);
+            const filename = path.basename(filepath, ext);
             let fileContent = (await fs.readFile(filepath)).toString();
+
+            if(filename === 'tsconfig') {
+                entryName = filename
+                fileContent = fileContent.replace('$BASE_URL', app);
+                fileContent = fileContent.replace('$FRAGMENT_ALIAS_PATH', '*');
+                fileContent = fileContent.replace('$TYPES_PATH', path.join(app, 'types/client'));
+            }
 
             const destPath = i === 0 ? entryPath :
                 path.join(process.cwd(), `${entryName}${ext}`);
-            const destName = path.basename(destPath);
 
             const filepaths = templateFiles
                 .filter((file, index) => index !== i)
