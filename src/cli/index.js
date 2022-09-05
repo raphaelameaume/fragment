@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const timestamp = Date.now();
+const allowedExtensions = ['.js', '.ts']
 
 export const run = async (entry, options) => {
     let wsServer;
@@ -62,8 +63,8 @@ async function createEntries(entry, options) {
     let shouldCreateFile = options.new;
 
     async function createEntryFile(entryPath) {
-        if (path.extname(entryPath) !== ".js") {
-            throw new Error(`File extension needs to be .js`);
+        if (!allowedExtensions.includes(path.extname(entryPath))) {
+            throw new Error(`File extension needs to be ${allowedExtensions.join(' or ')}`);
         }
 
         const createFromTemplate = typeof options.template === "string";
@@ -124,7 +125,7 @@ async function createEntries(entry, options) {
             entries.push(path.relative(process.cwd(), entryPath));
         } else if (stats.isDirectory()) {
             const files = await fs.readdir(entryPath);
-            const sketchFiles = files.filter((file) => path.extname(file) === ".js");
+            const sketchFiles = files.filter((file) => allowedExtensions.includes(path.extname(file)));
 
             if (sketchFiles.length === 0) {
                 log.error(`Folder doesn't contain any sketch files.`);
@@ -141,8 +142,6 @@ async function createEntries(entry, options) {
             log.error(error.message);
         }
     }
-
-    
 
     return entries;
 }
