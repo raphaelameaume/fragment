@@ -200,11 +200,13 @@ function composeFieldProps(params) {
 
 :global(.field__input .field) {
     padding-left: 0px !important;
+    padding-right: 0px !important;
 }
 
 :global(.field__input .field:last-child) {
     border-bottom: 0px solid #323233 !important;
     padding-bottom: 0px !important;
+    
 }
 
 .field.disabled {
