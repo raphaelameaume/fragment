@@ -14,6 +14,7 @@
 - Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
 - Interactive sketches using *triggers*
 - Static build for production deployment
+- TypeScript support
 
 ## Installation
 
@@ -34,6 +35,7 @@ cd sketches
 
 # create a sketch from a template
 fragment ./sketch.js --new --template=2d
+fragment ./sketch.ts --new --template=2d-ts
 ```
 
 Learn more about the available flag options in the [CLI docs](./docs/api/CLI.md).

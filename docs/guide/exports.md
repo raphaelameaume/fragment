@@ -39,6 +39,7 @@ A sketch can be built into static files (html, js, css) to be deployed anywhere 
 
 ```
 fragment ./sketch.js --build
+fragment ./sketch.ts --build
 ```
 
 The static build can be configured from the sketch file by exporting a `buildConfig` object.
