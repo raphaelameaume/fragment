@@ -16,6 +16,10 @@ function onKeyPress(event) {
     }
 }
 
+function handleInput(event) {
+    dispatch('input', event.currentTarget.value);
+}
+
 function handleChange(event) {
     dispatch('change', event.currentTarget.value);
 }
@@ -31,7 +35,7 @@ function handleChange(event) {
         bind:this={node}
         bind:value={value}
         on:change={handleChange}
-        on:input
+        on:input={handleInput}
         on:keypress={onKeyPress}
         on:keydown
         on:focus
