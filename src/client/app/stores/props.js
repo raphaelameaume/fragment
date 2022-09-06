@@ -23,8 +23,6 @@ function reconcile(newProps = {}, prevProps = {}) {
 			let prevProp = prevProps[propKey];
 			let newProp = newProps[propKey];
 
-			console.log(prevProp);
-
 			if (newProp) {
 				if (!newProp.params) {
 					newProp.params = {};
@@ -33,7 +31,6 @@ function reconcile(newProps = {}, prevProps = {}) {
 				if (prevProp.params) {
 					// reconcile locked VectorInput from UI
 					if (prevProp.params.locked !== undefined) {
-						console.log("reconcile locked param", propKey, prevProp.params.locked);
 						newProp.params.locked = prevProp.params.locked;
 					}
 				}
