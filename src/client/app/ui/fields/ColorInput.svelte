@@ -8,11 +8,10 @@ export let value;
 
 const dispatch = createEventDispatcher();
 
-let format = color.getColorFormat(value);
-let hexValue = color.toHex(value, format);
-let textValue = color.toString(value, format);
-let alpha = 1;
-
+$: format = color.getColorFormat(value);
+$: hexValue = color.toHex(value, format);
+$: textValue = color.toString(value, format);
+$: alpha = 1;
 $: hasAlpha = [
     color.FORMATS.RGBA_STRING,
     color.FORMATS.VEC4_STRING,
@@ -23,6 +22,8 @@ $: {
     if (hasAlpha) {
         const [r, g, b, a = 1] = color.toComponents(value);
         alpha = a;
+    } else {
+        alpha = 1;
     }
 }
 
@@ -116,7 +117,7 @@ function onInput(event) {
             textValue = color.componentsToHSLString([r, g, b]);
             break;
         case color.FORMATS.HSLA_STRING:
-            textValue = color.componentsToHSLString([r, g, b, alpha]);
+            textValue = color.componentsToHSLAString([r, g, b, alpha]);
             break;
         default:
             textValue = color.toString(hexValue);

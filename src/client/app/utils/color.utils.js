@@ -361,7 +361,8 @@ export function componentsToHSLString(components = []) {
 
 export function componentsToHSLAString(components = []) {
 	const [ r = 0, g = 0, b = 0, a = 1 ] = components;
-	return hslaToHSLAString(componentsToHSLComponents([r, g, b]));
+	const [ h, s, l] = componentsToHSLComponents([r, g, b]);
+	return hslaToHSLAString([h, s, l, a]);
 }
 
 export function componentToHex(c) {
