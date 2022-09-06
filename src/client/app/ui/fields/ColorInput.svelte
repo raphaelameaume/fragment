@@ -125,6 +125,18 @@ function onInput(event) {
 <div class="color-input">
     <div class="layout">
         <div class="mirror" style="--currentColor: {hexValue}; --opacity: {alpha}">
+            {#if hasAlpha }
+            <svg width="calc(100% - 2px)" height="calc(100% - 2px)" class="alpha-svg">
+                <pattern id="checker" x="0" y="0" width="7.2" height="7.2" patternUnits="userSpaceOnUse">
+                    <rect fill="white" x="0" width="3.6" height="3.6" y="0"></rect>
+                    <rect fill="grey" x="3.6" width="3.6" height="3.6" y="0"></rect>
+                    <rect fill="white" x="3.6" width="3.6" height="3.6" y="3.6"></rect>
+                    <rect fill="grey" x="0" width="3.6" height="3.6" y="3.6"></rect>
+                </pattern>
+                <!-- The canvas with our applied pattern -->
+                <rect x="0" y="0" width="100%" height="100%" fill="url(#checker)"></rect>
+            </svg>
+            {/if}
             <!-- svelte-ignore -->
             <input class="input" type="color" bind:value={hexValue} on:blur={handleBlur} on:input={onInput} />
         </div>
@@ -148,6 +160,18 @@ function onInput(event) {
     align-items: center;
 }
 
+.alpha-svg {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+
+    border-radius: calc(var(--border-radius-input) * 0.5);
+
+    /* display: none; */
+}
+
 .mirror {
     position: relative;
     
@@ -157,11 +181,12 @@ function onInput(event) {
     box-shadow: inset 0 0 0 1px var(--color-border-input);
 }
 
-.mirror:before {
+.mirror:after {
     --gap: 1px;
 
     content: '';
     position: absolute;
+    z-index: 1;
     top: var(--gap);
     left: var(--gap);
     right: var(--gap);
