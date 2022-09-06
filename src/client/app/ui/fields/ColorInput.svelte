@@ -168,8 +168,6 @@ function onInput(event) {
     bottom: 1px;
 
     border-radius: calc(var(--border-radius-input) * 0.5);
-
-    /* display: none; */
 }
 
 .mirror {
@@ -195,6 +193,7 @@ function onInput(event) {
     background-color: var(--currentColor);
     border-radius: calc(var(--border-radius-input) * 0.5);
     opacity: var(--opacity, 1);
+    pointer-events: none;
 }
 
 .mirror:hover {
