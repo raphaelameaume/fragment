@@ -44,12 +44,12 @@ export type Fps = number;
 export type Name = string;
 export type FilenamePattern = (opts: {
   filename: string;
-  suffix: string;
   year: string;
   month: string;
   day: string;
   hours: string;
   minutes: string;
   seconds: string;
+  timestamp: string;
   props: Props;
 }) => string;
