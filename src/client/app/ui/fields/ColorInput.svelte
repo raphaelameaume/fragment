@@ -112,6 +112,12 @@ function onInput(event) {
         case color.FORMATS.RGB_OBJECT:
             textValue = color.toRGBString(hexValue);
             break;
+        case color.FORMATS.HSL_STRING:
+            textValue = color.componentsToHSLString([r, g, b]);
+            break;
+        case color.FORMATS.HSLA_STRING:
+            textValue = color.componentsToHSLString([r, g, b, alpha]);
+            break;
         default:
             textValue = color.toString(hexValue);
             break;

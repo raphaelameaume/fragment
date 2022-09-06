@@ -145,12 +145,12 @@ export function rgbTohsl(r,g,b) {
 }
 
 export function hslToHSLComponents(color) {
-	const match = color.match(/hsla?\((\d{1,3}), ?(\d{1,3})\%, ?(\d{1,3})\%\)?(?:, ?(\d*(?:\.?\d*?))\))?/);
+	const match = color.match(/hsla?\((\d{1,3}),?[\s]?(\d{1,3})\%,?[\s]?(\d{1,3})\%\)?(?:,?[\s]?(\d*(?:\.?\d*?))\))?/);
 
 	if (match) {
 		const h = Math.min(360, Math.max(Number(match[1]), 0));
-		const l = Math.min(100, Math.max(Number(match[2]), 0));
-		const s = Math.min(100, Math.max(Number(match[3]), 0));
+		const s = Math.min(100, Math.max(Number(match[2]), 0));
+		const l = Math.min(100, Math.max(Number(match[3]), 0));
 		const a = match[4] ? Math.min(1, Math.max(Number(match[4]), 0)) : 1;
 
 		return [h, s, l, a];
@@ -161,33 +161,24 @@ export function hslToHSLComponents(color) {
 }
 
 export function hslToComponents(color) {
-	const [h, s, l, a] = hslToHSLComponents(color);
+	let [h, s, l, a = 1] = hslToHSLComponents(color);
 
-	// monochromatic
-	if (s === 0) { 
-		const tl = l / 100 * 255;
+	h = h % 360;
 
-		return [tl, tl, tl, a];
-	} else {
-		const hue2rgb = (p, q, t) => {
-			if (t < 0) t += 1;
-			if (t > 1) t -= 1;
-			if (t < 1 / 6) return p + (q - p) * 6 * t;
-			if (t < 1 / 2) return q;
-			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-			return p;
-		};
-
-		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		const p = 2 * l - q;
-
-		return [
-			hue2rgb(p, q, h + 1 / 3),
-			hue2rgb(p, q, h),
-			hue2rgb(p, q, h - 1 / 3),
-			a,
-		];
+	if (h < 0) {
+		h += 360;
 	}
+
+	s /= 100;
+	l /= 100;
+
+	function f(n) {
+		let k = (n + h/30) % 12;
+		let a = s * Math.min(l, 1 - l);
+		return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+	}
+
+	return [f(0), f(8), f(4), a];
 }
 
 export function hslToHex(color) {
@@ -295,8 +286,6 @@ export function componentsToVec4String(components = []) {
 	return `vec4(${rn}, ${gn}, ${bn}, ${an})`;
 }
 
-
-
 export function toRGBString(color) {
 	const [r, g, b] = toComponents(color);
 
@@ -328,30 +317,41 @@ export function componentsToRGBAString(components = []) {
 }
 
 export function componentsToHSLComponents(components = []) {
-	const [ r = 0, g = 0, b = 0 ] = components;
+	let [r, g, b] = components;
+	let max = Math.max(...components);
+	let min = Math.min(...components);
+	let [h, s, l] = [NaN, 0, (min + max)/2];
+	let d = max - min;
 
-	let v = Math.max(r,g,b);
-	let c = v-Math.min(r,g,b);
-	let f = (1-Math.abs(v+v-c-1));
-  	let h = c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
-	h = 60*(h<0?h+6:h);
+	if (d !== 0) {
+		s = (l === 0 || l === 1) ? 0 : (max - l) / Math.min(l, 1 - l);
 
-	let l = (f ? c/f : 0);
-	let s = (v+v-c)/2;
+		switch (max) {
+			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+			case g: h = (b - r) / d + 2; break;
+			case b: h = (r - g) / d + 4;
+		}
 
-	return [h, s, l];
+		h = h * 60;
+	}
+
+	if (s === 0 || l === 0) {
+		h = 0;
+	}
+
+	return [h, s * 100, l * 100];
 }
 
 export function hslToHSLString(components) {
 	const [ h = 0, s = 0, l = 0] = components;
 
-	return `hsl(${h}, ${s}%, ${l}%)`;
+	return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
 }
 
 export function hslaToHSLAString(components) {
 	const [ h = 0, s = 0, l = 0, a = 1] = components;
 
-	return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+	return `hsla(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%, ${a})`;
 }
 
 export function componentsToHSLString(components = []) {
@@ -371,11 +371,17 @@ export function componentToHex(c) {
 export function componentsToHex(components = []) {
 	const [ r = 0, g = 0, b = 0 ] = components;
 
-	return "#" + ((1 << 24) + (r * 255 << 16) + (g * 255 << 8) + b * 255).toString(16).slice(1);
+	let hex = [r, g, b]
+		.map((c) => Math.round(c * 255))
+		.map(c => {
+			return c.toString(16).padStart(2, "0");
+		}).join("");
+
+	return `#${hex}`;
 }
 
 export function isHexString(value, isString = typeof value === "string") {
-	return isString && value[0] === "#";
+	return isString && /^#([a-f0-9]{3,4}){1,2}$/i.test(value);
 }
 
 export function isRGBAString(value, isString = typeof value === "string") {
