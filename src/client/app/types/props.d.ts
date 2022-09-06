@@ -1,9 +1,12 @@
-export type PropOnChange<Value, Params> = (opts: {
+export type PropOnChangeOptions<Value, Params> = {
   value: Value;
   _initialValue: Value;
   params: Params;
   onChange: PropOnChange<Value, Params>;
-}) => void;
+};
+export type PropOnChange<Value, Params> = (
+  opts: PropOnChangeOptions<Value, Params>
+) => void;
 
 type BaseProp<Value, Params, Type> = {
   value: Value;

@@ -1,2 +1,4 @@
+export { PropOnChange, PropOnChangeOptions } from "./props";
 export * from "./exports";
-export { PropOnChange } from "./props";
+export * from "./triggers";
+export * from "./webmidi";
