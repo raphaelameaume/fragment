@@ -8,52 +8,47 @@ export let value;
 
 const dispatch = createEventDispatcher();
 
-let hexValue = color.toHex(color.isTHREE(value) ? `#${value.getHexString()}` : value);
-let isInputDriven = true;
-
-let override = false;
-
 let format = color.getColorFormat(value);
-let textValue = formatColorFromHex(hexValue);
+let hexValue = color.toHex(value, format);
+let textValue = color.toString(value, format);
 let alpha = 1;
 
-$: hasAlpha = typeof textValue === "string" &&
-    (
-        color.isRGBAString(textValue) ||
-        color.isVec4String(textValue) ||
-        color.isHSLAString(textValue)
-    );
-$: {
-    if (isInputDriven) {
-        textValue = formatColorFromHex(hexValue);
-    } else {
-        hexValue = color.toHex(textValue);
-    }
-
-    if (color.isTHREE(value)) {
-        const [r, g, b] = color.hexToComponents(hexValue);
-
-        value.r =  r / 255;
-        value.g =  g / 255;
-        value.b =  b / 255;
-    }
-
-    dispatchChange();
-}
-
+$: hasAlpha = [
+    color.FORMATS.RGBA_STRING,
+    color.FORMATS.VEC4_STRING,
+    color.FORMATS.RGBA_OBJECT,
+    color.FORMATS.HSLA_STRING
+].includes(format);
 $: {
     if (hasAlpha) {
-        const [r, g, b, a = 1] = color.toComponents(textValue);
+        const [r, g, b, a = 1] = color.toComponents(value);
         alpha = a;
     }
 }
 
 function dispatchChange() {
+    const [r, g, b] = color.hexToComponents(hexValue);
+
     // support THREE.Color
-    if (format === color.FORMATS.THREE) {
-        dispatch('change', value);
-    } else {
-        dispatch('change', textValue);
+    switch (format) {
+        case color.FORMATS.THREE:
+        case color.FORMATS.RGB_OBJECT:
+            value.r = r;
+            value.g = g;
+            value.b = b;
+
+            dispatch('change', value);
+            break;
+        case color.FORMATS.RGBA_OBJECT:
+            value.r = r;
+            value.g = g;
+            value.b = b;
+            value.a = alpha;
+
+            dispatch('change', value);
+            break;
+        default:
+            dispatch('change', textValue);
     }
 }
 
@@ -61,58 +56,68 @@ function handleBlur() {
     dispatchChange();
 }
 
-function formatColorFromHex(hex) {
-    if (override) return textValue;
-
-    if (format === color.FORMATS.THREE) return color.threeToHexString(value);
-    if (format === color.FORMATS.HEX_STRING) return hex;
-    if (format === color.FORMATS.VEC3_STRING) return color.hexToVec3String(hex);
-    if (format === color.FORMATS.RGB_STRING) return color.hexToRGBString(hex);
-
-    let components = color.hexToComponents(hex);
-
-    if (hasAlpha && alpha !== 1) {
-        components[3] = alpha;
-    }
-
-    if (format === color.FORMATS.HSL_STRING) return color.hexToHSLString(components);
-    if (format === color.FORMATS.RGBA_STRING) return color.componentsToRGBAString(components);
-    if (format === color.FORMATS.VEC4_STRING) return color.componentsToVec4String(components);
-    if (format === color.FORMATS.HSLA_STRING) return color.componentsToHSLAString(components);
-    
-}
-
 function onChangeText(event) {
-    isInputDriven = false;
-
     const newColor = event.detail;
 
     if (color.isColor(newColor)) {
-        format = color.getColorFormat(newColor);
         textValue = newColor;
+    } else {
+        // newColor is not a color, reset value
+        textValue = color.toString(value, format);
     }
+
+    hexValue = color.toHex(textValue);
+    dispatchChange();
 }
 
 function onChangeAlpha(event) {
-    isInputDriven = false;
+    alpha = event.detail;
 
-    if (format === color.FORMATS.RGBA_STRING) {
-        const [r, g, b] = color.hexToComponents(hexValue);
+    const [r, g, b] = color.hexToComponents(hexValue);
 
-        textValue = color.componentsToRGBAString([r, g, b, event.detail]);
-    } else if (format === color.FORMATS.VEC4_STRING) {
-        const [r, g, b] = color.vecToComponents(textValue);
-
-        textValue = color.componentsToVec4String([r, g, b, event.detail]);
-    } else if (format === color.FORMATS.HSLA_STRING) {
-        const [h, s, l] = color.hslToHSLComponents(textValue);
-
-        textValue = color.hslaToHSLAString([h, s, l, event.detail]);
+    switch(format) {
+        case color.FORMATS.RGBA_STRING:
+        case color.FORMATS.RGBA_OBJECT:
+            textValue = color.componentsToRGBAString([r, g, b, alpha]);
+            break;
+        case color.FORMATS.VEC4_STRING:
+            textValue = color.componentsToVec4String([r, g, b, alpha]);
+            break;
+        case color.FORMATS.HSLA_STRING:
+            const [h, s, l] = color.hslToHSLComponents(textValue);
+            textValue = color.hslaToHSLAString([h, s, l, alpha]);
+            break;
     }
+
+    dispatchChange();
 }
 
-function onInput() {
-    isInputDriven = true;
+function onInput(event) {
+    hexValue = event.currentTarget.value;
+
+    const [r, g, b] = color.hexToComponents(hexValue);
+
+    switch(format) {
+        case color.FORMATS.RGBA_STRING:
+        case color.FORMATS.RGBA_OBJECT:
+            textValue = color.toRGBAString({ r, g, b, a: alpha });
+            break;
+        case color.FORMATS.VEC3_STRING:
+            textValue = color.componentsToVec3String([r, g, b]);
+            break;
+        case color.FORMATS.VEC4_STRING:
+            textValue = color.componentsToVec4String([r, g, b, alpha]);
+            break;
+        case color.FORMATS.RGB_STRING:
+        case color.FORMATS.RGB_OBJECT:
+            textValue = color.toRGBString(hexValue);
+            break;
+        default:
+            textValue = color.toString(hexValue);
+            break;
+    }
+
+    dispatchChange();
 }
 
 </script>
@@ -123,7 +128,7 @@ function onInput() {
             <!-- svelte-ignore -->
             <input class="input" type="color" bind:value={hexValue} on:blur={handleBlur} on:input={onInput} />
         </div>
-        <TextInput value={textValue} on:change={onChangeText} />
+        <TextInput bind:value={textValue} on:change={onChangeText} />
     </div>
     {#if hasAlpha }
         <Field key="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}} on:change={onChangeAlpha}></Field>

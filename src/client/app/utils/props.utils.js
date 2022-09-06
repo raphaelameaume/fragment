@@ -24,7 +24,7 @@ export function inferFromParams(params) {
 export function inferFromValue(value) {
     if (value === undefined || value === null) return undefined;
 
-    if (value.isColor) {
+    if (isColor(value)) {
         return "color";
     } else if (typeof value === "number") {
         return "number";
@@ -33,14 +33,11 @@ export function inferFromValue(value) {
     } else if (typeof value === "boolean") {
         return "checkbox";
     } else if (typeof value === "string") {
-        if (isColor(value)) {
-            return "color";
-        } else if (isImage(value)) {
+        if (isImage(value)) {
             return "image";
         }
 
         return "text";
-
     } else if (Array.isArray(value) && value.length === 2) {
         return "vec2";
     } else if (Array.isArray(value) && value.length === 3) {

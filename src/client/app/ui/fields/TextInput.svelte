@@ -8,7 +8,7 @@ export let disabled = false;
 </script>
 
 <div class="text-input">
-    <Input {value} {label} {disabled} on:change on:input />
+    <Input bind:value={value} {label} {disabled} on:change on:input />
 </div>
 
 <style>
