@@ -39,9 +39,6 @@ export type Resize<Rendering extends Renderings> = (
 ) => void;
 
 export type Rendering = Renderings;
-export type Duration = number;
-export type Fps = number;
-export type Name = string;
 export type FilenamePattern = (opts: {
   filename: string;
   year: string;
