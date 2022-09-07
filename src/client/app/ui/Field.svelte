@@ -4,8 +4,7 @@ import { createEventDispatcher } from "svelte";
 import Select from "./fields/Select.svelte";
 import NumberInput from "./fields/NumberInput.svelte";
 import CheckboxInput from "./fields/CheckboxInput.svelte";
-import Vec2Input from "./fields/Vec2Input.svelte";
-import Vec3Input from "./fields/Vec3Input.svelte";
+import VectorInput from "./fields/VectorInput.svelte";
 import TextInput from "./fields/TextInput.svelte";
 import ColorInput from "./fields/ColorInput.svelte";
 import ListInput from "./fields/ListInput.svelte";
@@ -50,8 +49,7 @@ const dispatch = createEventDispatcher();
 const fields = {
     "select": Select,
     "number": NumberInput,
-    "vec2": Vec2Input,
-    "vec3": Vec3Input,
+    "vec": VectorInput,
     "checkbox": CheckboxInput,
     "text": TextInput,
     "list": ListInput,
@@ -149,7 +147,7 @@ function composeFieldProps(params) {
                     </svg>
                 </button>
             {/if}
-            {#if (fieldType === "vec2" || fieldType === "vec3") && !disabled }
+            {#if (fieldType === "vec") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
                     {#if params.locked}
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
