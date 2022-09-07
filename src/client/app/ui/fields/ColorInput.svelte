@@ -5,6 +5,8 @@ import TextInput from "./TextInput.svelte";
 import Field from "../Field.svelte";
 
 export let value;
+export let context = null;
+export let key = "";
 
 const dispatch = createEventDispatcher();
 
@@ -147,10 +149,16 @@ function onInput(event) {
             <!-- svelte-ignore -->
             <input class="input" type="color" bind:value={hexValue} on:blur={handleBlur} on:input={onInput} />
         </div>
-        <TextInput bind:value={textValue} on:change={onChangeText} />
+        <TextInput {context} {key} bind:value={textValue} on:change={onChangeText} />
     </div>
     {#if hasAlpha }
-        <Field key="alpha" value={alpha} params={{min: 0, max: 1, step: 0.01}} on:change={onChangeAlpha}></Field>
+        <Field
+            key={`${key}.alpha`}
+            value={alpha}
+            params={{label: "alpha", min: 0, max: 1, step: 0.01}}
+            {context}
+            on:change={onChangeAlpha}
+        />
     {/if }
 </div>
 
