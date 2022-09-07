@@ -41,7 +41,11 @@ type Vec3Prop = BaseProp<
 type CheckboxProp = BaseProp<boolean, never, "checkbox">;
 type TextProp = BaseProp<string, { disabled?: boolean }, "text">;
 type ListProp = BaseProp<any[], { disabled?: boolean }, "list">;
-type ColorProp = BaseProp<string, never, "color">;
+type ColorProp = BaseProp<
+  string | THREE.Color | { r: number; g: number; b: string; a?: number },
+  never,
+  "color"
+>;
 type ButtonProp = BaseProp<
   () => void,
   { disabled?: boolean; label?: string },
