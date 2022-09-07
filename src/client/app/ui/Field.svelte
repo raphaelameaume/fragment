@@ -25,8 +25,6 @@ export let context = null;
 export let params = {};
 export let type = null;
 
-console.log({ key, context });
-
 let offsetWidth;
 let showTriggers = false;
 
