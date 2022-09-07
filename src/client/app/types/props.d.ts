@@ -55,9 +55,9 @@ type ButtonProp = BaseProp<
 type ImageProp = BaseProp<string, never, "image">;
 
 type Prop =
+  | SelectProp
   | NumberProp
-  | Vec2Prop
-  | Vec3Prop
+  | VecProp
   | CheckboxProp
   | TextProp
   | ListProp
