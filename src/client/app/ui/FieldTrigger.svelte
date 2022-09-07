@@ -72,7 +72,7 @@ function onTypeChange(event) {
 
     if (!eventOptions.includes(eventName)) {
         eventName = undefined;
-        key = null;
+        params.key = null;
     }
 
     if (trigger) {
@@ -82,7 +82,16 @@ function onTypeChange(event) {
 }
 
 function onEventChange(event) {
+    const clearParams = (inputType === "MIDI" && eventName !== undefined &&
+        ((eventName.includes("Number") && event.detail.includes("Note")) ||
+        (eventName.includes("Note") && event.detail.includes("Number")))
+    );
+
     eventName = event.detail;
+
+    if (clearParams) {
+        params.key = "";
+    }
 
     if (inputType === "Mouse") {
         registerTrigger();
@@ -90,11 +99,7 @@ function onEventChange(event) {
 }
 
 function onTextChange(e) {
-    const castToNumber = ["onControlChange", "onNumberOn", "onNumberOff"].includes(eventName);
-
-    params.key = e.detail.split(',').map((value) => {
-        return castToNumber ? Number(value) : value;
-    });
+    params.key = e.detail;
 
     registerTrigger();
 }
@@ -153,7 +158,7 @@ $: eventOptions = inputType ? [
 ] : [];
 
 $: isValid = inputType && eventName;
-$: key = params.key && params.key.length ? params.key.join(',') : "";
+$: key = params.key;
 
 </script>
 

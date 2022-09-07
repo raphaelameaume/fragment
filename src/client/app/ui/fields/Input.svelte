@@ -5,6 +5,8 @@ import { createEventDispatcher } from "svelte";
 export let label = null;
 export let value;
 export let disabled = false;
+export let context = null;
+export let key = "";
 
 let node;
 
@@ -14,6 +16,10 @@ function onKeyPress(event) {
     if (event.key === 'Enter') {
         node.blur();
     }
+}
+
+function handleInput(event) {
+    dispatch('input', event.currentTarget.value);
 }
 
 function handleChange(event) {
@@ -31,7 +37,7 @@ function handleChange(event) {
         bind:this={node}
         bind:value={value}
         on:change={handleChange}
-        on:input
+        on:input={handleInput}
         on:keypress={onKeyPress}
         on:keydown
         on:focus

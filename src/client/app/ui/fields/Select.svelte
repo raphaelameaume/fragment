@@ -7,6 +7,8 @@ export let name = "";
 export let value;
 export let disabled = false;
 export let title = "";
+export let context = null;
+export let key = "";
 
 let node;
 let sanitizedOptions = [];

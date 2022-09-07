@@ -19,7 +19,7 @@ import frameDebounce from "../lib/helpers/frameDebounce.js";
 import { getStore } from "../stores/utils";
 import { writable } from "svelte/store";
 
-export let key = '';
+export let key = "";
 export let value = null;
 export let context = null;
 export let params = {};
@@ -118,7 +118,11 @@ function toggleTriggers(event) {
 function composeFieldProps(params) {
     const { triggerable, controllable, ...rest } = params;
 
-    return rest;
+    return {
+        ...rest,
+        key,
+        context,
+    };
 }
 
 </script>

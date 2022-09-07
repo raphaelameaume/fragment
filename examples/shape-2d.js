@@ -3,7 +3,7 @@ export let props = {
     value: "#0057B8",
   },
   fill: {
-    value: "#FFD700",
+    value: "rgba(255, 215, 0, 1)",
   },
   size: {
     value: 256,
