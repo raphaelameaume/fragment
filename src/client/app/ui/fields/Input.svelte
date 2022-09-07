@@ -5,6 +5,8 @@ import { createEventDispatcher } from "svelte";
 export let label = null;
 export let value;
 export let disabled = false;
+export let context = null;
+export let key = "";
 
 let node;
 

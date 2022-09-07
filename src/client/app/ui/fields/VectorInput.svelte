@@ -10,6 +10,8 @@ export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
 export let disabled = false;
+export let context = null;
+export let key = "";
 
 const dispatch = createEventDispatcher();
 
@@ -60,6 +62,8 @@ function handleComponentChange(newValue, componentIndex) {
                 {step}
                 {suffix}
                 {disabled}
+                {context}
+                {key}
                 label={keys[index]}
                 value={component}
                 on:change={(event) => handleComponentChange(event.detail, index)}
