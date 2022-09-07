@@ -4,30 +4,34 @@ import { sketches } from "./sketches";
 export const props = writable({});
 
 sketches.subscribe((sketches) => {
-	const $props = get(props);
+	props.update((currentProps) => {
+		Object.keys(sketches).forEach((key) => {
+			const sketch = sketches[key];
 
-	Object.keys(sketches).forEach((key) => {
-		const sketch = sketches[key];
+			if (sketch) { // sketch can be undefined if failed to load
+				currentProps[key] = reconcile(sketch.props, currentProps[key]);
+			}
+		});
 
-		if (sketch) { // sketch can be undefined if failed to load
-			$props[key] = reconcile(sketch.props, $props[key]);
-		}
+		return currentProps;
 	});
-
-	props.set($props);
 });
 
 function reconcile(newProps = {}, prevProps = {}) {
+	Object.keys(newProps).forEach((propKey) => {
+		let newProp = newProps[propKey];
+
+		if (!newProp.params) {
+			newProp.params = {};
+		}
+	});
+
 	if (prevProps) {
 		Object.keys(prevProps).forEach((propKey) => {
 			let prevProp = prevProps[propKey];
 			let newProp = newProps[propKey];
 
 			if (newProp) {
-				if (!newProp.params) {
-					newProp.params = {};
-				}
-
 				if (prevProp.params) {
 					// reconcile locked VectorInput from UI
 					if (prevProp.params.locked !== undefined) {
