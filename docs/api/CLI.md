@@ -12,17 +12,27 @@ Once `fragment` is properly [installed](../../README.md#installation), you can l
 
 ## Examples
 
-```
+```sh
 # Start fragment with an existing sketch
 fragment ./sketch.js
-fragment ./sketch.ts
 
 # Create a new file on disk and start
 fragment ./sketch.js --new
-fragment ./sketch.ts --new
 
 # Create a new file from a pre-defined template
 fragment ./sketch.js --new --template=three/orthographic
+```
+
+### With TypeScript
+
+```sh
+# Start fragment with an existing sketch
+fragment ./sketch.ts
+
+# Create a new file on disk and start
+fragment ./sketch.ts --new
+
+# Create a new file from a pre-defined template
 fragment ./sketch.ts --new --template=three/orthographic-ts
 ```
 

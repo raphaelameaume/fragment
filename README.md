@@ -26,15 +26,17 @@ You should now be able to run `fragment` from your command line.
 
 ## Usage
 
-```
-# create a new directory for your sketches
+```sh
+# Create a new directory for your sketches
 mkdir sketches
 
-# move into that folder
+# Move into that folder
 cd sketches
 
-# create a sketch from a template
+# Create a sketch from a JavaScript template
 fragment ./sketch.js --new --template=2d
+
+# or with TypeScript
 fragment ./sketch.ts --new --template=2d-ts
 ```
 

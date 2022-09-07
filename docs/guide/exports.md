@@ -37,8 +37,10 @@ If `loopCount` is greater than 1, the recording will stop once fragment has enou
 
 A sketch can be built into static files (html, js, css) to be deployed anywhere online.
 
-```
+```sh
 fragment ./sketch.js --build
+
+# or with TypeScript
 fragment ./sketch.ts --build
 ```
 
