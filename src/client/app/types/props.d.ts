@@ -32,11 +32,12 @@ type NumberProp = BaseProp<
   { disabled?: boolean; step?: number } | { min: number; max: number },
   "number"
 >;
-type Vec2Prop = BaseProp<[number, number], { locked?: boolean }, "vec2">;
-type Vec3Prop = BaseProp<
-  [number, number, number],
+type VecProp = BaseProp<
+  | [number, number]
+  | [number, number, number]
+  | [number, number, number, number],
   { locked?: boolean },
-  "vec3"
+  "vec"
 >;
 type CheckboxProp = BaseProp<boolean, never, "checkbox">;
 type TextProp = BaseProp<string, { disabled?: boolean }, "text">;
