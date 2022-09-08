@@ -4,7 +4,8 @@ import { createEventDispatcher } from "svelte";
 import Select from "./fields/Select.svelte";
 import NumberInput from "./fields/NumberInput.svelte";
 import CheckboxInput from "./fields/CheckboxInput.svelte";
-import VectorInput from "./fields/VectorInput.svelte";
+import Vec2Input from "./fields/Vec2Input.svelte";
+import Vec3Input from "./fields/Vec3Input.svelte";
 import TextInput from "./fields/TextInput.svelte";
 import ColorInput from "./fields/ColorInput.svelte";
 import ListInput from "./fields/ListInput.svelte";
@@ -19,7 +20,7 @@ import frameDebounce from "../lib/helpers/frameDebounce.js";
 import { getStore } from "../stores/utils";
 import { writable } from "svelte/store";
 
-export let key = "";
+export let key = '';
 export let value = null;
 export let context = null;
 export let params = {};
@@ -49,7 +50,8 @@ const dispatch = createEventDispatcher();
 const fields = {
     "select": Select,
     "number": NumberInput,
-    "vec": VectorInput,
+    "vec2": Vec2Input,
+    "vec3": Vec3Input,
     "checkbox": CheckboxInput,
     "text": TextInput,
     "list": ListInput,
@@ -118,11 +120,7 @@ function toggleTriggers(event) {
 function composeFieldProps(params) {
     const { triggerable, controllable, ...rest } = params;
 
-    return {
-        ...rest,
-        key,
-        context,
-    };
+    return rest;
 }
 
 </script>
@@ -151,7 +149,7 @@ function composeFieldProps(params) {
                     </svg>
                 </button>
             {/if}
-            {#if (fieldType === "vec") && !disabled }
+            {#if (fieldType === "vec2" || fieldType === "vec3") && !disabled }
                 <button class="field__action field__action--lock" on:click={() => params.locked = !params.locked}>
                     {#if params.locked}
                     <svg class="action__icon" width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -202,13 +200,11 @@ function composeFieldProps(params) {
 
 :global(.field__input .field) {
     padding-left: 0px !important;
-    padding-right: 0px !important;
 }
 
 :global(.field__input .field:last-child) {
     border-bottom: 0px solid #323233 !important;
     padding-bottom: 0px !important;
-    
 }
 
 .field.disabled {

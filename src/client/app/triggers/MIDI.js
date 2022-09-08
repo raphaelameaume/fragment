@@ -78,11 +78,7 @@ function createTrigger(eventName, collection) {
         }
 
         const { hot, enabled, ...params } = options;
-        let keys = Array.isArray(key) ? key : [...key.split(',').map(k => k.trim())];
-
-        if (["onControlChange", "onNumberOn", "onNumberOff"].includes(eventName)) {
-            keys = keys.map((k) => Number(k));
-        }
+        const keys = Array.isArray(key) ? key : [key];
 
         if (!MIDI.enabled) {
             MIDI.request();

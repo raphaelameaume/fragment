@@ -4,8 +4,6 @@ export let label;
 export let disabled = false;
 export let showLabel = true;
 export let title = "";
-export let context = null;
-export let key = "";
 
 </script>
 

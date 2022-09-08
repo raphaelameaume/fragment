@@ -6,8 +6,6 @@ export let value;
 export let min;
 export let max;
 export let step;
-export let context = null;
-export let key = "";
 
 let node;
 let rect;

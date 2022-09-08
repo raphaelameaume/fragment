@@ -10,63 +10,73 @@ export let max = Infinity;
 export let step = 0.1;
 export let locked = false;
 export let disabled = false;
-export let context = null;
-export let key = "";
 
-const dispatch = createEventDispatcher();
+function sanitize(value, type) {
+    if (Array.isArray(value)) {
+        return value.reduce((all, v, index) => {
+            if (typeof v === "number") {
+                all[index] = {
+                    value: v,
+                    label: ""
+                }
+            } else {
+                all[index] = v;
+            }
 
-$: isArray = Array.isArray(value);
-$: isObject = !isArray && typeof value === "object";
-$: components = isObject ? Object.values(value) : value;
-$: keys = isObject ? Object.keys(value) : value.map(() => undefined);
-
-function dispatchChange() {
-    let needsUpdate = false;
-    for (let i = 0; i < components.length; i++) {
-        const key = isArray ? i : keys[i];
-
-        if (value[key] !== components[i]) {
-            value[key] = components[i];
-            needsUpdate = true;
-        }
-    }
-
-    if (needsUpdate) {
-        dispatch('change', value);
+            return all;
+        }, []);
+    } else {
+        return Object.keys(value).map((key) => {
+            return { label: key, value: value[key] }
+        });
     }
 }
 
-function handleComponentChange(newValue, componentIndex) {
-    let ratio = newValue / components[componentIndex];
-
-    if (!isFinite(ratio)) {
-        ratio = 1;
+function desanitize(updated) {
+    if (Array.isArray(value)) {
+        return updated.map((v) => v.value);
     }
 
-    components = components.map((component, index) => {
-        return index === componentIndex ? newValue : 
-            locked ? (Math.round(component * ratio * (1/step)) / (1/step)) : component;
+    return updated;
+}
+
+$: previousValue = sanitize(value);
+$: currentValue = sanitize(value);
+
+const dispatch = createEventDispatcher();
+
+function onValueChange(index, newValue) {
+    const prevValue = previousValue[index].value;
+    const ratio = newValue / prevValue;
+
+    const updated = currentValue.map((v, i) => {
+        return {
+            ...v,
+            value: i === index ? newValue : 
+                locked ? (Math.round(previousValue[i].value * ratio * (1/step)) / (1/step)) :
+                v.value
+        };
     });
 
-    dispatchChange();
+    currentValue = updated;
+
+    dispatch("change", desanitize(updated));
 }
 
 </script>
 
-<div class="vector-container vec{components.length}" class:locked={locked}>
-    <FieldInputRow --grid-template-columns={components.map(() => "1fr").join(" ")}>
-        {#each components as component, index}
+<div class="vector-container vec{currentValue.length}" class:locked={locked}>
+    <FieldInputRow --grid-template-columns={currentValue.map(() => "1fr").join(" ")}>
+        {#each currentValue as curr, index}
             <NumberInput
                 {min}
                 {max}
                 {step}
                 {suffix}
                 {disabled}
-                {context}
-                {key}
-                label={keys[index]}
-                value={component}
-                on:change={(event) => handleComponentChange(event.detail, index)}
+                label={curr.label}
+                value={curr.value}
+                on:change={(event) => onValueChange(index, event.detail)}
             />
         {/each}
     </FieldInputRow>

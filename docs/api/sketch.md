@@ -145,7 +145,8 @@ You can define `props` in your sketch files in order to create GUI elements and 
 | `string` | { disabled?: `boolean`} | `<TextInput>`|
 | `string` | { options?: `string[] \| object[{label?: string, value:string}]`} | `<SelectInput>`|
 | `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
-| `number[]` | { locked?: `boolean` } | `<VectorInput>`|
+| `number[](2)` | { locked?: `boolean` } | `<Vec2Input>`|
+| `number[](3)` | { locked?: `boolean` } | `<Vec3Input>`|
 
 Example:
 ```js
