@@ -8,10 +8,11 @@
 In your terminal, type the following command to create a new sketch based on the 2D template.
 ```
 fragment ./sketch.js --new --template=2d
+fragment ./sketch.ts --new --template=2d-ts
 ```
 Check [Templates docs](../api/CLI.md#templates) to see which templates are also available.
 
-Open `sketch.js` recently created in your favorite code editor. The file should looks like this:
+Open `sketch.js` (or `sketch.ts`) recently created in your favorite code editor. The file should looks like this:
 
 ```js
 export let props = {};

@@ -114,12 +114,12 @@ If you set it to `0`, `fragment` will only call `update()` once at the end of th
 Change the value used for display in the monitor dropdown.
 
 #### `filenamePattern`
-- Type: `({ filename: string, suffix: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
-- Default: `({ filename, suffix }) => ${filename}.${suffix}`
+- Type: `({ filename: string, timestamp: string, year: string, month: string, day: string, hours: string, minutes: string, seconds: string, props: SketchProps }) => string`
+- Default: `({ filename, timestamp }) => ${filename}.${timestamp}`
 
 Change the filename pattern when exporting a file. By default, `fragment` will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`.
 
-In order to reuse the timestamp in your own pattern, `suffix` is available as a parameter within the callback, but you can also deconstruct `{ year, month, day, hours, minutes, seconds}` to make up your own.
+In order to reuse the timestamp in your own pattern, `timestamp` is available as a parameter within the callback, but you can also deconstruct `{ year, month, day, hours, minutes, seconds}` to make up your own.
 
 > ⚠️ You don't need to specify the extension since this is handled internally by the [Exports](./modules.md#exports) module.
 
@@ -128,8 +128,8 @@ The callback is also returning the sketch current props so you can use their val
 Example: 
 
 ```js
-export let filenamePattern = ({ filename, suffix, props }) => {
-  return `${filename}.${suffix}.radius=${props.radius.value}`;
+export let filenamePattern = ({ filename, timestamp, props }) => {
+  return `${filename}.${timestamp}.radius=${props.radius.value}`;
 }
 ```
 

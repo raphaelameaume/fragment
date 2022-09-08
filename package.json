@@ -33,5 +33,9 @@
     "vite": "^3.0.9",
     "webm-writer": "^1.0.0",
     "ws": "^8.2.3"
+  },
+  "devDependencies": {
+    "@types/p5": "^1.4.2",
+    "@types/three": "^0.144.0"
   }
 }
