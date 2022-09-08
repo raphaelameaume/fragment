@@ -24,7 +24,7 @@ export function inferFromParams(params) {
 export function inferFromValue(value) {
     if (value === undefined || value === null) return undefined;
 
-    if (isColor(value)) {
+    if (value.isColor) {
         return "color";
     } else if (typeof value === "number") {
         return "number";
@@ -33,19 +33,21 @@ export function inferFromValue(value) {
     } else if (typeof value === "boolean") {
         return "checkbox";
     } else if (typeof value === "string") {
-        if (isImage(value)) {
+        if (isColor(value)) {
+            return "color";
+        } else if (isImage(value)) {
             return "image";
         }
 
         return "text";
-    } else {
-        const isArray = Array.isArray(value);
-        const isObject = !isArray && typeof value === "object";
-        
-        const values = isObject ? Object.values(value) : value;
 
-        if ((isArray || isObject) && values.every(v => typeof v === "number") && values.length <= 4) {
-            return "vec";
-        }
+    } else if (Array.isArray(value) && value.length === 2) {
+        return "vec2";
+    } else if (Array.isArray(value) && value.length === 3) {
+        return "vec3";
+    } else if (typeof value === "object" && Object.keys(value).length === 3) {
+        return "vec3";
+    } else if (typeof value === "object" && Object.keys(value).length === 2) {
+        return "vec2";
     }
 }

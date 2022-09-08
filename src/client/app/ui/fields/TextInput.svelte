@@ -4,13 +4,11 @@ import Input from "./Input.svelte";
 export let value;
 export let label = "";
 export let disabled = false;
-export let context = null;
-export let key = "";
 
 </script>
 
 <div class="text-input">
-    <Input {context} {key} bind:value={value} {label} {disabled} on:change on:input />
+    <Input {value} {label} {disabled} on:change on:input />
 </div>
 
 <style>

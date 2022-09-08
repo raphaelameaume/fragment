@@ -6,8 +6,6 @@ import FieldInputRow from "./FieldInputRow.svelte";
 import TextInput from "./TextInput.svelte";
 
 export let value;
-export let context = null;
-export let key = "";
 
 let img, input, name;
 $: url = typeof value === HTMLImageElement ? value.src : value;

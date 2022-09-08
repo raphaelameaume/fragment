@@ -17,8 +17,6 @@ export let suffix = "";
 export let min = -Infinity;
 export let max = Infinity;
 export let disabled = false;
-export let context = null;
-export let key = "";
 
 $: isFocused = false;
 const dispatch = createEventDispatcher();
@@ -86,15 +84,11 @@ function handleChangeProgress(event) {
                 value={currentValue}
                 min={min}
                 max={max}
-                {context}
-                {key}
                 on:change={handleChangeProgress}
             />
             <Input 
                 {label}
                 {disabled}
-                {context}
-                {key}
                 on:keydown={onKeyDown}
                 on:focus={onFocus}
                 on:blur={onBlur}
@@ -104,9 +98,6 @@ function handleChangeProgress(event) {
     {:else}
         <Input 
             {label}
-            {disabled}
-            {context}
-            {key}
             on:keydown={onKeyDown}
             on:focus={onFocus}
             on:blur={onBlur}

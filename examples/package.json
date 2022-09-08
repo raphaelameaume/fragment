@@ -6,8 +6,9 @@
     "p5": "^1.4.1",
     "three": "^0.140.2"
   },
+  "devDependencies": {},
   "scripts": {
-    "start": "fragment ./shape-2d.js"
+    "start": "fragment ./circle-2d.js"
   },
   "author": "Raphaël Améaume",
   "license": "MIT"
