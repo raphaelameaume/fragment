@@ -68,7 +68,7 @@ export let update = ({ context, width, height }) => {
 };
 ```
 
-Learn how to write your own sketch by following the [Getting started](./docs//guide/getting-started.md) guide, reading the [API docs](./docs/api/sketch.md) or look into the [examples](./examples/).
+Learn how to write your own sketch by following the [Getting started](./docs//guide/getting-started.md) guide, reading the [API docs](./docs/api/sketch.md) or the [examples](./examples/).
 
 ## Contributing
 
