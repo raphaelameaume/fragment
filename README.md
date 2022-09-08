@@ -68,13 +68,46 @@ export let update = ({ context, width, height }) => {
 };
 ```
 
-Learn how to write your own sketch in the [API docs](./docs/api/sketch.md) or read the [examples](./examples/).
+Learn how to write your own sketch by following the [Getting started](./docs//guide/getting-started.md) guide, reading the [API docs](./docs/api/sketch.md) or look into the [examples](./examples/).
 
 ## Contributing
 
 If you find issues, please [file one](https://github.com/raphaelameaume/fragment/issues) with details on how to reproduce it.
 
 Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you want to discuss the project.
+
+## Running it locally
+
+```
+# clone or fork the project
+git clone https://github.com/raphaelameaume/fragment.git 
+
+# move to the root of the repository
+cd fragment
+
+# run the command line locally
+node ./bin/index.js examples/shape-2d.js --dev
+
+# or from your sketch folder
+node [path-to-root]/bin/index.js sketch.js --dev
+```
+
+> The `--dev` flag only enables Vite `info` logLevel, helpful for development. Otherwise it will work the same as when you're running from the npm package.
+
+Alternatively, you can tell npm to point the `fragment` command to the newly cloned folder.
+
+```
+# at the root of the repo
+npm link
+```
+
+You should be able the command as before, only this time it will point to the repository instead of the globally installed package.
+
+```
+fragment sketch.js
+```
+
+If that's not the case, try to uninstall `fragment-tools` globally first, make sure the `fragment` command is not found anymore, then retry to link the project from the root of the repo.
 
 ## Credits
 
