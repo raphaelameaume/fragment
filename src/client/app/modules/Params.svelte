@@ -92,8 +92,8 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                     context={sketchKey}
                     key={key}
                     value={sketchProps[key].value}
-                    params={sketchProps[key].params || {}}
                     type={sketchProps[key].type}
+                    bind:params={sketchProps[key].params}
                     on:click={() => {
                         $props[sketchKey][key].value._refresh = true;
                     }}

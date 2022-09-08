@@ -4,41 +4,43 @@ import { sketches } from "./sketches";
 export const props = writable({});
 
 sketches.subscribe((sketches) => {
-	const $props = get(props);
+	props.update((currentProps) => {
+		Object.keys(sketches).forEach((key) => {
+			const sketch = sketches[key];
 
-	Object.keys(sketches).forEach((key) => {
-		const sketch = sketches[key];
+			if (sketch) { // sketch can be undefined if failed to load
+				currentProps[key] = reconcile(sketch.props, currentProps[key]);
+			}
+		});
 
-		if (sketch) { // sketch can be undefined if failed to load
-			$props[key] = reconcile(sketch.props, $props[key]);
-		}
-
+		return currentProps;
 	});
-
-	props.set($props);
 });
 
-function reconcile(newProps = {}, existingProps = {}) {
-	Object.keys(newProps).forEach(propKey => {
-		newProps[propKey]._initialValue = newProps[propKey].value;
+function reconcile(newProps = {}, prevProps = {}) {
+	Object.keys(newProps).forEach((propKey) => {
+		let newProp = newProps[propKey];
+
+		if (!newProp.params) {
+			newProp.params = {};
+		}
 	});
 
-	if (existingProps) {
-		Object.keys(existingProps).forEach((propKey) => {
+	if (prevProps) {
+		Object.keys(prevProps).forEach((propKey) => {
+			let prevProp = prevProps[propKey];
 			let newProp = newProps[propKey];
 
 			if (newProp) {
-				let prevProp = existingProps[propKey];
-				let overrideValue = 
-					typeof prevProp._initialValue === "number" && 
-					prevProp._initialValue === newProp._initialValue;
-
-				if (overrideValue) {
-					newProp.value = prevProp.value;
+				if (prevProp.params) {
+					// reconcile locked VectorInput from UI
+					if (prevProp.params.locked !== undefined) {
+						newProp.params.locked = prevProp.params.locked;
+					}
 				}
 			}
 		});
-	};
+	}
 
 	return newProps;
 }
