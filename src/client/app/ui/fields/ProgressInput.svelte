@@ -36,7 +36,9 @@ function onDrag(event) {
     let v = clamp(map(event.clientX, rect.left, rect.right, min, max), min, max);
     v = Math.floor(v * (1 / step)) / (1 / step);
 
-    dispatch("change", v);
+    if (v !== value) {
+        dispatch("change", v);
+    }
 }
 
 function handleMouseUp() {
