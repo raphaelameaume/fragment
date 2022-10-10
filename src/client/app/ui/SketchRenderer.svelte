@@ -190,7 +190,7 @@ async function createSketch(key) {
 
     let mountParams = {};
 
-    if (typeof renderer.onMountPreview === "function") {
+    if (renderer && typeof renderer.onMountPreview === "function") {
         mountParams = renderer.onMountPreview({
             id,
             canvas,
@@ -329,8 +329,8 @@ function createRenderLoop() {
     let playcount = 0;
     let hasDuration = isFinite(duration);
 
-    let onBeforeUpdatePreview = renderer.onBeforeUpdatePreview || noop;
-    let onAfterUpdatePreview = renderer.onAfterUpdatePreview || noop;
+    let onBeforeUpdatePreview = (renderer && renderer.onBeforeUpdatePreview) || noop;
+    let onAfterUpdatePreview = (renderer && renderer.onAfterUpdatePreview) || noop;
 
     let frameLength = 1000 / framerate;
     let frameCount = framerate * duration;
