@@ -86,7 +86,7 @@ See [SketchProps](#sketchprops) for details.
 #### `rendering`
 - Type: `string`
 - Values: `2d`, `three`, `p5`, `fragment`
-- Default: `2d`
+- Default: undefined
 
 > ⚠ If you used either `three` or `p5` rendering, you'll need to install them from your project root directory in order to make it work.
 
