@@ -1,4 +1,7 @@
 const templates = {
+	"blank": [
+		"./templates/blank.js"
+	],
 	"2d": [
 		"./templates/2d.js"
 	],
