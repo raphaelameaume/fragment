@@ -54,7 +54,6 @@ $: {
         sanitizedOptions[i] = {
             label,
             value: stringifiedValue,
-            _value,
             disabled
         };
     }
