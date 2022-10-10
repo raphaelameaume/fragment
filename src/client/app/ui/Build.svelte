@@ -22,37 +22,40 @@ let defaultGUIConfig = {
 };
 
 let guiConfig = defaultGUIConfig;
-$: sketchKey = ($layout.previewing && $preview) ? $preview : sketchesKeys[0];
+$: sketchKey = ($layout.previewing && $preview) ? $preview : $sketchesKeys[0];
 $: sketch = $sketches[sketchKey];
 
 $: {
-	if (sketch.buildConfig) {
-		override(sketch.buildConfig);
-	}
-
-	const config = sketch.buildConfig ? sketch.buildConfig : {};
-	gui = config.gui;
-
-	if (gui && typeof gui === "object") {
-		guiConfig = {
-			...defaultGUIConfig,
-			...gui,
-		};
-	}
-
-	const { styles = "" } = config;
-
-	if (styles !== "") {
-		head = document.getElementsByTagName('head')[0];
-
-		if (style) {
-			head.removeChild(style);
+	if (sketch) {
+		if (sketch.buildConfig) {
+			override(sketch.buildConfig);
 		}
 
-		style = document.createElement('style');
-		style.setAttribute('type', 'text/css');
-		style.appendChild(document.createTextNode(styles));
-		head.appendChild(style);
+		const config = sketch.buildConfig ? sketch.buildConfig : {};
+		gui = config.gui;
+
+		if (gui && typeof gui === "object") {
+			guiConfig = {
+				...defaultGUIConfig,
+				...gui,
+			};
+		}
+
+		const { styles = "" } = config;
+
+		if (styles !== "") {
+			head = document.getElementsByTagName('head')[0];
+
+			if (style) {
+				head.removeChild(style);
+			}
+
+			style = document.createElement('style');
+			style.setAttribute('type', 'text/css');
+			style.appendChild(document.createTextNode(styles));
+			head.appendChild(style);
+		}
+
 	}
 }
 
