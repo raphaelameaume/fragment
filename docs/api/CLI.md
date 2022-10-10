@@ -36,6 +36,7 @@ fragment ./sketch.js --new --template=three/orthographic
 ## Templates
 
 `fragment` currently supports the following templates:
+- [blank](../../src/cli/templates/2d.js)
 - [2d](../../src/cli/templates/2d.js)
 - [fragment](../../src/cli/templates/fragment.js)
 - [three/fragment](../../src/cli/templates/three-fragment.js)
