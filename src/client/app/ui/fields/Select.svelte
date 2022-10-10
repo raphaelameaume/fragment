@@ -11,34 +11,63 @@ export let context = null;
 export let key = "";
 
 let node;
-let sanitizedOptions = [];
+let sanitizedValue, sanitizedOptions = [];
 
 const dispatch = createEventDispatcher();
+
+function toStringifiedValue(option, optionType = typeof option) {
+    if (option === null) {
+        return `null`;
+    } else if (option === undefined) {
+        return `undefined`;
+    } else if (optionType === "object") {
+        return toStringifiedValue(option.value);
+    } else if (optionType === "function") {
+        return option.name;
+    }
+    
+    return option.toString();
+}
 
 $: {
     sanitizedOptions = [];
     
     for (let i = 0; i < options.length; i++) {
-        const { value, label, disabled } = options[i];
+        let option = options[i];
+        let optionType = typeof option;
+        let disabled = (optionType === "object" && typeof option.disabled === "boolean") ? option.disabled : false;
+        let _value = optionType === "object" ? option.value : option;
 
-        if (["number", "string"].includes(typeof options[i])) {
-            sanitizedOptions[i] = {
-                value: options[i],
-                label: options[i],
-                disabled,
-            };
-        } else {
-            sanitizedOptions[i] = {
-                value: value,
-                label: label ? label : value,
-                disabled,
-            }
+        let stringifiedValue = toStringifiedValue(option);
+        let label;
+
+        if (_value === value) {
+            sanitizedValue = stringifiedValue;
         }
+
+        if (option.label) {
+            label = option.label;
+        } else {
+            label = stringifiedValue;
+        }
+
+        sanitizedOptions[i] = {
+            label,
+            value: stringifiedValue,
+            _value,
+            disabled
+        };
     }
 }
 
 function handleChange(event) {
-    dispatch("change", event.currentTarget.value);
+    const index = sanitizedOptions.findIndex((opt) => opt.value === event.currentTarget.value);
+    const option = options[index]
+    const newValue = typeof option === "object" ? option.value : option;
+
+    value = newValue;
+
+    dispatch("change", newValue);
 }
 
 </script>
@@ -49,9 +78,9 @@ function handleChange(event) {
     class:single={sanitizedOptions.length === 1}
 >
     <div class="container">
-        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled} {title} bind:value={value}>
+        <select class="select" bind:this={node} on:change={handleChange} {name} {disabled} {title} bind:value={sanitizedValue}>
             {#each sanitizedOptions as option}
-                <option value={option.value} selected={value === option.value} disabled={option.disabled}>{option.label}</option>
+                <option value={option.value} selected={sanitizedValue === option.value} disabled={option.disabled}>{option.label}</option>
             {/each}
         </select>
         {#if sanitizedOptions.length > 1 }
