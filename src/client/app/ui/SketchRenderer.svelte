@@ -477,7 +477,7 @@ onMount(() => {
 function checkForPause(event) {
     const keyboardEvent = event.detail;
 
-    if ((!keyboardEvent.metaKey || !keyboardEvent.ctrlKey)) {
+    if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
         keyboardEvent.preventDefault();
 
         if (!$recording) {
