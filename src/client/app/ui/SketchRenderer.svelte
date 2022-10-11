@@ -25,6 +25,7 @@ let node, container;
 let framerate = 60;
 let elapsed = 0;
 let elapsedRenderingTime = 0;
+let now = performance.now(), then = performance.now(), dt = 0, lastTime = performance.now();
 let canvas;
 let _raf;
 let _key = key;
@@ -336,22 +337,20 @@ function createRenderLoop() {
     let frameCount = framerate * duration;
     let interval = 1 / frameCount;
 
-    let then = $currentTime.time;
-
-    return ({ time = $currentTime.time, deltaTime = time - then } = {}) => {
+    return ({ time = performance.now(), deltaTime = time - lastTime } = {}) => {
         needsRender = false;
-        then = time;
+        lastTime = time;
 
         try {
             onBeforeUpdatePreview({ id, canvas }); 
 
-            let t = !$sync ? time : Math.floor(time / frameLength) * frameLength;
+            let t = !$sync ? elapsedRenderingTime : Math.floor(time / frameLength) * frameLength;
 
             if (hasDuration && framerate > 0) {
                 playhead = (t / 1000) / duration;
                 playhead %= 1;
                 playhead = Math.floor(playhead / interval) * interval;
-                playcount = Math.floor(((((elapsedRenderingTime) / 1000)) / duration));
+                playcount = Math.floor(elapsedRenderingTime / 1000 / duration);
             }
 
             draw({
@@ -367,23 +366,23 @@ function createRenderLoop() {
                 deltaTime,
             });
             onAfterUpdatePreview({ id, canvas });
+
+            elapsedRenderingTime += deltaTime;
         } catch(error) {
             onError(error);
         }
     };
 }
 
-let then = performance.now();
-
 function render() {
     _raf = requestAnimationFrame(render);
 
-    if (!paused) {
-        let now = performance.now();
-        let deltaTime = now - then;
-        then = now;
+    now = performance.now();
+    dt = now - then;
+    then = now;
 
-        elapsed += deltaTime;
+    if (!paused) {
+        elapsed += dt;
 
         if (!$sync) {
             if ((elapsed) >= ((1 / framerate) * 1000)) {
@@ -393,8 +392,8 @@ function render() {
         } else {
             _renderSketch();
         }
-
-        elapsedRenderingTime += deltaTime;
+    } else {
+        lastTime = now;
     }
 
     if (needsRender) {
@@ -480,8 +479,13 @@ function checkForPause(event) {
 
     if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
         keyboardEvent.preventDefault();
-        paused = !paused;
-        then = Date.now();
+
+        if (!$recording) {
+            then = performance.now();
+            paused = !paused;
+        } else {
+            console.warn(`Cannot pause while recording.`);
+        }
     }
 }
 
@@ -490,7 +494,12 @@ function checkForSave(event) {
 
     if (keyboardEvent.metaKey || keyboardEvent.ctrlKey) {
         keyboardEvent.preventDefault();
-        save();
+
+        if (!$recording) {
+            save();
+        } else {
+            console.warn(`Cannot save while recording.`);
+        }
     }
 }
 
