@@ -83,7 +83,9 @@ export async function start({ options, filepaths, entries, fragment }) {
             '__FRAGMENT_PORT__': fragment.server ? fragment.server.port : undefined,
             '__START_TIME__': Date.now(),
             '__SEED__': Date.now(),
-            '__PRODUCTION__': options.build,
+            '__BUILD__': options.build,
+            '__DEV__': !options.build,
+
         },
         optimizeDeps: {
             include: ['convert-length', 'webm-writer', 'changedpi'],

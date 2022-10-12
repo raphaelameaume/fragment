@@ -15,11 +15,7 @@ import { exportCanvas } from "../lib/canvas-recorder/utils";
 import { map } from "./math.utils";
 
 export async function saveDataURL(dataURL, options, blob) {
-    async function onError(err) {
-        if (typeof options.onError === "function") {
-            options.onError(err);
-        }
-
+    async function saveInBrowser() {
         if (!blob) {
             blob = await createBlobFromDataURL(dataURL);
         }
@@ -27,25 +23,37 @@ export async function saveDataURL(dataURL, options, blob) {
         await downloadBlob(blob, options);
     }
 
-    try {
-        const body = {
-            dataURL: dataURL.split(',')[1], // remove extension,
-            ...options,
-        };
-        const response = await fetch('/save', {
-            method: "POST",
-            body: JSON.stringify(body),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        });
-        const { filepath, error } = await response.json();
+    async function onError(err) {
+        if (typeof options.onError === "function") {
+            options.onError(err);
+        }
 
-        if (response.ok && filepath) {
-            console.log(`[fragment] Saved ${filepath}`);
+        await saveInBrowser();
+    }
+
+    try {
+        if (__DEV__) {
+            const body = {
+                dataURL: dataURL.split(',')[1], // remove extension,
+                ...options,
+            };
+            const response = await fetch('/save', {
+                method: "POST",
+                body: JSON.stringify(body),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            });
+            const { filepath, error } = await response.json();
+
+            if (response.ok && filepath) {
+                console.log(`[fragment] Saved ${filepath}`);
+            } else {
+                onError(error);
+            }
         } else {
-            onError(error);
+            await saveInBrowser();
         }
     } catch(error) {
         onError(error);

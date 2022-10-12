@@ -23,7 +23,7 @@ function togglePreview() {
 </script>
 
 <Root>
-	{#if __PRODUCTION__ || $layout.previewing }
+	{#if __BUILD__ || $layout.previewing }
 		<Build />
 	{:else}
 	<Row size={1}>
@@ -41,7 +41,7 @@ function togglePreview() {
 	</Row>
 	{/if}
 </Root>
-{#if !__PRODUCTION__}
+{#if !__BUILD__}
 	<KeyBinding key="w" on:trigger={toggleEdition} />
 	<KeyBinding key="p" on:trigger={togglePreview} />
 {/if}

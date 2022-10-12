@@ -1,5 +1,5 @@
 export function createBlobFromDataURL(dataURL) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const splitIndex = dataURL.indexOf(',');
 
         if (splitIndex === -1) {

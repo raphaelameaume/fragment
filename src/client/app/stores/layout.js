@@ -3,7 +3,7 @@ import { getStore, createStore } from "./utils";
 import { onMount } from "svelte";
 
 export const tree = getStore("layout.current", {}, {
-    persist: !__PRODUCTION__
+    persist: !__BUILD__
 });
 
 export const layout = createStore('layout', {
