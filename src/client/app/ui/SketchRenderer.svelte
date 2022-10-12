@@ -439,6 +439,8 @@ rendering.subscribe((current) => {
 async function save() {
     paused = true;
 
+    _renderSketch();
+
     await screenshotCanvas(canvas, {
         filename: key,
         pattern: sketch?.filenamePattern,
