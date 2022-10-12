@@ -201,7 +201,7 @@ A prop can be `hidden` so it doesn't show up in the Parameters module or in `bui
 export let props = {
   color: {
     value: [255, 0, 255],
-    hidden: __PRODUCTION__,
+    hidden: __BUILD__,
   }
 }
 ```

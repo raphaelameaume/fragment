@@ -136,7 +136,7 @@ function destroyCanvas(canvas) {
 
 function setBackgroundColor() {
     if (sketch) {
-        if (($layout.previewing || __PRODUCTION__) && sketch.buildConfig && sketch.buildConfig.backgroundColor) {
+        if (($layout.previewing || __BUILD__) && sketch.buildConfig && sketch.buildConfig.backgroundColor) {
             backgroundColor = sketch.buildConfig.backgroundColor;
         } else if (!$layout.previewing && sketch.backgroundColor) {
             backgroundColor = sketch.backgroundColor;
