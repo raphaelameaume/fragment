@@ -62,7 +62,7 @@ export async function start({ options, filepaths, entries, fragment }) {
                 }
             },
             dbPlugin(),
-            screenshotPlugin({ cwd }),
+            screenshotPlugin({ cwd, exportDir: options.exportDir }),
             checkDependencies({
                 cwd,
                 app,
