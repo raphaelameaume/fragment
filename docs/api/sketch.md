@@ -173,7 +173,7 @@ You can force a type on a prop by assigning a `type` to your object like so:
 ```js
 export let props = {
   color: {
-    value: [255, 0, 255],
+    value: [1, 0, 0],
     type: "color",
   }
 }
@@ -188,7 +188,7 @@ function onColorChange({ value }) {
 
 export let props = {
   color: {
-    value: [255, 0, 255],
+    value: [1, 0, 0],
     type: "color",
     onChange: onColorChange,
   }
@@ -200,7 +200,7 @@ A prop can be `hidden` so it doesn't show up in the Parameters module or in `bui
 ```js
 export let props = {
   color: {
-    value: [255, 0, 255],
+    value: [10, 0, 5],
     hidden: __BUILD__,
   }
 }
