@@ -26,7 +26,7 @@ export async function start({ options, filepaths, entries, fragment }) {
     const config = defineConfig({
         configFile: false,
         root,
-        logLevel: options.development ? "info" : "silent",
+        // logLevel: options.development ? "info" : "silent",
         resolve: {
             alias: [
                 { find: '@fragment/sketches', replacement: filepaths[0] },
@@ -130,18 +130,7 @@ export async function start({ options, filepaths, entries, fragment }) {
 
         await server.listen();
         log.success(`Server started at:`);
-
-        Object.values(os.networkInterfaces())
-            .flatMap((nInterface) => nInterface ?? [])
-            .filter((detail) => detail && detail.address && (detail.family === 'IPv4' || detail.family === 4 ))
-            .forEach((detail) => {
-                const type = detail.address.includes('127.0.0.1')
-                ? 'Local:   '
-                : 'Network: '
-                const host = detail.address.replace('127.0.0.1', 'localhost');
-                const url = `http://${host}:${server.config.server.port}`;
-                console.log(`   ${type} ${url}`);
-            })
+        server.printUrls();
 
         return server;
     }
