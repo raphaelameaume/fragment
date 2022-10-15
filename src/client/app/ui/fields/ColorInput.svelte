@@ -17,6 +17,7 @@ $: alpha = 1;
 $: hasAlpha = [
     color.FORMATS.RGBA_STRING,
     color.FORMATS.VEC4_STRING,
+    color.FORMATS.VEC4_ARRAY,
     color.FORMATS.RGBA_OBJECT,
     color.FORMATS.HSLA_STRING
 ].includes(format);
@@ -34,6 +35,19 @@ function dispatchChange() {
 
     // support THREE.Color
     switch (format) {
+        case color.FORMATS.VEC3_ARRAY:
+            value[0] = r;
+            value[1] = g;
+            value[2] = b;
+            dispatch('change', value);
+            break;
+        case color.FORMATS.VEC4_ARRAY:
+            value[0] = r;
+            value[1] = g;
+            value[2] = b;
+            value[3] = alpha;
+            dispatch('change', value);
+            break;
         case color.FORMATS.THREE:
         case color.FORMATS.RGB_OBJECT:
             value.r = r;

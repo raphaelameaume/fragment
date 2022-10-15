@@ -8,6 +8,8 @@ export const FORMATS = {
 	RGBA_OBJECT: "rgba-object",
 	VEC3_STRING: "vec3-string",
 	VEC4_STRING: "vec4-string",
+	VEC3_ARRAY: "vec3-array",
+	VEC4_ARRAY: "vec4-array",
 	THREE: "three",
 	CSS_COLOR: "css-color",
 };
@@ -22,7 +24,8 @@ export function toHex(color, format = getColorFormat(color)) {
 	if (format === FORMATS.HSL_STRING || format === FORMATS.HSLA_STRING) return hslToHex(color);
 	if (format === FORMATS.RGB_STRING || format === FORMATS.RGBA_STRING) return stringToHex(color);
 	if (format === FORMATS.RGB_OBJECT || format === FORMATS.RGBA_OBJECT) return componentsToHex([color.r, color.g, color.b, color.a]);
-	if (format === FORMATS.VEC3_STRING || format === FORMATS.VEC4_STRING) return vecToHex(color);
+	if (format === FORMATS.VEC3_STRING || format === FORMATS.VEC4_STRING) return vecStringToHex(color);
+	if (format === FORMATS.VEC3_ARRAY || format === FORMATS.VEC4_ARRAY) return vecArrayToHex(color);
 	if (format === FORMATS.CSS_COLOR) return nameToHex(color);
 }
 
@@ -36,7 +39,7 @@ export function toComponents(color, format = getColorFormat(color)) {
 	if (format === FORMATS.HSL_STRING || format === FORMATS.HSLA_STRING) return hslToComponents(color);
 	if (format === FORMATS.RGB_STRING || format === FORMATS.RGBA_STRING) return stringToComponents(color);
 	if (format === FORMATS.RGB_OBJECT || format === FORMATS.RGBA_OBJECT) return [color.r, color.g, color.b, isFinite(color.a) ? color.a : 1];
-	if (format === FORMATS.VEC3_STRING || format === FORMATS.VEC4_STRING) return vecToComponents(color);
+	if (format === FORMATS.VEC3_STRING || format === FORMATS.VEC4_STRING) return vecStringToComponents(color);
 	if (format === FORMATS.CSS_COLOR) return nameToComponents(color);
 }
 
@@ -55,6 +58,8 @@ export function toString(color, format = getColorFormat(color)) {
 		format === FORMATS.VEC4_STRING ||
 		format === FORMATS.CSS_COLOR
 	) return color;
+	if (format === FORMATS.VEC3_ARRAY) return componentsToRGBString(vecArrayToComponents(color));
+	if (format === FORMATS.VEC4_ARRAY) return componentsToRGBAString(vecArrayToComponents(color));
 	if (format === FORMATS.THREE) return threeToHex(color);
 	if (format === FORMATS.RGB_OBJECT) return componentsToRGBString([color.r, color.g, color.b])
 	if (format === FORMATS.RGBA_OBJECT) return componentsToRGBAString([color.r, color.g, color.b, color.a ? color.a : 1]);
@@ -119,7 +124,7 @@ export function stringToHex(color) {
 	return componentsToHex(stringToComponents(color));
 }
 
-export function vecToComponents(color) {
+export function vecStringToComponents(color) {
 	const match = color.match(/vec[3-4]?\((\d*(?:\.\d*?)), ?(\d*(?:\.\d*?)), ?(\d*(?:\.\d*))?(?:, ?(\d*(?:\.?\d*?))\))?/);
 
 	if (match) {
@@ -130,13 +135,33 @@ export function vecToComponents(color) {
 			match[4] ? Math.min(1, Math.max(Number(match[4]), 0)) : 1];
 	}
 
-	console.error(`color.vecToComponents :: cannot parse color`, color);
+	console.error(`color.vecStringToComponents :: cannot parse color`, color);
 
 	return [];
 }
 
-export function vecToHex(color) {
-	return componentsToHex(vecToComponents(color));
+export function vecArrayToComponents(color) {
+	if (color.every((c) => isFinite(c))) {
+		const [r, g, b, a = 1] = color;
+		return [
+			r,
+			g,
+			b,
+			a
+		];
+	}
+
+	console.error(`color.vecArrayToComponents :: cannot parse color`, color);
+
+	return [];
+}
+
+export function vecStringToHex(color) {
+	return componentsToHex(vecStringToComponents(color));
+}
+
+export function vecArrayToHex(color) {
+	return componentsToHex(vecArrayToComponents(color));
 }
 
 // https://stackoverflow.com/questions/39118528/rgb-to-hsl-conversion
@@ -436,6 +461,22 @@ export function isRGBObject(value) {
 	return false;
 }
 
+export function isVec3Array(value) {
+	if (Array.isArray(value)) {
+		return value.length == 3 && value.every(c => c >= 0 && c <= 1);
+	}
+
+	return false;
+}
+
+export function isVec4Array(value) {
+	if (Array.isArray(value)) {
+		return value.length == 4 && value.every(c => c >= 0 && c <= 1);
+	}
+
+	return false;
+}
+
 export function isCSSColor(value, isString = typeof value === "string") {
 	const components = isString && nameToComponents(value);
 
@@ -480,6 +521,8 @@ export function getColorFormat(value) {
 	if (isRGBAObject(value)) return FORMATS.RGBA_OBJECT;
 	if (isVec3String(value)) return FORMATS.VEC3_STRING;
 	if (isVec4String(value)) return FORMATS.VEC4_STRING;
+	if (isVec3Array(value)) return FORMATS.VEC3_ARRAY;
+	if (isVec4Array(value)) return FORMATS.VEC4_ARRAY;
 	if (isHSLAString(value)) return FORMATS.HSLA_STRING;
 	if (isHSLString(value)) return FORMATS.HSL_STRING;
 	if (isCSSColor(value)) return FORMATS.CSS_COLOR;
