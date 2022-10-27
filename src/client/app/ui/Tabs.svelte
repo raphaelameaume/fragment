@@ -55,8 +55,8 @@ $: console.log("rerender tabs", $tabs);
     --padding: 6px;
 	display: flex;
 	justify-content: flex-start;
-    width: calc(100% - var(--left1));
-	margin-left: var(--left1);
+    width: calc(100% - var(--left1, 0px));
+	margin-left: var(--left1, 0px);
 	border-top: var(--border-width) solid var(--color);
 	border-bottom: calc(var(--border-width) + 1px) solid var(--color);
 }
@@ -124,10 +124,10 @@ $: console.log("rerender tabs", $tabs);
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: calc(var(--left1) + 1px);
+	left: calc(var(--left1, 0px));
 	/* z-index: 1; */
 
-	width: var(--border-width);
+	width: calc(var(--border-width) + 1px);
 	height: 100%;
 
 	background: var(--color);
