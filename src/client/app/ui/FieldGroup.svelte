@@ -1,6 +1,6 @@
 <script>
 export let name;
-
+export let nesting = 0;
 export let collapsed = false;
 
 function handleClick() {
@@ -9,7 +9,7 @@ function handleClick() {
 
 </script>
 
-<div class="field-group {collapsed ? "collapsed" : ""}">
+<div class="field-group {collapsed ? "collapsed" : ""}" style="--nesting: {nesting}">
     <header class="header">
         <button class="header__action" on:click={handleClick}>
             <svg class="header__icon" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -32,21 +32,21 @@ function handleClick() {
     
 }
 
-.field-group:after {
+/* .field-group:after {
     content: "";
 
     position: absolute;
     left: 0;
     bottom: 0px;
     
-    width: 12px;
+    width: 15px;
     height: 1px;
     
     background-color: #323233;
-}
+} */
 
 .header {
-    padding: 3px 6px;
+    padding: 3px 6px 3px 0px;
     border-bottom: 1px solid #323233;
 }
 
@@ -58,6 +58,12 @@ function handleClick() {
 
     background: transparent;
     cursor: pointer;
+
+    padding-left: calc(12px * (var(--nesting)));
+}
+
+:global(.field-group .field__infos) {
+    padding-left: calc(12px * (var(--nesting) + 1));
 }
 
 .header__icon {
@@ -93,8 +99,21 @@ function handleClick() {
 }
 
 .content {
-    margin-left: 12px;
-    border-left: 1px solid #323233;
+    position: relative;
+}
+
+.content:before {
+    content: "";
+
+    position: absolute;
+    left: calc(12px * (var(--nesting) + 1));
+    top: 0;
+    bottom: 0;
+    
+    width: 1px;
+    height: 100%;
+    
+    background-color: #323233;
 }
 
 .field-group.collapsed .content {

@@ -12,10 +12,14 @@ import { onMount, onDestroy } from "svelte";
 import { props } from "../stores";
 import { sketches } from "../stores/sketches.js";
 import { monitors } from "../stores/rendering";
+import { folderExists, folders } from "../stores/folders";
 import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import OutputParams from "../ui/ParamsOutput.svelte";
-import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";
+import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";  
+import Folders from "../ui/Folders.svelte";
+  import SketchProp from "../ui/SketchProp.svelte";
+  import Tabs from "../ui/Tabs.svelte";
 
 export let mID;
 export let hasHeader = true;
@@ -86,8 +90,21 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
             {#if sketch.duration && sketch.duration > 0 && output }
                 <Field key="duration" value={sketch.duration} params={{disabled: true, suffix: "s"}}/>
             {/if }
+            <Tabs />
+            <Folders
+                children={$folders}
+                context={sketchKey}
+                props={sketchProps}
+            />
             {#each Object.keys(sketchProps) as key, i}
-                {#if !sketchProps[key].hidden}
+                {#if !folderExists(sketchProps[key].folder)}
+                    <SketchProp
+                        context={sketchKey}
+                        {key}
+                        props={sketchProps}
+                    />
+                {/if}
+                <!-- {#if typeof !sketchProps[key].hidden === "function" ? sketchProps[key].hidden() : !sketchProps[key].hidden}
                 <Field
                     context={sketchKey}
                     key={key}
@@ -104,8 +121,8 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                             $props[sketchKey][key].onChange($props[sketchKey][key]);
                         }
                     }}
-                />
-                {/if}
+                /> -->
+                <!-- {/if} -->
             {/each}
         {/if}
     {/if}

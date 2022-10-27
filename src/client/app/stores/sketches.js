@@ -1,5 +1,6 @@
 import { createStore } from "./utils.js";
 import { displayError } from "../stores/errors";
+import { folders } from "../stores/folders";
 import { sketches as all, onSketchReload } from "@fragment/sketches";
 
 export const sketches = createStore('sketches', {});
@@ -36,5 +37,6 @@ async function loadAll(collection) {
 loadAll(all);
 
 onSketchReload(({ sketches }) => {
+	folders.set([]);
 	loadAll(sketches);
 });
