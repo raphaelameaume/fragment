@@ -191,13 +191,27 @@ function composeFieldProps(params) {
 
 <style>
 .field {
+    position: relative;
     --column-gap: 3px;
     --padding: 6px;
 
     width: 100%;
 
-    padding: 3px 6px 3px 12px;
-    border-bottom: 1px solid var(--color-spacing);
+    padding: 3px 6px 4px 12px;
+    /* border-bottom: 1px solid var(--color-spacing); */
+}
+
+.field:after {
+    content: "";
+    --left: calc((var(--nesting, -1) + 1) * 12px);
+    position: absolute;
+    bottom: 0;
+    left: var(--left, 0px);
+
+    width: calc(100% - var(--left));
+    height: 1px;
+
+    background-color: var(--color-spacing);
 }
 
 :global(.field__input .field) {
@@ -205,10 +219,8 @@ function composeFieldProps(params) {
     padding-right: 0px !important;
 }
 
-:global(.field__input .field:last-child) {
-    border-bottom: 0px solid #323233 !important;
-    padding-bottom: 0px !important;
-    
+:global(.field__input .field:last-child:after) {
+    background-color: transparent;
 }
 
 .field.disabled {

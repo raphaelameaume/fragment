@@ -9,7 +9,7 @@ function handleClick() {
 
 </script>
 
-<div class="field-group {collapsed ? "collapsed" : ""}" style="--nesting: {nesting}">
+<div class="field-group {collapsed ? "collapsed" : ""}" style="--nesting: {nesting}; --nested: {nesting > 0 ? 1 : 0}">
     <header class="header">
         <button class="header__action" on:click={handleClick}>
             <svg class="header__icon" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -25,6 +25,9 @@ function handleClick() {
 
 <style>
 .field-group {
+    --left: calc(12px * (var(--nesting, -1)));
+    --left1: calc(12px * ((var(--nesting, -1) + 1)));
+
     position: relative;
 
     display: grid;
@@ -46,8 +49,34 @@ function handleClick() {
 } */
 
 .header {
+    position: relative;
     padding: 3px 6px 3px 0px;
-    border-bottom: 1px solid #323233;
+}
+
+.field-group:after {
+    content: '';
+
+    position: absolute;
+    left: var(--left);
+    bottom: 0;
+
+    width: calc(100% - var(--left));
+    height: 1px;
+
+    background-color: var(--color-spacing);
+}
+
+.field-group:not(.collapsed) .header:after {
+    content: '';
+
+    position: absolute;
+    left: var(--left);
+    bottom: 0;
+
+    width: calc(100% - var(--left));
+    height: 1px;
+
+    background-color: var(--color-spacing);
 }
 
 .header__action {
@@ -65,6 +94,16 @@ function handleClick() {
 :global(.field-group .field__infos) {
     padding-left: calc(12px * (var(--nesting) + 1));
 }
+
+:global(.field-group .field:last-child:after) {
+    background-color: transparent;
+}
+
+.field-group {
+    /* border-bottom: 1px solid var(--color-spacing); */
+}
+
+
 
 .header__icon {
     padding-bottom: 1px;
@@ -109,6 +148,7 @@ function handleClick() {
     left: calc(12px * (var(--nesting) + 1));
     top: 0;
     bottom: 0;
+    z-index: 1;
     
     width: 1px;
     height: 100%;

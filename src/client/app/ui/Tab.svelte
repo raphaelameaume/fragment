@@ -28,7 +28,5 @@ onDestroy(() => {
 </script>
 
 {#if $tabIndex === $tabs.indexOf(current)}
-<div class="tab-content">
-	<slot></slot>
-</div>
+<slot></slot>
 {/if}

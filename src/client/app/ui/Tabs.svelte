@@ -26,8 +26,28 @@ $: console.log("rerender tabs", $tabs);
 
 <style>
 .tabs {
+	--color: var(--color-spacing);
+	--border-width: 3px;
+
 	position: relative;
-	/* border-bottom: 1px solid var(--color-spacing); */
+}
+
+
+.tabs:after {
+	/* content: ""; */
+
+	--left: calc((var(--nesting, -1) + 1) * 12px);
+
+	position: absolute;
+
+	left: var(--left, 0px);
+	bottom: 0px;
+	z-index: 3;
+
+	width: calc(100% - var(--left));
+	height: 1px;
+
+	background-color: var(--color-spacing);
 }
 
 .tabs-header {
@@ -35,8 +55,10 @@ $: console.log("rerender tabs", $tabs);
     --padding: 6px;
 	display: flex;
 	justify-content: flex-start;
-    width: 100%;
-	padding-left: calc(12px * (var(--nesting, -1) + 1));
+    width: calc(100% - var(--left1));
+	margin-left: var(--left1);
+	border-top: var(--border-width) solid var(--color);
+	border-bottom: calc(var(--border-width) + 1px) solid var(--color);
 }
 
 .tab-button {
@@ -48,10 +70,14 @@ $: console.log("rerender tabs", $tabs);
 	font-size: 11px;
     /* font-weight: 700; */
 
-	background-color: #1d1d1e;
+	background-color: transparent;
+	border-left: 4px solid var(--color);
+	/* border-width: 0px;
+	border-style: solid;
+	border-color: var(--color); */
 	/* background-color: transparent; */
 	cursor: pointer;
-	border-bottom: 1px solid var(--color-spacing);
+	/* border: 1px solid var(--color-spacing); */
 }
 
 .tab-button:hover {
@@ -59,7 +85,7 @@ $: console.log("rerender tabs", $tabs);
 }
 
 .tab-button:not(:last-child) {
-	border-right: 1px solid var(--color-spacing);
+	/* border-right: 1px solid var(--color-background); */
 }
 
 .tab-label {
@@ -68,12 +94,13 @@ $: console.log("rerender tabs", $tabs);
 }
 
 .tab-button.active {
-	background-color: transparent;
-	border-color: var(--color-spacing) var(--color-spacing) transparent;
+	background-color: var(--color);
+	/* border-radius: 3px; */
+	/* border-color: transparent; */
 }
 
 .tab-button.empty.active {
-	border-color: var(--color-spacing);
+	/* border-color: var(--color-spacing); */
 }
 
 .tab-button.active .tab-label {
@@ -84,19 +111,45 @@ $: console.log("rerender tabs", $tabs);
 	opacity: 1;
 }
 
+
+.tab-contents {
+	padding-bottom: var(--border-width);
+	min-height: calc(var(--border-width) * 3);
+}
+
+/* border left */
 .tab-contents:before {
 	content: "";
 
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: calc(12px * (var(--nesting, -1) + 1));
+	left: calc(var(--left1) + 1px);
+	/* z-index: 1; */
 
-	width: 3px;
+	width: var(--border-width);
 	height: 100%;
 
-	background-color: var(--color-spacing);
+	background: var(--color);
 }
+
+/* border-bottom */
+.tab-contents:after {
+	content: "";
+
+	--left: calc(12px * calc(var(--nesting, -1) + 1));
+
+	position: absolute;
+
+	left: var(--left);
+	bottom: 0px;
+
+	width: calc(100% - var(--left));
+	height: calc(var(--border-width) + 1px);
+
+	background-color: var(--color);
+}
+
 
 
 
