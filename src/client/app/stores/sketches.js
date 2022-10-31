@@ -44,7 +44,7 @@ async function loadAll(collection) {
 	unsubscribe = elementsNext.subscribe((value) => {
 		console.log("elements next changed");
 		elements.set(value);
-	});r
+	});
 	
 
 	sketches.set(newSketches);
