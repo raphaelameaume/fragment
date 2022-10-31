@@ -8,7 +8,6 @@ let tabIndex = writable(0);
 setContext('tabs', tabs);
 setContext('tabIndex', tabIndex);
 
-$: console.log("rerender tabs", $tabs);
 </script>
 
 <div class="tabs">

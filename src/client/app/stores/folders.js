@@ -4,6 +4,8 @@ export const folders = writable([]);
 export const tabs = writable([]);
 
 export const elements = writable([]);
+export const elementsNext = writable([]);
+export const index = writable(0);
 
 export function folderExists(folder, all = get(folders)) {
 	let exists = false;
@@ -40,7 +42,6 @@ export function folderExists(folder, all = get(folders)) {
 
 	return exists;
 }
-
 
 elements.subscribe(all => {
 	console.log(all);

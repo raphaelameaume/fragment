@@ -7,17 +7,23 @@ import Tab from "./Tab.svelte";
 export let children;
 export let context;
 export let props;
+export let parent = null;
 
-$: childrenOrdered = [...children].sort((a, b) => a.params.order - b.params.order);
-
-$: console.log("updated children", children);
+$: childrenOrdered = [...children]
+	.filter(child => child.parent === parent)
+	.sort((a, b) => a.params.order - b.params.order);
 </script>
 
 {#each childrenOrdered as child}
 	{#if child.type === "folder"}
-	<FieldGroup name={child.label} nesting={child.level}>
+	<FieldGroup name={child.label} nesting={child.level} collapsed={child.collapsed}>
 		{#if child.children.length > 0}
-			<svelte:self children={child.children} context={context} props={props} />
+			<svelte:self
+				children={child.children}
+				context={context}
+				props={props}
+				parent={child.id}
+			/>
 		{/if}
 		{#each Object.keys(props) as key, i}
 			{#if (Array.isArray(props[key].folder) && props[key].folder.includes(child)) || (props[key].folder === child)}
@@ -43,7 +49,7 @@ $: console.log("updated children", children);
 						{/if}
 					{/each}
 					{#if tab.children.length > 0}
-						<svelte:self children={tab.children} context={context} props={props} />
+						<svelte:self children={tab.children} context={context} props={props} parent={tab.id} />
 					{/if}
 				</Tab>
 			{/each}
