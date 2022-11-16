@@ -20,8 +20,8 @@ $: childrenOrdered = [...children]
 		{#if child.children.length > 0}
 			<svelte:self
 				children={child.children}
-				context={context}
-				props={props}
+				{context}
+				{props}
 				parent={child.id}
 			/>
 		{/if}
@@ -56,3 +56,14 @@ $: childrenOrdered = [...children]
 		</Tabs>
 	{/if}
 {/each}
+{#if parent === null}
+	{#each Object.keys(props) as key, i}
+		{#if props[key].folder === undefined && props[key].tab === undefined}
+			<SketchField
+				{context}
+				{key}
+				{props}
+			/>
+		{/if}
+	{/each}
+{/if}

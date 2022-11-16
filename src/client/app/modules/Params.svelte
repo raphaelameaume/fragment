@@ -95,34 +95,6 @@ $: showOutputParams = (monitor && monitor.selected === "output") ||
                 context={sketchKey}
                 props={sketchProps}
             />
-            {#each Object.keys(sketchProps) as key, i}
-                {#if !folderExists(sketchProps[key].folder)}
-                    <SketchField
-                        context={sketchKey}
-                        {key}
-                        props={sketchProps}
-                    />
-                {/if}
-                <!-- {#if typeof !sketchProps[key].hidden === "function" ? sketchProps[key].hidden() : !sketchProps[key].hidden}
-                <Field
-                    context={sketchKey}
-                    key={key}
-                    value={sketchProps[key].value}
-                    type={sketchProps[key].type}
-                    bind:params={sketchProps[key].params}
-                    on:click={() => {
-                        $props[sketchKey][key].value._refresh = true;
-                    }}
-                    on:change={(event) => {
-                        $props[sketchKey][key].value = event.detail;
-
-                        if (typeof $props[sketchKey][key].onChange === 'function') {
-                            $props[sketchKey][key].onChange($props[sketchKey][key]);
-                        }
-                    }}
-                /> -->
-                <!-- {/if} -->
-            {/each}
         {/if}
     {/if}
 </Module>
