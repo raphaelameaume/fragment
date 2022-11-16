@@ -12,18 +12,17 @@ $: nesting = folder.level;
 
 // react to assign .collapsed to folder in code
 onMount(() => {
-	
-	let unsub = folder.store.subscribe((value) => {
-		collapsed = value;
+	let unsubscribe = folder.attributes.subscribe(attributes => {
+		collapsed = attributes.collapsed;
 	});
 
 	return () => {
-		unsub();
+		unsubscribe();
 	}
 })
 
 afterUpdate(() => {
-	// reinit collapsing if value change on init in sketch file
+	// reinit collapsed state if value change on init in sketch file
 	if (folder.collapsed0 !== collapsed0) {
 		collapsed = folder.collapsed0;
 	}

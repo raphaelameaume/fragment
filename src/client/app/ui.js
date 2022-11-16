@@ -82,9 +82,8 @@ class Folder extends Wrapper {
 			children
 		}, params);
 
-		this.store = writable(collapsed);
-		this.store.subscribe((value) => {
-			console.log("isCollapsed", value);
+		this.attributes = writable({
+			collapsed,
 		});
 		this.label = label;
 		this.collapsed0 = collapsed;
@@ -93,13 +92,15 @@ class Folder extends Wrapper {
 	}
 
 	set collapsed(value) {
-		console.log("Folder :: set collapsed", value);
 		this._collapsed = value;
-		this.store.set(value);
+		this.attributes.update((current) => ({
+			...current,
+			collapsed: value,
+		}));
 	}
 
 	get collapsed() {
-		return get(this.store);
+		return this._collapsed;
 	}
 }
 
