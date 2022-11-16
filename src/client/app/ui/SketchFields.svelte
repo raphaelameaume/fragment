@@ -1,8 +1,8 @@
 <script>
-import FieldGroup from "./FieldGroup.svelte";
 import SketchField from "./SketchField.svelte";
 import Tabs from "./Tabs.svelte";
 import Tab from "./Tab.svelte";
+  import SketchFolder from "./SketchFolder.svelte";
 
 export let children;
 export let context;
@@ -16,7 +16,7 @@ $: childrenOrdered = [...children]
 
 {#each childrenOrdered as child}
 	{#if child.type === "folder"}
-	<FieldGroup name={child.label} nesting={child.level} collapsed={child.collapsed}>
+	<SketchFolder folder={child}>
 		{#if child.children.length > 0}
 			<svelte:self
 				children={child.children}
@@ -34,7 +34,7 @@ $: childrenOrdered = [...children]
 				/>
 			{/if}
 		{/each}
-	</FieldGroup>
+	</SketchFolder>
 	{:else if child.type === "tabs"}
 		<Tabs>
 			{#each child.children as tab}

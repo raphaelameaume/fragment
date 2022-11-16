@@ -27,7 +27,7 @@ async function loadAll(collection) {
 		unsubscribe();
 	}
 
-	elementsNext.set([]);
+	elementsNext.set([]); // REMOVE TEMP TO FIX OVERLOAD
 
 	const loadedSketches = await Promise.all(keys.map((key) => loadSketch(collection, key)));
 
@@ -39,13 +39,32 @@ async function loadAll(collection) {
 		return all;
 	}, {});
 
-	elements.set(get(elementsNext));
+	// const elsBefore = get(elements);
+	const elsNext = get(elementsNext);
 
+	// console.log({ elsBefore, elsNext });
+
+	// for (let i = 0; i < elsBefore.length; i++) {
+	// 	const isSameID = elsNext[i] && elsNext[i].id === elsBefore[i].id;
+
+	// 	console.log({ isSameID }, elsBefore[i].id, { collapsed: elsBefore[i].collapsed });
+
+	// 	if (isSameID) {
+	// 		// same object, reconcile properties
+	// 		if (elsBefore[i].isFolder) {
+	// 			console.log("reconcile collapsed state", elsBefore[i].collapsed, elsNext[i].collapsed);
+	// 			elsNext[i].collapsed = elsBefore[i].collapsed;
+	// 		}
+	// 	}
+	// }
+
+	// should reconcile state here
+	elements.set(elsNext);
+
+	// elements added asyncronously are properly added
 	unsubscribe = elementsNext.subscribe((value) => {
-		console.log("elements next changed");
 		elements.set(value);
 	});
-	
 
 	sketches.set(newSketches);
 	sketchesKeys.set(keys);

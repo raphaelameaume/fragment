@@ -1,6 +1,5 @@
-import { writable, get } from "svelte/store";
-import { client } from "./client";
-import { index, folders, tabs, elements, elementsNext } from "./stores/folders";
+import { get, writable } from "svelte/store";
+import { elements, elementsNext } from "./stores/folders";
 
 class Wrapper {
 	constructor({
@@ -47,7 +46,7 @@ class Wrapper {
 	addTabs(options, params) {
 		const tabs = new Tabs(options, params, {
 			parent: this.id,
-			level: this.level +1,
+			level: this.level - 1,
 		});
 
 		this.children.push(tabs);
@@ -83,8 +82,24 @@ class Folder extends Wrapper {
 			children
 		}, params);
 
+		this.store = writable(collapsed);
+		this.store.subscribe((value) => {
+			console.log("isCollapsed", value);
+		});
 		this.label = label;
+		this.collapsed0 = collapsed;
 		this.collapsed = collapsed;
+		this.isFolder = true;
+	}
+
+	set collapsed(value) {
+		console.log("Folder :: set collapsed", value);
+		this._collapsed = value;
+		this.store.set(value);
+	}
+
+	get collapsed() {
+		return get(this.store);
 	}
 }
 
@@ -114,6 +129,8 @@ class Tabs extends Wrapper {
 				});
 			})
 		];
+
+		this.isTabs = true;
 	}
 }
 
@@ -138,12 +155,13 @@ class Tab extends Wrapper {
 
 		this.label = label;
 		this.active = active;
+		this.isTab = true;
 	}
 }
 
 export function addFolder(options) {
 	let folder = new Folder(typeof options === "string" ? { label: options } : options, {
-		index: get(elements).length,
+		index: get(elementsNext).length,
 	});
 
 	elementsNext.update((current) => {

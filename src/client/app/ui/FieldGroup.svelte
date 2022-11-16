@@ -9,7 +9,10 @@ function handleClick() {
 
 </script>
 
-<div class="field-group {collapsed ? "collapsed" : ""}" style="--nesting: {nesting}; --nested: {nesting > 0 ? 1 : 0}">
+<div
+    class="field-group"
+    class:collapsed={collapsed}
+    style="--nesting: {nesting}; --nested: {nesting > 0 ? 1 : 0}">
     <header class="header">
         <button class="header__action" on:click={handleClick}>
             <svg class="header__icon" width="24" height="24" fill="none" viewBox="0 0 24 24">
