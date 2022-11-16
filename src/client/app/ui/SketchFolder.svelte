@@ -4,6 +4,8 @@ import FieldGroup from "./FieldGroup.svelte";
 
 export let folder;
 
+let collapsed0 = folder.collapsed0;
+
 $: collapsed = folder.collapsed;
 $: name = folder.label;
 $: nesting = folder.level;
@@ -22,7 +24,7 @@ onMount(() => {
 
 afterUpdate(() => {
 	// reinit collapsing if value change on init in sketch file
-	if (collapsed !== folder.collapsed0) {
+	if (folder.collapsed0 !== collapsed0) {
 		collapsed = folder.collapsed0;
 	}
 });
