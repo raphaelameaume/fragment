@@ -56,10 +56,7 @@ Create multiple folders at the root of Params in a single call. See [`addFolder`
 ```js
 import { addFolders } from "@fragment/ui";
 
-let [sceneFolder, lightsFolder] = addFolders([
-	"Scene",
-	"Lights",
-]);
+let [sceneFolder, lightsFolder] = addFolders(["Scene", "Lights"]);
 ```
 
 #### `removeFolder`
