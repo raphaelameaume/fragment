@@ -1,19 +1,40 @@
 <script>
 import { writable } from "svelte/store";
-import { setContext } from "svelte";
+import { onDestroy, setContext } from "svelte";
 
+export let index = 0;
+export let instance = null;
+
+let tabIndex = writable(index);
 let tabs = writable([]);
-let tabIndex = writable(0);
 
-setContext('tabs', tabs);
-setContext('tabIndex', tabIndex);
+const context = {
+	tabIndex,
+	tabs,
+	registerTab: (element) => {
+		$tabs = [...$tabs, element];
+
+		onDestroy(() => {
+			$tabs = $tabs.filter(el => el !== element);
+		});
+	}
+};
+
+setContext('tabs', context);
+
+$: {
+	// reattach tabIndex store to tabs instance when instance changes
+	if (instance) {
+		instance.tabIndex = tabIndex;
+	}
+}
 
 </script>
 
 <div class="tabs">
 	<header class="tabs-header" role="tablist" aria-orientation="horizontal">
 		{#each $tabs as tab, index}
-			<button class="tab-button" class:empty={tab.empty} class:active={index === $tabIndex} on:click={() => $tabIndex = index} role="tab" aria-selected={tabIndex === index}>
+			<button class="tab-button" class:active={index === $tabIndex} on:click={() => $tabIndex = index} role="tab" aria-selected={index === $tabIndex}>
 				<span class="tab-label">{tab.label}</span>
 			</button>
 		{/each}
@@ -25,7 +46,7 @@ setContext('tabIndex', tabIndex);
 
 <style>
 .tabs {
-	--color: var(--color-spacing);
+	--border-color: var(--color-spacing);
 	--border-width: 3px;
 
 	position: relative;
@@ -56,8 +77,8 @@ setContext('tabIndex', tabIndex);
 	justify-content: flex-start;
     width: calc(100% - var(--left1, 0px));
 	margin-left: var(--left1, 0px);
-	border-top: var(--border-width) solid var(--color);
-	border-bottom: calc(var(--border-width) + 1px) solid var(--color);
+	border-top: var(--border-width) solid var(--border-color);
+	border-bottom: calc(var(--border-width) + 1px) solid var(--border-color);
 }
 
 .tab-button {
@@ -70,7 +91,7 @@ setContext('tabIndex', tabIndex);
     /* font-weight: 700; */
 
 	background-color: transparent;
-	border-left: 4px solid var(--color);
+	border-left: 4px solid var(--border-color);
 	/* border-width: 0px;
 	border-style: solid;
 	border-color: var(--color); */
@@ -93,13 +114,9 @@ setContext('tabIndex', tabIndex);
 }
 
 .tab-button.active {
-	background-color: var(--color);
+	background-color: var(--border-color);
 	/* border-radius: 3px; */
 	/* border-color: transparent; */
-}
-
-.tab-button.empty.active {
-	/* border-color: var(--color-spacing); */
 }
 
 .tab-button.active .tab-label {
@@ -129,7 +146,7 @@ setContext('tabIndex', tabIndex);
 	width: calc(var(--border-width) + 1px);
 	height: 100%;
 
-	background: var(--color);
+	background: var(--border-color);
 }
 
 /* border-bottom */
@@ -146,7 +163,7 @@ setContext('tabIndex', tabIndex);
 	width: calc(100% - var(--left));
 	height: calc(var(--border-width) + 1px);
 
-	background-color: var(--color);
+	background-color: var(--border-color);
 }
 
 

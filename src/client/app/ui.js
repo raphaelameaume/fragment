@@ -9,7 +9,7 @@ class Wrapper {
 		parent = null,
 		children = []
 	} = {}, params = {}) {
-		this.id = `${parent ? `${parent}.` : ``}${type}${level}${isFinite(index) ? `-${index}`: ``}`;
+		this.id = `${parent ? `${parent.id}.` : ``}${type}${level}${isFinite(index) ? `-${index}`: ``}`;
 		this.index = index;
 		this.type = type;
 		this.params = params;
@@ -20,7 +20,7 @@ class Wrapper {
 
 	addFolder(options) {
 		const folder = new Folder(typeof options === "string" ? { label: options } : options, {
-			parent: this.id,
+			parent: this,
 			level: this.level + 1,
 		});
 
@@ -45,7 +45,7 @@ class Wrapper {
 
 	addTabs(options, params) {
 		const tabs = new Tabs(options, params, {
-			parent: this.id,
+			parent: this,
 			level: this.level - 1,
 		});
 
@@ -117,6 +117,8 @@ class Tabs extends Wrapper {
 			children,
 		}, params);
 
+		this.tabIndex = writable(-1);
+
 		this.children = [
 			...this.children,
 			...tabs.map(({ label, active } = {}, index) => {
@@ -126,12 +128,16 @@ class Tabs extends Wrapper {
 					active
 				}, {
 					level: this.level + 1,
-					parent: this.id,
+					parent: this,
 				});
 			})
 		];
 
 		this.isTabs = true;
+	}
+
+	setActive(index) {
+		this.tabIndex.set(index);
 	}
 }
 
@@ -158,8 +164,38 @@ class Tab extends Wrapper {
 		this.active = active;
 		this.isTab = true;
 	}
+
+	set active(value) {
+		this._active = value;
+
+		if (this._active) {
+			this.parent.tabIndex.set(this.index);
+		}
+
+		this.parent.children.forEach((child, i) => {
+			if (i !== this.index) {
+				child._active = false;
+			}
+		});
+	}
+
+	get active() {
+		return this._active;
+	}
 }
 
+
+/**
+ * @typedef {object} FolderOptions
+ * @property {string} label
+ * @property {boolean} collapsed
+ */
+
+/**
+ * Create a new folder at the root level of Params module
+ * @param {string|FolderOptions} options
+ * @returns Folder
+ */
 export function addFolder(options) {
 	let folder = new Folder(typeof options === "string" ? { label: options } : options, {
 		index: get(elementsNext).length,
@@ -176,6 +212,11 @@ export function addFolders(options) {
 	return options.map((option) => addFolder(option));
 }
 
+/**
+ * 
+ * @param {string[]|object[]} tabs 
+ * @returns Tabs
+ */
 export function addTabs(tabs, options) {
 	const tabContainer = new Tabs(tabs, options, {
 		index: get(elements).length,
@@ -188,10 +229,18 @@ export function addTabs(tabs, options) {
 	return tabContainer.children;
 }
 
+/**
+ * Remove a folder from Params
+ * @param {Folder} folder 
+ */
 export function removeFolder(folder) {
 	elementsNext.update((current) => current.filter(element => element !== folder));
 };
 
+/**
+ * Remove multiple folders from Params
+ * @param {Folder[]} folders 
+ */
 export function removeFolders(folders) {
 	elementsNext.update((current) => current.filter(element => !folders.includes(element)));
 }

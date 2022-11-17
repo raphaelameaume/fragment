@@ -1,8 +1,9 @@
 <script>
+import SketchFieldGroup from "./SketchFieldGroup.svelte";
 import SketchField from "./SketchField.svelte";
 import Tabs from "./Tabs.svelte";
 import Tab from "./Tab.svelte";
-  import SketchFolder from "./SketchFolder.svelte";
+import SketchFieldTabs from "./SketchFieldTabs.svelte";
 
 export let children;
 export let context;
@@ -16,13 +17,13 @@ $: childrenOrdered = [...children]
 
 {#each childrenOrdered as child}
 	{#if child.type === "folder"}
-	<SketchFolder folder={child}>
+	<SketchFieldGroup folder={child}>
 		{#if child.children.length > 0}
 			<svelte:self
 				children={child.children}
 				{context}
 				{props}
-				parent={child.id}
+				parent={child}
 			/>
 		{/if}
 		{#each Object.keys(props) as key, i}
@@ -34,11 +35,11 @@ $: childrenOrdered = [...children]
 				/>
 			{/if}
 		{/each}
-	</SketchFolder>
+	</SketchFieldGroup>
 	{:else if child.type === "tabs"}
-		<Tabs>
+		<Tabs instance={child}>
 			{#each child.children as tab}
-				<Tab label={tab.label} key={`${tab.id}${tab.label}`}>
+				<Tab label={tab.label}>
 					{#each Object.keys(props) as key, i}
 						{#if (Array.isArray(props[key].tab) && props[key].tab.includes(tab)) || (props[key].tab === tab)}
 							<SketchField
@@ -49,7 +50,7 @@ $: childrenOrdered = [...children]
 						{/if}
 					{/each}
 					{#if tab.children.length > 0}
-						<svelte:self children={tab.children} context={context} props={props} parent={tab.id} />
+						<svelte:self children={tab.children} context={context} props={props} parent={tab} />
 					{/if}
 				</Tab>
 			{/each}

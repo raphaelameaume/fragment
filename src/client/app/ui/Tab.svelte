@@ -3,30 +3,16 @@ import { getContext, onMount, onDestroy, afterUpdate } from "svelte";
 
 export let label;
 
-let tabs = getContext('tabs');
-let tabIndex = getContext('tabIndex');
+let item = {
+	label,
+};
 
-let current = {};
+let { tabIndex, tabs, registerTab } = getContext('tabs');
 
-onMount(() => {
-	current.label = label;
-	$tabs = [...$tabs, current];
-});
+registerTab(item);
 
-afterUpdate(() => {
-	const temp = [...$tabs];
-	const index = temp.indexOf(current);
-	current.label = label;
-	temp[index] = current;
-
-	$tabs = temp;
-})
-
-onDestroy(() => {
-	$tabs = $tabs.filter((tab) => tab !== current);
-});
 </script>
 
-{#if $tabIndex === $tabs.indexOf(current)}
+{#if $tabIndex === $tabs.indexOf(item)}
 <slot></slot>
 {/if}
