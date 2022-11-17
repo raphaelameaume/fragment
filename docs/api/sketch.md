@@ -206,6 +206,8 @@ export let props = {
 }
 ```
 
+Sketch properties can also be arranged in the interface with tabs and folders. See [UI](./ui.md) for details.
+
 ## Templates
 
 `fragment` comes with a bunch of pre-defined templates. See [CLI docs](./CLI.md#templates) for details.

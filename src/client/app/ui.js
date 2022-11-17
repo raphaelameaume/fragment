@@ -89,7 +89,7 @@ class Wrapper {
 
 	/**
 	 * Remove tabs
-	 * @param {Tabs} tabs 
+	 * @param {Tab[]} tabs 
 	 * @returns 
 	 */
 	removeTabs(tabs) {
