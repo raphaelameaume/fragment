@@ -159,3 +159,47 @@ export let init = () => {
 	}, 2000);
 }
 ```
+
+Folders and tabs extends `UIComponent`, which extends methods above, allowing the creation of subfolders and subtabs on every component created.
+
+Example:
+```js
+import { addFolder, addTabs } from "@fragment/ui";
+
+let folder = addFolder("mainFolder");
+let subfolder = folder.addFolder("subfolder");
+
+let [sceneTab, meshTab] = addTabs(["Scene", "Mesh"]);
+
+let geometryFolder = meshTab.addFolder("geometry");
+let materialFolder = meshTab.addFolder("material");
+
+let [materialTab0, materialTab1] = materialFolder.addTabs(["tab0", "tab1"]);
+
+export let props = {
+	meshColor: {
+		value: "#ff0000",
+		tab: materialTab0,
+	}
+}
+```
+
+If for some reasons, a prop needs to be displayed at multiple locations, an array of components can be specified. 
+
+```js
+import { addFolder, addTabs } from "@fragment/ui";
+
+let folder = addFolder("mainFolder");
+let subfolder = folder.addFolder("subfolder");
+let [sceneTab, meshTab] = addTabs(["Scene", "Mesh"]);
+
+export let props = {
+	meshColor: {
+		value: "#ff0000",
+		tab: [sceneTab, meshTab],
+		folder: [folder, subfolder],
+	}
+}
+```
+
+> ⚠️ A prop can be displayed at multiple locations in tabs or folders but cannot be displayed simultaneously in a `UIComponent` and at the root of Params at the same time.
