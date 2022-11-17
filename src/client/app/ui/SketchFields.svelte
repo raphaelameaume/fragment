@@ -3,7 +3,6 @@ import SketchFieldGroup from "./SketchFieldGroup.svelte";
 import SketchField from "./SketchField.svelte";
 import Tabs from "./Tabs.svelte";
 import Tab from "./Tab.svelte";
-import SketchFieldTabs from "./SketchFieldTabs.svelte";
 
 export let children;
 export let context;
@@ -38,8 +37,8 @@ $: childrenOrdered = [...children]
 	</SketchFieldGroup>
 	{:else if child.type === "tabs"}
 		<Tabs instance={child}>
-			{#each child.children as tab}
-				<Tab label={tab.label}>
+			{#each child.children as tab (tab.id)}
+				<Tab label={tab.label} active={tab.active}>
 					{#each Object.keys(props) as key, i}
 						{#if (Array.isArray(props[key].tab) && props[key].tab.includes(tab)) || (props[key].tab === tab)}
 							<SketchField

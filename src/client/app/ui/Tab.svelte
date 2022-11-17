@@ -1,18 +1,25 @@
 <script>
-import { getContext, onMount, onDestroy, afterUpdate } from "svelte";
+import { getContext } from "svelte";
 
-export let label;
+export let label = "Tab";
+export let active = false;
 
-let item = {
-	label,
-};
+let tab = { label, active };
+let { tabIndex, tabs, registerTab, updateTab } = getContext('tabs');
 
-let { tabIndex, tabs, registerTab } = getContext('tabs');
+registerTab(tab);
 
-registerTab(item);
+$: {
+	if (label !== tab.label || active !== tab.active) {
+		updateTab(tab, {
+			label,
+			active,
+		});
+	}
+}
 
 </script>
 
-{#if $tabIndex === $tabs.indexOf(item)}
+{#if $tabIndex === $tabs.indexOf(tab)}
 <slot></slot>
 {/if}

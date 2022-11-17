@@ -39,24 +39,7 @@ async function loadAll(collection) {
 		return all;
 	}, {});
 
-	// const elsBefore = get(elements);
 	const elsNext = get(elementsNext);
-
-	// console.log({ elsBefore, elsNext });
-
-	// for (let i = 0; i < elsBefore.length; i++) {
-	// 	const isSameID = elsNext[i] && elsNext[i].id === elsBefore[i].id;
-
-	// 	console.log({ isSameID }, elsBefore[i].id, { collapsed: elsBefore[i].collapsed });
-
-	// 	if (isSameID) {
-	// 		// same object, reconcile properties
-	// 		if (elsBefore[i].isFolder) {
-	// 			console.log("reconcile collapsed state", elsBefore[i].collapsed, elsNext[i].collapsed);
-	// 			elsNext[i].collapsed = elsBefore[i].collapsed;
-	// 		}
-	// 	}
-	// }
 
 	// should reconcile state here
 	elements.set(elsNext);

@@ -1,5 +1,17 @@
 import { get, writable } from "svelte/store";
-import { elements, elementsNext } from "./stores/folders";
+import { elementsNext } from "./stores/folders";
+
+/**
+ * @typedef {object} FolderOptions
+ * @property {string} [label=""] - The label used on display
+ * @property {boolean} [collapsed=false] - Collapse the folder on init
+ */
+
+/**
+ * @typedef {object} TabOptions
+ * @property {string} [label=""] - The label used on display
+ * @property {boolean} [active=false] - Set the active tab. Default to first tab created.
+ */
 
 class Wrapper {
 	constructor({
@@ -18,6 +30,11 @@ class Wrapper {
 		this.level = level;
 	}
 
+	/**
+	* Create a subfolder
+	* @param {string|FolderOptions} options
+	* @returns Folder
+	*/
 	addFolder(options) {
 		const folder = new Folder(typeof options === "string" ? { label: options } : options, {
 			parent: this,
@@ -31,10 +48,20 @@ class Wrapper {
 		return folder;
 	}
 
+	/**
+	* Create subfolders
+	* @param {string[]|FolderOptions[]} options
+	* @returns Folder[]
+	*/
 	addFolders(options) {
 		return options.map((option) => this.addFolder(option));
 	}
 
+	/**
+	 * Remove a subfolder
+	 * @param {Folder} folder 
+	 * @returns 
+	 */
 	removeFolder(folder) {
 		this.children = this.children.filter((child) => child !== folder);
 
@@ -43,6 +70,12 @@ class Wrapper {
 		return this;
 	}
 
+	/**
+	 * Create subtabs
+	 * @param {string[]|TabOptions[]} options 
+	 * @param {*} params 
+	 * @returns Tab[]
+	 */
 	addTabs(options, params) {
 		const tabs = new Tabs(options, params, {
 			parent: this,
@@ -54,6 +87,11 @@ class Wrapper {
 		return tabs.children;
 	}
 
+	/**
+	 * Remove tabs
+	 * @param {Tabs} tabs 
+	 * @returns 
+	 */
 	removeTabs(tabs) {
 		const tabIDs = tabs.map((tab) => tab.id);
 
@@ -86,17 +124,18 @@ class Folder extends Wrapper {
 			collapsed,
 		});
 		this.label = label;
-		this.collapsed0 = collapsed;
 		this.collapsed = collapsed;
 		this.isFolder = true;
 	}
 
 	set collapsed(value) {
 		this._collapsed = value;
-		this.attributes.update((current) => ({
-			...current,
-			collapsed: value,
-		}));
+
+		this.attributes.update((current) => {
+			current.collapsed = value;
+			
+			return current;
+		});
 	}
 
 	get collapsed() {
@@ -121,7 +160,10 @@ class Tabs extends Wrapper {
 
 		this.children = [
 			...this.children,
-			...tabs.map(({ label, active } = {}, index) => {
+			...tabs.map((tabOption, index) => {
+				let label = typeof tabOption === "string" ? tabOption : tabOption.label;
+				let active = typeof tabOption === "string" ? undefined : tabOption.active;
+
 				return new Tab({
 					index,
 					label,
@@ -136,8 +178,12 @@ class Tabs extends Wrapper {
 		this.isTabs = true;
 	}
 
+	/**
+	 * Change tab index
+	 * @param {number} index 
+	 */
 	setActive(index) {
-		this.tabIndex.set(index);
+		this.tabIndex.set(Math.min(index, this.children.length - 1));
 	}
 }
 
@@ -184,15 +230,8 @@ class Tab extends Wrapper {
 	}
 }
 
-
 /**
- * @typedef {object} FolderOptions
- * @property {string} label
- * @property {boolean} collapsed
- */
-
-/**
- * Create a new folder at the root level of Params module
+ * Create a new folder at the root of Params
  * @param {string|FolderOptions} options
  * @returns Folder
  */
@@ -208,18 +247,23 @@ export function addFolder(options) {
 	return folder;
 };
 
+/**
+ * Create new folders at the root of Params
+ * @param {string[]|FolderOptions[]} options
+ * @returns Folder[]
+ */
 export function addFolders(options) {
 	return options.map((option) => addFolder(option));
 }
 
 /**
- * 
- * @param {string[]|object[]} tabs 
+ * Create tabs at the root of Params
+ * @param {string[]|TabOptions} tabs 
  * @returns Tabs
  */
 export function addTabs(tabs, options) {
 	const tabContainer = new Tabs(tabs, options, {
-		index: get(elements).length,
+		index: get(elementsNext).length,
 	});
 
 	elementsNext.update((current) => {

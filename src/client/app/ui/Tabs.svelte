@@ -1,22 +1,41 @@
 <script>
 import { writable } from "svelte/store";
-import { onDestroy, setContext } from "svelte";
+import { afterUpdate, onDestroy, setContext } from "svelte";
 
-export let index = 0;
 export let instance = null;
 
-let tabIndex = writable(index);
+let tabIndex = writable(-1);
 let tabs = writable([]);
 
 const context = {
 	tabIndex,
 	tabs,
-	registerTab: (element) => {
-		$tabs = [...$tabs, element];
+	registerTab: (tab) => {
+		const index = $tabs.length;
+		$tabs = [...$tabs, tab];
+
+		if (tab.active) {
+			$tabIndex = index;
+		}
 
 		onDestroy(() => {
-			$tabs = $tabs.filter(el => el !== element);
+			$tabs = $tabs.filter(t => t !== tab);
 		});
+	},
+	updateTab: (tab, props = {}) => {
+		const index = $tabs.indexOf(tab);
+
+		$tabs = $tabs.map((t) => {
+			if (t === tab) {
+				Object.assign(tab, props);
+			}
+
+			return t;
+		});
+
+		if (props.active) {
+			$tabIndex = index;
+		}
 	}
 };
 
