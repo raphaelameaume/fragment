@@ -42,7 +42,3 @@ export function folderExists(folder, all = get(folders)) {
 
 	return exists;
 }
-
-// elements.subscribe(all => {
-// 	console.log(all);
-// })

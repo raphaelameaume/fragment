@@ -1,7 +1,7 @@
 import { createStore } from "./utils.js";
 import { displayError } from "../stores/errors";
 import { sketches as all, onSketchReload } from "@fragment/sketches";
-import { elements, elementsNext } from "../stores/folders";
+import { elements, elementsNext } from "./ui";
 import { get } from "svelte/store";
 
 export const sketches = createStore('sketches', {});

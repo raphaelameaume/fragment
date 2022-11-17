@@ -12,15 +12,13 @@ import { onMount, onDestroy } from "svelte";
 import { props } from "../stores";
 import { sketches } from "../stores/sketches.js";
 import { monitors } from "../stores/rendering";
-import { folderExists, folders, tabs, elements } from "../stores/folders";
+import { elements } from "../stores/ui";
 import Module from "../ui/Module.svelte";
 import Field from "../ui/Field.svelte";
 import OutputParams from "../ui/ParamsOutput.svelte";
 import ModuleHeaderAction from "../ui/ModuleHeaderAction.svelte";  
 import SketchFields from "../ui/SketchFields.svelte";
-import SketchField from "../ui/SketchField.svelte";
   
-
 export let mID;
 export let hasHeader = true;
 export let output = true;
