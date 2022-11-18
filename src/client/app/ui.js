@@ -169,7 +169,8 @@ class Tabs extends UIComponent {
 			order
 		});
 
-		this.tabIndex = writable(-1);
+		this.$tabIndex = writable(0);
+		this.tabIndex = 0;
 
 		this.children = tabs.map((tabOption, index) => {
 			const isString = typeof tabOption === "string";
@@ -190,7 +191,17 @@ class Tabs extends UIComponent {
 		});
 
 		this.children.sort((a, b) => a.order - b.order);
+
 		this.isTabs = true;
+	}
+
+	set tabIndex(value) {
+		this._tabIndex = value;
+		this.$tabIndex.set(value);
+	}
+
+	get tabIndex() {
+		return this._tabIndex;
 	}
 
 	/**
@@ -206,7 +217,7 @@ class Tab extends UIComponent {
 	constructor({
 		index,
 		label = "",
-		active = index === 0,
+		active = false,
 	} = {}, {
 		order = index,
 		level = 0,
@@ -229,7 +240,7 @@ class Tab extends UIComponent {
 		this._active = value;
 
 		if (this._active) {
-			this.parent.tabIndex.set(this.index);
+			this.parent.tabIndex = this.index;
 		}
 
 		this.parent.children.forEach((child, i) => {

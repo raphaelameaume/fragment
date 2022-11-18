@@ -4,7 +4,8 @@ import { afterUpdate, onDestroy, setContext } from "svelte";
 
 export let instance = null;
 
-let tabIndex = writable(-1);
+// get initial value from instance if it exists
+let tabIndex = writable(instance ? instance.tabIndex : 0);
 let tabs = writable([]);
 
 const context = {
@@ -41,12 +42,9 @@ const context = {
 
 setContext('tabs', context);
 
-$: {
-	// reattach tabIndex store to tabs instance when instance changes
-	if (instance) {
-		instance.tabIndex = tabIndex;
-	}
-}
+afterUpdate(() => {
+	instance.$tabIndex = tabIndex;
+});
 
 </script>
 

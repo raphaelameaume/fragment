@@ -11,7 +11,7 @@ export let parent = null;
 
 $: childrenOrdered = [...children]
 	.filter(child => child.parent === parent)
-	.sort((a, b) => a.params.order - b.params.order);
+	.sort((a, b) => a.order - b.order);
 </script>
 
 {#each childrenOrdered as child}
@@ -37,7 +37,7 @@ $: childrenOrdered = [...children]
 	</SketchFieldGroup>
 	{:else if child.type === "tabs"}
 		<Tabs instance={child}>
-			{#each child.children as tab (tab.id)}
+			{#each child.children as tab, index (index)}
 				<Tab label={tab.label} active={tab.active}>
 					{#each Object.keys(props) as key, i}
 						{#if (Array.isArray(props[key].tab) && props[key].tab.includes(tab)) || (props[key].tab === tab)}
