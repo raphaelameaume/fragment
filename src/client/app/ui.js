@@ -135,10 +135,25 @@ class Folder extends UIComponent {
 
 		this.attributes = writable({
 			collapsed,
+			label,
 		});
 		this.label = label;
 		this.collapsed = collapsed;
 		this.isFolder = true;
+	}
+
+	set label(value) {
+		this._label = value;
+
+		this.attributes.update((current) => {
+			current.label = value;
+			
+			return current;
+		});
+	}
+	
+	get label() {
+		return this._label;
 	}
 
 	set collapsed(value) {
@@ -315,15 +330,14 @@ export function removeFolder(folder) {
  * @returns Tab[]
  */
 export function addTabs(tabsOptions, displayParams = {}) {
-	const tabContainer = new Tabs(tabsOptions, displayParams);
+	const tabContainer = new Tabs(tabsOptions, {
+		...displayParams,
+		level: -1,
+	});
 
 	elementsNext.update((current) => {
 		return [...current, tabContainer];
 	});
 
 	return tabContainer.children;
-} 
-
-elementsNext.subscribe((all) => {
-	console.log(all);
-})
+}
