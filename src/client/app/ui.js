@@ -1,5 +1,5 @@
 import { get, writable } from "svelte/store";
-import { elementsNext } from "./stores/folders";
+import { elementsNext } from "./stores/ui";
 
 /**
  * @typedef {object} FolderOptions
@@ -13,51 +13,84 @@ import { elementsNext } from "./stores/folders";
  * @property {boolean} [active=false] - Set the active tab. Default to first tab created.
  */
 
-class Wrapper {
+/**
+ * @typedef {object} DisplayParams
+ * @property {number} order - Define order of display comparing to other elements at the same level
+ */
+
+class UIComponent {
 	constructor({
 		type,
-		index,
-		level = 0,
+		index = get(elementsNext).length,
 		parent = null,
-		children = []
-	} = {}, params = {}) {
+		level = 0,
+		order
+	} = {}) {
 		this.id = `${parent ? `${parent.id}.` : ``}${type}${level}${isFinite(index) ? `-${index}`: ``}`;
-		this.index = index;
 		this.type = type;
-		this.params = params;
-		this.children = children;
+		this.index = index;
+		this.order = order;
 		this.parent = parent;
 		this.level = level;
+
+		this.children = [];
 	}
 
 	/**
-	* Create a subfolder
-	* @param {string|FolderOptions} options
+	* Create one or multiple folder(s) at the root of Params
+	* @param {string|FolderOptions|string[]|FolderOptions[]} folderOptions
+	* @param {DisplayParams} [displayParams]
 	* @returns Folder
 	*/
-	addFolder(options) {
-		const folder = new Folder(typeof options === "string" ? { label: options } : options, {
+	addFolder(folderOptions, displayParams = {}) {
+		const add = (options) => {
+			const opts = typeof options === "string" ? { label: options } : options;
+
+			return new Folder({
+				...opts,
+			}, {
+				parent: this,
+				level: this.level + 1,
+				...displayParams,
+			});
+		}
+
+		if (Array.isArray(folderOptions)) {
+			const folders = folderOptions.map(o => add(o));
+			elementsNext.update((current) => [...current, ...folders]);
+			this.children.push(...folders);
+
+			return folders;	
+		} else {
+			const folder = add(folderOptions);
+
+			elementsNext.update((current) => [...current, folder]);
+
+			this.children.push(folder);
+
+			return folder;
+		}
+	}
+
+	/**
+	 * Create subtabs
+	 * @param {string[]|TabOptions[]} options 
+	 * @param {*} params 
+	 * @returns Tab[]
+	 */
+	addTabs(tabOptions, displayParams = {}) {
+		const tabContainer = new Tabs(tabOptions, {
+			...displayParams,
 			parent: this,
-			level: this.level + 1,
+			level: this.level - 1,
 		});
 
-		elementsNext.update((current) => [...current, folder]);
+		this.children.push(tabContainer);
 
-		this.children.push(folder);
-
-		return folder;
+		return tabs.children;
 	}
 
-	/**
-	* Create subfolders
-	* @param {string[]|FolderOptions[]} options
-	* @returns Folder[]
-	*/
-	addFolders(options) {
-		return options.map((option) => this.addFolder(option));
-	}
-
-	/**
+		/**
 	 * Remove a subfolder
 	 * @param {Folder} folder 
 	 * @returns 
@@ -68,23 +101,6 @@ class Wrapper {
 		removeFolder(folder);
 
 		return this;
-	}
-
-	/**
-	 * Create subtabs
-	 * @param {string[]|TabOptions[]} options 
-	 * @param {*} params 
-	 * @returns Tab[]
-	 */
-	addTabs(options, params) {
-		const tabs = new Tabs(options, params, {
-			parent: this,
-			level: this.level - 1,
-		});
-
-		this.children.push(tabs);
-
-		return tabs.children;
 	}
 
 	/**
@@ -101,24 +117,21 @@ class Wrapper {
 	}
 }
 
-class Folder extends Wrapper {
+class Folder extends UIComponent {
 	constructor({
 		label = "",
 		collapsed = false,
-		...params
 	} = {}, {
-		index,
+		order,
 		level = 0,
 		parent = null,
-		children = [],
 	} = {}) {
 		super({
 			type: "folder",
-			index,
-			level,
 			parent,
-			children
-		}, params);
+			order,
+			level,
+		});
 
 		this.attributes = writable({
 			collapsed,
@@ -143,38 +156,40 @@ class Folder extends Wrapper {
 	}
 }
 
-class Tabs extends Wrapper {
-	constructor(tabs, params = {}, {
+class Tabs extends UIComponent {
+	constructor(tabs, {
+		order,
 		level = 0,
 		parent = null,
-		children = [],
 	} = {}) {
 		super({
 			type: "tabs",
-			level,
 			parent,
-			children,
-		}, params);
+			level,
+			order
+		});
 
 		this.tabIndex = writable(-1);
 
-		this.children = [
-			...this.children,
-			...tabs.map((tabOption, index) => {
-				let label = typeof tabOption === "string" ? tabOption : tabOption.label;
-				let active = typeof tabOption === "string" ? undefined : tabOption.active;
+		this.children = tabs.map((tabOption, index) => {
+			const isString = typeof tabOption === "string";
 
-				return new Tab({
-					index,
-					label,
-					active
-				}, {
-					level: this.level + 1,
-					parent: this,
-				});
-			})
-		];
+			let label = isString ? tabOption : tabOption.label;
+			let active = isString ? undefined : tabOption.active;
+			let order = isString ? undefined : tabOption.order;
 
+			return new Tab({
+				index,
+				label,
+				active
+			}, {
+				order,
+				level: this.level,
+				parent: this,
+			});
+		});
+
+		this.children.sort((a, b) => a.order - b.order);
 		this.isTabs = true;
 	}
 
@@ -187,24 +202,23 @@ class Tabs extends Wrapper {
 	}
 }
 
-class Tab extends Wrapper {
+class Tab extends UIComponent {
 	constructor({
 		index,
 		label = "",
 		active = index === 0,
-		...params
 	} = {}, {
-		parent = null,
+		order = index,
 		level = 0,
-		children = [],
+		parent = null,
 	} = {}) {
 		super({
 			type: "tab",
 			index,
 			level,
 			parent,
-			children,
-		 }, params);
+			order,
+		 });
 
 		this.label = label;
 		this.active = active;
@@ -231,60 +245,74 @@ class Tab extends Wrapper {
 }
 
 /**
- * Create a new folder at the root of Params
- * @param {string|FolderOptions} options
+ * Create one or multiple folder(s) at the root of Params
+ * @param {string|FolderOptions|string[]|FolderOptions[]} folderOptions
+ * @param {DisplayParams} [displayParams]
  * @returns Folder
  */
-export function addFolder(options) {
-	let folder = new Folder(typeof options === "string" ? { label: options } : options, {
-		index: get(elementsNext).length,
-	});
+export function addFolder(folderOptions, displayParams = {}) {
+	function add(opts) {
+		let folder = new Folder(typeof opts === "string" ? { label: opts } : opts, displayParams);
 
+		return folder;
+	}
+
+	if (Array.isArray(folderOptions)) {
+		let folders = folderOptions.map((o) => add(o));
+
+		elementsNext.update((current) => {
+			return [...current, ...folders];
+		});
+
+		return folders;
+	}
+
+	let folder = add(folderOptions);
+	
 	elementsNext.update((current) => {
 		return [...current, folder];
 	});
-
+	
 	return folder;
 };
 
 /**
- * Create new folders at the root of Params
- * @param {string[]|FolderOptions[]} options
- * @returns Folder[]
+ * Remove one or multiple folder(s) from Params
+ * @param {Folder|Folder[]} folder 
  */
-export function addFolders(options) {
-	return options.map((option) => addFolder(option));
-}
+export function removeFolder(folder) {
+	function remove(target) {
+		if (!target.isFolder) {
+			console.warn(`@fragment/ui -> cannot removeFolder() because argument is not a folder.`);
+			console.log(target);
+		} else {
+			elementsNext.update((current) => current.filter(element => element !== target));
+		}
+	}
+
+	if (Array.isArray(folder)) {
+		folder.forEach((f) => remove(f));
+	} else {
+		remove(folder);
+	}
+};
 
 /**
  * Create tabs at the root of Params
- * @param {string[]|TabOptions} tabs 
- * @returns Tabs
+ * @param {string[]|TabsOptions} tabsOptions 
+ * @param {DisplayParams} displayParams
+ * @returns Tab[]
  */
-export function addTabs(tabs, options) {
-	const tabContainer = new Tabs(tabs, options, {
-		index: get(elementsNext).length,
-	});
+export function addTabs(tabsOptions, displayParams = {}) {
+	const tabContainer = new Tabs(tabsOptions, displayParams);
 
 	elementsNext.update((current) => {
 		return [...current, tabContainer];
 	});
 
 	return tabContainer.children;
-}
+} 
 
-/**
- * Remove a folder from Params
- * @param {Folder} folder 
- */
-export function removeFolder(folder) {
-	elementsNext.update((current) => current.filter(element => element !== folder));
-};
-
-/**
- * Remove multiple folders from Params
- * @param {Folder[]} folders 
- */
-export function removeFolders(folders) {
-	elementsNext.update((current) => current.filter(element => !folders.includes(element)));
-}
+elementsNext.subscribe((all) => {
+	console.log(all);
+})

@@ -3,7 +3,7 @@
 
 # UI
 
-When a sketch grows in complexity, it might be handy to arrange its props across folders and tabs. `fragment` comes with built-in recursive tabs and folders to give full freedom over the way props are arranged.
+
 
 ```js
 import { ... } from "@fragment/ui";
@@ -38,7 +38,6 @@ export let props = {
 		value: "rgb(0, 0, 0)",
 		folder: colorsFolder,
 	},
-	//...other props not in folder
 }
 ```
 
@@ -108,22 +107,17 @@ export let init = () => {
 | label | `string` | The label used to display the tab |
 | active | `boolean` | Specify which tab is selected on start |
 
+- Alternative: `(labels: string[]) => Tab[]`
+
+| name | type | description |
+|---|---|---|
+| labels | `string[]` | The labels used to display each tab |
+
+[Example](../guide/organizing-props.md#create-tabs)
+
+
 Example:
-```js
-import { addTabs } from "@fragment/ui";
 
-let [sceneTab, meshTab] = addTabs([
-	{ label: "Scene" },
-	{ label: "Mesh", active: true },
-]);
-
-export let props = {
-	backgroundColor: {
-		value: "rgba(255, 0, 0, 0.1)",
-		tab: sceneTab,
-	}
-}
-```
 
 #### `removeTab`
 - Type: `(tab: Tab) => void`
@@ -144,59 +138,4 @@ export let init = () => {
 #### `removeTabs`
 - Type: `(tabs: Tab[]) => void`
 
-Example:
-```js
-import { removeTabs } from "@fragment/ui";
-
-let [sceneTab, meshTab] = addTabs(["Scene", "Mesh"]);
-
-export let init = () => {
-	setTimeout(() => {
-		removeTabs([sceneTab, meshTab]);
-	}, 2000);
-}
-```
-
-Folders and tabs extends `UIComponent`, which extends methods above, allowing the creation of subfolders and subtabs on every component created.
-
-Example:
-```js
-import { addFolder, addTabs } from "@fragment/ui";
-
-let folder = addFolder("mainFolder");
-let subfolder = folder.addFolder("subfolder");
-
-let [sceneTab, meshTab] = addTabs(["Scene", "Mesh"]);
-
-let geometryFolder = meshTab.addFolder("geometry");
-let materialFolder = meshTab.addFolder("material");
-
-let [materialTab0, materialTab1] = materialFolder.addTabs(["tab0", "tab1"]);
-
-export let props = {
-	meshColor: {
-		value: "#ff0000",
-		tab: materialTab0,
-	}
-}
-```
-
-If for some reasons, a prop needs to be displayed at multiple locations, an array of components can be specified. 
-
-```js
-import { addFolder, addTabs } from "@fragment/ui";
-
-let folder = addFolder("mainFolder");
-let subfolder = folder.addFolder("subfolder");
-let [sceneTab, meshTab] = addTabs(["Scene", "Mesh"]);
-
-export let props = {
-	meshColor: {
-		value: "#ff0000",
-		tab: [sceneTab, meshTab],
-		folder: [folder, subfolder],
-	}
-}
-```
-
-> ⚠️ A prop can be displayed at multiple locations in tabs or folders but cannot be displayed simultaneously in a `UIComponent` and at the root of Params at the same time.
+[Example](../guide/organizing-props.md#remove-tabs)
