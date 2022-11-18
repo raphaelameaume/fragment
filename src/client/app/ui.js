@@ -82,12 +82,12 @@ class UIComponent {
 		const tabContainer = new Tabs(tabOptions, {
 			...displayParams,
 			parent: this,
-			level: this.level - 1,
+			level: this.level,
 		});
 
 		this.children.push(tabContainer);
 
-		return tabs.children;
+		return tabContainer.children;
 	}
 
 		/**

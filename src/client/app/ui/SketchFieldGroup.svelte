@@ -6,7 +6,7 @@ export let folder;
 
 $: attributes = folder.attributes;
 $: collapsed = $attributes.collapsed;
-$: name = folder.label;
+$: name = $attributes.label;
 $: nesting = folder.level;
 
 </script>
