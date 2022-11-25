@@ -49,7 +49,12 @@ $: childrenOrdered = [...children]
 						{/if}
 					{/each}
 					{#if tab.children.length > 0}
-						<svelte:self children={tab.children} context={context} props={props} parent={tab} />
+						<svelte:self
+							children={tab.children}
+							context={context}
+							props={props}
+							parent={tab}
+						/>
 					{/if}
 				</Tab>
 			{/each}
