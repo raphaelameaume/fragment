@@ -1,6 +1,7 @@
 import { posix, sep, resolve, dirname, extname, join } from "path";
 import { readFileSync, utimes } from "fs";
 import glslify from "glslify";
+import log from "../log.js";
 
 export default function hotShaderReload({
     wss,
@@ -35,11 +36,13 @@ ${keyword}${shaderParts[1]}
         let directory = dirname(unixPath);
 
         if (shaders.has(shaderPath)) {
-            dependencyTree.set(shaderPath, []);
+            dependencies = [];
+            shaders.set(shaderPath, dependencies);
         }
 
+        dependencyTree.set(unixPath, []);
+
         if (includeRegex.test(shaderSource)) {
-            dependencyTree.set(unixPath, []);
             const currentDirectory = directory;
 
             shaderSource = shaderSource.replace(includeRegex, (_, chunkPath) => {
@@ -66,7 +69,13 @@ ${keyword}${shaderParts[1]}
 
                 const shaderPath = shader.split(sep).join(posix.sep);
                 dependencyTree.get(unixPath)?.push(shaderPath);
-                dependencies.push(shaderPath);
+
+                if (!dependencies.includes(shader)) {
+                    dependencies.push(shader);
+                } else {
+                    log.warning(`Duplicated import found in '${shaderPath}'.`);
+                    console.log(`'${shader}' was included multiple times.`);
+                }
                 
                 return resolveDependencies(
                     readFileSync(shader, 'utf8'),
@@ -125,7 +134,6 @@ ${keyword}${shaderParts[1]}
                         },
                     });
                 } else {
-                    // console.log(dependencyTree);
                     for (const [shader, dependencies] of shaders) {
                         if (dependencies.includes(file)) {
                             const now = Date.now();
