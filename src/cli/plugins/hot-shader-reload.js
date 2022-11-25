@@ -30,7 +30,7 @@ ${keyword}${shaderParts[1]}
     const shaders = new Map();
     const dependencyTree = new Map();
 
-    function resolveDependencies(shaderSource, shaderPath) {
+    function resolveDependencies(shaderSource, shaderPath, dependencies = shaders.has(shaderPath) ? shaders.get(shaderPath) : []) {
         let unixPath = shaderPath.split(sep).join(posix.sep);
         let directory = dirname(unixPath);
 
@@ -66,10 +66,12 @@ ${keyword}${shaderParts[1]}
 
                 const shaderPath = shader.split(sep).join(posix.sep);
                 dependencyTree.get(unixPath)?.push(shaderPath);
+                dependencies.push(shaderPath);
                 
                 return resolveDependencies(
                     readFileSync(shader, 'utf8'),
                     shader,
+                    dependencies,
                 );
             });
         }
@@ -123,13 +125,16 @@ ${keyword}${shaderParts[1]}
                         },
                     });
                 } else {
-                    for (const [shader, dependencies] of dependencyTree) {
+                    // console.log(dependencyTree);
+                    for (const [shader, dependencies] of shaders) {
                         if (dependencies.includes(file)) {
                             const now = Date.now();
                             const ts = now / 1e3;
                             utimes(shader, ts, ts, (error) => {
                                 if (error) {
                                     console.error(error);
+                                } else {
+                                    console.log("updated file", shader);
                                 }
                             });
                         }

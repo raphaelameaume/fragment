@@ -1,6 +1,4 @@
 import path from "path";
-import os from 'os';
-import fs from "fs/promises";
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig, build } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
@@ -9,7 +7,6 @@ import hotSketchReload from "./plugins/hot-sketch-reload.js";
 import dbPlugin from "./plugins/db.js";
 
 import log from "./log.js";
-import db from "./db.js";
 import screenshotPlugin from "./plugins/screenshot.js";
 import checkDependencies from "./plugins/check-dependencies.js";
 
@@ -50,7 +47,10 @@ export async function start({ options, filepaths, entries, fragment }) {
             hotSketchReload({
                 cwd,
             }),
-            hotShaderReload({ wss: fragment.server }),
+            hotShaderReload({
+                wss: fragment.server,
+                watch: !options.build,
+            }),
             {
                 name: 'configure-response-headers',
                 configureServer: (server) => {
