@@ -1,13 +1,16 @@
-import path from "path";
+import { posix, sep, resolve, dirname, extname } from "path";
+import { readFileSync } from "fs";
 import glslify from "glslify";
 
 export default function hotShaderReload({ wss }) {
-    const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/
+    const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
+    const includeRegex = /#include(\s+([^\s<>]+));?/gi;
+    const base = process.cwd().split(sep).join(posix.sep);
 
-    function addShaderFilepath(shader, id) {
+    function addShaderFilepath(shaderSource, shaderPath) {
         let keyword = `void main`;
-        let shaderParts = shader.split(keyword);
-        let hint = `// <filepath://${id}>`;
+        let shaderParts = shaderSource.split(keyword);
+        let hint = `// <filepath://${shaderPath}>`;
 
         return `${shaderParts[0]}
 ${hint}
@@ -17,10 +20,59 @@ ${keyword}${shaderParts[1]}
 
     let modulesToReload = [];
 
-    function compile(shader) {
-        return glslify(shader, {
+    const allChunks = new Set();
+    const dependentChunks = new Map();
+    const duplicatedChunks = new Map();
+
+    function resolveDependencies(shaderSource, shaderPath) {
+        let unixPath = shaderPath.split(sep).join(posix.sep);
+        let directory = dirname(unixPath);
+
+        if (includeRegex.test(shaderSource)) {
+            const currentDirectory = directory;
+
+            shaderSource = shaderSource.replace(includeRegex, (_, chunkPath) => {
+                chunkPath = chunkPath.trim().replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
+
+                if (!chunkPath.indexOf('/')) {
+                    chunkPath = `${base}/${chunkPath}`;
+                }
+
+                const directoryIndex = chunkPath.lastIndexOf('/');
+                directory = currentDirectory;
+
+                if (directoryIndex !== -1) {
+                    directory = resolve(directory, chunkPath.slice(0, directoryIndex + 1));
+                    chunkPath = chunkPath.slice(directoryIndex + 1, chunkPath.length);
+                }
+
+                let shader = resolve(directory, chunkPath);
+                let extension = "glsl";
+
+                if (!extname(shader)) shader = `${shader}.${extension}`;
+
+                const shaderPath = shader.split(sep).join(posix.sep);
+                dependentChunks.get(unixPath)?.push(shaderPath);
+                
+                return resolveDependencies(
+                    readFileSync(shader, 'utf8'),
+                    shader,
+                );
+            });
+        }
+
+        return shaderSource.trim().replace(/(\r\n|\r|\n){3,}/g, '$1\n');
+    }
+
+    function compile(shaderSource, shaderPath) {
+        let code = shaderSource;
+        code = resolveDependencies(shaderSource, shaderPath);
+        code = glslify(code, {
             basedir: process.cwd()
         });
+        code = addShaderFilepath(code, shaderPath);
+
+        return code;
     }
     
     return {
@@ -40,16 +92,16 @@ ${keyword}${shaderParts[1]}
 		}),
         handleHotUpdate: async ({ modules, file, read }) => {
             if (fileRegex.test(file)) {
-                let src = await read();
-                let source = compile(src);
-                source = addShaderFilepath(source, file);
+                let source = await read();
+                let shaderSource = compile(source, file);
+
 
                 wss.send({
                     type: 'custom',
                     event: 'shader-update',
                     data: {
                         filepath: file,
-                        source
+                        source: shaderSource,
                     },
                 });
 
@@ -71,13 +123,12 @@ ${keyword}${shaderParts[1]}
                 return all;
             }
         },
-        transform: (src, id) => {
-            if (fileRegex.test(id)) {
-                let source = compile(src);
-                source = addShaderFilepath(source, id);
+        transform: (source, file) => {
+            if (fileRegex.test(file)) {
+                let shaderSource = compile(source, file);
 
                 return {
-                    code: `export default ${JSON.stringify(source)}`,
+                    code: `export default ${JSON.stringify(shaderSource)}`,
                     map: null // provide source map if available
                 }
             }
