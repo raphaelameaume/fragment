@@ -9,6 +9,7 @@ export default function hotShaderReload({
 }) {
     const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
     const includeRegex = /#include(\s+([^\s<>]+));?/gi;
+    const commentRegex = /(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi
     const base = process.cwd().split(sep).join(posix.sep);
 
     function addShaderFilepath(shaderSource, shaderPath) {
@@ -32,6 +33,9 @@ ${keyword}${shaderParts[1]}
     const dependencyTree = new Map();
 
     function resolveDependencies(shaderSource, shaderPath, dependencies = shaders.has(shaderPath) ? shaders.get(shaderPath) : []) {
+        // remove comments
+        shaderSource = shaderSource.replace(commentRegex, "");
+
         let unixPath = shaderPath.split(sep).join(posix.sep);
         let directory = dirname(unixPath);
 
