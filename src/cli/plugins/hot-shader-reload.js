@@ -1,8 +1,11 @@
-import { posix, sep, resolve, dirname, extname } from "path";
-import { readFileSync } from "fs";
+import { posix, sep, resolve, dirname, extname, join } from "path";
+import { readFileSync, utimes } from "fs";
 import glslify from "glslify";
 
-export default function hotShaderReload({ wss }) {
+export default function hotShaderReload({
+    wss,
+    watch = false,
+}) {
     const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
     const includeRegex = /#include(\s+([^\s<>]+));?/gi;
     const base = process.cwd().split(sep).join(posix.sep);
@@ -24,11 +27,19 @@ ${keyword}${shaderParts[1]}
     const dependentChunks = new Map();
     const duplicatedChunks = new Map();
 
+    const shaders = new Map();
+    const dependencyTree = new Map();
+
     function resolveDependencies(shaderSource, shaderPath) {
         let unixPath = shaderPath.split(sep).join(posix.sep);
         let directory = dirname(unixPath);
 
+        if (shaders.has(shaderPath)) {
+            dependencyTree.set(shaderPath, []);
+        }
+
         if (includeRegex.test(shaderSource)) {
+            dependencyTree.set(unixPath, []);
             const currentDirectory = directory;
 
             shaderSource = shaderSource.replace(includeRegex, (_, chunkPath) => {
@@ -51,8 +62,10 @@ ${keyword}${shaderParts[1]}
 
                 if (!extname(shader)) shader = `${shader}.${extension}`;
 
+                server.watcher.add(shader);
+
                 const shaderPath = shader.split(sep).join(posix.sep);
-                dependentChunks.get(unixPath)?.push(shaderPath);
+                dependencyTree.get(unixPath)?.push(shaderPath);
                 
                 return resolveDependencies(
                     readFileSync(shader, 'utf8'),
@@ -74,6 +87,8 @@ ${keyword}${shaderParts[1]}
 
         return code;
     }
+
+    let server;
     
     return {
         name: 'hot-shader-reload',
@@ -88,22 +103,39 @@ ${keyword}${shaderParts[1]}
                         ".vs": "text",
                     }
                 },
-            }
+            },
 		}),
+        configureServer(_server) {
+            server = _server;
+        },
         handleHotUpdate: async ({ modules, file, read }) => {
             if (fileRegex.test(file)) {
-                let source = await read();
-                let shaderSource = compile(source, file);
+                if (shaders.has(file)) {
+                    let source = await read();
+                    let shaderSource = compile(source, file);
 
+                    wss.send({
+                        type: 'custom',
+                        event: 'shader-update',
+                        data: {
+                            filepath: file,
+                            source: shaderSource,
+                        },
+                    });
+                } else {
+                    for (const [shader, dependencies] of dependencyTree) {
+                        if (dependencies.includes(file)) {
+                            const now = Date.now();
+                            const ts = now / 1e3;
+                            utimes(shader, ts, ts, (error) => {
+                                if (error) {
+                                    console.error(error);
+                                }
+                            });
+                        }
+                    }
 
-                wss.send({
-                    type: 'custom',
-                    event: 'shader-update',
-                    data: {
-                        filepath: file,
-                        source: shaderSource,
-                    },
-                });
+                }
 
                 // save modules that were handled 
                 modulesToReload.push(...modules);
@@ -125,6 +157,8 @@ ${keyword}${shaderParts[1]}
         },
         transform: (source, file) => {
             if (fileRegex.test(file)) {
+                shaders.set(file, []);
+
                 let shaderSource = compile(source, file);
 
                 return {
