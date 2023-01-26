@@ -26,7 +26,7 @@ export async function start({ options, filepaths, entries, fragment }) {
     const config = defineConfig({
         configFile: false,
         root,
-        // logLevel: options.development ? "info" : "silent",
+        logLevel: options.development ? "info" : "silent",
         resolve: {
             alias: [
                 { find: '@fragment/sketches', replacement: filepaths[0] },
