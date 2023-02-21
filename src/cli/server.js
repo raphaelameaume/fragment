@@ -1,6 +1,5 @@
 import path from "path";
-import os from 'os';
-import fs from "fs/promises";
+import kleur from "kleur";
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig, build } from "vite";
 import { svelte } from '@sveltejs/vite-plugin-svelte'
@@ -129,8 +128,25 @@ export async function start({ options, filepaths, entries, fragment }) {
         });
 
         await server.listen();
+        
         log.success(`Server started at:`);
-        server.printUrls();
+
+        const { resolvedUrls } = server;
+
+        for (const url of resolvedUrls.local) {
+            console.log(
+                `  ${kleur.green('➜')}  ${kleur.bold('Local')}:   ${kleur.cyan(
+                    url,
+                )}`,
+            );
+        }
+        for (const url of resolvedUrls.network) {
+            console.log(
+                `  ${kleur.green('➜')}  ${kleur.bold('Network')}: ${kleur.cyan(
+                    url,
+                )}`,
+            );
+        }
 
         return server;
     }
