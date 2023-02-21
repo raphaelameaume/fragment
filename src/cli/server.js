@@ -62,7 +62,7 @@ export async function start({ options, filepaths, entries, fragment }) {
                 }
             },
             dbPlugin(),
-            screenshotPlugin({ cwd }),
+            screenshotPlugin({ cwd, exportDir: options.exportDir }),
             checkDependencies({
                 cwd,
                 app,
@@ -83,7 +83,9 @@ export async function start({ options, filepaths, entries, fragment }) {
             '__FRAGMENT_PORT__': fragment.server ? fragment.server.port : undefined,
             '__START_TIME__': Date.now(),
             '__SEED__': Date.now(),
-            '__PRODUCTION__': options.build,
+            '__BUILD__': options.build,
+            '__DEV__': !options.build,
+
         },
         optimizeDeps: {
             include: ['convert-length', 'webm-writer', 'changedpi'],
@@ -128,18 +130,7 @@ export async function start({ options, filepaths, entries, fragment }) {
 
         await server.listen();
         log.success(`Server started at:`);
-
-        Object.values(os.networkInterfaces())
-            .flatMap((nInterface) => nInterface ?? [])
-            .filter((detail) => detail && detail.address && (detail.family === 'IPv4' || detail.family === 4 ))
-            .forEach((detail) => {
-                const type = detail.address.includes('127.0.0.1')
-                ? 'Local:   '
-                : 'Network: '
-                const host = detail.address.replace('127.0.0.1', 'localhost');
-                const url = `http://${host}:${server.config.server.port}`;
-                console.log(`   ${type} ${url}`);
-            })
+        server.printUrls();
 
         return server;
     }

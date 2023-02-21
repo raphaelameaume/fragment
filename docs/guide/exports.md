@@ -84,3 +84,8 @@ A built sketch can be previewed on dev mode by typing `p`.
 ## Change the filename
 
 By default, `fragment` will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`. See [filenamePattern](../api/sketch.md#filenamepattern) to change this behavior.
+
+## Change the directory of exports
+
+By default, `fragment` will use the directory where the command was started (`process.cwd()`) for saving the exports. This can be changed by passing the `--exportDir=/path/to/custom/directory` to the command line on start.
+ 

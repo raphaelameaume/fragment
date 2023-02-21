@@ -30,12 +30,14 @@ fragment ./sketch.js --new --template=three/orthographic
 |`--template`| `-t` | Specify the type of template to use as source | `2d` |
 |`--port`| `-p` | Specify the server port.  | `3000` |
 |`--build`| `-b` | Build sketch for production  | `false` |
+|`--exportDir`| `none` | Change directory used for export  | `process.cwd()` |
 |`--outDir`| `none` | Change directory used for production build  | `[/[sketch-name]` |
 |`--emptyOutDir`| `none` | Empty outDir before static build  | `false` |
 
 ## Templates
 
 `fragment` currently supports the following templates:
+- [blank](../../src/cli/templates/2d.js)
 - [2d](../../src/cli/templates/2d.js)
 - [fragment](../../src/cli/templates/fragment.js)
 - [three/fragment](../../src/cli/templates/three-fragment.js)

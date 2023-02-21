@@ -49,7 +49,7 @@ class CanvasRecorder {
 	}
 
 	async _tick() {
-		console.log(`CanvasRecorder - render frame ${this.frameCount}`);
+		console.log(`CanvasRecorder - render frame ${this.frameCount + 1}`);
 		this.onTick({
 			time: this.time,
 			deltaTime: this.deltaTime,
@@ -61,14 +61,14 @@ class CanvasRecorder {
 			frameCount: this.frameCount,
 		});
 
-		if (this.started && !this.stopped && (!isFinite(this.frameTotal) || (isFinite(this.frameTotal) && this.frameCount < this.frameTotal))) {
+		if (this.started && !this.stopped && (!isFinite(this.frameTotal) || (isFinite(this.frameTotal) && this.frameCount < this.frameTotal - 1))) {
 			this.time += this.deltaTime;
         	this.frameCount++;
             requestAnimationFrame(() => {
 				this._tick()
 			});
         } else {
-			console.log(`CanvasRecorder - compiling ${this.frameCount} frames...`);
+			console.log(`CanvasRecorder - compiling ${this.frameCount + 1} frames...`);
             this.end();
         }
 	}
@@ -76,7 +76,7 @@ class CanvasRecorder {
 	tick() {}
 
 	end() {
-		console.log(`CanvasRecorder - compiled ${this.frameCount} frames`);
+		console.log(`CanvasRecorder - compiled ${this.frameCount + 1} frames`);
 		this.onComplete(this.result);
 	}
 

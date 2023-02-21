@@ -86,7 +86,7 @@ See [SketchProps](#sketchprops) for details.
 #### `rendering`
 - Type: `string`
 - Values: `2d`, `three`, `p5`, `fragment`
-- Default: `2d`
+- Default: undefined
 
 > ⚠ If you used either `three` or `p5` rendering, you'll need to install them from your project root directory in order to make it work.
 
@@ -173,7 +173,7 @@ You can force a type on a prop by assigning a `type` to your object like so:
 ```js
 export let props = {
   color: {
-    value: [255, 0, 255],
+    value: [1, 0, 0],
     type: "color",
   }
 }
@@ -188,7 +188,7 @@ function onColorChange({ value }) {
 
 export let props = {
   color: {
-    value: [255, 0, 255],
+    value: [1, 0, 0],
     type: "color",
     onChange: onColorChange,
   }
@@ -200,8 +200,8 @@ A prop can be `hidden` so it doesn't show up in the Parameters module or in `bui
 ```js
 export let props = {
   color: {
-    value: [255, 0, 255],
-    hidden: __PRODUCTION__,
+    value: [10, 0, 5],
+    hidden: __BUILD__,
   }
 }
 ```

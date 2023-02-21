@@ -3,7 +3,7 @@ import { displayError } from "../stores/errors";
 import { sketches as all, onSketchReload } from "@fragment/sketches";
 
 export const sketches = createStore('sketches', {});
-export const sketchesKeys = createStore('sketchesKeys', []);
+export const sketchesKeys = createStore('sketchesKeys', Object.keys(all));
 export const sketchesCount = createStore('sketchesCount', 0);
 
 async function loadSketch(collection, key) {

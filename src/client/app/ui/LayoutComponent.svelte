@@ -82,7 +82,7 @@ if (parent) {
 	parent.registerChild(current);
 }
 
-if (!__PRODUCTION__) {
+if (!__BUILD__) {
 	$layout.registerChild(current, () => $children);
 }
 

@@ -2,7 +2,7 @@ import { rendering } from "./rendering";
 
 export let renderers = {};
 
-function loadRenderer(renderingMode = "2d") {
+function loadRenderer(renderingMode) {
 	if (__THREE_RENDERER__ && renderingMode === "three") {
 		return import("../renderers/THREERenderer.js");
 	}
@@ -20,7 +20,7 @@ function loadRenderer(renderingMode = "2d") {
 	}
 }
 
-export async function findRenderer(renderingMode = "2d") {
+export async function findRenderer(renderingMode) {
 	if (renderers[renderingMode]) return renderers[renderingMode];
 
 	// load and save
@@ -30,31 +30,33 @@ export async function findRenderer(renderingMode = "2d") {
 	let renderer = renderers[renderingMode];
 	let initialized = false;
 
-	rendering.subscribe((current) => {
-		let r;
+	if (renderer) {
+		rendering.subscribe((current) => {
+			let r;
 
-		if (!initialized) {
-			if (typeof renderer.init === "function") {
-				r = renderer.init({
-					canvas: document.createElement('canvas'),
-					pixelRatio: current.pixelRatio,
+			if (!initialized) {
+				if (typeof renderer.init === "function") {
+					r = renderer.init({
+						canvas: document.createElement('canvas'),
+						pixelRatio: current.pixelRatio,
+						width: current.width,
+						height: current.height,
+					});
+				}
+			}
+
+			initialized = true;
+
+			if (typeof renderer.resize === "function") {
+				renderer.resize({
 					width: current.width,
 					height: current.height,
+					pixelRatio: current.pixelRatio,
+					...r,
 				});
 			}
-		}
-
-		initialized = true;
-
-		if (typeof renderer.resize === "function") {
-			renderer.resize({
-				width: current.width,
-				height: current.height,
-				pixelRatio: current.pixelRatio,
-				...r,
-			});
-		}
-	});
+		});
+	}
 
 	return renderer;
 }

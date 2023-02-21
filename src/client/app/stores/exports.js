@@ -20,7 +20,7 @@ export const exports = createStore(`exports`, {
 	imageQuality: 100,
 	videoQuality: 100,
 }, {
-	persist: !__PRODUCTION__,
+	persist: !__BUILD__,
 	reset: false,
 });
 
