@@ -1,51 +1,46 @@
-import { map } from "../../utils/math.utils";
-import { loadScript } from "../loader/loadScript";
-import CanvasRecorder from "./CanvasRecorder";
+import { map } from '../../utils/math.utils';
+import { GIFEncoder, quantize, applyPalette } from 'gifenc';
+import CanvasRecorder from './CanvasRecorder';
 
 class GIFRecorder extends CanvasRecorder {
+	start() {
+		this.encoder = GIFEncoder();
 
-	static loaded = false;
+		this.tmpCanvas = document.createElement('canvas');
+		this.tmpContext = this.tmpCanvas.getContext('2d');
 
-	async load() {
-		if (!GIFRecorder.loaded) {
-			await loadScript('/js/gif.worker.js');
-			await loadScript('/js/gif.js');
+		this.maxColors = Math.floor(map(this.quality, 1, 100, 1, 256));
 
-			GIFRecorder.loaded = true;
-		}
+		super.start();
+	}
 
-		const quality = map(this.quality, 1, 100, 10, 0);
-
-		this.writer = new GIF({
-			workerScript: '/js/gif.worker.js',
-			workers: 4,
-			quality,
-			width: this.canvas.width,
-			height: this.canvas.height,
-		});
+	getBitmapRGBA(bitmap, width = bitmap.width, height = bitmap.height) {
+		this.tmpCanvas.width = width;
+		this.tmpCanvas.height = height;
+		this.tmpContext.clearRect(0, 0, width, height);
+		this.tmpContext.drawImage(bitmap, 0, 0, width, height);
+		return this.tmpContext.getImageData(0, 0, width, height).data;
 	}
 
 	tick() {
-		this.writer.addFrame(this.canvas, { copy: true, delay: this.frameDuration });
+		const { width, height } = this.canvas;
+
+		const pixels = this.getBitmapRGBA(this.canvas, width, height);
+		const palette = quantize(pixels, this.maxColors);
+		const index = applyPalette(pixels, palette);
+
+		this.encoder.writeFrame(index, width, height, {
+			palette: palette,
+			delay: this.frameDuration,
+		});
 	}
 
 	end() {
-		return new Promise((resolve, reject) => {
-			this.writer.on('finished', (result) => {
-				this.result = result;
-				this.writer = null;
+		this.encoder.finish();
 
-				super.end();
+		this.result = new Blob([this.encoder.bytes()], { type: 'image/gif' });
 
-				resolve();
-			});
-
-			this.writer.on('error', (err) => {
-				reject(err);
-			});
-
-			this.writer.render();
-		});
+		super.end();
 	}
 }
 
