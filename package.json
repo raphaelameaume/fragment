@@ -25,6 +25,7 @@
     "chokidar": "^3.5.2",
     "convert-length": "^1.0.1",
     "get-port": "^6.0.0",
+    "gifenc": "^1.0.3",
     "glslify": "^7.1.1",
     "kleur": "^4.1.4",
     "sade": "^1.7.4",
