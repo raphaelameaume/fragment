@@ -1,6 +1,6 @@
 {
   "name": "fragment-tools",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "A web development environment for creative coding",
   "main": "index.js",
   "bin": {
