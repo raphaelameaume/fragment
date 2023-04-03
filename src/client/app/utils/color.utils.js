@@ -461,6 +461,7 @@ export function isRGBObject(value) {
 	return false;
 }
 
+
 export function isVec3Array(value) {
 	if (Array.isArray(value)) {
 		return value.length == 3 && value.every(c => c >= 0 && c <= 1);

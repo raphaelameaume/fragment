@@ -113,6 +113,23 @@ If you set it to `0`, `fragment` will only call `update()` once at the end of th
 
 Change the value used for display in the monitor dropdown.
 
+#### `exportDir`
+- Type: `string`
+- Default: `process.cwd()`
+
+Change the directory used for exports. The path of the directory can be relative or absolute.
+
+```js
+// relative path
+export let exportDir = './exports';
+```
+```js
+// absolute path
+export let exportDir = '/Users/raphaelameaume/Downloads';
+```
+
+> ⚠️ This will be ignored if fragment is started with the `--exportDir` flag on the command line.
+
 #### `filenamePattern`
 - Type: `({ filename: string, suffix: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
 - Default: `({ filename, suffix }) => ${filename}.${suffix}`
