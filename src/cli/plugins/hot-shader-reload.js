@@ -1,188 +1,226 @@
-import { posix, sep, resolve, dirname, extname, join } from "path";
-import { readFileSync, utimes } from "fs";
-import glslify from "glslify";
-import log from "../log.js";
+import { posix, sep, resolve, dirname, extname, join } from 'path';
+import { readFileSync, utimes } from 'fs';
+import glslify from 'glslify';
+import log from '../log.js';
+import { readFile } from 'fs/promises';
 
-export default function hotShaderReload({
-    wss,
-    watch = false,
-}) {
-    const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
-    const includeRegex = /#include(\s+([^\s<>]+));?/gi;
-    const commentRegex = /(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi
-    const base = process.cwd().split(sep).join(posix.sep);
+export default function hotShaderReload({ wss, watch = false }) {
+	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
+	const includeRegex = /#include(\s+([^\s<>]+));?/gi;
+	const commentRegex =
+		/(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi;
+	const base = process.cwd().split(sep).join(posix.sep);
 
-    function addShaderFilepath(shaderSource, shaderPath) {
-        let keyword = `void main`;
-        let shaderParts = shaderSource.split(keyword);
-        let hint = `// <filepath://${shaderPath}>`;
+	function addShaderFilepath(shaderSource, shaderPath) {
+		let keyword = `void main`;
+		let shaderParts = shaderSource.split(keyword);
+		let hint = `// <filepath://${shaderPath}>`;
 
-        return `${shaderParts[0]}
+		return `${shaderParts[0]}
 ${hint}
 ${keyword}${shaderParts[1]}
         `;
-    }
+	}
 
-    let modulesToReload = [];
+	let modulesToReload = [];
 
-    const allChunks = new Set();
-    const dependentChunks = new Map();
-    const duplicatedChunks = new Map();
+	const dependencies = new Map();
+	const shaders = [];
 
-    const shaders = new Map();
-    const dependencyTree = new Map();
+	function getUnixPath(shaderPath) {
+		return shaderPath.split(sep).join(posix.sep);
+	}
 
-    function resolveDependencies(shaderSource, shaderPath, dependencies = shaders.has(shaderPath) ? shaders.get(shaderPath) : []) {
-        // remove comments
-        shaderSource = shaderSource.replace(commentRegex, "");
+	/**
+	 *
+	 * @param {string} shaderSource
+	 * @param {string} shaderPath
+	 * @param {string[]} deps
+	 * @returns
+	 */
+	function resolveDependencies(shaderSource, shaderPath, deps = []) {
+		// remove comments
+		shaderSource = shaderSource.replace(commentRegex, '');
 
-        let unixPath = shaderPath.split(sep).join(posix.sep);
-        let directory = dirname(unixPath);
+		let unixPath = getUnixPath(shaderPath);
+		let directory = dirname(unixPath);
 
-        if (shaders.has(shaderPath)) {
-            dependencies = [];
-            shaders.set(shaderPath, dependencies);
-        }
+		if (includeRegex.test(shaderSource)) {
+			const currentDirectory = directory;
 
-        dependencyTree.set(unixPath, []);
+			shaderSource = shaderSource.replace(
+				includeRegex,
+				(_, chunkPath) => {
+					chunkPath = chunkPath
+						.trim()
+						.replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
 
-        if (includeRegex.test(shaderSource)) {
-            const currentDirectory = directory;
+					if (!chunkPath.indexOf('/')) {
+						chunkPath = `${base}/${chunkPath}`;
+					}
 
-            shaderSource = shaderSource.replace(includeRegex, (_, chunkPath) => {
-                chunkPath = chunkPath.trim().replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
+					const directoryIndex = chunkPath.lastIndexOf('/');
+					directory = currentDirectory;
 
-                if (!chunkPath.indexOf('/')) {
-                    chunkPath = `${base}/${chunkPath}`;
-                }
+					if (directoryIndex !== -1) {
+						directory = resolve(
+							directory,
+							chunkPath.slice(0, directoryIndex + 1),
+						);
+						chunkPath = chunkPath.slice(
+							directoryIndex + 1,
+							chunkPath.length,
+						);
+					}
 
-                const directoryIndex = chunkPath.lastIndexOf('/');
-                directory = currentDirectory;
+					let shader = resolve(directory, chunkPath);
+					let extension = 'glsl';
 
-                if (directoryIndex !== -1) {
-                    directory = resolve(directory, chunkPath.slice(0, directoryIndex + 1));
-                    chunkPath = chunkPath.slice(directoryIndex + 1, chunkPath.length);
-                }
+					if (!extname(shader)) shader = `${shader}.${extension}`;
 
-                let shader = resolve(directory, chunkPath);
-                let extension = "glsl";
+					const shaderPath = getUnixPath(shader);
 
-                if (!extname(shader)) shader = `${shader}.${extension}`;
+					if (!dependencies.has(shaderPath)) {
+						deps.push(shaderPath);
+						dependencies.set(shaderPath, []);
+					}
 
-                server.watcher.add(shader);
+					const parents = dependencies.get(shaderPath);
 
-                const shaderPath = shader.split(sep).join(posix.sep);
-                dependencyTree.get(unixPath)?.push(shaderPath);
+					if (!parents.includes(unixPath)) {
+						console.log('new Dependency detected', shader);
+						server.watcher.add(shader);
 
-                if (!dependencies.includes(shader)) {
-                    dependencies.push(shader);
-                } else {
-                    log.warning(`Duplicated import found in '${shaderPath}'.`);
-                    console.log(`'${shader}' was included multiple times.`);
-                }
-                
-                return resolveDependencies(
-                    readFileSync(shader, 'utf8'),
-                    shader,
-                    dependencies,
-                );
-            });
-        }
+						if (dependencies.has(unixPath)) {
+							parents.push(...dependencies.get(unixPath));
+						} else {
+							parents.push(unixPath);
+						}
+					} else {
+						log.warning(
+							`Duplicated import found in '${shaderPath}'. Include was skipped.`,
+						);
+						console.log(`'${shader}' was included multiple times.`);
 
-        return shaderSource.trim().replace(/(\r\n|\r|\n){3,}/g, '$1\n');
-    }
+						return '';
+					}
 
-    function compile(shaderSource, shaderPath) {
-        let code = shaderSource;
-        code = resolveDependencies(shaderSource, shaderPath);
-        code = glslify(code, {
-            basedir: process.cwd()
-        });
-        code = addShaderFilepath(code, shaderPath);
+					const { code: chunkCode, deps: chunkDeps } =
+						resolveDependencies(
+							readFileSync(shader, 'utf8'),
+							shader,
+							deps,
+						);
 
-        return code;
-    }
+					return chunkCode;
+				},
+			);
+		}
 
-    let server;
-    
-    return {
-        name: 'hot-shader-reload',
-        config: () => ({
-            optimizeDeps: {
-                esbuildOptions: {
-                    loader: {
-                        ".frag": "text",
-                        ".vert": "text",
-                        ".glsl": "text",
-                        ".fs": "text",
-                        ".vs": "text",
-                    }
-                },
-            },
+		return {
+			code: shaderSource.trim().replace(/(\r\n|\r|\n){3,}/g, '$1\n'),
+			deps,
+		};
+	}
+
+	function compileGLSL(shaderSource, shaderPath) {
+		if (!shaders.includes(shaderPath)) {
+			shaders.push(shaderPath);
+		}
+
+		dependencies.forEach((shadersPaths, dependency) => {
+			const shadersList = shadersPaths.filter((p) => p !== shaderPath);
+			dependencies.set(dependency, shadersList);
+		});
+
+		dependencies.forEach((shadersPaths, dependency) => {
+			if (shadersPaths.length === 0) {
+				server.watcher.unwatch(dependency);
+				dependencies.delete(dependency);
+			}
+		});
+
+		let { code, deps } = resolveDependencies(shaderSource, shaderPath);
+		code = glslify(code, {
+			basedir: process.cwd(),
+		});
+		code = addShaderFilepath(code, shaderPath);
+
+		return { code, deps };
+	}
+
+	/** @type import('vite').ViteDevServer */
+	let server;
+
+	return {
+		name: 'hot-shader-reload',
+		config: () => ({
+			optimizeDeps: {
+				esbuildOptions: {
+					loader: {
+						'.frag': 'text',
+						'.vert': 'text',
+						'.glsl': 'text',
+						'.fs': 'text',
+						'.vs': 'text',
+					},
+				},
+			},
 		}),
-        configureServer(_server) {
-            server = _server;
-        },
-        handleHotUpdate: async ({ modules, file, read }) => {
-            if (fileRegex.test(file)) {
-                if (shaders.has(file)) {
-                    let source = await read();
-                    let shaderSource = compile(source, file);
+		configureServer(_server) {
+			server = _server;
+		},
+		handleHotUpdate: async ({ modules, file, read }) => {
+			if (fileRegex.test(file)) {
+				let unixPath = getUnixPath(file);
+				if (shaders.includes(unixPath)) {
+					let source = await read();
+					let { code: glsl } = compileGLSL(source, unixPath);
 
-                    wss.send({
-                        type: 'custom',
-                        event: 'shader-update',
-                        data: {
-                            filepath: file,
-                            source: shaderSource,
-                        },
-                    });
-                } else {
-                    for (const [shader, dependencies] of shaders) {
-                        if (dependencies.includes(file)) {
-                            const now = Date.now();
-                            const ts = now / 1e3;
-                            utimes(shader, ts, ts, (error) => {
-                                if (error) {
-                                    console.error(error);
-                                } else {
-                                    console.log("updated file", shader);
-                                }
-                            });
-                        }
-                    }
+					wss.send({
+						type: 'custom',
+						event: 'shader-update',
+						data: {
+							filepath: unixPath,
+							source: glsl,
+						},
+					});
+				} else {
+					if (dependencies.has(unixPath)) {
+						const shadersList = dependencies.get(unixPath);
 
-                }
+						const sources = await Promise.all(
+							shadersList.map((shader) => {
+								return readFile(shader, 'utf-8');
+							}),
+						);
 
-                // save modules that were handled 
-                modulesToReload.push(...modules);
+						shadersList.forEach((shader, index) => {
+							let source = sources[index];
+							let { code: glsl } = compileGLSL(source, shader);
 
-                return [];
-            }
-            
-            // add previous modules that were handled to the list of modules to avoid shader invalidation
-            if (modulesToReload.length > 0) {
-                const all = [
-                    ...modules,
-                    ...modulesToReload,
-                ];
+							wss.send({
+								type: 'custom',
+								event: 'shader-update',
+								data: {
+									filepath: shader,
+									source: glsl,
+								},
+							});
+						});
+					}
+				}
+			}
+		},
+		transform(source, id) {
+			if (!fileRegex.test(id)) return;
 
-                modulesToReload = [];
+			let { code: glsl, deps } = compileGLSL(source, id);
 
-                return all;
-            }
-        },
-        transform: (source, file) => {
-            if (fileRegex.test(file)) {
-                shaders.set(file, []);
-
-                let shaderSource = compile(source, file);
-
-                return {
-                    code: `export default ${JSON.stringify(shaderSource)}`,
-                    map: null // provide source map if available
-                }
-            }
-        }
-    };
+			return {
+				code: `export default ${JSON.stringify(glsl)}`,
+				map: null, // provide source map if available
+			};
+		},
+	};
 }
