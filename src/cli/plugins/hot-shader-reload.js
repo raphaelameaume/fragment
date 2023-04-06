@@ -22,8 +22,6 @@ ${keyword}${shaderParts[1]}
         `;
 	}
 
-	let modulesToReload = [];
-
 	const dependencies = new Map();
 	const shaders = [];
 
@@ -45,7 +43,10 @@ ${keyword}${shaderParts[1]}
 		// if a dependency no longer have any parent shader, we can remove it from the watch
 		dependencies.forEach((shadersPaths, dependency) => {
 			if (shadersPaths.length === 0) {
-				server.watcher.unwatch(dependency);
+				if (server) {
+					server.watcher.unwatch(dependency);
+				}
+
 				dependencies.delete(dependency);
 			}
 		});
@@ -75,9 +76,11 @@ ${keyword}${shaderParts[1]}
 				parentSource = parentSource.replace(
 					includeRegex,
 					(_, include) => {
-						let chunkPath = include
-							.trim()
-							.replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
+						include = include.trim();
+						let chunkPath = include.replace(
+							/^(?:"|')?|(?:"|')?;?$/gi,
+							'',
+						);
 
 						if (!chunkPath.indexOf('/')) {
 							chunkPath = `${base}/${chunkPath}`;
@@ -108,7 +111,10 @@ ${keyword}${shaderParts[1]}
 						if (!dependencies.has(chunkUnixPath)) {
 							// first time chunk is detected
 							dependencies.set(chunkUnixPath, []);
-							server.watcher.add(chunkResolvedPath);
+
+							if (server) {
+								server.watcher.add(chunkResolvedPath);
+							}
 						}
 
 						const parents = dependencies.get(chunkUnixPath);
@@ -134,7 +140,9 @@ ${keyword}${shaderParts[1]}
 							warnings,
 						);
 
-						return chunkCode;
+						const prefix = server ? `//#include ${include}\n` : ``;
+
+						return `${prefix}\n${chunkCode}`;
 					},
 				);
 			}
@@ -154,7 +162,10 @@ ${keyword}${shaderParts[1]}
 		code = glslify(code, {
 			basedir: process.cwd(),
 		});
-		code = addShaderFilepath(code, shaderPath);
+
+		if (server) {
+			code = addShaderFilepath(code, shaderPath);
+		}
 
 		warnings.forEach((warning) => {
 			log.warning(warning.message);
