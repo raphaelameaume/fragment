@@ -36,11 +36,13 @@ ${keyword}${shaderParts[1]}
 			shaders.push(shaderPath);
 		}
 
+		// remove current shader from dependency list before resolving dependencies again
 		dependencies.forEach((shadersPaths, dependency) => {
 			const shadersList = shadersPaths.filter((p) => p !== shaderPath);
 			dependencies.set(dependency, shadersList);
 		});
 
+		// if a dependency no longer have any parent shader, we can remove it from the watch
 		dependencies.forEach((shadersPaths, dependency) => {
 			if (shadersPaths.length === 0) {
 				server.watcher.unwatch(dependency);
@@ -116,8 +118,6 @@ ${keyword}${shaderParts[1]}
 							deps.push(chunkResolvedPath);
 						} else {
 							const warning = `Duplicated import found in '${parentPath}'. ${chunkResolvedPath} was skipped.`;
-							log.warning(warning);
-
 							warnings.push(warning);
 
 							return '';
@@ -186,10 +186,12 @@ ${keyword}${shaderParts[1]}
 					wss.send({
 						type: 'custom',
 						event: 'shader-update',
-						data: {
-							filepath: unixPath,
-							source: glsl,
-						},
+						data: [
+							{
+								filepath: unixPath,
+								source: glsl,
+							},
+						],
 					});
 				} else {
 					if (dependencies.has(unixPath)) {
@@ -206,18 +208,26 @@ ${keyword}${shaderParts[1]}
 						);
 						console.log({ shadersList });
 
-						shadersList.forEach((shader, index) => {
-							let source = sources[index];
-							let { code: glsl } = compileGLSL(source, shader);
+						const shaderUpdates = shadersList.map(
+							(shader, index) => {
+								let source = sources[index];
+								let { code: glsl, warnings } = compileGLSL(
+									source,
+									shader,
+								);
 
-							wss.send({
-								type: 'custom',
-								event: 'shader-update',
-								data: {
+								return {
 									filepath: shader,
 									source: glsl,
-								},
-							});
+									warnings: warnings,
+								};
+							},
+						);
+
+						wss.send({
+							type: 'custom',
+							event: 'shader-update',
+							data: shaderUpdates,
 						});
 					}
 				}
