@@ -74,8 +74,8 @@ ${keyword}${shaderParts[1]}
 
 				parentSource = parentSource.replace(
 					includeRegex,
-					(_, chunkPath) => {
-						chunkPath = chunkPath
+					(_, include) => {
+						let chunkPath = include
 							.trim()
 							.replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
 
@@ -117,8 +117,12 @@ ${keyword}${shaderParts[1]}
 							parents.push(shaderPath);
 							deps.push(chunkResolvedPath);
 						} else {
-							const warning = `Duplicated import found in '${parentPath}'. ${chunkResolvedPath} was skipped.`;
-							warnings.push(warning);
+							const message = `Duplicated import found in '${parentPath}'. ${chunkResolvedPath} was skipped.`;
+							warnings.push({
+								message,
+								importer: parentPath,
+								url: chunkResolvedPath,
+							});
 
 							return '';
 						}
@@ -152,7 +156,11 @@ ${keyword}${shaderParts[1]}
 		});
 		code = addShaderFilepath(code, shaderPath);
 
-		return { code, deps };
+		warnings.forEach((warning) => {
+			log.warning(warning.message);
+		});
+
+		return { code, deps, warnings };
 	}
 
 	/** @type import('vite').ViteDevServer */
@@ -181,7 +189,10 @@ ${keyword}${shaderParts[1]}
 				let unixPath = getUnixPath(file);
 				if (shaders.includes(unixPath)) {
 					let source = await read();
-					let { code: glsl } = compileGLSL(source, unixPath);
+					let { code: glsl, warnings } = compileGLSL(
+						source,
+						unixPath,
+					);
 
 					wss.send({
 						type: 'custom',
@@ -190,6 +201,7 @@ ${keyword}${shaderParts[1]}
 							{
 								filepath: unixPath,
 								source: glsl,
+								warnings,
 							},
 						],
 					});
@@ -236,7 +248,7 @@ ${keyword}${shaderParts[1]}
 		transform(source, id) {
 			if (!fileRegex.test(id)) return;
 
-			let { code: glsl, deps } = compileGLSL(source, id);
+			let { code: glsl } = compileGLSL(source, id);
 
 			return {
 				code: `export default ${JSON.stringify(glsl)}`,
