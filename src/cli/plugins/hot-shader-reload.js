@@ -31,98 +31,6 @@ ${keyword}${shaderParts[1]}
 		return shaderPath.split(sep).join(posix.sep);
 	}
 
-	/**
-	 *
-	 * @param {string} shaderSource
-	 * @param {string} shaderPath
-	 * @param {string[]} deps
-	 * @returns
-	 */
-	function resolveDependencies(shaderSource, shaderPath, deps = []) {
-		// remove comments
-		shaderSource = shaderSource.replace(commentRegex, '');
-
-		let unixPath = getUnixPath(shaderPath);
-		let directory = dirname(unixPath);
-
-		if (includeRegex.test(shaderSource)) {
-			const currentDirectory = directory;
-
-			shaderSource = shaderSource.replace(
-				includeRegex,
-				(_, chunkPath) => {
-					chunkPath = chunkPath
-						.trim()
-						.replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
-
-					if (!chunkPath.indexOf('/')) {
-						chunkPath = `${base}/${chunkPath}`;
-					}
-
-					const directoryIndex = chunkPath.lastIndexOf('/');
-					directory = currentDirectory;
-
-					if (directoryIndex !== -1) {
-						directory = resolve(
-							directory,
-							chunkPath.slice(0, directoryIndex + 1),
-						);
-						chunkPath = chunkPath.slice(
-							directoryIndex + 1,
-							chunkPath.length,
-						);
-					}
-
-					let shader = resolve(directory, chunkPath);
-					let extension = 'glsl';
-
-					if (!extname(shader)) shader = `${shader}.${extension}`;
-
-					const shaderPath = getUnixPath(shader);
-
-					if (!dependencies.has(shaderPath)) {
-						deps.push(shaderPath);
-						dependencies.set(shaderPath, []);
-					}
-
-					const parents = dependencies.get(shaderPath);
-
-					if (!parents.includes(unixPath)) {
-						console.log('new Dependency detected', shader);
-						server.watcher.add(shader);
-
-						if (dependencies.has(unixPath)) {
-							parents.push(...dependencies.get(unixPath));
-						} else {
-							parents.push(unixPath);
-						}
-					} else {
-						log.warning(
-							`Duplicated import found in '${shaderPath}'. Include was skipped.`,
-						);
-						console.log(`'${shader}' was included multiple times.`);
-
-						return '';
-					}
-
-					const { code: chunkCode, deps: chunkDeps } =
-						resolveDependencies(
-							readFileSync(shader, 'utf8'),
-							shader,
-							deps,
-						);
-
-					return chunkCode;
-				},
-			);
-		}
-
-		return {
-			code: shaderSource.trim().replace(/(\r\n|\r|\n){3,}/g, '$1\n'),
-			deps,
-		};
-	}
-
 	function compileGLSL(shaderSource, shaderPath) {
 		if (!shaders.includes(shaderPath)) {
 			shaders.push(shaderPath);
@@ -140,7 +48,105 @@ ${keyword}${shaderParts[1]}
 			}
 		});
 
-		let { code, deps } = resolveDependencies(shaderSource, shaderPath);
+		/**
+		 *
+		 * @param {string} parentSource
+		 * @param {string} parentPath
+		 * @param {string[]} deps
+		 * @returns
+		 */
+		function resolveDependencies(
+			parentSource,
+			parentPath,
+			deps = [],
+			warnings = [],
+		) {
+			// remove comments
+			parentSource = parentSource.replace(commentRegex, '');
+
+			let parentUnixPath = getUnixPath(parentPath);
+			let directory = dirname(parentUnixPath);
+
+			if (includeRegex.test(parentSource)) {
+				const currentDirectory = directory;
+
+				parentSource = parentSource.replace(
+					includeRegex,
+					(_, chunkPath) => {
+						chunkPath = chunkPath
+							.trim()
+							.replace(/^(?:"|')?|(?:"|')?;?$/gi, '');
+
+						if (!chunkPath.indexOf('/')) {
+							chunkPath = `${base}/${chunkPath}`;
+						}
+
+						const directoryIndex = chunkPath.lastIndexOf('/');
+						directory = currentDirectory;
+
+						if (directoryIndex !== -1) {
+							directory = resolve(
+								directory,
+								chunkPath.slice(0, directoryIndex + 1),
+							);
+							chunkPath = chunkPath.slice(
+								directoryIndex + 1,
+								chunkPath.length,
+							);
+						}
+
+						let chunkResolvedPath = resolve(directory, chunkPath);
+						let extension = 'glsl';
+
+						if (!extname(chunkResolvedPath))
+							chunkResolvedPath = `${chunkResolvedPath}.${extension}`;
+
+						const chunkUnixPath = getUnixPath(chunkResolvedPath);
+
+						if (!dependencies.has(chunkUnixPath)) {
+							// first time chunk is detected
+							dependencies.set(chunkUnixPath, []);
+							server.watcher.add(chunkResolvedPath);
+						}
+
+						const parents = dependencies.get(chunkUnixPath);
+
+						if (!parents.includes(shaderPath)) {
+							parents.push(shaderPath);
+							deps.push(chunkResolvedPath);
+						} else {
+							const warning = `Duplicated import found in '${parentPath}'. ${chunkResolvedPath} was skipped.`;
+							log.warning(warning);
+
+							warnings.push(warning);
+
+							return '';
+						}
+
+						const { code: chunkCode } = resolveDependencies(
+							readFileSync(chunkResolvedPath, 'utf8'),
+							chunkResolvedPath,
+							deps,
+							warnings,
+						);
+
+						return chunkCode;
+					},
+				);
+			}
+
+			return {
+				code: parentSource.trim().replace(/(\r\n|\r|\n){3,}/g, '$1\n'),
+				deps,
+				warnings,
+			};
+		}
+
+		let { code, deps, warnings } = resolveDependencies(
+			shaderSource,
+			shaderPath,
+		);
+
 		code = glslify(code, {
 			basedir: process.cwd(),
 		});
@@ -194,6 +200,11 @@ ${keyword}${shaderParts[1]}
 								return readFile(shader, 'utf-8');
 							}),
 						);
+
+						log.warning(
+							`Dependency ${unixPath} has changed. Recompiling shaders`,
+						);
+						console.log({ shadersList });
 
 						shadersList.forEach((shader, index) => {
 							let source = sources[index];
