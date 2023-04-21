@@ -1,5 +1,5 @@
-import { posix, sep, resolve, dirname, extname, join } from 'path';
-import { readFileSync, utimes } from 'fs';
+import { posix, sep, resolve, dirname, extname } from 'path';
+import { readFileSync } from 'fs';
 import glslify from 'glslify';
 import log from '../log.js';
 import { readFile } from 'fs/promises';
@@ -24,16 +24,13 @@ ${keyword}${shaderParts[1]}
 
 	const dependencies = new Map();
 	const shaders = [];
+	let modulesToReload = [];
 
 	function getUnixPath(shaderPath) {
 		return shaderPath.split(sep).join(posix.sep);
 	}
 
 	function compileGLSL(shaderSource, shaderPath) {
-		if (!shaders.includes(shaderPath)) {
-			shaders.push(shaderPath);
-		}
-
 		// remove current shader from dependency list before resolving dependencies again
 		dependencies.forEach((shadersPaths, dependency) => {
 			const shadersList = shadersPaths.filter((p) => p !== shaderPath);
@@ -196,14 +193,19 @@ ${keyword}${shaderParts[1]}
 			server = _server;
 		},
 		handleHotUpdate: async ({ modules, file, read }) => {
+			const { moduleGraph } = server;
+
 			if (fileRegex.test(file)) {
+				const thisModule = moduleGraph.getModuleById(file);
+
+				if (thisModule) {
+					modulesToReload.push(thisModule);
+				}
+
 				let unixPath = getUnixPath(file);
-				if (shaders.includes(unixPath)) {
+				if (shaders.includes(file)) {
 					let source = await read();
-					let { code: glsl, warnings } = compileGLSL(
-						source,
-						unixPath,
-					);
+					let { code: glsl, warnings } = compileGLSL(source, file);
 
 					wss.send({
 						type: 'custom',
@@ -220,6 +222,14 @@ ${keyword}${shaderParts[1]}
 					if (dependencies.has(unixPath)) {
 						const shadersList = dependencies.get(unixPath);
 
+						// retrieve modules from module graph
+						const moduleNodes = shadersList.map((moduleNode) =>
+							moduleGraph.getModuleById(moduleNode),
+						);
+
+						// save it as modules to reload to invalidate the top level shaders in case a dependency has been hot updated in between
+						modulesToReload.push(...moduleNodes);
+
 						const sources = await Promise.all(
 							shadersList.map((shader) => {
 								return readFile(shader, 'utf-8');
@@ -229,8 +239,6 @@ ${keyword}${shaderParts[1]}
 						log.warning(
 							`Dependency ${unixPath} has changed. Recompiling shaders`,
 						);
-						console.log({ shadersList });
-
 						const shaderUpdates = shadersList.map(
 							(shader, index) => {
 								let source = sources[index];
@@ -254,12 +262,26 @@ ${keyword}${shaderParts[1]}
 						});
 					}
 				}
+
+				return [];
+			} else {
+				if (modulesToReload.length > 0) {
+					const clone = [...modulesToReload];
+
+					modulesToReload = [];
+
+					return clone;
+				}
 			}
 		},
-		transform(source, id) {
-			if (!fileRegex.test(id)) return;
+		transform(source, file) {
+			if (!fileRegex.test(file)) return;
 
-			let { code: glsl } = compileGLSL(source, id);
+			if (!shaders.includes(file)) {
+				shaders.push(file);
+			}
+
+			let { code: glsl } = compileGLSL(source, file);
 
 			return {
 				code: `export default ${JSON.stringify(glsl)}`,
