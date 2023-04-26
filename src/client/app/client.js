@@ -71,11 +71,13 @@ if (import.meta.hot) {
 export const client = { on, off, emit };
 
 client.on('shader-update', (shaderUpdates) => {
-	console.log({ shaderUpdates });
 	shaderUpdates.forEach(({ warnings = [] } = {}) => {
 		if (warnings.length > 0) {
 			warnings.forEach((warning) => {
-				console.warn(warning.message);
+				const { location } = warning;
+				console.warn(
+					`[fragment-plugin-hsr] ${warning.type} ${warning.importer}\n\n  ${location.lineText}\n\n${warning.message}`,
+				);
 			});
 		}
 	});

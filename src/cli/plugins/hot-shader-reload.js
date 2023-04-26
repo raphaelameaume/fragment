@@ -1,15 +1,45 @@
-import { posix, sep, resolve, dirname, extname } from 'path';
+import { posix, sep, resolve, dirname, extname, relative } from 'path';
 import { readFileSync } from 'fs';
 import glslify from 'glslify';
 import log from '../log.js';
 import { readFile } from 'fs/promises';
+import kleur from 'kleur';
+
+/**
+ * @typedef {Object} ShaderUpdate
+ * @property {string} filepath - The path of the shader on the filesystem
+ * @property {string} source - The source code of the shader
+ * @property {boolean} nohsr - Whether the shader can be injected on the fly or if the sketch needs to be fully reloaded
+ * @property {string[]} warnings - Indicates whether the Wisdom component is present.
+ */
 
 export default function hotShaderReload({ wss, watch = false }) {
+	const name = 'fragment-plugin-hsr';
+	const prefix = log.createPrefix(name);
 	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
 	const includeRegex = /#include(\s+([^\s<>]+));?/gi;
+	const ignoreRegex = /^(?:\/|\*)*\s*@fragment-nohsr/;
 	const commentRegex =
 		/(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi;
 	const base = process.cwd().split(sep).join(posix.sep);
+
+	let dependencies = new Map();
+	let shaders = [];
+	let modulesToReload = [];
+
+	function reloadSketch() {
+		const clone = [...modulesToReload];
+
+		console.log('reload sketch', clone);
+
+		clone.forEach((moduleNode) => {
+			console.log(moduleNode.importers);
+		});
+
+		modulesToReload = [];
+
+		return clone;
+	}
 
 	function addShaderFilepath(shaderSource, shaderPath) {
 		let keyword = `void main`;
@@ -22,15 +52,14 @@ ${keyword}${shaderParts[1]}
         `;
 	}
 
-	const dependencies = new Map();
-	const shaders = [];
-	let modulesToReload = [];
-
 	function getUnixPath(shaderPath) {
 		return shaderPath.split(sep).join(posix.sep);
 	}
 
 	function compileGLSL(shaderSource, shaderPath) {
+		// test if shader source contains hint to avoid shader injection
+		const nohsr = ignoreRegex.test(shaderSource);
+
 		// remove current shader from dependency list before resolving dependencies again
 		dependencies.forEach((shadersPaths, dependency) => {
 			const shadersList = shadersPaths.filter((p) => p !== shaderPath);
@@ -53,7 +82,7 @@ ${keyword}${shaderParts[1]}
 		 * @param {string} parentSource
 		 * @param {string} parentPath
 		 * @param {string[]} deps
-		 * @returns
+		 * @returns {}
 		 */
 		function resolveDependencies(
 			parentSource,
@@ -120,11 +149,16 @@ ${keyword}${shaderParts[1]}
 							parents.push(shaderPath);
 							deps.push(chunkResolvedPath);
 						} else {
-							const message = `Duplicated import found in '${parentPath}'. ${chunkResolvedPath} was skipped.`;
+							const message = `Dependency is already included in ${shaderPath}.\nInclude was skipped to avoid errors.`;
+
 							warnings.push({
+								type: 'duplicated dependency',
 								message,
 								importer: parentPath,
 								url: chunkResolvedPath,
+								location: {
+									lineText: `#include ${include}`,
+								},
 							});
 
 							return '';
@@ -165,17 +199,64 @@ ${keyword}${shaderParts[1]}
 		}
 
 		warnings.forEach((warning) => {
-			log.warning(warning.message);
+			const { location } = warning;
+			const line = 1;
+			const column = 4;
+			log.text(
+				`${kleur.yellow(warning.type)} ${warning.importer}`,
+				prefix,
+			);
+			console.log();
+			console.log(`  ${kleur.dim(location.lineText)}`);
+			console.log();
+			console.log(warning.message);
+			console.log();
 		});
 
-		return { code, deps, warnings };
+		return { code, deps, warnings, nohsr };
+	}
+
+	/**
+	 * Reload shaders after changes via custom Websocket or Vite HMR (sketch reload)
+	 * @param {ShaderUpdate[]} shaderUpdates
+	 */
+	function reloadShaders(shaderUpdates) {
+		const shadersNeedReload = shaderUpdates.filter(
+			(shaderUpdate) => shaderUpdate.nohsr,
+		);
+
+		if (shadersNeedReload.length > 0) {
+			shadersNeedReload.forEach((shaderUpdate) => {
+				log.text(
+					`${kleur.yellow('hsr ignore')} ${shaderUpdate.filepath}`,
+					prefix,
+				);
+			});
+
+			return reloadSketch();
+		} else {
+			shaderUpdates.forEach((shaderUpdate) => {
+				log.text(
+					`${kleur.green('hsr update')} ${shaderUpdate.filepath}`,
+					prefix,
+				);
+			});
+
+			wss.send({
+				type: 'custom',
+				event: 'shader-update',
+				data: shaderUpdates,
+			});
+
+			return [];
+		}
 	}
 
 	/** @type import('vite').ViteDevServer */
 	let server;
 
 	return {
-		name: 'hot-shader-reload',
+		name: 'fragment-plugin-hsr',
 		config: () => ({
 			optimizeDeps: {
 				esbuildOptions: {
@@ -205,19 +286,21 @@ ${keyword}${shaderParts[1]}
 				let unixPath = getUnixPath(file);
 				if (shaders.includes(file)) {
 					let source = await read();
-					let { code: glsl, warnings } = compileGLSL(source, file);
+					let {
+						code: glsl,
+						warnings,
+						nohsr,
+					} = compileGLSL(source, file);
 
-					wss.send({
-						type: 'custom',
-						event: 'shader-update',
-						data: [
-							{
-								filepath: unixPath,
-								source: glsl,
-								warnings,
-							},
-						],
-					});
+					/** @type ShaderUpdate[] */
+					const shaderUpdate = {
+						filepath: unixPath,
+						source: glsl,
+						warnings,
+						nohsr,
+					};
+
+					return reloadShaders([shaderUpdate]);
 				} else {
 					if (dependencies.has(unixPath)) {
 						const shadersList = dependencies.get(unixPath);
@@ -236,43 +319,38 @@ ${keyword}${shaderParts[1]}
 							}),
 						);
 
-						log.warning(
-							`Dependency ${unixPath} has changed. Recompiling shaders`,
+						log.text(
+							`${kleur.yellow(`dependency update`)} ${unixPath}`,
+							prefix,
 						);
+
+						/** @type ShaderUpdate[] */
 						const shaderUpdates = shadersList.map(
 							(shader, index) => {
 								let source = sources[index];
-								let { code: glsl, warnings } = compileGLSL(
-									source,
-									shader,
-								);
+								let {
+									code: glsl,
+									warnings,
+									nohsr,
+								} = compileGLSL(source, shader);
 
 								return {
 									filepath: shader,
 									source: glsl,
 									warnings: warnings,
+									nohsr,
 								};
 							},
 						);
 
-						wss.send({
-							type: 'custom',
-							event: 'shader-update',
-							data: shaderUpdates,
-						});
+						return reloadShaders(shaderUpdates);
 					}
 				}
 
 				return [];
-			} else {
-				if (modulesToReload.length > 0) {
-					const clone = [...modulesToReload];
-
-					modulesToReload = [];
-
-					return clone;
-				}
 			}
+
+			return reloadSketch();
 		},
 		transform(source, file) {
 			if (!fileRegex.test(file)) return;

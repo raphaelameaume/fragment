@@ -55,7 +55,7 @@ client.on('shader-update', (shaderUpdates) => {
 
 				if (shaderPath === filepath) {
 					console.log(
-						`[fragment] shader update ${shaderPath.replace(
+						`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
 							__CWD__,
 							'',
 						)}`,
