@@ -20,6 +20,14 @@ let fragmentShader = /* glsl */ `
 export let init = ({ canvas }) => {
 	renderer = new WebGLRenderer({ antialias: true });
 
+	const render = renderer.render;
+
+	renderer.render = (scene, camera) => {
+		handleHotShaderUpdate(scene);
+
+		render.call(renderer, scene, camera);
+	};
+
 	return {
 		renderer,
 	};
@@ -49,6 +57,7 @@ export let onMountPreview = ({ id, canvas, width, height, pixelRatio }) => {
 		render,
 		resize,
 		destroy,
+		rendered: false,
 	});
 
 	return {
@@ -70,12 +79,28 @@ export let onDestroyPreview = ({ id, canvas }) => {
 	}
 };
 
+export let onBeforeUpdatePreview = ({ id }) => {
+	const preview = previews.find((p) => p.id === id);
+
+	if (preview) {
+		preview.rendered = false;
+	}
+};
+
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
 	if (preview) {
 		preview.texture.needsUpdate = true;
 		preview.render();
+		preview.rendered = true;
+	}
+
+	if (
+		previews.every((preview) => preview.rendered) &&
+		_shaderUpdates.length > 0
+	) {
+		clearShaderUpdates();
 	}
 };
 
@@ -90,48 +115,56 @@ export let resize = ({ width, height, pixelRatio }) => {
 };
 
 /* HOT SHADER RELOADING */
+let _shaderUpdates = [];
+
+function handleHotShaderUpdate(scene) {
+	if (_shaderUpdates.length > 0) {
+		scene.traverse((child) => {
+			if (child.material) {
+				const { material } = child;
+
+				if (material.isShaderMaterial || material.isRawShaderMaterial) {
+					const { vertexShader, fragmentShader } = material;
+
+					Object.keys({ vertexShader, fragmentShader }).forEach(
+						(key) => {
+							const shader = material[key];
+							const shaderPath = getShaderPath(shader);
+							const shaderUpdate = _shaderUpdates.find(
+								(shaderUpdate) =>
+									shaderUpdate.filepath === shaderPath,
+							);
+
+							if (shaderUpdate) {
+								console.log(
+									`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
+										__CWD__,
+										'',
+									)}`,
+								);
+								material[key] = shaderUpdate.source;
+								material.needsUpdate = true;
+							}
+						},
+					);
+				}
+			}
+		});
+	}
+}
+
+function clearShaderUpdates() {
+	_shaderUpdates = [];
+}
+
+if (import.meta.hot) {
+	import.meta.hot.on('sketch-update', (data) => {
+		clearShaderUpdates();
+	});
+}
+
 client.on('shader-update', (shaderUpdates) => {
 	clearError(renderer.getContext().__uuid);
 
-	shaderUpdates.forEach((shaderUpdate) => {
-		const { filepath, source } = shaderUpdate;
-
-		const scenes = previews.map((preview) => preview.scene);
-		const materials = [];
-
-		scenes.forEach((scene) => {
-			scene.traverse((child) => {
-				if (child.material) {
-					const { material } = child;
-
-					if (
-						material.isShaderMaterial ||
-						material.isRawShaderMaterial
-					) {
-						materials.push(material);
-					}
-				}
-			});
-		});
-
-		materials.forEach((material) => {
-			const { vertexShader, fragmentShader } = material;
-
-			Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
-				const shader = material[key];
-				const shaderPath = getShaderPath(shader);
-
-				if (shaderPath === filepath) {
-					console.log(
-						`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
-							__CWD__,
-							'',
-						)}`,
-					);
-					material[key] = source;
-					material.needsUpdate = true;
-				}
-			});
-		});
-	});
+	_shaderUpdates = shaderUpdates;
 });

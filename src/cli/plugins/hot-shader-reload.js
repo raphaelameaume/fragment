@@ -30,12 +30,6 @@ export default function hotShaderReload({ wss, watch = false }) {
 	function reloadSketch() {
 		const clone = [...modulesToReload];
 
-		console.log('reload sketch', clone);
-
-		clone.forEach((moduleNode) => {
-			console.log(moduleNode.importers);
-		});
-
 		modulesToReload = [];
 
 		return clone;
@@ -348,9 +342,11 @@ ${keyword}${shaderParts[1]}
 				}
 
 				return [];
+			} else if (modulesToReload.length > 0) {
+				// only return if some shaders have been updated in between
+				// otherwise, returning an empty array would prevent hmr on sketch files
+				return reloadSketch();
 			}
-
-			return reloadSketch();
 		},
 		transform(source, file) {
 			if (!fileRegex.test(file)) return;
