@@ -13,7 +13,7 @@ import kleur from 'kleur';
  * @property {string[]} warnings - Indicates whether the Wisdom component is present.
  */
 
-export default function hotShaderReload({ wss, watch = false }) {
+export default function hotShaderReplacement({ wss, watch = false }) {
 	const name = 'fragment-plugin-hsr';
 	const prefix = log.createPrefix(name);
 	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;

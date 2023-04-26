@@ -3,7 +3,7 @@ import kleur from 'kleur';
 import { fileURLToPath } from 'url';
 import { createServer, defineConfig, build } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import hotShaderReload from './plugins/hot-shader-reload.js';
+import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 import hotSketchReload from './plugins/hot-sketch-reload.js';
 import dbPlugin from './plugins/db.js';
 
@@ -54,7 +54,7 @@ export async function start({ options, filepaths, entries, fragment }) {
 			hotSketchReload({
 				cwd,
 			}),
-			hotShaderReload({ wss: fragment.server }),
+			hotShaderReplacement({ wss: fragment.server }),
 			{
 				name: 'configure-response-headers',
 				configureServer: (server) => {
