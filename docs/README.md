@@ -7,7 +7,7 @@
 - [Export a sketch](./guide/exports.md)
 - [Using external dependencies](./guide/external-dependencies.md)
 - [Using triggers](./guide/using-triggers.md)
-- [Hot Shader Reloading](./guide/hot-shader-reloading.md)
+- [Hot Shader Replacement](./guide/hot-shader-replacement.md)
 - [Shortcuts](./guide/shortcuts.md)
 
 
