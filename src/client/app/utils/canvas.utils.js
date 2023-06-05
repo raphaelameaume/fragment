@@ -11,6 +11,7 @@ import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
 import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
 import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
+import WebCodecRecorder from '../lib/canvas-recorder/WebCodecRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 
@@ -23,63 +24,7 @@ export async function saveDataURL(dataURL, options, blob) {
 		await downloadBlob(blob, options);
 	}
 
-	async function onError(err) {
-		if (typeof options.onError === 'function') {
-			options.onError(err);
-		}
-
-		await saveInBrowser();
-	}
-
-	try {
-		if (__DEV__) {
-			const body = {
-				dataURL: dataURL.split(',')[1], // remove extension,
-				...options,
-			};
-			const response = await fetch('/save', {
-				method: 'POST',
-				body: JSON.stringify(body),
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			});
-			const { filepath, error } = await response.json();
-
-			if (response.ok && filepath) {
-				console.log(`[fragment] Saved ${filepath}`);
-			} else {
-				onError(error);
-			}
-		} else {
-			await saveInBrowser();
-		}
-	} catch (error) {
-		onError(error);
-	}
-}
-
-export async function createDataURLFromBlob(blob) {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-
-		reader.onerror = (err) => {
-			reject(err);
-		};
-
-		reader.onload = (e) => {
-			resolve(e.target.result);
-		};
-
-		reader.readAsDataURL(blob);
-	});
-}
-
-export async function saveBlob(blob, options) {
-	const dataURL = await createDataURLFromBlob(blob);
-
-	return saveDataURL(dataURL, options, blob);
+	await saveInBrowser();
 }
 
 function getFilenameParams() {
@@ -153,6 +98,13 @@ function recordCanvasWebM(canvas, options) {
 
 function recordCanvasMp4(canvas, options) {
 	let recorder = new MP4Recorder(canvas, options);
+	recorder.start();
+
+	return recorder;
+}
+
+function recordCanvasWebCodec(canvas, options) {
+	let recorder = new WebCodecRecorder(canvas, options);
 	recorder.start();
 
 	return recorder;
@@ -233,6 +185,8 @@ export function recordCanvas(
 		recorder = recordCanvasWebM(canvas, options);
 	} else if (format === VIDEO_FORMATS.MP4) {
 		recorder = recordCanvasMp4(canvas, options);
+	} else if (format === VIDEO_FORMATS.MP4_WEBCODEC) {
+		recorder = recordCanvasWebCodec(canvas, options);
 	} else if (format === VIDEO_FORMATS.GIF) {
 		recorder = recordCanvasGIF(canvas, options);
 	} else if (format === VIDEO_FORMATS.FRAMES) {

@@ -28,6 +28,8 @@
     "gifenc": "^1.0.3",
     "glslify": "^7.1.1",
     "kleur": "^4.1.4",
+    "media-codecs": "^2.0.0",
+    "mp4-muxer": "^2.1.1",
     "sade": "^1.7.4",
     "svelte": "^3.49.0",
     "svelte-json-tree": "^1.0.0",
