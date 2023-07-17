@@ -54,7 +54,7 @@ export async function start({ options, filepaths, entries, fragment }) {
 			hotSketchReload({
 				cwd,
 			}),
-			hotShaderReplacement({ wss: fragment.server }),
+			hotShaderReplacement({ cwd, wss: fragment.server }),
 			{
 				name: 'configure-response-headers',
 				configureServer: (server) => {

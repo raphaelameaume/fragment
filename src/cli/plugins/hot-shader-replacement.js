@@ -13,7 +13,7 @@ import kleur from 'kleur';
  * @property {string[]} warnings - Indicates whether the Wisdom component is present.
  */
 
-export default function hotShaderReplacement({ wss, watch = false }) {
+export default function hotShaderReplacement({ cwd, wss, watch = false }) {
 	const name = 'fragment-plugin-hsr';
 	const prefix = log.createPrefix(name);
 	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
@@ -31,6 +31,24 @@ export default function hotShaderReplacement({ wss, watch = false }) {
 		const clone = [...modulesToReload];
 
 		modulesToReload = [];
+
+		if (clone.length > 0) {
+			const { file } = clone[0];
+			const filepath = relative(cwd, file);
+			console.log(
+				`${log.prefix} ${kleur.green(`hmr update`)} /${filepath}`,
+			);
+
+			server.ws.send({
+				type: 'custom',
+				event: 'sketch-update',
+				data: {
+					file,
+					filepath,
+					cwd,
+				},
+			});
+		}
 
 		return clone;
 	}
