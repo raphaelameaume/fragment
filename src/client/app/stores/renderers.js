@@ -1,30 +1,37 @@
-import { rendering } from "./rendering";
+import { rendering } from './rendering';
 
 export let renderers = {};
 
 function loadRenderer(renderingMode) {
-	if (__THREE_RENDERER__ && renderingMode === "three") {
-		return import("../renderers/THREERenderer.js");
+	if (renderers[renderingMode]) return renderers[renderingMode];
+
+	if (__THREE_RENDERER__ && renderingMode === 'three') {
+		return import('../renderers/THREERenderer.js');
 	}
 
-	if (__FRAGMENT_RENDERER__ && renderingMode === "fragment") {
-		return import("../renderers/FragmentRenderer.js");
+	if (__FRAGMENT_RENDERER__ && renderingMode === 'fragment') {
+		return import('../renderers/FragmentRenderer.js');
 	}
 
-	if (__P5_RENDERER__ && renderingMode === "p5") {
-		return import("../renderers/P5Renderer.js");
+	if (__P5_RENDERER__ && renderingMode === 'p5') {
+		return import('../renderers/P5Renderer.js');
 	}
 
-	if (__2D_RENDERER__ && renderingMode === "2d") {
-		return import("../renderers/2DRenderer.js");
+	if (__2D_RENDERER__ && renderingMode === '2d') {
+		return import('../renderers/2DRenderer.js');
 	}
 }
 
-export async function findRenderer(renderingMode) {
-	if (renderers[renderingMode]) return renderers[renderingMode];
-
+export async function findRenderer({
+	rendering: renderingMode,
+	renderer: customRenderer,
+}) {
 	// load and save
-	renderers[renderingMode] = await loadRenderer(renderingMode);
+	renderers[renderingMode] = customRenderer
+		? typeof customRenderer === 'function'
+			? await customRenderer()
+			: customRenderer
+		: await loadRenderer(renderingMode);
 
 	// get
 	let renderer = renderers[renderingMode];
@@ -35,7 +42,7 @@ export async function findRenderer(renderingMode) {
 			let r;
 
 			if (!initialized) {
-				if (typeof renderer.init === "function") {
+				if (typeof renderer.init === 'function') {
 					r = renderer.init({
 						canvas: document.createElement('canvas'),
 						pixelRatio: current.pixelRatio,
@@ -47,7 +54,7 @@ export async function findRenderer(renderingMode) {
 
 			initialized = true;
 
-			if (typeof renderer.resize === "function") {
+			if (typeof renderer.resize === 'function') {
 				renderer.resize({
 					width: current.width,
 					height: current.height,
