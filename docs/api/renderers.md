@@ -34,7 +34,7 @@ export let init = ({ renderer, value }) => {
 ```
 
 #### `onMountPreview`
-- Type: `({ index: number, canvas: HTMLCanvasElement }) => MountParams`
+- Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement, width: number, height: number, pixelRatio: number }) => MountParams`
 
 Called everytime a sketch is mounted or hot reloaded. The object returned from this function will spread as params and made available to sketch hooks.
 
@@ -55,22 +55,22 @@ export let update = ({ previewIndex }) => {
 > ⚠️ InitParams and MountParams are both spread at the same level and in this order, so if you export an object key from `init()` and the same key for a different value from `onMountPreview`, `onMountPreview` value will take over as the spread happen {...InitParams, ...MountParams }.
 
 #### `onBeforeUpdatePreview`
-- Type: `({ index: number, canvas: HTMLCanvasElement }) => void`
+- Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement }) => void`
 
 Called on each frame before `sketch.update()`.
 
 #### `onAfterUpdatePreview`
-- Type: `({ index: number, canvas: HTMLCanvasElement }) => void`
+- Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement }) => void`
 
 Called on each frame after `sketch.update()`.
 
 #### `onResizePreview`
-- Type: `({ index: number, canvas: HTMLCanvasElement, width: number, height: number }) => void`
+- Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement, width: number, height: number }) => void`
 
 Called for each preview when OutputParams.canvasSize or OutputParams.dimensions change.
 
 #### `onDestroyPreview`
-- Type: `({ index: number, canvas: HTMLCanvasElement }) => void`
+- Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement }) => void`
 
 Called when a sketch is unmounted or hot reloaded.
 

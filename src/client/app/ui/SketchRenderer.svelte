@@ -192,7 +192,10 @@
 			destroyCanvas(canvas);
 		}
 
-		renderer = await findRenderer(sketch.rendering);
+		renderer = await findRenderer({
+			rendering: sketch.rendering,
+			renderer: sketch.renderer,
+		});
 
 		if (!container) return;
 
@@ -212,6 +215,7 @@
 			mountParams = renderer.onMountPreview({
 				id,
 				canvas,
+				container,
 				width: $rendering.width,
 				height: $rendering.height,
 				pixelRatio: $rendering.pixelRatio,
@@ -362,7 +366,7 @@
 			lastTime = time;
 
 			try {
-				onBeforeUpdatePreview({ id, canvas });
+				onBeforeUpdatePreview({ id, canvas, container });
 
 				let t = !$sync
 					? elapsedRenderingTime
@@ -389,7 +393,7 @@
 					time: t,
 					deltaTime,
 				});
-				onAfterUpdatePreview({ id, canvas });
+				onAfterUpdatePreview({ id, canvas, container });
 
 				elapsedRenderingTime += deltaTime;
 			} catch (error) {
@@ -420,7 +424,7 @@
 			lastTime = now;
 		}
 
-		if (needsRender) {
+		if (needsRender && _created) {
 			_renderSketch();
 		}
 	}
@@ -551,7 +555,7 @@
 		cancelAnimationFrame(_raf);
 
 		if (renderer && typeof renderer.onDestroyPreview === 'function') {
-			renderer.onDestroyPreview({ id, canvas });
+			renderer.onDestroyPreview({ id, canvas, container });
 		}
 
 		renderer = null;
@@ -569,6 +573,7 @@
 		if (renderer && typeof renderer.onResizePreview === 'function') {
 			renderer.onResizePreview({
 				id,
+				container,
 				width: $rendering.width,
 				height: $rendering.height,
 				pixelRatio: $rendering.pixelRatio,

@@ -9,6 +9,7 @@
 - [Using triggers](./guide/using-triggers.md)
 - [Hot Shader Reloading](./guide/hot-shader-reloading.md)
 - [Shortcuts](./guide/shortcuts.md)
+- [Custom renderers](./guide/custom-renderers.md)
 
 
 ## APIs
