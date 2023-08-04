@@ -212,28 +212,32 @@ export let props = {
 }
 ```
 
-A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode.
+A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode. It also works with a function to toggle the hidden state depending on other prop changes.
 
 ```js
 export let props = {
-  color: {
-    value: [10, 0, 5],
+  toggle: {
+    value: true,
     hidden: __BUILD__,
   }
+  color: {
+    value: [10, 0, 5],
+    hidden: () => props.toggle.value,
+  },
 }
 ```
 
-A prop can `disabled` so it stays in the UI but inputs are disabled to display a constraint. It also works with a function to toggle the disabled state depending on other changes (another prop changes for example).
+A prop can `disabled` so it stays in the UI but inputs are disabled to display a constraint. It also works with a function to toggle the disabled state depending on other prop changes.
 
 ```js
 export let props = {
-  display: {
+  toggle: {
     value: true,
     disabled: false,
   },
   color: {
     value: [10, 0, 5],
-    disabled: () => props.display.value === false,
+    disabled: () => props.toggle.value === false,
   },
 
 }
