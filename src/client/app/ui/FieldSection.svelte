@@ -1,9 +1,9 @@
 <script>
+	export let key;
 	export let visible = true;
 	export let secondary = false;
 	export let interactive = false;
-	export let label = '';
-	export let name = '';
+	export let displayName = key;
 	export let disabled = false;
 </script>
 
@@ -11,15 +11,16 @@
 	class="field__section"
 	class:visible
 	class:secondary
-	class:no-label={label === null}
+	class:nameless={displayName === null}
 >
 	<div class="field__infos">
-		{#if label !== null}
+		{#if displayName !== null}
 			{#if interactive}
-				<button class="field__label" {disabled} on:click>{label}</button
+				<button class="field__label" {disabled} on:click
+					>{displayName}</button
 				>
 			{:else}
-				<span class="field__label">{label}</span>
+				<span class="field__label">{displayName}</span>
 			{/if}
 		{/if}
 		<slot name="infos" />
@@ -38,7 +39,7 @@
 		column-gap: 10px;
 	}
 
-	.field__section.no-label {
+	.field__section.nameless {
 		grid-template-columns: 1fr;
 	}
 
