@@ -9,8 +9,14 @@
 	import { errors, displayError, clearError } from '../stores/errors.js';
 	import { exports, props } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
-	import { recording, capturing } from '../stores/exports.js';
+	import {
+		recording,
+		capturing,
+		beforeCapture,
+		afterCapture,
+	} from '../stores/exports.js';
 	import { removeHotListeners } from '../triggers/index.js';
+	import { removeHooksFrom } from '../hooks';
 	import {
 		checkForTriggersDown,
 		checkForTriggersMove,
@@ -45,6 +51,9 @@
 	let noop = () => {};
 	let _renderSketch = noop;
 	let backgroundColor = 'inherit';
+
+	$: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
+	$: afterCaptureCallbacks = $afterCapture.get(key) || [];
 
 	function checkForResize() {
 		if (!node) return;
@@ -208,6 +217,7 @@
 		}
 
 		removeHotListeners(key);
+		removeHooksFrom(key);
 
 		let mountParams = {};
 
@@ -467,18 +477,45 @@
 	async function save() {
 		paused = true;
 
-		_renderSketch();
+		const {
+			imageCount = 1,
+			imageEncoding,
+			imageQuality,
+			pixelsPerInch,
+		} = $exports;
 
-		await screenshotCanvas(canvas, {
-			filename: key,
-			pattern: sketch?.filenamePattern,
-			exportDir: sketch?.exportDir,
-			params: {
-				props: sketch.props,
-			},
-		});
-		paused = false;
-		$capturing = false;
+		const captureArgs = {
+			encoding: imageEncoding,
+			quality: imageQuality,
+			pixelsPerInch,
+			count: imageCount,
+		};
+
+		for (let i = 0; i < imageCount; i++) {
+			beforeCaptureCallbacks.forEach((callback) => {
+				callback({ ...captureArgs, index: i });
+			});
+
+			_renderSketch();
+
+			await screenshotCanvas(canvas, {
+				filename: key,
+				pattern: sketch?.filenamePattern,
+				exportDir: sketch?.exportDir,
+				index: imageCount > 1 ? i : undefined,
+				params: {
+					props: sketch.props,
+				},
+			});
+			paused = false;
+			$capturing = false;
+
+			afterCaptureCallbacks.forEach((callback) => {
+				callback({ ...captureArgs, index: i });
+			});
+
+			_renderSketch();
+		}
 	}
 
 	sketches.subscribe(() => {
