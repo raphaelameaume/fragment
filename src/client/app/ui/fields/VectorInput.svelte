@@ -20,8 +20,6 @@
 	$: components = isObject ? Object.values(value) : value;
 	$: keys = isObject ? Object.keys(value) : value.map(() => undefined);
 
-	$: console.log('VectorInput', { disabled });
-
 	function dispatchChange() {
 		let needsUpdate = false;
 		for (let i = 0; i < components.length; i++) {

@@ -32,8 +32,6 @@
 		$rendering.resizing,
 	);
 
-	$: console.log({ dimensionsEnabled });
-
 	$: {
 		if ($rendering.resizing === SIZES.PRESET) {
 			const { preset } = $rendering;
