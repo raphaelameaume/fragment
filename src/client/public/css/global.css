@@ -3,34 +3,33 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src:
-		local('Jetbrains Mono Regular'),
-		local('Jetbrains-Mono-Regular'),
-		local('Jetbrains Mono'),
-		local('Jetbrains-Mono'),
+	src: local('Jetbrains Mono Regular'), local('Jetbrains-Mono-Regular'),
+		local('Jetbrains Mono'), local('Jetbrains-Mono'),
 		url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
 }
 
 :root {
-	--font-mono: "Jetbrains Mono", monospace;
+	--font-mono: 'Jetbrains Mono', monospace;
 
 	--color-lightred: #ffaeae;
 	--color-red: #ff4444;
 	--color-green: #9af49f;
-	--color-lightblack: #0E0E0E;
-	
+	--color-lightblack: #0e0e0e;
+
 	--color-background: #242425;
 	--color-active: #177bd0;
 	--color-text: #f0f0f0;
 	--color-border: var(--color-lightblack);
 	--color-border-input: #000000;
-    --color-background-input: #1d1d1e;
-    --color-spacing: #323233;
+	--color-text-input: #989899;
+	--color-text-input-disabled: #535354;
+	--color-background-input: #1d1d1e;
+	--color-spacing: #323233;
 
 	--height-input: 20px;
 	--height-topbar: 24px;
-    --border-radius-input: 3px;
-    --font-size-input: 11px;
+	--border-radius-input: 3px;
+	--font-size-input: 11px;
 }
 
 html {
@@ -63,7 +62,8 @@ body {
 	overflow: hidden;
 }
 
-ul, ol {
+ul,
+ol {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -75,7 +75,9 @@ ul, ol {
 	scrollbar-color: var(--color-active) transparent;
 }
 
-input, select, button {
+input,
+select,
+button {
 	-webkit-appearance: none;
 	padding: 0;
 	margin: 0;
@@ -83,19 +85,23 @@ input, select, button {
 	font-family: var(--font-mono);
 }
 
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
 	font-weight: 400;
 	margin: 0;
 	padding: 0;
 }
 
 .visually-hidden {
-    position: absolute;
-    left: -10000px;
-    top: auto;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
+	position: absolute;
+	left: -10000px;
+	top: auto;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
 }
 
 .loading {
