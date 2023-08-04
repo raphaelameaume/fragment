@@ -101,6 +101,7 @@
 					<Field
 						context={sketchKey}
 						{key}
+						displayName={sketchProps[key].displayName}
 						value={sketchProps[key].value}
 						type={sketchProps[key].type}
 						disabled={typeof sketchProps[key].disabled ===

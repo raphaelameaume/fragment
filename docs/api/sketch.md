@@ -212,6 +212,17 @@ export let props = {
 }
 ```
 
+A prop can have a `displayName` to change only what's on screen without the need to change your code. By setting `displayName` to `null`, the name will be entirely hidden and the controller of the prop will expand to the full width of the module.
+
+```js
+export let props = {
+  color0: {
+    value: true,
+    displayName: 'background' // replace 'color0' on screen by 'background'
+  }
+}
+```
+
 A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode. It also works with a function to toggle the hidden state depending on other prop changes.
 
 ```js

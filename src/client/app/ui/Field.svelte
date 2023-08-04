@@ -25,6 +25,7 @@
 	export let params = {};
 	export let type = null;
 	export let disabled = false;
+	export let displayName;
 
 	let offsetWidth;
 	let showTriggers = false;
@@ -106,10 +107,6 @@
 	$: fieldProps = composeFieldProps(params, disabled);
 	$: onTrigger = frameDebounce(onTriggers[fieldType]);
 	$: input = fields[fieldType];
-	$: label =
-		params.label !== undefined && typeof value !== 'function'
-			? params.label
-			: key;
 	$: triggerable =
 		params.triggerable !== false &&
 		((fieldType === 'number' &&
@@ -156,8 +153,8 @@
 	bind:offsetWidth
 >
 	<FieldSection
-		name={key}
-		{label}
+		{key}
+		{displayName}
 		interactive={triggerable}
 		on:click={toggleTriggers}
 		{disabled}
@@ -284,7 +281,7 @@
 		<slot />
 	</FieldSection>
 	{#if triggerable}
-		<FieldSection visible={showTriggers} secondary>
+		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
 				{triggers}
 				{onTrigger}
