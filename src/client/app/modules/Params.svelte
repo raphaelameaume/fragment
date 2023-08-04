@@ -97,7 +97,7 @@
 				/>
 			{/if}
 			{#each Object.keys(sketchProps) as key, i}
-				{#if !sketchProps[key].hidden}
+				{#if typeof sketchProps[key].hidden === 'function' ? !sketchProps[key].hidden() : !sketchProps[key].hidden}
 					<Field
 						context={sketchKey}
 						{key}
