@@ -156,12 +156,12 @@ You can define `props` in your sketch files in order to create GUI elements and 
 
 | value type | params | field |
 |---|---|---|
-| `number` | { disabled?: `boolean`, step?: `number` } | `<NumberInput>` |
-| `number` | { min:`number`, max: `number` } | `<ProgressInput>` + `<NumberInput>` |
+| `number` | { step?: `number` } | `<NumberInput>` |
+| `number` | { min:`number`, max: `number`, step?: `number` } | `<ProgressInput>` + `<NumberInput>` |
 | `number` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
-| `string` | { disabled?: `boolean`} | `<TextInput>`|
+| `string` | { label?: `string`} | `<TextInput>`|
 | `string` | { options?: `string[] \| object[{label?: string, value:string}]`} | `<SelectInput>`|
-| `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
+| `function` | { label?: `string` } | `<ButtonInput>`|
 | `number[]` | { locked?: `boolean` } | `<VectorInput>`|
 
 Example:
@@ -220,6 +220,22 @@ export let props = {
     value: [10, 0, 5],
     hidden: __BUILD__,
   }
+}
+```
+
+A prop can `disabled` so it stays in the UI but inputs are disabled to display a constraint. It also works with a function to toggle the disabled state depending on other changes (another prop changes for example).
+
+```js
+export let props = {
+  display: {
+    value: true,
+    disabled: false,
+  },
+  color: {
+    value: [10, 0, 5],
+    disabled: () => props.display.value === false,
+  },
+
 }
 ```
 
