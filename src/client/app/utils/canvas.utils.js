@@ -89,7 +89,9 @@ function getFilenameParams() {
 	const month = now
 		.toLocaleString('default', { month: 'numeric' })
 		.padStart(2, `0`);
-	const day = now.toLocaleString('default', { day: 'numeric' });
+	const day = now
+		.toLocaleString('default', { day: 'numeric' })
+		.padStart(2, '0');
 	const hours = now
 		.toLocaleString('default', { hour: 'numeric', hour12: false })
 		.split(' ')[0];
