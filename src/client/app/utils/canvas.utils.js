@@ -89,7 +89,9 @@ function getFilenameParams() {
 	const month = now
 		.toLocaleString('default', { month: 'numeric' })
 		.padStart(2, `0`);
-	const day = now.toLocaleString('default', { day: 'numeric' });
+	const day = now
+		.toLocaleString('default', { day: 'numeric' })
+		.padStart(2, '0');
 	const hours = now
 		.toLocaleString('default', { hour: 'numeric', hour12: false })
 		.split(' ')[0];
@@ -113,13 +115,25 @@ function getFilenameParams() {
 	};
 }
 
-export const defaultFilenamePattern = ({ filename, timestamp }) => {
-	return `${filename}.${timestamp}`;
+export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
+	let name = `${filename}.${timestamp}`;
+
+	if (!isNaN(index)) {
+		name += `-${index}`;
+	}
+
+	return name;
 };
 
 export async function screenshotCanvas(
 	canvas,
-	{ filename = '', pattern = defaultFilenamePattern, exportDir, params = {} },
+	{
+		filename = '',
+		index,
+		pattern = defaultFilenamePattern,
+		exportDir,
+		params = {},
+	},
 ) {
 	const { imageEncoding, imageQuality, pixelsPerInch } = get(exports);
 	let { extension, dataURL } = exportCanvas(canvas, {
@@ -128,7 +142,7 @@ export async function screenshotCanvas(
 	});
 
 	let patternParams = getFilenameParams();
-	let name = pattern({ filename, ...params, ...patternParams });
+	let name = pattern({ filename, index, ...params, ...patternParams });
 
 	if (imageEncoding !== 'webp' && pixelsPerInch !== 72) {
 		dataURL = changeDpiDataUrl(dataURL, pixelsPerInch);
