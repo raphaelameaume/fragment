@@ -156,12 +156,12 @@ You can define `props` in your sketch files in order to create GUI elements and 
 
 | value type | params | field |
 |---|---|---|
-| `number` | { disabled?: `boolean`, step?: `number` } | `<NumberInput>` |
-| `number` | { min:`number`, max: `number` } | `<ProgressInput>` + `<NumberInput>` |
+| `number` | { step?: `number` } | `<NumberInput>` |
+| `number` | { min:`number`, max: `number`, step?: `number` } | `<ProgressInput>` + `<NumberInput>` |
 | `number` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
-| `string` | { disabled?: `boolean`} | `<TextInput>`|
+| `string` | { label?: `string`} | `<TextInput>`|
 | `string` | { options?: `string[] \| object[{label?: string, value:string}]`} | `<SelectInput>`|
-| `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
+| `function` | { label?: `string` } | `<ButtonInput>`|
 | `number[]` | { locked?: `boolean` } | `<VectorInput>`|
 
 Example:
@@ -212,14 +212,45 @@ export let props = {
 }
 ```
 
-A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode.
+A prop can have a `displayName` to change only what's on screen without the need to change your code. By setting `displayName` to `null`, the name will be entirely hidden and the controller of the prop will expand to the full width of the module.
 
 ```js
 export let props = {
-  color: {
-    value: [10, 0, 5],
+  color0: {
+    value: true,
+    displayName: 'background' // replace 'color0' on screen by 'background'
+  }
+}
+```
+
+A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode. It also works with a function to toggle the hidden state depending on other prop changes.
+
+```js
+export let props = {
+  toggle: {
+    value: true,
     hidden: __BUILD__,
   }
+  color: {
+    value: [10, 0, 5],
+    hidden: () => props.toggle.value,
+  },
+}
+```
+
+A prop can `disabled` so it stays in the UI but inputs are disabled to display a constraint. It also works with a function to toggle the disabled state depending on other prop changes.
+
+```js
+export let props = {
+  toggle: {
+    value: true,
+    disabled: false,
+  },
+  color: {
+    value: [10, 0, 5],
+    disabled: () => props.toggle.value === false,
+  },
+
 }
 ```
 
