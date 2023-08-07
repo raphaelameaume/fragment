@@ -14,6 +14,8 @@
 		capturing,
 		beforeCapture,
 		afterCapture,
+		beforeRecord,
+		afterRecord,
 	} from '../stores/exports.js';
 	import { removeHotListeners } from '../triggers/index.js';
 	import { removeHooksFrom } from '../hooks';
@@ -54,6 +56,8 @@
 
 	$: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
 	$: afterCaptureCallbacks = $afterCapture.get(key) || [];
+	$: beforeRecordCallbacks = $beforeRecord.get(key) || [];
+	$: afterRecordCallbacks = $afterRecord.get(key) || [];
 
 	function checkForResize() {
 		if (!node) return;
@@ -307,6 +311,23 @@
 	let capture = $capturing;
 
 	$: {
+		const recordArgs = {
+			encoding: $exports.videoFormat,
+			quality: $exports.videoQuality,
+			framerate: $exports.framerate,
+		};
+
+		function onRecordEnd() {
+			record = null;
+			paused = false;
+
+			afterRecordCallbacks.forEach((callback) => {
+				callback(recordArgs);
+			});
+
+			_renderSketch();
+		}
+
 		if ($recording && !record) {
 			let recordOptions = {
 				onTick: _renderSketch,
@@ -321,13 +342,16 @@
 					props: sketch.props,
 				},
 				onStart: () => {
+					beforeRecordCallbacks.forEach((callback) => {
+						callback(recordArgs);
+					});
+
 					elapsedRenderingTime = 0;
 					paused = true;
 				},
 				onComplete: () => {
 					$recording = false;
-					record = null;
-					paused = false;
+					onRecordEnd();
 				},
 			};
 
@@ -340,7 +364,6 @@
 
 		if (record && !$recording) {
 			record.stop();
-			record = false;
 		}
 	}
 
