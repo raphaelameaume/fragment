@@ -4,8 +4,14 @@
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import { sketches, sketchesKeys } from '../stores/sketches.js';
 	import { layout } from '../stores/layout.js';
-	import { rendering, SIZES, sync, monitors } from '../stores/rendering.js';
-	import { current as currentTime } from '../stores/time.js';
+	import {
+		rendering,
+		SIZES,
+		sync,
+		monitors,
+		observer,
+		updateRendering,
+	} from '../stores/rendering.js';
 	import { errors, displayError, clearError } from '../stores/errors.js';
 	import { exports, props } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
@@ -90,12 +96,9 @@
 			(newWidth !== $rendering.width || newHeight !== $rendering.height);
 
 		if (needsUpdate) {
-			rendering.update((curr) => {
-				return {
-					...curr,
-					width: newWidth,
-					height: newHeight,
-				};
+			updateRendering({
+				width: newWidth,
+				height: newHeight,
 			});
 		}
 	}
@@ -126,15 +129,18 @@
 	});
 
 	function createCanvas(canvas = document.createElement('canvas')) {
-		canvas.width = $rendering.width * $rendering.pixelRatio;
-		canvas.height = $rendering.height * $rendering.pixelRatio;
-
 		canvas.onmousedown = (event) => checkForTriggersDown(event, key);
 		canvas.onmousemove = (event) => checkForTriggersMove(event, key);
 		canvas.onmouseup = (event) => checkForTriggersUp(event, key);
 		canvas.onclick = (event) => checkForTriggersClick(event, key);
 
 		container.appendChild(canvas);
+
+		observer.observe(canvas, {
+			attributes: true,
+		});
+
+		resizeCanvas(canvas);
 
 		$monitors = $monitors.map((monitor) => {
 			if (monitor.id === id) {
@@ -147,7 +153,34 @@
 		return canvas;
 	}
 
+	function resizeCanvas(canvas) {
+		observer.pause();
+
+		const { pixelRatio, width, height, resizing } = $rendering;
+
+		const newWidth = width * pixelRatio;
+		const newHeight = height * pixelRatio;
+
+		if (canvas.width !== newWidth) {
+			canvas.width = newWidth;
+		}
+
+		if (canvas.height !== newHeight) {
+			canvas.height = newHeight;
+		}
+
+		if (resizing === SIZES.SCALE) {
+			canvas.style.transform = `scale(${$rendering.scale})`;
+		} else {
+			canvas.style.transform = null;
+		}
+
+		observer.resume();
+	}
+
 	function destroyCanvas(canvas) {
+		observer.disconnect();
+
 		canvas.onmousedown = null;
 		canvas.onmousemove = null;
 		canvas.onmouseup = null;
@@ -195,6 +228,8 @@
 		}
 
 		clearError(key);
+		removeHotListeners(key);
+		removeHooksFrom(key);
 		setBackgroundColor();
 
 		if (canvas) {
@@ -213,15 +248,6 @@
 		if (!container) return;
 
 		canvas = createCanvas();
-
-		if ($rendering.resizing === SIZES.SCALE) {
-			canvas.style.transform = `scale(${$rendering.scale})`;
-		} else {
-			canvas.style.transform = null;
-		}
-
-		removeHotListeners(key);
-		removeHooksFrom(key);
 
 		let mountParams = {};
 
@@ -475,11 +501,7 @@
 
 	rendering.subscribe((current) => {
 		if (canvas && _created) {
-			if (current.resizing === SIZES.SCALE) {
-				canvas.style.transform = `scale(${current.scale})`;
-			} else {
-				canvas.style.transform = null;
-			}
+			resizeCanvas(canvas);
 
 			const { width, height, pixelRatio } = current;
 			const resize = sketch.resize || noop;
@@ -638,13 +660,6 @@
 				height: $rendering.height,
 				pixelRatio: $rendering.pixelRatio,
 			});
-		}
-
-		if (canvas) {
-			const pixelRatio = $rendering.pixelRatio;
-
-			canvas.width = $rendering.width * pixelRatio;
-			canvas.height = $rendering.height * pixelRatio;
 		}
 	}
 

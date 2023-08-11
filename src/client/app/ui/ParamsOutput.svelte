@@ -1,8 +1,14 @@
 <script>
-	import { rendering, SIZES, monitors } from '../stores/rendering.js';
+	import {
+		rendering,
+		SIZES,
+		SIZES_VALUES,
+		monitors,
+		updateRendering,
+	} from '../stores/rendering.js';
 	import { sketchesCount } from '../stores/sketches.js';
 	import Field from './Field.svelte';
-	import presets, { getDimensionsForPreset } from '../lib/presets';
+	import presets from '../lib/presets';
 	import { exports } from '../stores';
 	import ParamsMultisampling from './ParamsMultisampling.svelte';
 
@@ -17,37 +23,13 @@
 			canvasWidth = width;
 			canvasHeight = height;
 
-			rendering.update((curr) => {
-				return {
-					...curr,
-					width,
-					height,
-				};
-			});
+			updateRendering({ width, height });
 		}
 	}
 
-	let sizes = Object.values(SIZES);
 	$: dimensionsEnabled = [SIZES.FIXED, SIZES.SCALE].includes(
 		$rendering.resizing,
 	);
-
-	$: {
-		if ($rendering.resizing === SIZES.PRESET) {
-			const { preset } = $rendering;
-			const [width, height] = getDimensionsForPreset(preset, {
-				pixelsPerInch: 300,
-			});
-
-			rendering.update((curr) => {
-				return {
-					...curr,
-					width,
-					height,
-				};
-			});
-		}
-	}
 </script>
 
 <Field
@@ -75,24 +57,23 @@
 
 		$exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
 
-		rendering.update((curr) => {
-			return {
-				...curr,
-				resizing,
-				aspectRatio,
-			};
+		updateRendering({
+			resizing,
+			aspectRatio,
 		});
 	}}
 	params={{
-		options: sizes,
+		options: SIZES_VALUES,
 	}}
 />
 {#if $rendering.resizing === SIZES.ASPECT_RATIO}
 	<Field
 		key="aspectRatio"
-		value={$rendering.aspectRatio}
+		value={Number($rendering.aspectRatio)}
 		on:change={(event) => {
-			$rendering.aspectRatio = event.detail;
+			updateRendering({
+				aspectRatio: Number(event.detail),
+			});
 		}}
 		params={{
 			step: 0.01,
@@ -102,9 +83,11 @@
 {#if $rendering.resizing === SIZES.SCALE}
 	<Field
 		key="zoom"
-		value={$rendering.scale}
+		value={Number($rendering.scale)}
 		on:change={(event) => {
-			$rendering.scale = event.detail;
+			updateRendering({
+				scale: Number(event.detail),
+			});
 		}}
 		params={{
 			step: 0.01,
@@ -115,9 +98,10 @@
 	<Field
 		key="preset"
 		value={$rendering.preset}
-		on:change={(event) => {
-			$rendering.preset = event.detail;
-		}}
+		on:change={(event) =>
+			updateRendering({
+				preset: event.detail,
+			})}
 		params={{
 			options: presets,
 		}}
@@ -128,7 +112,8 @@
 	<Field
 		key="pixelRatio"
 		value={Number($rendering.pixelRatio)}
-		on:change={(event) => ($rendering.pixelRatio = event.detail)}
+		on:change={(event) =>
+			updateRendering({ pixelRatio: Number(event.detail) })}
 		params={{
 			step: 0.1,
 		}}
