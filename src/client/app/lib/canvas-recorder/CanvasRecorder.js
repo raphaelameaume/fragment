@@ -1,15 +1,17 @@
 let noop = () => {};
 
 class CanvasRecorder {
-
-	constructor(canvas, {
-		duration = Infinity,
-		framerate = 25,
-		quality = 100,
-		onStart = noop,
-		onTick = noop,
-		onComplete = noop,
-	}) {
+	constructor(
+		canvas,
+		{
+			duration = Infinity,
+			framerate = 25,
+			quality = 100,
+			onStart = noop,
+			onTick = noop,
+			onComplete = noop,
+		},
+	) {
 		this.canvas = canvas;
 		this.framerate = framerate;
 		this.duration = duration;
@@ -19,10 +21,12 @@ class CanvasRecorder {
 		this.onComplete = onComplete;
 
 		this.time = 0;
-		this.deltaTime = (1000 / this.framerate);
+		this.deltaTime = 1000 / this.framerate;
 
-		this.frameDuration = (1000 / this.framerate);
-		this.frameTotal = isFinite(duration) ? this.duration * this.framerate : Infinity;
+		this.frameDuration = 1000 / this.framerate;
+		this.frameTotal = isFinite(duration)
+			? this.duration * this.framerate
+			: Infinity;
 		this.started = false;
 		this.stopped = false;
 	}
@@ -39,7 +43,15 @@ class CanvasRecorder {
 			return;
 		}
 
-		console.log(`CanvasRecorder - start rendering ${this.frameTotal} frames at ${this.framerate}fps for ${this.duration}s.`);
+		if (isFinite(this.frameTotal)) {
+			console.log(
+				`CanvasRecorder - start rendering ${this.frameTotal} frames at ${this.framerate}fps for ${this.duration}s.`,
+			);
+		} else {
+			console.log(
+				`CanvasRecorder - start rendering at ${this.framerate}fps.`,
+			);
+		}
 
 		this.frameCount = 0;
 		this.started = true;
@@ -61,16 +73,24 @@ class CanvasRecorder {
 			frameCount: this.frameCount,
 		});
 
-		if (this.started && !this.stopped && (!isFinite(this.frameTotal) || (isFinite(this.frameTotal) && this.frameCount < this.frameTotal - 1))) {
+		if (
+			this.started &&
+			!this.stopped &&
+			(!isFinite(this.frameTotal) ||
+				(isFinite(this.frameTotal) &&
+					this.frameCount < this.frameTotal - 1))
+		) {
 			this.time += this.deltaTime;
-        	this.frameCount++;
-            requestAnimationFrame(() => {
-				this._tick()
+			this.frameCount++;
+			requestAnimationFrame(() => {
+				this._tick();
 			});
-        } else {
-			console.log(`CanvasRecorder - compiling ${this.frameCount + 1} frames...`);
-            this.end();
-        }
+		} else {
+			console.log(
+				`CanvasRecorder - compiling ${this.frameCount + 1} frames...`,
+			);
+			this.end();
+		}
 	}
 
 	tick() {}

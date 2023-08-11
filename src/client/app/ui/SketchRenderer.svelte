@@ -9,8 +9,16 @@
 	import { errors, displayError, clearError } from '../stores/errors.js';
 	import { exports, props } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
-	import { recording, capturing } from '../stores/exports.js';
+	import {
+		recording,
+		capturing,
+		beforeCapture,
+		afterCapture,
+		beforeRecord,
+		afterRecord,
+	} from '../stores/exports.js';
 	import { removeHotListeners } from '../triggers/index.js';
+	import { removeHooksFrom } from '../hooks';
 	import {
 		checkForTriggersDown,
 		checkForTriggersMove,
@@ -45,6 +53,11 @@
 	let noop = () => {};
 	let _renderSketch = noop;
 	let backgroundColor = 'inherit';
+
+	$: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
+	$: afterCaptureCallbacks = $afterCapture.get(key) || [];
+	$: beforeRecordCallbacks = $beforeRecord.get(key) || [];
+	$: afterRecordCallbacks = $afterRecord.get(key) || [];
 
 	function checkForResize() {
 		if (!node) return;
@@ -192,7 +205,10 @@
 			destroyCanvas(canvas);
 		}
 
-		renderer = await findRenderer(sketch.rendering);
+		renderer = await findRenderer({
+			rendering: sketch.rendering,
+			renderer: sketch.renderer,
+		});
 
 		if (!container) return;
 
@@ -205,6 +221,7 @@
 		}
 
 		removeHotListeners(key);
+		removeHooksFrom(key);
 
 		let mountParams = {};
 
@@ -212,6 +229,7 @@
 			mountParams = renderer.onMountPreview({
 				id,
 				canvas,
+				container,
 				width: $rendering.width,
 				height: $rendering.height,
 				pixelRatio: $rendering.pixelRatio,
@@ -293,6 +311,23 @@
 	let capture = $capturing;
 
 	$: {
+		const recordArgs = {
+			encoding: $exports.videoFormat,
+			quality: $exports.videoQuality,
+			framerate: $exports.framerate,
+		};
+
+		function onRecordEnd() {
+			record = null;
+			paused = false;
+
+			afterRecordCallbacks.forEach((callback) => {
+				callback(recordArgs);
+			});
+
+			_renderSketch();
+		}
+
 		if ($recording && !record) {
 			let recordOptions = {
 				onTick: _renderSketch,
@@ -307,13 +342,16 @@
 					props: sketch.props,
 				},
 				onStart: () => {
+					beforeRecordCallbacks.forEach((callback) => {
+						callback(recordArgs);
+					});
+
 					elapsedRenderingTime = 0;
 					paused = true;
 				},
 				onComplete: () => {
 					$recording = false;
-					record = null;
-					paused = false;
+					onRecordEnd();
 				},
 			};
 
@@ -326,7 +364,6 @@
 
 		if (record && !$recording) {
 			record.stop();
-			record = false;
 		}
 	}
 
@@ -362,7 +399,7 @@
 			lastTime = time;
 
 			try {
-				onBeforeUpdatePreview({ id, canvas });
+				onBeforeUpdatePreview({ id, canvas, container });
 
 				let t = !$sync
 					? elapsedRenderingTime
@@ -389,7 +426,7 @@
 					time: t,
 					deltaTime,
 				});
-				onAfterUpdatePreview({ id, canvas });
+				onAfterUpdatePreview({ id, canvas, container });
 
 				elapsedRenderingTime += deltaTime;
 			} catch (error) {
@@ -420,7 +457,7 @@
 			lastTime = now;
 		}
 
-		if (needsRender) {
+		if (needsRender && _created) {
 			_renderSketch();
 		}
 	}
@@ -463,18 +500,45 @@
 	async function save() {
 		paused = true;
 
-		_renderSketch();
+		const {
+			imageCount = 1,
+			imageEncoding,
+			imageQuality,
+			pixelsPerInch,
+		} = $exports;
 
-		await screenshotCanvas(canvas, {
-			filename: key,
-			pattern: sketch?.filenamePattern,
-			exportDir: sketch?.exportDir,
-			params: {
-				props: sketch.props,
-			},
-		});
-		paused = false;
-		$capturing = false;
+		const captureArgs = {
+			encoding: imageEncoding,
+			quality: imageQuality,
+			pixelsPerInch,
+			count: imageCount,
+		};
+
+		for (let i = 0; i < imageCount; i++) {
+			beforeCaptureCallbacks.forEach((callback) => {
+				callback({ ...captureArgs, index: i });
+			});
+
+			_renderSketch();
+
+			await screenshotCanvas(canvas, {
+				filename: key,
+				pattern: sketch?.filenamePattern,
+				exportDir: sketch?.exportDir,
+				index: imageCount > 1 ? i : undefined,
+				params: {
+					props: sketch.props,
+				},
+			});
+			paused = false;
+			$capturing = false;
+
+			afterCaptureCallbacks.forEach((callback) => {
+				callback({ ...captureArgs, index: i });
+			});
+
+			_renderSketch();
+		}
 	}
 
 	sketches.subscribe(() => {
@@ -551,7 +615,7 @@
 		cancelAnimationFrame(_raf);
 
 		if (renderer && typeof renderer.onDestroyPreview === 'function') {
-			renderer.onDestroyPreview({ id, canvas });
+			renderer.onDestroyPreview({ id, canvas, container });
 		}
 
 		renderer = null;
@@ -569,6 +633,7 @@
 		if (renderer && typeof renderer.onResizePreview === 'function') {
 			renderer.onResizePreview({
 				id,
+				container,
 				width: $rendering.width,
 				height: $rendering.height,
 				pixelRatio: $rendering.pixelRatio,

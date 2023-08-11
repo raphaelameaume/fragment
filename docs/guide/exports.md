@@ -7,7 +7,7 @@
 
 Settings of the `Exports` module are saved in localStorage so they will be kept between working sessions as long as `fragment` starts on the same URL/port.
 
-## Export an image
+## Export one or multiple images
 
 `fragment` can export .png, .webp and .jpeg files.
 
@@ -20,6 +20,27 @@ The size of the image used when exporting will be the current one used for displ
 If you need to export a sketch for impression, set `canvasSize` in Params to `preset`. Select the size you want in the new `preset` dropdown and set `pixelsPerInch` to `300` before exporting.
 
 Type `Cmd+S` on Mac or `Ctrl+S` on Windows to save a screenshot with selected settings into your working folder.
+
+You can also export multiple images by increasing the `count` value in the module settings. `fragment` will run the `update()` function of your sketch between each capture. `fragment` provides *hooks* to run a function between captures.
+
+```js
+import { onAfterCapture } from '@fragment/hooks';
+
+let seed = randomSeed();
+
+export let init = () => {
+  onAfterCapture(() => {
+    seed = randomSeed();
+  });
+};
+
+export let update = () => {
+  random.setSeed(seed);
+  
+  // ...
+};
+
+```
 
 ## Export a video
 
