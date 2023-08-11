@@ -25,7 +25,7 @@
 	export let params = {};
 	export let type = null;
 	export let disabled = false;
-	export let displayName;
+	export let displayName = undefined;
 
 	let offsetWidth;
 	let showTriggers = false;
