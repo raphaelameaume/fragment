@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { derived, get } from 'svelte/store';
+	import { derived } from 'svelte/store';
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import { sketches, sketchesKeys } from '../stores/sketches.js';
 	import { layout } from '../stores/layout.js';
