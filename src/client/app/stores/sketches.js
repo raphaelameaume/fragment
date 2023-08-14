@@ -1,8 +1,8 @@
-import { createStore } from "./utils.js";
-import { displayError } from "../stores/errors";
-import { sketches as all, onSketchReload } from "@fragment/sketches";
-import { elements, elementsNext } from "./ui";
-import { get } from "svelte/store";
+import { createStore } from './utils.js';
+import { displayError } from '../stores/errors';
+import { sketches as all } from '@fragment/sketches';
+import { elements, elementsNext } from './ui';
+import { get } from 'svelte/store';
 
 export const sketches = createStore('sketches', {});
 export const sketchesKeys = createStore('sketchesKeys', Object.keys(all));
@@ -20,7 +20,7 @@ async function loadSketch(collection, key) {
 	}
 }
 
-async function loadAll(collection) {
+export async function loadAll(collection) {
 	const keys = [...Object.keys(collection)];
 
 	if (unsubscribe) {
@@ -29,7 +29,9 @@ async function loadAll(collection) {
 
 	elementsNext.set([]); // REMOVE TEMP TO FIX OVERLOAD
 
-	const loadedSketches = await Promise.all(keys.map((key) => loadSketch(collection, key)));
+	const loadedSketches = await Promise.all(
+		keys.map((key) => loadSketch(collection, key)),
+	);
 
 	const newSketches = keys.reduce((all, key, index) => {
 		if (loadedSketches[index]) {
@@ -55,7 +57,3 @@ async function loadAll(collection) {
 }
 
 loadAll(all);
-
-onSketchReload(({ sketches }) => {
-	loadAll(sketches);
-});

@@ -1,29 +1,30 @@
 <script>
-import Field from "./Field.svelte";
-import { props as all } from "../stores";
+	import Field from './Field.svelte';
+	import { props as all } from '../stores';
+	import { updateProp } from '../stores/props';
 
-export let context;
-export let key;
-export let props;
+	export let context;
+	export let key;
+	export let props;
 
-</script> 
- 
- {#if typeof !props[key].hidden === "function" ? props[key].hidden() : !props[key].hidden}
+	$: prop = props[key];
+	$: isDisabled =
+		typeof prop.disabled === 'function' ? prop.disabled() : prop.disabled;
+</script>
+
+{#if typeof prop.hidden === 'function' ? !prop.hidden() : !prop.hidden}
 	<Field
 		{context}
 		{key}
-		value={props[key].value}
-		type={props[key].type}
-		bind:params={props[key].params}
+		value={prop.value}
+		type={prop.type}
+		disabled={isDisabled}
+		bind:params={prop.params}
 		on:click={() => {
 			$all[context][key].value._refresh = true;
 		}}
 		on:change={(event) => {
-			$all[context][key].value = event.detail;
-
-			if (typeof $all[context][key].onChange === 'function') {
-				$all[context][key].onChange($all[context][key]);
-			}
+			updateProp(context, key, event.detail);
 		}}
 	/>
 {/if}

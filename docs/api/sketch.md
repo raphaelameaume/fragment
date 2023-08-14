@@ -113,13 +113,30 @@ If you set it to `0`, `fragment` will only call `update()` once at the end of th
 
 Change the value used for display in the monitor dropdown.
 
+#### `exportDir`
+- Type: `string`
+- Default: `process.cwd()`
+
+Change the directory used for exports. The path of the directory can be relative or absolute.
+
+```js
+// relative path
+export let exportDir = './exports';
+```
+```js
+// absolute path
+export let exportDir = '/Users/raphaelameaume/Downloads';
+```
+
+> ⚠️ This will be ignored if fragment is started with the `--exportDir` flag on the command line.
+
 #### `filenamePattern`
-- Type: `({ filename: string, suffix: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
-- Default: `({ filename, suffix }) => ${filename}.${suffix}`
+- Type: `({ filename: string, timestamp: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
+- Default: `({ filename, timestamp }) => ${filename}.${timestamp}`
 
 Change the filename pattern when exporting a file. By default, `fragment` will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`.
 
-In order to reuse the timestamp in your own pattern, `suffix` is available as a parameter within the callback, but you can also deconstruct `{ year, month, day, hours, minutes, seconds}` to make up your own.
+In order to reuse the timestamp in your own pattern, `timestamp` is available as a parameter within the callback, but you can also deconstruct `{ year, month, day, hours, minutes, seconds}` to make up your own.
 
 > ⚠️ You don't need to specify the extension since this is handled internally by the [Exports](./modules.md#exports) module.
 
@@ -139,12 +156,12 @@ You can define `props` in your sketch files in order to create GUI elements and 
 
 | value type | params | field |
 |---|---|---|
-| `number` | { disabled?: `boolean`, step?: `number` } | `<NumberInput>` |
-| `number` | { min:`number`, max: `number` } | `<ProgressInput>` + `<NumberInput>` |
+| `number` | { step?: `number` } | `<NumberInput>` |
+| `number` | { min:`number`, max: `number`, step?: `number` } | `<ProgressInput>` + `<NumberInput>` |
 | `number` | { options?: `number[] \| object[{label?: string, value:number}]`} | `<SelectInput>`|
-| `string` | { disabled?: `boolean`} | `<TextInput>`|
+| `string` | { label?: `string`} | `<TextInput>`|
 | `string` | { options?: `string[] \| object[{label?: string, value:string}]`} | `<SelectInput>`|
-| `function` | { disabled?: `boolean`, label?: `string` } | `<ButtonInput>`|
+| `function` | { label?: `string` } | `<ButtonInput>`|
 | `number[]` | { locked?: `boolean` } | `<VectorInput>`|
 
 Example:
@@ -195,14 +212,45 @@ export let props = {
 }
 ```
 
-A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode.
+A prop can have a `displayName` to change only what's on screen without the need to change your code. By setting `displayName` to `null`, the name will be entirely hidden and the controller of the prop will expand to the full width of the module.
 
 ```js
 export let props = {
-  color: {
-    value: [10, 0, 5],
+  color0: {
+    value: true,
+    displayName: 'background' // replace 'color0' on screen by 'background'
+  }
+}
+```
+
+A prop can be `hidden` so it doesn't show up in the Parameters module or in `build` mode. It also works with a function to toggle the hidden state depending on other prop changes.
+
+```js
+export let props = {
+  toggle: {
+    value: true,
     hidden: __BUILD__,
   }
+  color: {
+    value: [10, 0, 5],
+    hidden: () => props.toggle.value,
+  },
+}
+```
+
+A prop can `disabled` so it stays in the UI but inputs are disabled to display a constraint. It also works with a function to toggle the disabled state depending on other prop changes.
+
+```js
+export let props = {
+  toggle: {
+    value: true,
+    disabled: false,
+  },
+  color: {
+    value: [10, 0, 5],
+    disabled: () => props.toggle.value === false,
+  },
+
 }
 ```
 
