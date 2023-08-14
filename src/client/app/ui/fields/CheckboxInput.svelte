@@ -51,6 +51,7 @@
 		border: none;
 		border-radius: var(--border-radius-input);
 		background-color: transparent;
+		outline: 0;
 	}
 
 	.checked {
