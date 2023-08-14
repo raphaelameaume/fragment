@@ -37,10 +37,6 @@ const propsHandler = {
 	},
 };
 
-/**
- *
- * @param {Props} props
- */
 export function reactiveProps(props = {}) {
 	return new Proxy(props, propsHandler);
 }
