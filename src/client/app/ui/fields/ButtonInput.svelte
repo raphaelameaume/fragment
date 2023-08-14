@@ -47,6 +47,7 @@
 		);
 		box-shadow: inset 0 0 0 1px
 			var(--box-shadow-color, var(--color-border-input));
+		outline: 0;
 	}
 
 	.button:disabled {
@@ -60,7 +61,8 @@
 			var(--box-shadow-color-active, var(--color-active));
 	}
 
-	.button:active {
+	.button:active,
+	.button:focus-visible {
 		box-shadow: 0 0 0 2px
 			var(--box-shadow-color-active, var(--color-active));
 	}
