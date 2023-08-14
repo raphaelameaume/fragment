@@ -14,3 +14,50 @@ In 2019, I became a freelance creative developer and extended the variety of my 
 - images, videos or live exports
 
 So I spent the last 3 years building my own tool.
+
+## Principles 
+
+### Local-first 
+
+`fragment` should work without an internet connection, so no requests can be made to load fonts, styles or scripts.
+
+### Independence
+
+`fragment` tries to keep the dependencies count low, first to avoid relying on too many outside actors and factors, and two because building things by ourselves is an opportunity to learn something new.  
+Adding a new dependency should therefore be carefully considered before doing so.
+
+### Freedom
+
+One of the core principles of `fragment` is to avoid being dependent of the tool itself while writing code, so a sketch can be used in other environments without the need to install it as long as you don't rely on its hooks or helpers. 
+
+You could have your own way of building a sketch by importing a sketch and replicating the missing pieces of a renderer.
+
+```js
+// custom-build.js
+
+import * as sketch from './sketch.js';
+
+let canvas = document.createElement('canvas');
+
+let width = window.innerWidth;
+let height = window.innerHeight;
+let pixelRatio = window.devicePixelRatio;
+
+sketch.init({ canvas });
+sketch.resize({ width, height, pixelRatio });
+
+function update() {
+	sketch.update();
+	requestAnimationFrame(update);
+}
+
+requestAnimationFrame(update);
+
+window.addEventListener('resize', () => {
+	sketch.resize({
+		width: window.innerWidth,
+		height: window.innerHeight,
+		pixelRatio: window.devicePixelRatio,
+	})
+})
+```
