@@ -12,8 +12,6 @@
 	$: childrenOrdered = [...children]
 		.filter((child) => child.parent === parent)
 		.sort((a, b) => a.order - b.order);
-
-	console.log(props, context);
 </script>
 
 {#each childrenOrdered as child}

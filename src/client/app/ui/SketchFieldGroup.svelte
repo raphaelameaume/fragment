@@ -1,20 +1,14 @@
 <script>
-  import { afterUpdate, onMount } from "svelte";
-import FieldGroup from "./FieldGroup.svelte";
+	import FieldGroup from './FieldGroup.svelte';
 
-export let folder;
+	export let folder;
 
-$: attributes = folder.attributes;
-$: collapsed = $attributes.collapsed;
-$: name = $attributes.label;
-$: nesting = folder.level;
-
+	$: attributes = folder.attributes;
+	$: collapsed = $attributes.collapsed;
+	$: name = $attributes.label;
+	$: nesting = folder.level;
 </script>
 
-<FieldGroup
-	{name}
-	{nesting}
-	{collapsed}
->
-	<slot></slot>
+<FieldGroup {name} {nesting} {collapsed}>
+	<slot />
 </FieldGroup>
