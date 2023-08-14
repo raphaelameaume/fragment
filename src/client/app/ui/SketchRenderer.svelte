@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { derived } from 'svelte/store';
+	import { derived, get } from 'svelte/store';
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import { sketches, sketchesKeys } from '../stores/sketches.js';
 	import { layout } from '../stores/layout.js';
@@ -541,12 +541,6 @@
 		}
 	}
 
-	sketches.subscribe(() => {
-		if (_created || _errored) {
-			createSketch(key);
-		}
-	});
-
 	sync.subscribe(() => {
 		if (_created) {
 			_renderSketch = createRenderLoop();
@@ -555,6 +549,12 @@
 
 	onMount(() => {
 		createSketch(key);
+
+		sketches.subscribe(() => {
+			if (_created || _errored) {
+				createSketch(key);
+			}
+		});
 
 		client.on('shader-update', () => {
 			if (framerate === 0) {

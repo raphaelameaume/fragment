@@ -8,13 +8,13 @@
 
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { props } from '../stores';
 	import { sketches } from '../stores/sketches.js';
 	import { monitors } from '../stores/rendering';
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import OutputParams from '../ui/ParamsOutput.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
+	import { updateProp, props } from '../stores/props';
 
 	export let mID;
 	export let hasHeader = true;
@@ -97,32 +97,25 @@
 				/>
 			{/if}
 			{#each Object.keys(sketchProps) as key, i (key)}
-				{#if typeof sketchProps[key].hidden === 'function' ? !sketchProps[key].hidden() : !sketchProps[key].hidden}
+				{@const sketchProp = sketchProps[key]}
+				{@const { hidden, displayName, value, type, disabled } =
+					sketchProp}
+				{@const isDisabled =
+					typeof disabled === 'function' ? disabled() : disabled}
+				{#if typeof hidden === 'function' ? !hidden() : !hidden}
 					<Field
 						context={sketchKey}
 						{key}
-						displayName={sketchProps[key].displayName}
-						value={sketchProps[key].value}
-						type={sketchProps[key].type}
-						disabled={typeof sketchProps[key].disabled ===
-						'function'
-							? sketchProps[key].disabled()
-							: sketchProps[key].disabled}
+						{displayName}
+						{value}
+						{type}
+						disabled={isDisabled}
 						bind:params={sketchProps[key].params}
 						on:click={() => {
 							$props[sketchKey][key].value._refresh = true;
 						}}
 						on:change={(event) => {
-							$props[sketchKey][key].value = event.detail;
-
-							if (
-								typeof $props[sketchKey][key].onChange ===
-								'function'
-							) {
-								$props[sketchKey][key].onChange(
-									$props[sketchKey][key],
-								);
-							}
+							updateProp(sketchKey, key, event.detail);
 						}}
 					/>
 				{/if}
