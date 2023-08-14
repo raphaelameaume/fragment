@@ -36,7 +36,7 @@ export function save(key, value) {
  * @param {string} key
  * @param {any} initialValue
  * @param {object} options
- * @returns {object} store
+ * @returns {import('svelte/store').Writable} store
  */
 export function createStore(
 	key,
@@ -63,7 +63,7 @@ export function createStore(
  * @param {string} key
  * @param {any} initialValue
  * @param {object} options
- * @returns {object} store
+ * @returns {import('svelte/store').Writable} store
  */
 export function getStore(
 	key,

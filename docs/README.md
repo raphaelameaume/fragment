@@ -8,9 +8,9 @@
 - [Using external dependencies](./guide/external-dependencies.md)
 - [Using triggers](./guide/using-triggers.md)
 - [Hot Shader Replacement](./guide/hot-shader-replacement.md)
-- [Shortcuts](./guide/shortcuts.md)
 - [Custom renderers](./guide/custom-renderers.md)
-
+- [Reactive props](./guide/reactive-props.md)
+- [Shortcuts](./guide/shortcuts.md)
 
 ## APIs
 - [CLI](./api/CLI.md)

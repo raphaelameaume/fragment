@@ -541,12 +541,6 @@
 		}
 	}
 
-	sketches.subscribe(() => {
-		if (_created || _errored) {
-			createSketch(key);
-		}
-	});
-
 	sync.subscribe(() => {
 		if (_created) {
 			_renderSketch = createRenderLoop();
@@ -555,6 +549,12 @@
 
 	onMount(() => {
 		createSketch(key);
+
+		sketches.subscribe(() => {
+			if (_created || _errored) {
+				createSketch(key);
+			}
+		});
 
 		client.on('shader-update', () => {
 			if (framerate === 0) {
