@@ -1,17 +1,16 @@
-import Input from "./Input";
+import Input from './Input';
 
 const commands = {
-	0x8: "noteoff",
-	0x9: "noteon",
-	0xB: "controlchange",
+	0x8: 'noteoff',
+	0x9: 'noteon',
+	0xb: 'controlchange',
 };
 
-const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-const LOCAL_STORAGE_KEY = "midi.requested";
+const LOCAL_STORAGE_KEY = 'midi.requested';
 
 class MIDI extends Input {
-
 	constructor() {
 		super();
 
@@ -42,25 +41,25 @@ class MIDI extends Input {
 
 		if (this.inputs.size === 1) {
 			const [entry] = this.inputs.values();
-			const { id } = entry; 
+			const { id } = entry;
 
 			this.selectedInputID = id;
 		}
 
 		if (this.outputs.size === 1) {
 			const [entry] = this.outputs.values();
-			const { id } = entry; 
+			const { id } = entry;
 
 			this.selectedOutputID = id;
 		}
 	}
 
 	attachListeners() {
-		this.inputs.forEach(entry => {
+		this.inputs.forEach((entry) => {
 			entry.onmidimessage = (event) => {
 				this.onMessage(event);
 			};
-		})
+		});
 	}
 
 	addEventListener(eventName, fn) {
@@ -76,14 +75,14 @@ class MIDI extends Input {
 		let type = commands[command];
 
 		let channel = (event.data[0] & 0xf) + 1;
-    	let data1 = event.data[1]
+		let data1 = event.data[1];
 		let data2 = event.data[2];
 
 		let note = {
 			number: data1,
 			name: notes[data1 % 12],
 		};
-		
+
 		let velocity = data2 / 127;
 		let rawVelocity = data2;
 
@@ -117,7 +116,7 @@ class MIDI extends Input {
 		if (this.listeners.has(eventName)) {
 			const listeners = this.listeners.get(eventName);
 
-			listeners.forEach(listener => listener(data));
+			listeners.forEach((listener) => listener(data));
 		}
 	}
 
@@ -135,7 +134,7 @@ class MIDI extends Input {
 				this.requesting = false;
 				this.start();
 			}
-		} catch(error) {
+		} catch (error) {
 			this.handleError(error);
 		}
 	}
