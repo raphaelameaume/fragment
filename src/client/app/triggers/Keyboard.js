@@ -66,7 +66,7 @@ function createTrigger(eventName, collection) {
 
 		const keys = Array.isArray(key)
 			? key
-			: [...key.split(',').map((k) => (k !== ' ' ? k.trim() : k))];
+			: [...`${key}`.split(',').map((k) => (k !== ' ' ? k.trim() : k))];
 
 		const trigger = new Trigger({
 			inputType: 'Keyboard',

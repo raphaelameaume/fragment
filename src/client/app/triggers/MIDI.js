@@ -83,12 +83,12 @@ function createTrigger(eventName, collection) {
 		const { hot, enabled, ...params } = options;
 		let keys = Array.isArray(key)
 			? key
-			: [...key.split(',').map((k) => k.trim())];
+			: [...`${key}`.split(',').map((k) => k.trim())];
 
 		if (
 			['onControlChange', 'onNumberOn', 'onNumberOff'].includes(eventName)
 		) {
-			keys = keys.map((k) => Number(k));
+			keys = keys.map((k) => (!isNaN(Number(k)) ? Number(k) : k));
 		}
 
 		if (!MIDI.enabled) {
