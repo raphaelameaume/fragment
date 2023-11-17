@@ -4,7 +4,7 @@ import sade from 'sade';
 import { run } from '../src/cli/index.js';
 
 sade('fragment [entry]')
-	.version('0.1.13')
+	.version('0.1.14')
 	.describe('Run a dev environment for fragment')
 	.option('-n, --new', 'Create file if it does not exist', false)
 	.option('-t, --template', 'Specify template to create the file from', '2d')
