@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { client } from '../client';
 import { createStore } from './utils';
-import { getDimensionsForPreset } from '../lib/presets';
+import { PRESET_ORIENTATIONS, getDimensionsForPreset } from '../lib/presets';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -21,6 +21,7 @@ export const rendering = createStore(
 		aspectRatio: 1,
 		scale: 1,
 		preset: 'a4',
+		presetOrientation: PRESET_ORIENTATIONS.PORTRAIT,
 	},
 	{
 		persist: !__BUILD__,
@@ -53,6 +54,7 @@ export const override = (config) => {
 		if (config.preset) {
 			const [width, height] = getDimensionsForPreset(config.preset, {
 				pixelsPerInch: 300,
+				orientation: config.presetOrientation,
 			});
 
 			overrides.width = width;

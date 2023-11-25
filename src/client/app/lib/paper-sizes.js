@@ -94,7 +94,6 @@ let dictionary = data.reduce((dict, preset) => {
 	};
 
 	dict[preset[0]] = item;
-	dict[preset[0].replace(/-/g, ' ')] = item;
 
 	return dict;
 }, {});
