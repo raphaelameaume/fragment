@@ -16,6 +16,9 @@
 	import { props } from '../stores/props';
 	import ButtonInput from '../ui/fields/ButtonInput.svelte';
 	import Select from '../ui/fields/Select.svelte';
+	import NumberInput from '../ui/fields/NumberInput.svelte';
+	import ProgressInput from '../ui/fields/ProgressInput.svelte';
+	import { map } from '../utils/math.utils.js';
 
 	export let mID;
 	export let hasHeader = true;
@@ -24,14 +27,42 @@
 	let selected = id;
 	let sketch, sketchKey;
 
-	let duration = 30;
+	let padding = 20;
 
+	let duration = 30.38;
+	let framerate = 60;
+	let currentTime = 0.1 * duration;
+	let totalFrames = Math.floor(framerate * duration);
+	$: currentFrame = `${Math.floor(framerate * currentTime)}`.padStart(
+		totalFrames.toString().length,
+		'0',
+	);
+
+	function formatTime(time) {
+		let displayDurationMinutes = `${Math.floor(time / 60)}`.padStart(
+			2,
+			'0',
+		);
+		let displayDurationSeconds = `${Math.floor(
+			time - displayDurationMinutes,
+		)}`.padStart(2, '0');
+		let displayDurationMilliseconds = `${Math.round(
+			(time - displayDurationSeconds) * 100,
+		)}`.padStart(2, '0');
+
+		return `${displayDurationMinutes}:${displayDurationSeconds}:${displayDurationMilliseconds}`;
+	}
+
+	$: displayDuration = formatTime(duration);
+	$: displayTime = formatTime(currentTime);
+
+	let zoomMin = 0.25;
+	let zoomMax = 4;
 	let zoomLevel = 1;
-	let currentTime = 10;
 
 	let timelineDuration = Math.ceil(duration);
 
-	$: stepCount = Math.ceil(timelineDuration * zoomLevel);
+	$: stepCount = timelineDuration;
 
 	$: steps = [...Array(stepCount)].fill().map((_, index) => {
 		const label = index === 0 || index === duration ? index : `${index}s`;
@@ -43,7 +74,7 @@
 	});
 
 	$: timelineSteps = [...Array(stepCount + 1)].fill().map((_, index) => {
-		const label = `${index / zoomLevel}`;
+		const label = `${index}`;
 
 		return {
 			index,
@@ -55,6 +86,15 @@
 		{ name: 'Intro', startTime: 0, endTime: 10, events: [] },
 		{ name: 'Brand', startTime: 10, endTime: 20, events: [] },
 	];
+
+	function handleClickTimeline(e) {
+		const rect = e.currentTarget.getBoundingClientRect();
+		const x = e.clientX - rect.left - padding;
+
+		const relativeX = x / (rect.width - padding * 2);
+
+		currentTime = relativeX * duration;
+	}
 </script>
 
 <Module {mID} {hasHeader} name={`Timeline`} slug="timeline">
@@ -70,16 +110,20 @@
 		{/if} -->
 	</div>
 	<div
-		class="timeline"
-		style="--duration: {duration}; --zoom-level: {zoomLevel}"
+		class="timeline-module"
+		style="--duration: {duration}; --zoom-level: {zoomLevel}; --timeline-padding: {padding}px; --timeline-steps: {steps.length}"
 	>
-		<header class="controls">
+		<header class="header">
 			<div class="current-time">
-				<span>00:02:26</span>
-				<span>(60 FPS)</span>
-				<div class="speed">
-					<Select value="1x" options={['1x', '2x', '4x']} />
+				<div class="current-seconds">
+					{displayTime}/{displayDuration}
 				</div>
+				<div class="current-frames">
+					{currentFrame}/{totalFrames}
+				</div>
+				<!-- <div class="speed">
+					<Select value="1x" options={['1x', '2x', '4x']} />
+				</div> -->
 			</div>
 			<div class="actions">
 				<ButtonInput label="Prev frame" showLabel={false}>
@@ -153,10 +197,13 @@
 				</ButtonInput>
 			</div>
 			<div class="zoom">
-				<Select
-					value={zoomLevel}
-					options={[0.25, 0.5, 1, 2, 4]}
-					on:change={(e) => (zoomLevel = e.detail)}
+				<ProgressInput
+					min={0}
+					max={1}
+					value={map(zoomLevel, zoomMin, zoomMax, 0, 1)}
+					step={0.1}
+					on:change={(e) =>
+						(zoomLevel = map(e.detail, 0, 1, zoomMin, zoomMax))}
 				/>
 			</div>
 		</header>
@@ -171,7 +218,11 @@
 				</ul>
 			</div>
 			<div class="timeline-container">
-				<div class="timeline">
+				<div
+					class="timeline"
+					on:click={handleClickTimeline}
+					role="button"
+				>
 					<div class="time">
 						<div
 							class="sequencer-overlay sequencer-overlay-start"
@@ -201,29 +252,23 @@
 								{/each}
 							</div>
 						</div>
-						{#each sequences as sequence}
-							<div
-								class="sequence"
-								style="--position-start: {(sequence.startTime /
-									timelineDuration) *
-									100}%; --position-end: {(sequence.endTime /
-									timelineDuration) *
-									100}%;"
-							>
-								<!-- <h4 class="sequence-title">{sequence.name}</h4> -->
-								<div class="sequence-filler">
+						<div class="sequences">
+							{#each sequences as sequence}
+								<div
+									class="sequence"
+									style="--position-start: {(sequence.startTime /
+										timelineDuration) *
+										100}%; --position-end: {(sequence.endTime /
+										timelineDuration) *
+										100}%;"
+								>
 									<div class="sequence-fill"></div>
 								</div>
-							</div>
-						{/each}
+							{/each}
+						</div>
 					</div>
 
-					<div
-						class="current"
-						style="--x: calc({(currentTime / duration) *
-							stepCount *
-							100}px)"
-					>
+					<div class="current" style="--x: {currentTime / duration}">
 						<svg
 							width="13"
 							viewBox="0 0 159 212"
@@ -249,14 +294,16 @@
 </Module>
 
 <style>
-	.timeline {
+	.timeline-module {
 		--sequence-row-height: 36px;
 		--sequence-fill-height: 32px;
+		--timestep-width: calc(100px * var(--zoom-level));
+		--timeline-padding: 20px;
 
 		position: relative;
 	}
 
-	.controls,
+	.header,
 	.container {
 		position: relative;
 
@@ -265,15 +312,20 @@
 
 	.current-time {
 		display: flex;
-		align-items: center;
+		align-items: flex-end;
 		font-size: 14px;
-		gap: 4px;
+		gap: 18px;
+	}
+
+	.current-seconds {
+		font-size: 14px;
+	}
+
+	.current-frames {
+		/* font-size: 11px; */
 	}
 
 	.container {
-		--timestep-width: 100px;
-		--timestep-padding: 20px;
-
 		display: grid;
 		grid-template-columns: 100px auto;
 	}
@@ -288,9 +340,11 @@
 	}
 
 	.timeline {
+		position: relative;
+
 		width: calc(
 			var(--timestep-width) * (var(--step-count)) +
-				var(--timestep-padding) * 2
+				var(--timeline-padding) * 2
 		);
 	}
 
@@ -309,7 +363,7 @@
 		border-radius: 20px; /* roundness of the scroll thumb */
 	}
 
-	.controls {
+	.header {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		align-items: center;
@@ -326,9 +380,7 @@
 
 	.sequencer {
 		position: relative;
-		display: grid;
-		grid-template-columns: 1fr;
-		grid-auto-rows: var(--sequence-row-height);
+
 		width: 100%;
 		/* grid-template-columns: repeat(var(--step-count), var(--timestep-width)); */
 		height: auto;
@@ -336,6 +388,13 @@
 		padding: 8px 0;
 
 		background: var(--color-background-input);
+	}
+
+	.sequences {
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-auto-rows: var(--sequence-row-height);
+		padding: 0 var(--timeline-padding);
 	}
 
 	.sequence {
@@ -349,9 +408,14 @@
 		color: var(--color-text-input);
 	}
 
+	.zoom {
+		max-width: 75px;
+		--height-input: 18px;
+	}
+
 	.time {
 		position: relative;
-		padding: 0 var(--timestep-padding);
+		padding: 0 var(--timeline-padding);
 		border-bottom: 1px solid #3a3a3a;
 		background-color: #1d1d1e;
 	}
@@ -399,7 +463,7 @@
 	}
 
 	.timestep:last-child {
-		width: var(--timestep-padding);
+		width: var(--timeline-padding);
 	}
 
 	.timestep-label {
@@ -410,9 +474,7 @@
 
 	.timeframe {
 		position: relative;
-		width: calc(
-			var(--timestep-width) * (var(--duration) * var(--zoom-level))
-		);
+		width: calc(var(--timestep-width) * (var(--duration)));
 
 		height: 6px;
 		margin-bottom: 6px;
@@ -441,15 +503,10 @@
 		}
 	}
 
-	.sequence-filler {
-		position: relative;
-		width: 100%;
-		padding: 0 var(--timestep-padding);
-		height: var(--sequence-fill-height);
-	}
-
 	.sequence-fill {
 		position: relative;
+		/* width: 100%; */
+		height: var(--sequence-fill-height);
 
 		width: calc(var(--position-end) - var(--position-start) + 1px);
 		margin-left: var(--position-start);
@@ -457,22 +514,6 @@
 		border-radius: calc(var(--border-radius-input));
 		background-color: #4a4a4b;
 		border: 1px solid var(--color-border-input);
-
-		height: 100%;
-
-		&:before {
-			/* content: ''; */
-
-			position: absolute;
-			top: 0px;
-			left: 0px;
-			right: 0px;
-			bottom: 0px;
-
-			border-radius: calc(var(--border-radius-input));
-			background-color: var(--color-active);
-			border: 1px solid var(--color-border-input);
-		}
 	}
 
 	.sequencer-background {
@@ -483,7 +524,7 @@
 		width: 100%;
 		height: 100%;
 
-		padding: 0 var(--timestep-padding);
+		padding: 0 var(--timeline-padding);
 	}
 
 	.columns {
@@ -504,7 +545,7 @@
 
 	.current {
 		position: absolute;
-		left: calc(var(--timestep-padding));
+		left: calc(var(--timeline-padding));
 		top: 0;
 
 		width: 1px;
@@ -512,7 +553,11 @@
 
 		background-color: var(--color-active);
 
-		transform: translate3d(var(--x), 0%, 0);
+		transform: translate3d(
+			calc(var(--x) * var(--timestep-width) * var(--timeline-steps)),
+			0%,
+			0
+		);
 	}
 
 	.current .svg {
@@ -527,7 +572,7 @@
 		bottom: 0;
 
 		height: 100%;
-		width: calc(var(--timestep-padding) * 1);
+		width: calc(var(--timeline-padding) * 1);
 
 		background-color: rgba(0, 0, 0, 0.5);
 	}
