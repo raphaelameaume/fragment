@@ -30,6 +30,7 @@
 	 * @param {MouseEvent} event
 	 */
 	function handleMouseDown(event) {
+		document.body.style.userSelect = 'none';
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseup', handleMouseUp);
 
@@ -81,6 +82,7 @@
 	}
 
 	function handleMouseUp() {
+		document.body.style.userSelect = null;
 		document.removeEventListener('mousemove', handleMouseMove);
 		document.removeEventListener('mouseup', handleMouseUp);
 
