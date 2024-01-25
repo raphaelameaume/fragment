@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import { map, clamp } from '../../utils/math.utils.js';
+	import { map, clamp, roundToStep } from '../../utils/math.utils.js';
 
 	export let value;
 	export let min;
@@ -34,15 +34,15 @@
 	}
 
 	function onDrag(event) {
-		let v = clamp(
+		let dragValue = clamp(
 			map(event.clientX, rect.left, rect.right, min, max),
 			min,
 			max,
 		);
-		v = Math.floor(v * (1 / step)) / (1 / step);
+		dragValue = roundToStep(dragValue, step);
 
-		if (v !== value) {
-			dispatch('change', v);
+		if (dragValue !== value) {
+			dispatch('change', dragValue);
 		}
 	}
 
@@ -53,8 +53,8 @@
 		isDragging = false;
 	}
 
-	$: scaleX = clamp(map(value, min, max, 0, 1), 0, 1);
-	$: opacity = scaleX > 0 ? 1 * (disabled ? 0.4 : 1) : 0;
+	$: progress = clamp(map(value, min, max, 0, 1), 0.0001, 1);
+	$: opacity = progress > 0 ? 1 * (disabled ? 0.4 : 1) : 0;
 </script>
 
 <div
@@ -62,7 +62,7 @@
 	bind:this={node}
 	on:mousedown={handleMouseDown}
 >
-	<div class="fill" style="opacity: {opacity}; transform: scaleX({scaleX})" />
+	<div class="fill" style="--progress: {progress}; --opacity: {opacity};" />
 </div>
 
 <style>
@@ -75,6 +75,7 @@
 
 		background: var(--color-background-input);
 		cursor: ew-resize;
+		container-type: size;
 	}
 
 	.progress:hover {
@@ -86,16 +87,31 @@
 	}
 
 	.fill {
+		--padding-h: 3px;
+		--width: 6px;
+		--tx-min: var(--padding-h);
+		--tx-max: calc(100cqw - var(--padding-h) * 1 - var(--width));
+
+		--tx: calc(
+			var(--progress, 0) * (var(--tx-max) - var(--tx-min)) / (1) +
+				var(--tx-min)
+		);
 		position: absolute;
-		left: 3px;
+		left: 0px;
 		top: 3px;
 		bottom: 3px;
-		right: 3px;
+		/* right: 3px; */
+
+		width: var(--width);
 
 		background: grey;
 		transform-origin: 0 50%;
 		border-radius: calc(var(--border-radius-input) * 0.5);
 
 		background-color: var(--color-active);
+
+		transform: translate3d(var(--tx), 0px, 0px);
+
+		opacity: var(--opacity, 1);
 	}
 </style>

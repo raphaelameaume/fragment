@@ -4,11 +4,7 @@
 	import Input from './Input.svelte';
 	import ProgressInput from './ProgressInput.svelte';
 	import Keyboard from '../../inputs/Keyboard.js';
-	import { clamp } from '../../utils/math.utils.js';
-
-	function round(value, step) {
-		return Math.round(value * (1 / step)) / (1 / step);
-	}
+	import { clamp, roundToStep } from '../../utils/math.utils.js';
 
 	export let value = null;
 	export let label = '';
@@ -19,7 +15,9 @@
 	export let disabled = false;
 	export let context = null;
 	export let key = '';
+	export let progress = true;
 
+	$: hasProgress = progress && isFinite(min) && isFinite(max);
 	$: isFocused = false;
 	const dispatch = createEventDispatcher();
 
@@ -34,7 +32,7 @@
 			isFinite(max) ? max : Infinity,
 		);
 		const roundedValue =
-			typeof step === 'number' ? round(clampedValue, step) : v;
+			typeof step === 'number' ? roundToStep(clampedValue, step) : v;
 
 		return isFocused ? `${roundedValue}` : `${roundedValue}${suffix}`;
 	}
@@ -73,8 +71,6 @@
 			dispatch('change', currentValue);
 		}
 	}
-
-	$: hasProgress = isFinite(min) && isFinite(max);
 
 	function handleChangeProgress(event) {
 		currentValue = event.detail;

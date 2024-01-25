@@ -1,6 +1,4 @@
-<script>
-	import { createEventDispatcher } from 'svelte';
-
+<script context="module">
 	import Select from './fields/Select.svelte';
 	import NumberInput from './fields/NumberInput.svelte';
 	import CheckboxInput from './fields/CheckboxInput.svelte';
@@ -10,14 +8,35 @@
 	import ListInput from './fields/ListInput.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import ImageInput from './fields/ImageInput.svelte';
+	import IntervalInput from './fields/IntervalInput.svelte';
+	import { fieldTypes } from '../utils/fields.utils.js';
+
+	const fields = {
+		[`${fieldTypes.SELECT}`]: Select,
+		[`${fieldTypes.NUMBER}`]: NumberInput,
+		[`${fieldTypes.VEC}`]: VectorInput,
+		[`${fieldTypes.CHECKBOX}`]: CheckboxInput,
+		[`${fieldTypes.TEXT}`]: TextInput,
+		[`${fieldTypes.LIST}`]: ListInput,
+		[`${fieldTypes.COLOR}`]: ColorInput,
+		[`${fieldTypes.BUTTON}`]: ButtonInput,
+		[`${fieldTypes.DOWNLOAD}`]: ButtonInput,
+		[`${fieldTypes.IMAGE}`]: ImageInput,
+		[`${fieldTypes.INTERVAL}`]: IntervalInput,
+	};
+</script>
+
+<script>
+	import { createEventDispatcher } from 'svelte';
+
 	import FieldSection from './FieldSection.svelte';
 	import FieldTriggers from './FieldTriggers.svelte';
-	import { inferFromParams, inferFromValue } from '../utils/props.utils.js';
 	import { download } from '../utils/file.utils.js';
 	import { map } from '../utils/math.utils';
 	import frameDebounce from '../lib/helpers/frameDebounce.js';
 	import { getStore } from '../stores/utils';
 	import { writable } from 'svelte/store';
+	import { inferFieldType } from '../utils/fields.utils.js';
 
 	export let key = '';
 	export let value = null;
@@ -56,18 +75,6 @@
 	});
 
 	const dispatch = createEventDispatcher();
-	const fields = {
-		select: Select,
-		number: NumberInput,
-		vec: VectorInput,
-		checkbox: CheckboxInput,
-		text: TextInput,
-		list: ListInput,
-		color: ColorInput,
-		button: ButtonInput,
-		download: ButtonInput,
-		image: ImageInput,
-	};
 
 	const onTriggers = {
 		checkbox: () => {
@@ -101,24 +108,21 @@
 		},
 	};
 
-	$: fieldType = type
-		? type
-		: inferFromParams(params) || inferFromValue(value);
+	$: fieldType = inferFieldType({ type, value, params, key });
 	$: fieldProps = composeFieldProps(params, disabled);
 	$: onTrigger = frameDebounce(onTriggers[fieldType]);
 	$: input = fields[fieldType];
 	$: triggerable =
 		params.triggerable !== false &&
-		((fieldType === 'number' &&
+		((fieldType === fieldTypes.NUMBER &&
 			isFinite(params.min) &&
 			isFinite(params.max)) ||
-			fieldType === 'button');
+			fieldType === fieldTypes.BUTTON);
 	$: {
-		if (fieldType === 'download' || fieldType === 'button') {
-			if (params.label === undefined) {
-				fieldProps.label =
-					fieldType === 'download' ? 'download' : 'run';
-			}
+		const isDownload = fieldType === fieldTypes.DOWNLOAD;
+		const isButton = fieldType === fieldTypes.BUTTON;
+		if ((isDownload || isButton) && params.label == undefined) {
+			fieldProps.label = isDownload ? 'download' : 'run';
 		}
 	}
 	$: xxsmall = offsetWidth < 200;
