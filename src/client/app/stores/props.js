@@ -52,7 +52,7 @@ export function reconcile(newProps = {}, prevProps = {}) {
  * @param {string} propKey
  * @param {any} newValue
  */
-export function updateProp(sketchKey, propKey, newValue) {
+export function updateProp(sketchKey, propKey, newValue, params = {}) {
 	props.update((currentProps) => {
 		const prop = currentProps[sketchKey][propKey];
 
@@ -60,7 +60,7 @@ export function updateProp(sketchKey, propKey, newValue) {
 			prop.value = newValue;
 
 			if (typeof prop.onChange === 'function') {
-				prop.onChange(prop);
+				prop.onChange(prop, params);
 			}
 		}
 

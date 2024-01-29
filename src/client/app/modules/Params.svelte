@@ -9,7 +9,7 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import { sketches } from '../stores/sketches.js';
-	import { monitors } from '../stores/rendering';
+	import { monitors, rendering } from '../stores/rendering';
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import OutputParams from '../ui/ParamsOutput.svelte';
@@ -115,7 +115,11 @@
 							$props[sketchKey][key].value._refresh = true;
 						}}
 						on:change={(event) => {
-							updateProp(sketchKey, key, event.detail);
+							updateProp(sketchKey, key, event.detail, {
+								width: $rendering.width,
+								height: $rendering.height,
+								pixelRatio: $rendering.pixelRatio,
+							});
 						}}
 					/>
 				{/if}

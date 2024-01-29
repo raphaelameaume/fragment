@@ -213,6 +213,28 @@ export let props = {
 }
 ```
 
+The `onChange` callback provides two arguments: the first is the prop object that has changed, the second is an object containing `width`, `height`, and `pixelRatio` that are passed to lifecycle functions.
+
+```js
+export let props = {
+  color: {
+    value: [1, 0, 0],
+    type: "color",
+    onChange: (prop, { width, height, pixelRatio }) => {
+      console.log(prop === props.color); // true
+      createElement(width, height, prop.value);
+    },
+  }
+}
+
+function createElement(width, height, color) { /*...*/ }
+
+export let init = ({ width, height }) => {
+  createElement(width, height, props.color.value)
+}
+```
+
+
 A prop can have a `displayName` to change only what's on screen without the need to change your code. By setting `displayName` to `null`, the name will be entirely hidden and the controller of the prop will expand to the full width of the module.
 
 ```js
