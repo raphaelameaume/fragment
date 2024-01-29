@@ -78,6 +78,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		min-height: calc(var(--height-input) + 4px);
 
 		color: var(--color-text);
 	}

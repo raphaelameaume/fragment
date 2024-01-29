@@ -68,6 +68,7 @@ export let init = ({ context, width, height }) => {
 | deltaTime | `number` | Amount of time ellapsed since the last frame. In milliseconds |
 | playhead | `number` | If [`duration`](#duration) is defined, playhead will go from 0 to 1 every specified duration |
 | playcount | `number` | If [`duration`](#duration) is defined, playcount will increase of 1 every loop |
+| frame | `number` | If [`duration`](#duration) is defined, frame will increase depending on fps and duration |
 
 #### `resize`
 - Type: `({ width: number, height: number, pixelRatio: number }) => void`

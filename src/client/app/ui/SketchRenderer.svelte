@@ -9,6 +9,7 @@
 	import { errors, displayError, clearError } from '../stores/errors.js';
 	import { exports, props } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
+	import { map } from '../utils/math.utils';
 	import {
 		recording,
 		capturing,
@@ -263,7 +264,7 @@
 				width,
 				height,
 				pixelRatio,
-				props,
+				props: $sketchProps,
 				...params,
 			});
 
@@ -272,7 +273,7 @@
 				width,
 				height,
 				pixelRatio,
-				props,
+				props: $sketchProps,
 				...params,
 			});
 
@@ -378,8 +379,9 @@
 		const draw = sketch.draw || sketch.update;
 		const { duration } = sketch;
 
-		let playhead = 0;
-		let playcount = 0;
+		let playhead = NaN;
+		let playcount = NaN;
+		let frame = NaN;
 		let hasDuration = isFinite(duration);
 
 		let onBeforeUpdatePreview =
@@ -412,14 +414,17 @@
 					playcount = Math.floor(
 						elapsedRenderingTime / 1000 / duration,
 					);
+
+					frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 				}
 
 				draw({
 					...renderer,
 					...params,
-					props: sketch.props,
+					props: $sketchProps,
 					playhead,
 					playcount,
+					frame,
 					width,
 					height,
 					pixelRatio,
@@ -652,13 +657,15 @@
 		key && $errors.has(key)
 			? $errors.get(key) // display error if error context match current key
 			: $errors.size === 1 &&
-			  ![...$errors.keys()].some((key) => $sketchesKeys.includes(key)) &&
-			  ($monitors.length === 1 || // if there's only one monitor
-					!$monitors.some(
-						(m) => m.selected === $errors.keys().next().value,
-					)) // if none of current monitors match the key
-			? $errors.get($errors.keys().next().value)
-			: null;
+				  ![...$errors.keys()].some((key) =>
+						$sketchesKeys.includes(key),
+				  ) &&
+				  ($monitors.length === 1 || // if there's only one monitor
+						!$monitors.some(
+							(m) => m.selected === $errors.keys().next().value,
+						)) // if none of current monitors match the key
+				? $errors.get($errors.keys().next().value)
+				: null;
 </script>
 
 <div
