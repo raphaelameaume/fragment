@@ -9,6 +9,7 @@
 	import { errors, displayError, clearError } from '../stores/errors.js';
 	import { exports, props } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
+	import { map } from '../utils/math.utils';
 	import {
 		recording,
 		capturing,
@@ -380,6 +381,7 @@
 
 		let playhead = NaN;
 		let playcount = NaN;
+		let frame = NaN;
 		let hasDuration = isFinite(duration);
 
 		let onBeforeUpdatePreview =
@@ -412,6 +414,8 @@
 					playcount = Math.floor(
 						elapsedRenderingTime / 1000 / duration,
 					);
+
+					frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 				}
 
 				draw({
@@ -420,6 +424,7 @@
 					props: sketch.props,
 					playhead,
 					playcount,
+					frame,
 					width,
 					height,
 					pixelRatio,
