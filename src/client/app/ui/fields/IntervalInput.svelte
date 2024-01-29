@@ -77,7 +77,10 @@
 					: Math.max(dragValue, value[1]),
 			];
 
-			dispatch('change', newValues);
+			value[0] = newValues[0];
+			value[1] = newValues[1];
+
+			dispatch('change', value);
 		}
 	}
 
