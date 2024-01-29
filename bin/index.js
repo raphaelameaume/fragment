@@ -14,6 +14,7 @@ sade('fragment [entry]')
 	.option('--exportDir', 'Directory used for exports')
 	.option('--outDir', 'Directory used for static build', null)
 	.option('--emptyOutDir', 'Empty outDir before static build', false)
+	.option('--base', 'Base public path when served in production', undefined)
 	.action((entry, options) => {
 		run(entry, options);
 	})
