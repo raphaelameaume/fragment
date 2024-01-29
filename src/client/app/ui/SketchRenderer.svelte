@@ -264,7 +264,7 @@
 				width,
 				height,
 				pixelRatio,
-				props,
+				props: $sketchProps,
 				...params,
 			});
 
@@ -273,7 +273,7 @@
 				width,
 				height,
 				pixelRatio,
-				props,
+				props: $sketchProps,
 				...params,
 			});
 
@@ -421,7 +421,7 @@
 				draw({
 					...renderer,
 					...params,
-					props: sketch.props,
+					props: $sketchProps,
 					playhead,
 					playcount,
 					frame,
