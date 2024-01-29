@@ -33,6 +33,7 @@ fragment ./sketch.js --new --template=three/orthographic
 |`--exportDir`| none | Change directory used for export  | `undefined` |
 |`--outDir`| none | Change directory used for production build  | `[/[sketch-name]` |
 |`--emptyOutDir`| none | Empty outDir before static build  | `false` |
+|`--base`| none | Base public path when served in production  | `undefined` |
 
 ## Templates
 

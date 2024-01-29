@@ -122,6 +122,7 @@ export async function start({ options, filepaths, entries, fragment }) {
 		await build({
 			...config,
 			logLevel: 'info',
+			base: options.base,
 			build: {
 				outDir: path.join(process.cwd(), outDir),
 				emptyOutDir: options.emptyOutDir,
