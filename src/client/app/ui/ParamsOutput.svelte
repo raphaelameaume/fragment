@@ -2,9 +2,14 @@
 	import { rendering, SIZES, monitors } from '../stores/rendering.js';
 	import { sketchesCount } from '../stores/sketches.js';
 	import Field from './Field.svelte';
-	import presets, { getDimensionsForPreset } from '../lib/presets';
+	import presets, {
+		PRESET_ORIENTATIONS,
+		getDimensionsForPreset,
+	} from '../lib/presets';
 	import { exports } from '../stores';
 	import ParamsMultisampling from './ParamsMultisampling.svelte';
+	import Select from './fields/Select.svelte';
+	import FieldInputRow from './fields/FieldInputRow.svelte';
 
 	let canvasWidth = $rendering.width;
 	let canvasHeight = $rendering.height;
@@ -37,6 +42,7 @@
 			const { preset } = $rendering;
 			const [width, height] = getDimensionsForPreset(preset, {
 				pixelsPerInch: 300,
+				orientation: $rendering.presetOrientation,
 			});
 
 			rendering.update((curr) => {
@@ -112,16 +118,27 @@
 	/>
 {/if}
 {#if $rendering.resizing === SIZES.PRESET}
-	<Field
-		key="preset"
-		value={$rendering.preset}
-		on:change={(event) => {
-			$rendering.preset = event.detail;
-		}}
-		params={{
-			options: presets,
-		}}
-	/>
+	<Field key="preset">
+		<FieldInputRow --grid-template-columns="1fr 1fr">
+			<Select
+				value={$rendering.preset}
+				options={presets}
+				on:change={(event) => {
+					$rendering.preset = event.detail;
+				}}
+			/>
+			<Select
+				value={$rendering.presetOrientation}
+				options={[
+					PRESET_ORIENTATIONS.PORTRAIT,
+					PRESET_ORIENTATIONS.LANDSCAPE,
+				]}
+				on:change={(event) => {
+					$rendering.presetOrientation = event.detail;
+				}}
+			/>
+		</FieldInputRow>
+	</Field>
 {/if}
 
 {#if $rendering.resizing !== SIZES.PRESET}
