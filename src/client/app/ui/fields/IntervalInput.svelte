@@ -89,26 +89,28 @@
 		isDragging = false;
 	}
 
-	$: p1 = map(value[0], min, max, 0, 1);
-	$: p2 = map(value[1], min, max, 0, 1);
+	$: {
+		if (value[0] > value[1]) {
+			console.warn(`Values provided for ${key} are in the wrong order. `);
+		}
+
+		value.forEach((v, index) => {
+			if (v < min || v > max) {
+				console.warn(
+					`Value provided for ${key} at index ${index} is out of range [${min}:${max}]: ${v}`,
+				);
+			}
+		});
+	}
+
+	$: p1 = map(clamp(value[0], min, max), min, max, 0, 1);
+	$: p2 = map(clamp(value[1], min, max), min, max, 0, 1);
 
 	$: opacity = 1;
 </script>
 
 <div class="interval-input">
-	<FieldInputRow --grid-template-columns="0.25fr 1fr 0.25fr">
-		<NumberInput
-			{label}
-			{disabled}
-			{context}
-			{key}
-			{suffix}
-			{step}
-			{min}
-			{max}
-			progress={false}
-			bind:value={value[0]}
-		/>
+	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div
 			class="range {isDragging ? 'dragging' : ''} "
 			bind:this={node}
@@ -124,19 +126,32 @@
 				style="--position: {p2}; --opacity: {opacity};"
 			/>
 		</div>
-
-		<NumberInput
-			{label}
-			{disabled}
-			{context}
-			{key}
-			{suffix}
-			{step}
-			{min}
-			{max}
-			progress={false}
-			bind:value={value[1]}
-		/>
+		<div class="numbers">
+			<NumberInput
+				{label}
+				{disabled}
+				{context}
+				{key}
+				{suffix}
+				{step}
+				{min}
+				{max}
+				progress={false}
+				bind:value={value[0]}
+			/>
+			<NumberInput
+				{label}
+				{disabled}
+				{context}
+				{key}
+				{suffix}
+				{step}
+				{min}
+				{max}
+				progress={false}
+				bind:value={value[1]}
+			/>
+		</div>
 	</FieldInputRow>
 </div>
 
@@ -233,5 +248,12 @@
 		opacity: 0.5;
 
 		transform-origin: 0px 50%;
+	}
+
+	.numbers {
+		display: grid;
+		column-gap: var(--column-gap);
+
+		grid-template-columns: 0.5fr 0.5fr;
 	}
 </style>
