@@ -378,8 +378,8 @@
 		const draw = sketch.draw || sketch.update;
 		const { duration } = sketch;
 
-		let playhead = 0;
-		let playcount = 0;
+		let playhead = NaN;
+		let playcount = NaN;
 		let hasDuration = isFinite(duration);
 
 		let onBeforeUpdatePreview =
@@ -652,13 +652,15 @@
 		key && $errors.has(key)
 			? $errors.get(key) // display error if error context match current key
 			: $errors.size === 1 &&
-			  ![...$errors.keys()].some((key) => $sketchesKeys.includes(key)) &&
-			  ($monitors.length === 1 || // if there's only one monitor
-					!$monitors.some(
-						(m) => m.selected === $errors.keys().next().value,
-					)) // if none of current monitors match the key
-			? $errors.get($errors.keys().next().value)
-			: null;
+				  ![...$errors.keys()].some((key) =>
+						$sketchesKeys.includes(key),
+				  ) &&
+				  ($monitors.length === 1 || // if there's only one monitor
+						!$monitors.some(
+							(m) => m.selected === $errors.keys().next().value,
+						)) // if none of current monitors match the key
+				? $errors.get($errors.keys().next().value)
+				: null;
 </script>
 
 <div
