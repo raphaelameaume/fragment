@@ -191,7 +191,12 @@ async function generateFiles(entries, options) {
 export const sketches = {
     ${entries
 		.map((entry) => {
-			return `"${entry}": () => import("../../${entry}")`;
+			const entryPath = entry.split(sep).join(posix.sep);
+			const relativeEntryPath = `../../${entry}`
+				.split(sep)
+				.join(posix.sep);
+
+			return `"${entryPath}": () => import("${relativeEntryPath}")`;
 		})
 		.join(',')}
 };
