@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import path from 'path';
+import path, { sep, posix } from 'path';
 import log from './log.js';
 import { start as startViteServer } from './server.js';
 import { start as startWebSocketServer } from './ws.js';
