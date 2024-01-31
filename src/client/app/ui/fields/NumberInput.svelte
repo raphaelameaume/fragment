@@ -19,13 +19,14 @@
 
 	$: hasProgress = progress && isFinite(min) && isFinite(max);
 	$: isFocused = false;
+	$: precision = step.toString().split('.')[1]?.length || 0;
 	const dispatch = createEventDispatcher();
 
 	function sanitize(v, suffix) {
 		return suffix && suffix !== '' ? Number(v.split(suffix)[0]) : Number(v);
 	}
 
-	function composeValue(v, isFocused, suffix = '') {
+	function composeValue(v, isFocused, suffix = '', precision) {
 		const clampedValue = clamp(
 			v,
 			isFinite(min) ? min : -Infinity,
@@ -34,11 +35,13 @@
 		const roundedValue =
 			typeof step === 'number' ? roundToStep(clampedValue, step) : v;
 
-		return isFocused ? `${roundedValue}` : `${roundedValue}${suffix}`;
+		const fixedValue = roundedValue.toFixed(precision);
+
+		return isFocused ? `${fixedValue}` : `${fixedValue}${suffix}`;
 	}
 
 	$: currentValue = value;
-	$: composedValue = composeValue(currentValue, isFocused, suffix);
+	$: composedValue = composeValue(currentValue, isFocused, suffix, precision);
 
 	function onFocus() {
 		isFocused = true;
