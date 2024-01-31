@@ -46,6 +46,7 @@ export function inferFieldType({ type, value, params, key }) {
 
 		if (
 			isArray &&
+			value.length === 2 &&
 			typeof params.min === 'number' &&
 			typeof params.max === 'number'
 		) {
