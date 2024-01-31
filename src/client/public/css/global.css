@@ -18,6 +18,7 @@
 
 	--color-background: #242425;
 	--color-active: #177bd0;
+	--color-active-disabled: #214366;
 	--color-text: #f0f0f0;
 	--color-border: var(--color-lightblack);
 	--color-border-input: #000000;

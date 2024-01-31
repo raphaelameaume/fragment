@@ -108,26 +108,18 @@
 
 	$: p1 = map(clamp(value[0], min, max), min, max, 0, 1);
 	$: p2 = map(clamp(value[1], min, max), min, max, 0, 1);
-
-	$: opacity = 1;
 </script>
 
-<div class="interval-input">
+<div class="interval-input" class:disabled>
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div
 			class="range {isDragging ? 'dragging' : ''} "
 			bind:this={node}
 			on:mousedown={handleMouseDown}
 		>
-			<div
-				class="handler"
-				style="--position: {p1}; --opacity: {opacity};"
-			/>
+			<div class="handler" style="--position: {p1};" />
 			<div class="filler" style="--p1: {p1}; --p2: {p2};"></div>
-			<div
-				class="handler"
-				style="--position: {p2}; --opacity: {opacity};"
-			/>
+			<div class="handler" style="--position: {p2};" />
 		</div>
 		<div class="numbers">
 			<NumberInput
@@ -217,8 +209,6 @@
 		background-color: var(--color-active);
 
 		transform: translate3d(var(--tx), 0px, 0px);
-
-		opacity: var(--opacity, 1);
 	}
 
 	.handler:first-child {
@@ -229,6 +219,10 @@
 	.handler:last-child {
 		--tx-min: var(--tx-min-1);
 		--tx-max: var(--tx-max-1);
+	}
+
+	.interval-input.disabled .handler {
+		background-color: var(--color-active-disabled);
 	}
 
 	.filler {
@@ -251,6 +245,10 @@
 		opacity: 0.5;
 
 		transform-origin: 0px 50%;
+	}
+
+	.interval-input.disabled .filler {
+		background-color: var(--color-active-disabled);
 	}
 
 	.numbers {

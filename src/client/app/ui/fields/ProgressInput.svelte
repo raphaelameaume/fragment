@@ -54,13 +54,14 @@
 	}
 
 	$: progress = clamp(map(value, min, max, 0, 1), 0.0001, 1);
-	$: opacity = progress > 0 ? 1 * (disabled ? 0.4 : 1) : 0;
+	$: opacity = progress > 0 ? 1 : 0;
 </script>
 
 <div
 	class="progress {isDragging ? 'dragging' : ''} "
 	bind:this={node}
 	on:mousedown={handleMouseDown}
+	class:disabled
 >
 	<div class="fill" style="--progress: {progress}; --opacity: {opacity};" />
 </div>
@@ -111,7 +112,9 @@
 		background-color: var(--color-active);
 
 		transform: translate3d(var(--tx), 0px, 0px);
+	}
 
-		opacity: var(--opacity, 1);
+	.progress.disabled .fill {
+		background-color: var(--color-active-disabled);
 	}
 </style>
