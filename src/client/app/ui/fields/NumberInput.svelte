@@ -4,11 +4,7 @@
 	import Input from './Input.svelte';
 	import ProgressInput from './ProgressInput.svelte';
 	import Keyboard from '../../inputs/Keyboard.js';
-	import { clamp } from '../../utils/math.utils.js';
-
-	function round(value, step) {
-		return Math.round(value * (1 / step)) / (1 / step);
-	}
+	import { clamp, roundToStep } from '../../utils/math.utils.js';
 
 	export let value = null;
 	export let label = '';
@@ -19,28 +15,33 @@
 	export let disabled = false;
 	export let context = null;
 	export let key = '';
+	export let progress = true;
 
+	$: hasProgress = progress && isFinite(min) && isFinite(max);
 	$: isFocused = false;
+	$: precision = step.toString().split('.')[1]?.length || 0;
 	const dispatch = createEventDispatcher();
 
 	function sanitize(v, suffix) {
 		return suffix && suffix !== '' ? Number(v.split(suffix)[0]) : Number(v);
 	}
 
-	function composeValue(v, isFocused, suffix = '') {
+	function composeValue(v, isFocused, suffix = '', precision) {
 		const clampedValue = clamp(
 			v,
 			isFinite(min) ? min : -Infinity,
 			isFinite(max) ? max : Infinity,
 		);
 		const roundedValue =
-			typeof step === 'number' ? round(clampedValue, step) : v;
+			typeof step === 'number' ? roundToStep(clampedValue, step) : v;
 
-		return isFocused ? `${roundedValue}` : `${roundedValue}${suffix}`;
+		const fixedValue = roundedValue.toFixed(precision);
+
+		return isFocused ? `${fixedValue}` : `${fixedValue}${suffix}`;
 	}
 
 	$: currentValue = value;
-	$: composedValue = composeValue(currentValue, isFocused, suffix);
+	$: composedValue = composeValue(currentValue, isFocused, suffix, precision);
 
 	function onFocus() {
 		isFocused = true;
@@ -73,8 +74,6 @@
 			dispatch('change', currentValue);
 		}
 	}
-
-	$: hasProgress = isFinite(min) && isFinite(max);
 
 	function handleChangeProgress(event) {
 		currentValue = event.detail;

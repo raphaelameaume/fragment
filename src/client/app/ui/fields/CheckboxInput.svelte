@@ -73,6 +73,6 @@
 	}
 
 	.input:checked:disabled + .checked {
-		opacity: 0.4;
+		background-color: var(--color-active-disabled);
 	}
 </style>
