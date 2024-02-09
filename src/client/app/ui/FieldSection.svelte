@@ -3,7 +3,7 @@
 	export let visible = true;
 	export let secondary = false;
 	export let interactive = false;
-	export let displayName = key;
+	export let displayName = undefined;
 	export let disabled = false;
 </script>
 
@@ -17,10 +17,10 @@
 		{#if displayName !== null}
 			{#if interactive}
 				<button class="field__label" {disabled} on:click
-					>{displayName}</button
+					>{displayName ?? key}</button
 				>
 			{:else}
-				<span class="field__label">{displayName}</span>
+				<span class="field__label">{displayName ?? key}</span>
 			{/if}
 		{/if}
 		<slot name="infos" />
