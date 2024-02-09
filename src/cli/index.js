@@ -172,8 +172,20 @@ async function generateFiles(entries, options) {
 	entries.forEach((entry) => console.log(`- ${entry}`));
 
 	const dir = '/node_modules/.fragment';
+
+	const getFilenameFromEntries = (entries) => {
+		if (entries.length === 1) {
+			const filename = path.parse(entries[0]).name;
+
+			return `${filename}.js`;
+		}
+
+		return `sketches.js`;
+	};
+
 	const dirpath = path.join(process.cwd(), dir);
-	const filename = `sketches.js`;
+
+	const filename = getFilenameFromEntries(entries);
 
 	// create directory and don't throw error if it already exists
 	try {
