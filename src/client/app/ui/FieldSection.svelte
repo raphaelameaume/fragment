@@ -78,7 +78,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		min-height: calc(var(--height-input) + 4px);
 
 		color: var(--color-text);
 	}
@@ -124,6 +123,8 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: flex-start;
+
+		min-height: calc(var(--height-input) + 4px);
 	}
 
 	.field__section.secondary .field__input {
