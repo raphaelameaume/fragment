@@ -1,7 +1,7 @@
-import Geometry from "./Geometry.js";
-import Texture from "./Texture.js";
-import Program, { defaultFragment, defaultVertex } from "./Program.js";
-import Renderer from "./Renderer.js";
+import Geometry from './Geometry.js';
+import Texture from './Texture.js';
+import Program, { defaultFragment, defaultVertex } from './Program.js';
+import Renderer from './Renderer.js';
 
 export { Geometry, Texture, Program, Renderer };
 
@@ -58,43 +58,43 @@ export function fragment({
 
 	Object.defineProperty(frag, 'shader', {
 		enumerable: true,
-    	configurable: true,
+		configurable: true,
 		get: () => {
 			return _fragmentShader;
 		},
 		set: (v) => {
 			_fragmentShader = v;
 			program.fragmentShader = _fragmentShader;
-		}
+		},
 	});
 
 	Object.defineProperty(frag, 'fragmentShader', {
 		enumerable: true,
-    	configurable: true,
+		configurable: true,
 		get: () => {
 			return _fragmentShader;
 		},
 		set: (v) => {
 			_fragmentShader = v;
 			program.fragmentShader = _fragmentShader;
-		}
+		},
 	});
 
 	Object.defineProperty(frag, 'vertexShader', {
 		enumerable: true,
-    	configurable: true,
+		configurable: true,
 		get: () => {
 			return _vertexShader;
 		},
 		set: (v) => {
 			_vertexShader = v;
 			program.vertexShader = _vertexShader;
-		}
+		},
 	});
 
 	Object.defineProperty(frag, 'uniforms', {
 		enumerable: true,
-    	configurable: true,
+		configurable: true,
 		get: () => {
 			return _uniforms;
 		},
@@ -102,7 +102,7 @@ export function fragment({
 			_uniforms = v;
 			program.uniforms = _uniforms;
 			program.needsUpdate = true;
-		}
+		},
 	});
 
 	return frag;

@@ -1,5 +1,4 @@
-import fragmentShader from "./icon.fs";
-
+import fragmentShader from './icon.fs';
 
 export let props = {
 	radius: {
@@ -8,7 +7,7 @@ export let props = {
 			min: 0,
 			max: 0.5,
 			step: 0.01,
-		}
+		},
 	},
 	shift: {
 		value: 0.05,
@@ -16,7 +15,7 @@ export let props = {
 			min: 0,
 			max: 1,
 			step: 0.001,
-		}
+		},
 	},
 	progress: {
 		value: 0,
@@ -24,14 +23,14 @@ export let props = {
 			min: 0,
 			max: 1,
 			step: 0.001,
-		}
+		},
 	},
 };
 
 let uniforms = {
-	uTime: { value: 0, type: "float" },
-	uRadius: { value: props.radius.value, type: "float" },
-	uShift: { value: props.shift.value, type: "float" },
+	uTime: { value: 0, type: 'float' },
+	uRadius: { value: props.radius.value, type: 'float' },
+	uShift: { value: props.shift.value, type: 'float' },
 };
 
 export let fps = 0;
@@ -60,4 +59,4 @@ export let update = ({ frag, deltaTime }) => {
 	frag.render();
 };
 
-export let rendering = "fragment";
+export let rendering = 'fragment';

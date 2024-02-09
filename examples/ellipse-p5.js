@@ -1,4 +1,4 @@
-import p5 from "p5";
+import p5 from 'p5';
 
 export let props = {
 	radius: {
@@ -7,7 +7,7 @@ export let props = {
 			min: 10,
 			max: 200,
 			step: 1,
-		}
+		},
 	},
 };
 
@@ -23,4 +23,4 @@ export let draw = ({ p, width, height }) => {
 	p.ellipse(width * 0.5, height * 0.5, radius, radius);
 };
 
-export let rendering = "p5";
+export let rendering = 'p5';

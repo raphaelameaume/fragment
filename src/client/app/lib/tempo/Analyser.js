@@ -1,9 +1,8 @@
-import Range from "./Range.js";
+import Range from './Range.js';
 
 const defaultRanges = [0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125];
 
 class Analyser {
-
 	/**
 	 * @param {Object} params
 	 * @param {AudioContext} [params.context]
@@ -20,10 +19,10 @@ class Analyser {
 		this.context = context;
 
 		this.ranges = [];
-		
-		this._analyser = this.context.createAnalyser()
+
+		this._analyser = this.context.createAnalyser();
 		this._analyser.smoothingTimeConstant = smoothingTimeConstant;
-        this._analyser.fftSize = fftSize;
+		this._analyser.fftSize = fftSize;
 
 		this.master = this.context.createGain();
 		this.master.connect(this._analyser);
@@ -31,15 +30,15 @@ class Analyser {
 		const { frequencyBinCount } = this._analyser;
 
 		this.frequencyBinCount = frequencyBinCount;
-        this.freqByteData = new Uint8Array(frequencyBinCount);
-        this.timeByteData = new Uint8Array(frequencyBinCount);
+		this.freqByteData = new Uint8Array(frequencyBinCount);
+		this.timeByteData = new Uint8Array(frequencyBinCount);
 
 		this.setRanges(ranges);
 	}
 
 	/**
 	 * Set the weight of the ranges used for the analysis
-	 * @param {Number[]} [ranges] 
+	 * @param {Number[]} [ranges]
 	 */
 	setRanges(ranges = defaultRanges) {
 		if (this.ranges.length > 0) {
@@ -86,9 +85,9 @@ class Analyser {
 	update(deltaTime) {
 		this._analyser.getByteFrequencyData(this.freqByteData);
 
-        for (let i = 0; i < this.ranges.length; i++) {
-            this.ranges[i].update(deltaTime, this.freqByteData);
-        }
+		for (let i = 0; i < this.ranges.length; i++) {
+			this.ranges[i].update(deltaTime, this.freqByteData);
+		}
 	}
 
 	/**
@@ -100,7 +99,7 @@ class Analyser {
 
 	/**
 	 * Connect a MediaStream to the analyser
-	 * @param {MediaStream} stream 
+	 * @param {MediaStream} stream
 	 */
 	connectMediaStream(stream) {
 		if (this.source) {
@@ -108,25 +107,27 @@ class Analyser {
 		}
 
 		this.source = this.context.createMediaStreamSource(stream);
-        this.source.connect(this.master);
+		this.source.connect(this.master);
 	}
 
 	/**
 	 * Connect a HTMLMediaElement to the analyser
-	 * @param {MediaElement} audio 
+	 * @param {MediaElement} audio
 	 */
 	connectMediaElement(element) {
 		if (this.source) {
 			this.disconnect();
 		}
 
-		this.source = this.context.createMediaElementSource(element)
-        this.source.connect(this.master);
+		this.source = this.context.createMediaElementSource(element);
+		this.source.connect(this.master);
 	}
 
 	getRange(index) {
 		if (index >= this.rangeCount) {
-			console.log(`Range ${index} is not available. RangeCount: ${this.rangeCount}`);
+			console.log(
+				`Range ${index} is not available. RangeCount: ${this.rangeCount}`,
+			);
 			return;
 		}
 

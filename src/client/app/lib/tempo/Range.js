@@ -1,12 +1,11 @@
 class Range {
-
 	constructor(start, end) {
 		this.start = start;
 		this.end = end;
 
 		this.BEAT_HOLD_TIME = 300; // between 0 and 1000
 		this.BEAT_DECAY_RATE = 0.992; // between  0 and 1
-        this.BEAT_MIN = 0.1; // between 0 and 1
+		this.BEAT_MIN = 0.1; // between 0 and 1
 
 		this._volume = 0;
 		this.beatCutOff = 0;
@@ -50,23 +49,27 @@ class Range {
 			const index = this.listeners.indexOf(listener);
 
 			this.listeners.splice(index, 1);
-		}
+		};
 	}
 
 	update(deltaTime, freqByteData) {
-        this._volume = 0;
+		this._volume = 0;
 
-        for (let i = this.start; i < this.end; i++) {
+		for (let i = this.start; i < this.end; i++) {
 			this._volume += freqByteData[i];
-        }
+		}
 
-        this._volume /= (this.end - this.start) * 256;
+		this._volume /= (this.end - this.start) * 256;
 
-        // detect beat
-        if (this.beatTime >= this.BEAT_HOLD_TIME && this._volume > this.beatCutOff && this._volume > this.BEAT_MIN) {
+		// detect beat
+		if (
+			this.beatTime >= this.BEAT_HOLD_TIME &&
+			this._volume > this.beatCutOff &&
+			this._volume > this.BEAT_MIN
+		) {
 			for (let i = 0; i < this.listeners.length; i++) {
 				this.listeners[i]();
-			}	
+			}
 
 			this.beatCutOff = this._volume * 1.15;
 			this.beatTime = 0;
@@ -78,7 +81,7 @@ class Range {
 				this.beatCutOff = Math.max(this.beatCutOff, this.BEAT_MIN);
 			}
 		}
-    }
+	}
 
 	dispose() {
 		this.start = null;
@@ -86,7 +89,7 @@ class Range {
 
 		this.BEAT_HOLD_TIME = null;
 		this.BEAT_DECAY_RATE = null;
-        this.BEAT_MIN = null;
+		this.BEAT_MIN = null;
 
 		this._volume = null;
 		this.beatCutOff = null;

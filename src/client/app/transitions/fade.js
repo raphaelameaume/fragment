@@ -1,8 +1,8 @@
-export let name = "Fade";
+export let name = 'Fade';
 
 export let props = {};
 
-export let fragmentShader = /* glsl */`
+export let fragmentShader = /* glsl */ `
 precision highp float;
 
 uniform sampler2D uSampler0;
@@ -14,4 +14,4 @@ varying vec2 vUv;
 void main() {
     gl_FragColor = mix(texture2D(uSampler0, vUv), texture2D(uSampler1, vUv), threshold);
 }
-`;  
+`;

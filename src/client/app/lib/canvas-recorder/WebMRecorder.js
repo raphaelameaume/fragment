@@ -1,9 +1,8 @@
-import WebMWriter from "webm-writer";
-import { map } from "../../utils/math.utils";
-import CanvasRecorder from "./CanvasRecorder";
+import WebMWriter from 'webm-writer';
+import { map } from '../../utils/math.utils';
+import CanvasRecorder from './CanvasRecorder';
 
 class WebMRecorder extends CanvasRecorder {
-
 	start() {
 		const quality = map(this.quality, 1, 100, 0, 0.99999);
 

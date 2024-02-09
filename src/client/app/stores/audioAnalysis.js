@@ -1,8 +1,7 @@
-import { readable } from "svelte/store";
-import Tempo from "../lib/tempo/index.js";
+import { readable } from 'svelte/store';
+import Tempo from '../lib/tempo/index.js';
 
-export const audioAnalysis = new Tempo({
-});
+export const audioAnalysis = new Tempo({});
 audioAnalysis.listen();
 
 window.audioAnalysis = audioAnalysis;

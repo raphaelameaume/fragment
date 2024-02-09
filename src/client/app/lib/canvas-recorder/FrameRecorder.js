@@ -1,10 +1,9 @@
-import { createBlobFromDataURL } from "../../utils/file.utils";
-import { map } from "../../utils/math.utils";
-import CanvasRecorder from "./CanvasRecorder";
-import { exportCanvas } from "./utils";
+import { createBlobFromDataURL } from '../../utils/file.utils';
+import { map } from '../../utils/math.utils';
+import CanvasRecorder from './CanvasRecorder';
+import { exportCanvas } from './utils';
 
 class FrameRecorder extends CanvasRecorder {
-
 	constructor(canvas, options) {
 		super(canvas, options);
 
@@ -31,7 +30,9 @@ class FrameRecorder extends CanvasRecorder {
 	}
 
 	async end() {
-		this.result = await Promise.all(this.frames.map((dataURL) => createBlobFromDataURL(dataURL)));
+		this.result = await Promise.all(
+			this.frames.map((dataURL) => createBlobFromDataURL(dataURL)),
+		);
 
 		super.end();
 	}

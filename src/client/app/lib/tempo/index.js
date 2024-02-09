@@ -1,7 +1,6 @@
-import Analyser from "./Analyser.js";
+import Analyser from './Analyser.js';
 
 class Tempo {
-
 	constructor({
 		context = new AudioContext(),
 		ranges,
@@ -18,21 +17,24 @@ class Tempo {
 
 		this.listeners = [];
 
-		document.addEventListener("touchend", unlock, true);
-		document.addEventListener("mousedown", unlock, true);
-		document.addEventListener("click", unlock, true);
+		document.addEventListener('touchend', unlock, true);
+		document.addEventListener('mousedown', unlock, true);
+		document.addEventListener('click', unlock, true);
 
-		document.addEventListener("touchend", unlock, true);
-		document.addEventListener("mousedown", unlock, true);
-		document.addEventListener("click", unlock, true);
+		document.addEventListener('touchend', unlock, true);
+		document.addEventListener('mousedown', unlock, true);
+		document.addEventListener('click', unlock, true);
 
 		function unlock() {
-			if (context.state === "suspended" || context.state === "interrupted") {
+			if (
+				context.state === 'suspended' ||
+				context.state === 'interrupted'
+			) {
 				context.resume();
 
-				document.removeEventListener("touchend", unlock, true);
-				document.removeEventListener("mousedown", unlock, true);
-				document.removeEventListener("click", unlock, true);
+				document.removeEventListener('touchend', unlock, true);
+				document.removeEventListener('mousedown', unlock, true);
+				document.removeEventListener('click', unlock, true);
 			}
 
 			return;
@@ -60,7 +62,7 @@ class Tempo {
 	}
 
 	getRanges() {
-		const rangesWithoutMaster = [...this.analyser.ranges]
+		const rangesWithoutMaster = [...this.analyser.ranges];
 		rangesWithoutMaster.splice(this.analyser.ranges.length - 1, 1);
 
 		return rangesWithoutMaster;
@@ -79,18 +81,24 @@ class Tempo {
 	}
 
 	listen() {
-		navigator.getUserMedia({
-			audio: true,
-			video: false
-		}, (stream) => {
-			this.analyser.connectMediaStream(stream);
+		navigator.getUserMedia(
+			{
+				audio: true,
+				video: false,
+			},
+			(stream) => {
+				this.analyser.connectMediaStream(stream);
 
-			if (this.autoUpdate) {
-				this.start();
-			}
-		}, (error) => {
-			console.error(`Tempo :: cannot access microphone. Make sure to allow usage of the microphone.`);
-		});
+				if (this.autoUpdate) {
+					this.start();
+				}
+			},
+			(error) => {
+				console.error(
+					`Tempo :: cannot access microphone. Make sure to allow usage of the microphone.`,
+				);
+			},
+		);
 	}
 
 	start() {
@@ -130,9 +138,8 @@ class Tempo {
 		this.context = null;
 		this.running = null;
 
-		console.log("Tempo :: dispose", this);
+		console.log('Tempo :: dispose', this);
 	}
-
 }
 
 export default Tempo;

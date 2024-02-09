@@ -1,16 +1,16 @@
-import { writable } from "svelte/store";
-import { tree, traverse } from "./layout";
+import { writable } from 'svelte/store';
+import { tree, traverse } from './layout';
 
 export const logs = writable([]);
 
-let mirrored = ["log", "warn", "error", "dir"];
+let mirrored = ['log', 'warn', 'error', 'dir'];
 let enabled = false;
 let refs = {};
 
 tree.subscribe((t) => {
 	let hasConsole = false;
 	traverse((c) => {
-		if (c.type === "module" && c.name === "console") {
+		if (c.type === 'module' && c.name === 'console') {
 			hasConsole = true;
 		}
 	}, t);
@@ -27,11 +27,13 @@ let clear = console.clear;
 function enable() {
 	enabled = true;
 	mirrored.forEach((key) => {
-		const ref = console[`${key}`]
+		const ref = console[`${key}`];
 		refs[`${key}`] = ref;
 
 		console[`${key}`] = (...args) => {
-			let isFromVite = args.some((log) => typeof log === "string" && log.includes('[vite]'));
+			let isFromVite = args.some(
+				(log) => typeof log === 'string' && log.includes('[vite]'),
+			);
 
 			if (!isFromVite) {
 				ref(...args);
@@ -50,10 +52,7 @@ function enable() {
 					}
 				}
 
-				return [
-					...logs,
-					{ level: key, args, count: 1 },
-				];
+				return [...logs, { level: key, args, count: 1 }];
 			});
 		};
 	});
