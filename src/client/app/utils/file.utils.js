@@ -60,6 +60,15 @@ export function downloadBlob(blob, { filename = 'untitled' } = {}) {
 	a.click();
 }
 
+/**
+ * Extract filename and extension from a string path
+ * @param {string} path
+ * @returns {string} filename
+ */
+export function getFilename(path) {
+	return path.split(/[\\/]/).pop();
+}
+
 export function getFileExtension(path) {
 	const match = path.match(/[^\\/]\.([^.\\/]+)$/);
 
