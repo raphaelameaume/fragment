@@ -1,20 +1,22 @@
 function createShader(gl, type, source) {
-    let shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    
-    if (success) {
-        return shader;
-    }
+	let shader = gl.createShader(type);
+	gl.shaderSource(shader, source);
+	gl.compileShader(shader);
+	let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
 
-	console.warn(`fragment-gl.Program: Shader Info Log: ${gl.getShaderInfoLog(shader)}`);
-    gl.deleteShader(shader);
+	if (success) {
+		return shader;
+	}
+
+	console.warn(
+		`fragment-gl.Program: Shader Info Log: ${gl.getShaderInfoLog(shader)}`,
+	);
+	gl.deleteShader(shader);
 }
 
 let P_ID = 0;
 
-let defaultVertex = /* glsl */`
+let defaultVertex = /* glsl */ `
     attribute vec4 position;
     attribute vec2 uv;
 
@@ -26,7 +28,7 @@ let defaultVertex = /* glsl */`
     }
 `;
 
-let defaultFragment = /* glsl */`
+let defaultFragment = /* glsl */ `
     precision highp float;
 
     varying vec2 vUv;
@@ -37,15 +39,21 @@ let defaultFragment = /* glsl */`
 `;
 
 class Program {
-
-	constructor(gl, { vertex = defaultVertex, fragment = defaultFragment, uniforms = {} } = {}) {
+	constructor(
+		gl,
+		{
+			vertex = defaultVertex,
+			fragment = defaultFragment,
+			uniforms = {},
+		} = {},
+	) {
 		this.gl = gl;
 
 		this.vertexShader = vertex;
 		this.fragmentShader = fragment;
 		this.uniforms = uniforms;
 		this.needsUpdate = true;
-		
+
 		this._program = gl.createProgram();
 		this.id = P_ID++;
 
@@ -64,7 +72,11 @@ class Program {
 
 	set fragmentShader(text) {
 		this.fragment = text;
-		this._fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, text);
+		this._fragmentShader = createShader(
+			this.gl,
+			this.gl.FRAGMENT_SHADER,
+			text,
+		);
 		this.needsUpdate = true;
 	}
 
@@ -91,12 +103,16 @@ class Program {
 			${fragmentLog}
 			`);
 		} else if (programLog !== '') {
-			console.warn(`fragment-gl.Program: Program Info Log: ${programLog}`);
+			console.warn(
+				`fragment-gl.Program: Program Info Log: ${programLog}`,
+			);
 		}
 
 		let success = gl.getProgramParameter(_program, gl.LINK_STATUS);
 		if (!success) {
-			console.warn(`fragment-gl.Program: Program Info Log: ${gl.getProgramInfoLog(_program)}`);
+			console.warn(
+				`fragment-gl.Program: Program Info Log: ${gl.getProgramInfoLog(_program)}`,
+			);
 			gl.deleteProgram(_program);
 		}
 
@@ -106,7 +122,10 @@ class Program {
 			return all;
 		}, {});
 
-		let attributesCount = gl.getProgramParameter(_program, gl.ACTIVE_ATTRIBUTES);
+		let attributesCount = gl.getProgramParameter(
+			_program,
+			gl.ACTIVE_ATTRIBUTES,
+		);
 		let attributesLocations = {};
 
 		for (let aIndex = 0; aIndex < attributesCount; aIndex++) {

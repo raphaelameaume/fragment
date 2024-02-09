@@ -1,13 +1,13 @@
-export const wildcard = "*";
+export const wildcard = '*';
 export let sketchFiles = [];
 
 export function assignSketchFiles(files) {
-    sketchFiles.push(...files);
-};
+	sketchFiles.push(...files);
+}
 
 export function getContext() {
 	let context;
-	
+
 	const { stack } = new Error();
 	const { url } = import.meta;
 
@@ -34,4 +34,4 @@ export function getContext() {
 	}
 
 	return context;
-};
+}

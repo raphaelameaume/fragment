@@ -1,5 +1,7 @@
 LICENSE.md
+README.md
 pnpm-lock.yaml
 pnpm-workspace.yaml
 package.json
+package-lock.json
 /docs

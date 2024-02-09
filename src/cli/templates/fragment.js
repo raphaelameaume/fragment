@@ -1,7 +1,7 @@
-import fragmentShader from "./fragment.fs";
+import fragmentShader from './fragment.fs';
 
 let uniforms = {
-	uTime: { value: 0, type: "float" },
+	uTime: { value: 0, type: 'float' },
 };
 
 export let init = ({ frag }) => {
@@ -15,4 +15,4 @@ export let update = ({ frag, deltaTime }) => {
 	frag.render();
 };
 
-export let rendering = "fragment";
+export let rendering = 'fragment';

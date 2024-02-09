@@ -3,8 +3,11 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src: local('Jetbrains Mono Regular'), local('Jetbrains-Mono-Regular'),
-		local('Jetbrains Mono'), local('Jetbrains-Mono'),
+	src:
+		local('Jetbrains Mono Regular'),
+		local('Jetbrains-Mono-Regular'),
+		local('Jetbrains Mono'),
+		local('Jetbrains-Mono'),
 		url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
 }
 

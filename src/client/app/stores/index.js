@@ -1,2 +1,2 @@
-export { props } from "./props";
-export { exports } from "./exports";
+export { props } from './props';
+export { exports } from './exports';

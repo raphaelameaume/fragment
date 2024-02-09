@@ -1,5 +1,5 @@
-import { displayError } from "../stores/errors";
-import { getShaderPath, removeShaderPath } from "./glsl.utils";
+import { displayError } from '../stores/errors';
+import { getShaderPath, removeShaderPath } from './glsl.utils';
 
 const methods = ['attachShader'];
 
@@ -13,38 +13,52 @@ for (let i = 0; i < methods.length; i++) {
 
 function createUUID() {
 	function s4() {
-		return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+		return Math.floor((1 + Math.random()) * 0x10000)
+			.toString(16)
+			.substring(1);
 	}
 
-	return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-};
+	return (
+		s4() +
+		s4() +
+		'-' +
+		s4() +
+		'-' +
+		s4() +
+		'-' +
+		s4() +
+		'-' +
+		s4() +
+		s4() +
+		s4()
+	);
+}
 
 function e(method, fn) {
-	contexts.forEach(context => {
+	contexts.forEach((context) => {
 		const f = context.prototype[method];
 
-		context.prototype[method] = function() {
-			var res = f.apply( this, arguments );
-			res = fn.apply( this, [ res, arguments ] ) || res;
+		context.prototype[method] = function () {
+			var res = f.apply(this, arguments);
+			res = fn.apply(this, [res, arguments]) || res;
 			return res;
-		}
-	})
+		};
+	});
 }
 
 const FRAGMENT_SHADER = 35632;
 const VERTEX_SHADER = 35633;
 
 class ShaderCompileError extends Error {
-
 	constructor({
 		source,
-		filename = "",
+		filename = '',
 		lineNumber,
-		message = `Cannot compile ${filename !== "" ? filename : "shader"}`
+		message = `Cannot compile ${filename !== '' ? filename : 'shader'}`,
 	} = {}) {
 		super(message, filename, lineNumber);
 
-		this.name = "ShaderCompileError";
+		this.name = 'ShaderCompileError';
 		this.source = source;
 		this.lineNumber = lineNumber;
 
@@ -52,7 +66,7 @@ class ShaderCompileError extends Error {
 	}
 }
 
-e('createShader', function(res, args) {
+e('createShader', function (res, args) {
 	if (!this.__uuid) {
 		this.__uuid = createUUID();
 	}
@@ -61,18 +75,18 @@ e('createShader', function(res, args) {
 	res.__type = args[0];
 });
 
-e('attachShader', function(res, args) {
+e('attachShader', function (res, args) {
 	const program = args[0];
 	const shader = args[1];
 
 	if (shader.__type === FRAGMENT_SHADER) {
-		program.__fragmentShader = shader; 
+		program.__fragmentShader = shader;
 	} else if (shader.__type === VERTEX_SHADER) {
 		program.__vertexShader = shader;
 	}
 });
 
-e('shaderSource', function(res, args) {
+e('shaderSource', function (res, args) {
 	const shader = args[0];
 	const source = args[1];
 
@@ -81,25 +95,29 @@ e('shaderSource', function(res, args) {
 	const filepath = getShaderPath(source);
 
 	if (filepath) {
-		const filename = filepath.replace(`${__CWD__}/`, "");
+		const filename = filepath.replace(`${__CWD__}/`, '');
 
 		shader.__filepath = filepath;
 		shader.__filename = filename;
 	}
 });
 
-e('createProgram', function(res, args) {
+e('createProgram', function (res, args) {
 	res.__uuid = createUUID();
 });
 
-e('compileShader', function(res, args) {
+e('compileShader', function (res, args) {
 	const gl = this;
 	const shader = args[0];
 	const filename = shader.__filename;
 
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		const { source, lineNumber, message } = getShaderError(gl, shader, shader.__type);
-		
+		const { source, lineNumber, message } = getShaderError(
+			gl,
+			shader,
+			shader.__type,
+		);
+
 		const error = new ShaderCompileError({
 			source,
 			message,
@@ -118,7 +136,7 @@ function getShaderError(gl, shader, type) {
 	if (status && errors === '') return '';
 
 	const errorMatches = errors.match(/ERROR: 0:(\d+):([\s\S]*$)/);
-	
+
 	if (errorMatches) {
 		const lineNumber = parseInt(errorMatches[1]);
 		const message = errorMatches[2];
@@ -126,7 +144,7 @@ function getShaderError(gl, shader, type) {
 		const source = handleSource(shaderSource, lineNumber);
 
 		return {
-			message, 
+			message,
 			source: source,
 			lineNumber,
 		};
@@ -141,14 +159,14 @@ function handleSource(source, errorLine) {
 	const lines = (hasPath ? removeShaderPath(source) : source).split('\n');
 	const lines2 = [];
 
-	const from = Math.max( errorLine - 6, 0 );
-	const to = Math.min( errorLine + 6, lines.length );
+	const from = Math.max(errorLine - 6, 0);
+	const to = Math.min(errorLine + 6, lines.length);
 
-	for ( let i = from; i < to; i ++ ) {
+	for (let i = from; i < to; i++) {
 		const line = i + 1;
 
-		lines2.push( `${line === errorLine ? '>' : ' '} ${line}: ${lines[ i ]}` );
+		lines2.push(`${line === errorLine ? '>' : ' '} ${line}: ${lines[i]}`);
 	}
 
-	return lines2.join( '\n' );
+	return lines2.join('\n');
 }

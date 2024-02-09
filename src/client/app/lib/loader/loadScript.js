@@ -6,7 +6,7 @@ export function loadScript(src) {
 		};
 		script.onload = () => {
 			resolve();
-		}
+		};
 
 		script.src = src;
 		document.body.appendChild(script);

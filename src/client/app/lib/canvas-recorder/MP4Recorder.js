@@ -1,13 +1,12 @@
-import loadMP4Module, { isWebCodecsSupported } from "./mp4.js";
-import CanvasRecorder from "./CanvasRecorder";
+import loadMP4Module, { isWebCodecsSupported } from './mp4.js';
+import CanvasRecorder from './CanvasRecorder';
 
 let MP4;
 
 class MP4Recorder extends CanvasRecorder {
-
 	static loaded = false;
 	static isSupported = true;
-	
+
 	constructor(canvas, options) {
 		super(canvas, options);
 	}
@@ -29,18 +28,17 @@ class MP4Recorder extends CanvasRecorder {
 	async tick() {
 		const bitmap = await window.createImageBitmap(this.canvas);
 
-      	// Add bitmap to encoder
-      	await this.encoder.addFrame(bitmap);
+		// Add bitmap to encoder
+		await this.encoder.addFrame(bitmap);
 	}
 
 	async end() {
-		const buffer = await this.encoder.end(); 
+		const buffer = await this.encoder.end();
 
-		this.result = new Blob([buffer], { type: "video/mp4" })
+		this.result = new Blob([buffer], { type: 'video/mp4' });
 
 		super.end();
 	}
-	
 }
 
 export default MP4Recorder;

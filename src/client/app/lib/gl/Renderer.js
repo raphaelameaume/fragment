@@ -1,5 +1,4 @@
 class Renderer {
-
 	constructor({
 		canvas = document.createElement('canvas'),
 		antialias = false,
@@ -17,14 +16,16 @@ class Renderer {
 			antialias,
 			alpha,
 			premultipliedAlpha,
-			preserveDrawingBuffer: true
+			preserveDrawingBuffer: true,
 		};
 
 		this.canvas = canvas;
 
 		if (webgl === 2) gl = canvas.getContext('webgl2', attributes);
 		if (!gl) {
-			gl = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
+			gl =
+				canvas.getContext('webgl', attributes) ||
+				canvas.getContext('experimental-webgl', attributes);
 		}
 
 		this.gl = gl;
@@ -41,108 +42,126 @@ class Renderer {
 		this.gl.state = this.state;
 	}
 
-    render({
-        geometry,
-        program,
-        primitiveType = this.gl.TRIANGLES,
-        offset = 0,
-        count = 3
-    }) {
-        if (program.needsUpdate) {
-            program.compile();
-        }
+	render({
+		geometry,
+		program,
+		primitiveType = this.gl.TRIANGLES,
+		offset = 0,
+		count = 3,
+	}) {
+		if (program.needsUpdate) {
+			program.compile();
+		}
 
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-        this.gl.useProgram(program._program);
+		this.gl.useProgram(program._program);
 
-        for (let attributeName in program.attributesLocations) {
-            let location = program.attributesLocations[attributeName];
-            let buffer = geometry.buffers[attributeName];
+		for (let attributeName in program.attributesLocations) {
+			let location = program.attributesLocations[attributeName];
+			let buffer = geometry.buffers[attributeName];
 
-            this.gl.enableVertexAttribArray(location);
-            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+			this.gl.enableVertexAttribArray(location);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
 
-            const size = 2; // 2 components per iteration
-            const type = this.gl.FLOAT; // the data is 32bit floats
-            const normalize = false; // don't normalize the data
-            const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-            const bufferOffset = 0; // start at the beginning of the buffer
-            this.gl.vertexAttribPointer(
-                location,
-                size,
-                type,
-                normalize,
-                stride,
-                bufferOffset
-            );
-        }
+			const size = 2; // 2 components per iteration
+			const type = this.gl.FLOAT; // the data is 32bit floats
+			const normalize = false; // don't normalize the data
+			const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+			const bufferOffset = 0; // start at the beginning of the buffer
+			this.gl.vertexAttribPointer(
+				location,
+				size,
+				type,
+				normalize,
+				stride,
+				bufferOffset,
+			);
+		}
 
-        let textureUnit = -1;
+		let textureUnit = -1;
 
-        for (let uniformName in program.uniforms) {
-            let location = program.uniformsLocations[uniformName];
-            if (location) {
-                let uniform = program.uniforms[uniformName];
+		for (let uniformName in program.uniforms) {
+			let location = program.uniformsLocations[uniformName];
+			if (location) {
+				let uniform = program.uniforms[uniformName];
 
-                if (uniform.type === 'float') {
-                    this.gl.uniform1f(location, uniform.value);
-                } else if (uniform.type === 'vec2') {
-                    this.gl.uniform2f(location, uniform.value[0], uniform.value[1]);
-                } else if (uniform.type === 'vec3') {
-                    this.gl.uniform3f(location, uniform.value[0], uniform.value[1], uniform.value[2]);
-                } else if (uniform.type === 'vec4') {
-                    this.gl.uniform4f(location, uniform.value[0], uniform.value[1], uniform.value[2], uniform.value[3]);
-                } else if (uniform.type === 'sampler2D') {
-                    if (uniform.value) {
-                        textureUnit = textureUnit + 1;
-                        uniform.value.update(textureUnit);
-    
-                        this.gl.uniform1i(location, textureUnit);
-                    }
-                }
-            }
-        }
+				if (uniform.type === 'float') {
+					this.gl.uniform1f(location, uniform.value);
+				} else if (uniform.type === 'vec2') {
+					this.gl.uniform2f(
+						location,
+						uniform.value[0],
+						uniform.value[1],
+					);
+				} else if (uniform.type === 'vec3') {
+					this.gl.uniform3f(
+						location,
+						uniform.value[0],
+						uniform.value[1],
+						uniform.value[2],
+					);
+				} else if (uniform.type === 'vec4') {
+					this.gl.uniform4f(
+						location,
+						uniform.value[0],
+						uniform.value[1],
+						uniform.value[2],
+						uniform.value[3],
+					);
+				} else if (uniform.type === 'sampler2D') {
+					if (uniform.value) {
+						textureUnit = textureUnit + 1;
+						uniform.value.update(textureUnit);
 
-        this.gl.drawArrays(primitiveType, offset, count);
-    }
+						this.gl.uniform1i(location, textureUnit);
+					}
+				}
+			}
+		}
 
-    setPixelRatio(pixelRatio = this.state.pixelRatio) {
-        if (this.state.pixelRatio !== pixelRatio) {
-            this.state.pixelRatio = pixelRatio;
-        	this.setSize();
-        }
-    }
+		this.gl.drawArrays(primitiveType, offset, count);
+	}
 
-    setSize({ width = this.state.width, height = this.state.height } = {}) {
-        this.state.width = width;
-        this.state.height = height;
+	setPixelRatio(pixelRatio = this.state.pixelRatio) {
+		if (this.state.pixelRatio !== pixelRatio) {
+			this.state.pixelRatio = pixelRatio;
+			this.setSize();
+		}
+	}
 
-        this.canvas.width = this.state.width * this.state.pixelRatio;
-        this.canvas.height = this.state.height * this.state.pixelRatio;
+	setSize({ width = this.state.width, height = this.state.height } = {}) {
+		this.state.width = width;
+		this.state.height = height;
 
-        this.setViewport();
-    }
+		this.canvas.width = this.state.width * this.state.pixelRatio;
+		this.canvas.height = this.state.height * this.state.pixelRatio;
 
-    setViewport({ width = this.state.width, height = this.state.height } = {}) {
-        let w = Math.floor(width * this.state.pixelRatio);
-        let h = Math.floor(height * this.state.pixelRatio);
+		this.setViewport();
+	}
 
-        if (this.state.viewport.width !== w || this.state.viewport.height !== h) {
-            this.gl.viewport(0, 0, w, h);
+	setViewport({ width = this.state.width, height = this.state.height } = {}) {
+		let w = Math.floor(width * this.state.pixelRatio);
+		let h = Math.floor(height * this.state.pixelRatio);
 
-            this.state.viewport.width = w;
-            this.state.viewport.height = h;
-        }
-    }
+		if (
+			this.state.viewport.width !== w ||
+			this.state.viewport.height !== h
+		) {
+			this.gl.viewport(0, 0, w, h);
 
-    destroy() {
-        let extension = this.gl.getExtension('WEBGL_lose_context');
+			this.state.viewport.width = w;
+			this.state.viewport.height = h;
+		}
+	}
 
-        if (extension) {
-            extension.loseContext();
-        }
-    }
+	destroy() {
+		let extension = this.gl.getExtension('WEBGL_lose_context');
+
+		if (extension) {
+			extension.loseContext();
+		}
+	}
 }
 
 export default Renderer;

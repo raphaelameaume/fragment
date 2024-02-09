@@ -1,11 +1,11 @@
 const state = {
-	'hello': 'world',
+	hello: 'world',
 };
 
 export function save(key, value) {
-	console.log("database :: save");
+	console.log('database :: save');
 	state[key] = value;
-};
+}
 
 export function read() {
 	return state;
