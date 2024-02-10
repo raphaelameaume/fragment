@@ -1,15 +1,14 @@
 <script>
-import { onDestroy } from "svelte";
+	import { onDestroy } from 'svelte';
 
-import { rendering } from "../stores/rendering";
-import Build from "./Build.svelte";
+	import { rendering } from '../stores/rendering';
+	import Build from './Build.svelte';
 
-let saved = $rendering;
+	let saved = $rendering;
 
-onDestroy(() => {
-	$rendering = saved;
-});
-
+	onDestroy(() => {
+		$rendering = saved;
+	});
 </script>
 
 <Build />

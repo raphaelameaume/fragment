@@ -47,8 +47,8 @@
 			return index === componentIndex
 				? newValue
 				: locked
-				? Math.round(component * ratio * (1 / step)) / (1 / step)
-				: component;
+					? Math.round(component * ratio * (1 / step)) / (1 / step)
+					: component;
 		});
 
 		dispatchChange();

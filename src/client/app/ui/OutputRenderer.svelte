@@ -1,23 +1,27 @@
 <script>
-import { onDestroy, onMount } from "svelte";
-import { fragment, Texture } from "../lib/gl";
-import { transitions } from "../transitions/index.js";
-import { rendering, monitors } from "../stores/rendering.js";
-import { multisampling, threshold, transition } from "../stores/multisampling.js";
+	import { onDestroy, onMount } from 'svelte';
+	import { fragment, Texture } from '../lib/gl';
+	import { transitions } from '../transitions/index.js';
+	import { rendering, monitors } from '../stores/rendering.js';
+	import {
+		multisampling,
+		threshold,
+		transition,
+	} from '../stores/multisampling.js';
 
-export let paused = false;
+	export let paused = false;
 
-let _raf;
-let canvas;
-let output;
-let _mounted;
-let uniforms = {
-    threshold: { value: 0, type: "float" },
-    uSampler0: { value: null, type: "sampler2D" },
-    uSampler1: { value: null, type: "sampler2D" },
-}
+	let _raf;
+	let canvas;
+	let output;
+	let _mounted;
+	let uniforms = {
+		threshold: { value: 0, type: 'float' },
+		uSampler0: { value: null, type: 'sampler2D' },
+		uSampler1: { value: null, type: 'sampler2D' },
+	};
 
-let defaultFragmentShader = /* glsl */`
+	let defaultFragmentShader = /* glsl */ `
 precision highp float;
 
 uniform float threshold;
@@ -36,114 +40,117 @@ void main() {
 }
 `;
 
-$: t = transitions[$transition];
-$: fragmentShader = t ? t.fragmentShader : defaultFragmentShader;
-$: {
-    if (output) {
-        output.fragmentShader = fragmentShader;
-    }
-}
+	$: t = transitions[$transition];
+	$: fragmentShader = t ? t.fragmentShader : defaultFragmentShader;
+	$: {
+		if (output) {
+			output.fragmentShader = fragmentShader;
+		}
+	}
 
-onMount(() => {
-    output = fragment({
-        canvas,
-        shader: fragmentShader,
-        uniforms,
-    });
+	onMount(() => {
+		output = fragment({
+			canvas,
+			shader: fragmentShader,
+			uniforms,
+		});
 
-    uniforms.uSampler0.value = new Texture(output.gl);
-    uniforms.uSampler1.value = new Texture(output.gl);
+		uniforms.uSampler0.value = new Texture(output.gl);
+		uniforms.uSampler1.value = new Texture(output.gl);
 
-    assignTextures();
-    resize();
-    render();
+		assignTextures();
+		resize();
+		render();
 
-    rendering.subscribe(() => {
-        resize();
-    });
+		rendering.subscribe(() => {
+			resize();
+		});
 
-    _mounted = true;
-});
+		_mounted = true;
+	});
 
-onDestroy(() => {
-    cancelAnimationFrame(_raf);
+	onDestroy(() => {
+		cancelAnimationFrame(_raf);
 
-    output.destroy();
-    output = null;
-});
+		output.destroy();
+		output = null;
+	});
 
-function assignTextures([monitorID0, monitorID1] = $multisampling) {
-    if (!output) return;
+	function assignTextures([monitorID0, monitorID1] = $multisampling) {
+		if (!output) return;
 
-    if (monitorID0 >= 0) {
-        uniforms.uSampler0.value.image = $monitors.find((monitor) => monitor.id === monitorID0).canvas;
-    }
+		if (monitorID0 >= 0) {
+			uniforms.uSampler0.value.image = $monitors.find(
+				(monitor) => monitor.id === monitorID0,
+			).canvas;
+		}
 
-    if (monitorID1 >= 0) {
-        uniforms.uSampler1.value.image = $monitors.find((monitor) => monitor.id === monitorID1).canvas;
-    }
-}
+		if (monitorID1 >= 0) {
+			uniforms.uSampler1.value.image = $monitors.find(
+				(monitor) => monitor.id === monitorID1,
+			).canvas;
+		}
+	}
 
-multisampling.subscribe(assignTextures);
+	multisampling.subscribe(assignTextures);
 
-function render() {
-    uniforms.threshold.value = $threshold;
+	function render() {
+		uniforms.threshold.value = $threshold;
 
-    if (!paused) {
-        uniforms.uSampler0.value.needsUpdate = true;
-        uniforms.uSampler1.value.needsUpdate = true;
+		if (!paused) {
+			uniforms.uSampler0.value.needsUpdate = true;
+			uniforms.uSampler1.value.needsUpdate = true;
 
-        output.render();
-    }
+			output.render();
+		}
 
-    _raf = requestAnimationFrame(render);
-}
+		_raf = requestAnimationFrame(render);
+	}
 
-function resize() {
-    if (!output) return;
+	function resize() {
+		if (!output) return;
 
-    const { width, height, pixelRatio } = $rendering;
+		const { width, height, pixelRatio } = $rendering;
 
-    output.resize({
-        width,
-        height,
-        pixelRatio,
-    })
-}
-
+		output.resize({
+			width,
+			height,
+			pixelRatio,
+		});
+	}
 </script>
 
 <div class="output-renderer">
-    <div class="canvas-container" style="max-width: {$rendering.width}px;">
-        <canvas bind:this={canvas}></canvas>
-    </div>
+	<div class="canvas-container" style="max-width: {$rendering.width}px;">
+		<canvas bind:this={canvas}></canvas>
+	</div>
 </div>
 
 <style>
-.output-renderer {
-    position: relative;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
+	.output-renderer {
+		position: relative;
+		display: flex;
+		width: 100%;
+		height: 100%;
+		justify-content: center;
 
-    background-color: var(--background-color, var(--color-lightblack));
-}
+		background-color: var(--background-color, var(--color-lightblack));
+	}
 
-.output-renderer :global(canvas) {
-    max-width: 100%;
-    max-height: 100%;
-    background: black;
+	.output-renderer :global(canvas) {
+		max-width: 100%;
+		max-height: 100%;
+		background: black;
 
-    width: auto !important;
-    height: auto !important;
-}
+		width: auto !important;
+		height: auto !important;
+	}
 
-.canvas-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    max-height: 100%;
-}
+	.canvas-container {
+		position: relative;
+		display: flex;
+		align-items: center;
+		height: 100%;
+		max-height: 100%;
+	}
 </style>
