@@ -5,5 +5,21 @@
 	"singleQuote": true,
 	"printWidth": 80,
 	"bracketSpacing": true,
-	"trailingComma": "all"
+	"trailingComma": "all",
+	"plugins": ["prettier-plugin-svelte"],
+	"overrides": [
+		{
+			"files": ["README.md", "packages/*/README.md", "**/package.json"],
+			"options": {
+				"useTabs": false,
+				"tabWidth": 2
+			}
+		},
+		{
+			"files": ["docs/**/*.md"],
+			"options": {
+				"printWidth": 60
+			}
+		}
+	]
 }
