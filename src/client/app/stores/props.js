@@ -18,9 +18,22 @@ sketches.subscribe((sketches) => {
 	});
 });
 
+export function resetProps(sketchKey) {
+	props.update((all) => {
+		const sketchProps = all[sketchKey];
+
+		Object.keys(sketchProps).forEach((propKey) => {
+			sketchProps[propKey].value = sketchProps[propKey].__initialValue;
+		});
+
+		return all;
+	});
+}
+
 export function reconcile(newProps = {}, prevProps = {}) {
 	Object.keys(newProps).forEach((propKey) => {
 		let newProp = newProps[propKey];
+		newProp.__initialValue = newProp.value;
 
 		if (!newProp.params) {
 			newProp.params = {};
@@ -33,6 +46,10 @@ export function reconcile(newProps = {}, prevProps = {}) {
 			let newProp = newProps[propKey];
 
 			if (newProp) {
+				if (newProp.__initialValue === prevProp.__initialValue) {
+					newProp.value = prevProp.value;
+				}
+
 				if (prevProp.params) {
 					// reconcile locked VectorInput from UI
 					if (prevProp.params.locked !== undefined) {

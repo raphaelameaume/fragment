@@ -40,11 +40,13 @@
 
 	export let key = '';
 	export let value = null;
+	export let initialValue = value;
 	export let context = null;
 	export let params = {};
 	export let type = null;
 	export let disabled = false;
 	export let displayName = undefined;
+	export let index = null;
 
 	let offsetWidth;
 	let showTriggers = false;
@@ -154,7 +156,9 @@
 	class:xxsmall
 	class:xsmall
 	class:small
+	class:changed={!disabled && value !== initialValue}
 	bind:offsetWidth
+	style="--index: {index};"
 >
 	<FieldSection
 		{key}
@@ -306,6 +310,30 @@
 
 		padding: 3px 6px 3px 12px;
 		border-bottom: 1px solid var(--color-spacing);
+	}
+
+	.field.changed:before {
+		content: '';
+
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		bottom: 0px;
+		z-index: 1;
+
+		width: 4px;
+		/* height: 4px; */
+		/* border-radius: 2px; */
+
+		--stripes-offset: calc(var(--index) * 1.9px);
+
+		background: repeating-linear-gradient(
+			45deg,
+			var(--color-active) calc(0px + var(--stripes-offset)),
+			var(--color-active) calc(2px + var(--stripes-offset)),
+			transparent calc(2px + var(--stripes-offset)),
+			transparent calc(4px + var(--stripes-offset))
+		);
 	}
 
 	:global(.field__input .field) {
