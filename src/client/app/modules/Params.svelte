@@ -96,10 +96,16 @@
 					disabled
 				/>
 			{/if}
-			{#each Object.keys(sketchProps) as key, i (key)}
+			{#each Object.keys(sketchProps) as key, index (key)}
 				{@const sketchProp = sketchProps[key]}
-				{@const { hidden, displayName, value, type, disabled } =
-					sketchProp}
+				{@const {
+					hidden,
+					displayName,
+					value,
+					type,
+					disabled,
+					__initialValue: initialValue,
+				} = sketchProp}
 				{@const isDisabled =
 					typeof disabled === 'function' ? disabled() : disabled}
 				{#if typeof hidden === 'function' ? !hidden() : !hidden}
@@ -108,7 +114,9 @@
 						{key}
 						{displayName}
 						{value}
+						{initialValue}
 						{type}
+						{index}
 						disabled={isDisabled}
 						bind:params={sketchProps[key].params}
 						on:click={() => {

@@ -29,6 +29,7 @@
 	import { client } from '../client';
 	import { recordCanvas, screenshotCanvas } from '../utils/canvas.utils.js';
 	import ErrorOverlay from './ErrorOverlay.svelte';
+	import { resetProps } from '../stores/props';
 
 	export let key;
 	export let id = 0;
@@ -610,6 +611,7 @@
 		const keyboardEvent = event.detail;
 		if (!keyboardEvent.metaKey && !keyboardEvent.ctrlKey) {
 			keyboardEvent.preventDefault();
+			resetProps(key);
 			console.log(`[fragment] ${key} reloaded.`);
 			createSketch(key);
 		}
