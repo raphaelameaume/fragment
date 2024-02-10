@@ -6,6 +6,9 @@
   "bin": {
     "fragment": "bin/index.js"
   },
+  "scripts": {
+    "format": "prettier . --write"
+  },
   "type": "module",
   "repository": {
     "type": "git",
@@ -33,5 +36,9 @@
     "vite": "^4.4.9",
     "webm-writer": "^1.0.0",
     "ws": "^8.2.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-svelte": "^3.1.2"
   }
 }
