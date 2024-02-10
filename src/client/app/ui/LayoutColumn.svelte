@@ -1,9 +1,9 @@
 <script>
-import LayoutComponent from "./LayoutComponent.svelte";
+	import LayoutComponent from './LayoutComponent.svelte';
 
-export let size = 1;
+	export let size = 1;
 </script>
 
-<LayoutComponent size={size} type="column">
-	<slot></slot>
+<LayoutComponent {size} type="column">
+	<slot />
 </LayoutComponent>

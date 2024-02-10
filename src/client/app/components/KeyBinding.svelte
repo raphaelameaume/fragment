@@ -1,32 +1,32 @@
 <script>
-import { createEventDispatcher, onDestroy, onMount } from "svelte";
-import { onKeyPress, onKeyDown, onKeyUp } from "../triggers";
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { onKeyPress, onKeyDown, onKeyUp } from '../triggers';
 
-export let key;
-export let type = "press";
+	export let key;
+	export let type = 'press';
 
-const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-const triggers = {
-	"press": onKeyPress,
-	"down": onKeyDown,
-	"up": onKeyUp,
-};
+	const triggers = {
+		press: onKeyPress,
+		down: onKeyDown,
+		up: onKeyUp,
+	};
 
-const triggerType = triggers[type];
+	const triggerType = triggers[type];
 
-let trigger;
+	let trigger;
 
-onMount(() => {
-	trigger = triggerType(key, (event) => {
-		dispatch('trigger', event);
+	onMount(() => {
+		trigger = triggerType(key, (event) => {
+			dispatch('trigger', event);
+		});
 	});
-})
 
-onDestroy(() => {
-	if (trigger) {
-		trigger.destroy();
-		trigger = null;
-	}
-});
+	onDestroy(() => {
+		if (trigger) {
+			trigger.destroy();
+			trigger = null;
+		}
+	});
 </script>

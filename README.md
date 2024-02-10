@@ -2,7 +2,7 @@
 <div align="center">A web development environment for creative coding</div>
 <br/>
 
-![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/main/screenshot.png "Screen Capture of Fragment")
+![Screen capture of Fragment, splitted in two columns, the left one has a centered canvas displaying squares arranged in a grid, the right column contains various controls for colors, variables and exports](https://github.com/raphaelameaume/fragment/raw/main/screenshot.png 'Screen Capture of Fragment')
 
 `fragment` provides a simple API to work with `<canvas>`.
 
@@ -12,14 +12,14 @@
 - Built-in GUI from sketch files
 - Export `<canvas>` to images (.png, .webm, .jpg) or videos (.mp4, .webm, .gif) on the fly
 - Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
-- Interactive sketches using *triggers*
+- Interactive sketches using _triggers_
 - Static build for production deployment
 
 ## Installation
 
 ```
 npm install fragment-tools -g
-``` 
+```
 
 You should now be able to run `fragment` from your command line.
 
@@ -48,9 +48,9 @@ export let props = {
     value: 10,
     params: {
       min: 4,
-      max: 30
-    }
-  }
+      max: 30,
+    },
+  },
 };
 
 export let update = ({ context, width, height }) => {
@@ -80,7 +80,7 @@ Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you w
 
 ```
 # clone or fork the project
-git clone https://github.com/raphaelameaume/fragment.git 
+git clone https://github.com/raphaelameaume/fragment.git
 
 # move to the root of the repository
 cd fragment
