@@ -1,0 +1,5 @@
+{
+	"name": "2d",
+	"description": "A sketch with a CanvasRenderingContext2D",
+	"isDefault": true
+}

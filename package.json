@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/raphaelameaume/fragment#readme",
   "dependencies": {
+    "@clack/prompts": "^0.7.0",
     "@sveltejs/vite-plugin-svelte": "^2.4.5",
     "body-parser": "^1.20.0",
     "changedpi": "^1.0.4",

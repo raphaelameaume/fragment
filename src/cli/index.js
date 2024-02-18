@@ -3,9 +3,10 @@ import path, { sep, posix } from 'path';
 import log from './log.js';
 import { start as startViteServer } from './server.js';
 import { start as startWebSocketServer } from './ws.js';
-import templates from './templates/index.js';
+// import templates from './templates/index.js';
 
 import { fileURLToPath } from 'url';
+import { mkdirp } from './utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +66,19 @@ async function createEntries(entry, options) {
 		if (path.extname(entryPath) !== '.js') {
 			throw new Error(`File extension needs to be .js`);
 		}
+
+		const templates = {
+			blank: ['./templates/blank.js'],
+			'2d': ['./templates/2d.js'],
+			fragment: ['./templates/fragment.js', './templates/fragment.fs'],
+			'three/orthographic': ['./templates/three-orthographic.js'],
+			'three/fragment': [
+				'./templates/three-fragment.js',
+				'./templates/fragment.fs',
+			],
+			'three/perspective': ['./templates/three-perspective.js'],
+			p5: ['./templates/p5.js'],
+		};
 
 		const createFromTemplate = typeof options.template === 'string';
 		const templateFiles = createFromTemplate
@@ -188,13 +202,7 @@ async function generateFiles(entries, options) {
 	const filename = getFilenameFromEntries(entries);
 
 	// create directory and don't throw error if it already exists
-	try {
-		await fs.mkdir(dirpath, { recursive: true });
-	} catch (e) {
-		if (e.code !== 'EEXIST') {
-			throw e;
-		}
-	}
+	await mkdirp(dirpath);
 
 	// generate sketch index file
 	const code = `
