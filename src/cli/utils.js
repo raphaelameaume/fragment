@@ -35,3 +35,10 @@ export function mkdirp(dir) {
 export function file(path) {
 	return fileURLToPath(new URL(`${path}`, import.meta.url).href);
 }
+
+export function handleCancelledPrompt(prompt) {
+	if (p.isCancel(prompt)) {
+		p.cancel(`${red('✖')} Cancelled`);
+		process.exit(1);
+	}
+}

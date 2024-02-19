@@ -1,31 +1,30 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { bold, cyan, grey, red, white, yellow, green } from 'kleur/colors';
+import { bold, cyan, grey, white, yellow, green } from 'kleur/colors';
 import * as p from '@clack/prompts';
-import { packageManager, file, mkdirp } from './utils.js';
-
-const addExtension = (name) => {
-	if (path.extname(name) === '') {
-		return `${name}.js`;
-	}
-
-	return name;
-};
+import {
+	packageManager,
+	file,
+	mkdirp,
+	handleCancelledPrompt,
+} from './utils.js';
 
 /**
- * Create a new sketch from the command line
+ * Create a new sketch
  * @param {string} entry
  * @param {object} options
  * @param {string} options.templateName
  */
 export async function create(entry, { templateName } = {}) {
 	const cwd = process.cwd();
-	const handleCancellation = (prompt) => {
-		if (p.isCancel(prompt)) {
-			p.cancel(`${red('✖')} Cancelled`);
-			process.exit(1);
+
+	const addExtension = (name) => {
+		if (path.extname(name) === '') {
+			return `${name}.js`;
 		}
+
+		return name;
 	};
 
 	p.intro(`Welcome to Fragment!`);
@@ -37,9 +36,6 @@ export async function create(entry, { templateName } = {}) {
 
 		dir = entryDir;
 		name = entryBase;
-
-		if (fs.existsSync(path.join(dir ?? cwd, addExtension(name)))) {
-		}
 	}
 
 	dir = await p.text({
@@ -48,7 +44,7 @@ export async function create(entry, { templateName } = {}) {
 		initialValue: dir,
 	});
 
-	handleCancellation(dir);
+	handleCancelledPrompt(dir);
 
 	if (!dir) {
 		dir = cwd;
@@ -63,7 +59,7 @@ export async function create(entry, { templateName } = {}) {
 		},
 	});
 
-	handleCancellation(name);
+	handleCancelledPrompt(name);
 
 	name = name.replace(/\s/g, '-');
 
@@ -78,7 +74,7 @@ export async function create(entry, { templateName } = {}) {
 				initialValue: false,
 			});
 
-			handleCancellation(override);
+			handleCancelledPrompt(override);
 
 			if (!override) {
 				name = await p.text({
@@ -122,7 +118,7 @@ export async function create(entry, { templateName } = {}) {
 		)?.value,
 	});
 
-	handleCancellation(templateName);
+	handleCancelledPrompt(templateName);
 
 	let template = templatesOptions.find(
 		(option) => option.value === templateName,

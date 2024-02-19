@@ -6,8 +6,8 @@ import { log } from './log.js';
 /**
  * Create local files needed by Fragment
  * @param {string[]} entries
- * @param {string} cwd
- * @returns {string[]}
+ * @param {string} cwd Current working directory
+ * @returns {string}
  */
 export async function createFragmentFile(entries = [], cwd = process.cwd()) {
 	try {

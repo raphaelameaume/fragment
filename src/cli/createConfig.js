@@ -1,17 +1,14 @@
 import { defineConfig } from 'vite';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 import hotSketchReload from './plugins/hot-sketch-reload.js';
 import screenshot from './plugins/screenshot.js';
 import checkDependencies from './plugins/check-dependencies.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { file } from './utils.js';
 
 /**
- *
+ * Create Vite config from
  * @param {string[]} entries
  * @param {string[]} fragmentFilepath
  * @param {options} options
@@ -20,12 +17,12 @@ const __dirname = path.dirname(__filename);
 export function createConfig(
 	entries,
 	fragmentFilepath,
-	{ dev = false, exportDir, build = false, port },
+	{ dev = false, exportDir, build = false, port } = {},
 	fragmentServer,
 	cwd = process.cwd(),
 ) {
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
-	const root = path.join(__dirname, '/../client');
+	const root = file('../client');
 	const app = path.join(root, 'app');
 
 	return defineConfig({
@@ -62,22 +59,6 @@ export function createConfig(
 				cwd,
 			}),
 			hotShaderReplacement({ cwd, wss: fragmentServer }),
-			// {
-			// 	name: 'configure-response-headers',
-			// 	configureServer: (server) => {
-			// 		server.middlewares.use((_req, res, next) => {
-			// 			res.setHeader(
-			// 				'Cross-Origin-Opener-Policy',
-			// 				'same-origin',
-			// 			);
-			// 			res.setHeader(
-			// 				'Cross-Origin-Embedder-Policy',
-			// 				'require-corp',
-			// 			);
-			// 			next();
-			// 		});
-			// 	},
-			// },
 			screenshot({ cwd, inlineExportDir: exportDir }),
 			checkDependencies({
 				cwd,
@@ -105,11 +86,6 @@ export function createConfig(
 		optimizeDeps: {
 			include: ['convert-length', 'webm-writer', 'changedpi'],
 			exclude: ['@fragment/sketches', ...entriesPaths],
-		},
-		build: {
-			commonjsOptions: {
-				include: ['convert-length', 'webm-writer', 'changedpi'],
-			},
 		},
 	});
 }

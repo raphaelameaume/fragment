@@ -4,7 +4,14 @@ import bodyParser from 'body-parser';
 import { log } from '../log.js';
 import { mkdirp } from '../utils.js';
 
-export default function screenshot({ cwd, inlineExportDir }) {
+/**
+ *
+ * @param {object} params
+ * @param {string} cwd - Current working directory
+ * @param {string} inlineExportDir - Directory path used for exports
+ * @returns {import('vite').Plugin}
+ */
+export default function screenshot({ cwd = process.cwd(), inlineExportDir }) {
 	function resolveDirectory(directoryPath) {
 		return path.isAbsolute(directoryPath)
 			? directoryPath

@@ -18,32 +18,30 @@ prog.version(`${version}`);
 
 prog.command('run [entry]', '', { default: true })
 	.describe('Run a dev environment for fragment')
-	.option('-n, --new', 'Create file if it does not exist', false)
+	.option('-n, --new', 'Create a new sketch', false)
 	.option('-t, --template', 'Specify template to create the file from', '2d')
 	.option('-p, --port', 'Port to bind', 3000)
 	.option('-dev, --development', 'Enable development mode', false)
 	.option('-b, --build', 'Build sketch for production', false)
 	.option('--exportDir', 'Directory used for exports')
-	.option('--outDir', 'Directory used for static build', null)
-	.option('--emptyOutDir', 'Empty outDir before static build', false)
+	.option('--outDir', 'Build output directory')
+	.option('--emptyOutDir', 'Empty outDir before static build')
 	.option('--base', 'Base public path when served in production', undefined)
 	.action((entry, options) => {
 		if (options.new) {
-			create({
+			return create({
 				entry,
 				templateName: options.template,
 			});
-			return;
 		}
 
 		if (options.build) {
-			build(entry, {
+			return build(entry, {
 				development: options.development,
 				outDir: options.outDir,
 				emptyOutDir: options.emptyOutDir,
 				base: options.base,
 			});
-			return;
 		}
 
 		run(entry, {
@@ -64,9 +62,9 @@ prog.command('create [entry]')
 
 prog.command('build [entry]')
 	.describe('Build a sketch')
-	.option('--outDir', 'Directory used for static build', null)
-	.option('--emptyOutDir', 'Empty outDir before static build', false)
-	.option('--base', 'Base public path when served in production', undefined)
+	.option('--outDir', 'Output folder', null)
+	.option('--emptyOutDir', 'Empty outDir before building for production')
+	.option('--base', 'Base public path', undefined)
 	.option('-dev, --development', 'Enable development mode', false)
 	.action((entry, options) => {
 		build(entry, options);

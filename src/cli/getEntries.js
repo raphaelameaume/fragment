@@ -2,6 +2,12 @@ import path from 'node:path';
 import { lstat, readdir } from 'node:fs/promises';
 import { log } from './log.js';
 
+/**
+ * Build entries from entry filepath or folder path
+ * @param {string} entry
+ * @param {string} cwd - Current working directory
+ * @returns {string[]}
+ */
 export async function getEntries(entry, cwd = process.cwd()) {
 	const entryPath = path.join(cwd, entry);
 	const entries = [];

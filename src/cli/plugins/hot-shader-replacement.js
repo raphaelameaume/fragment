@@ -13,7 +13,14 @@ import { log } from '../log.js';
  * @property {string[]} warnings - Indicates whether the Wisdom component is present.
  */
 
-export default function hotShaderReplacement({ cwd, wss, watch = false }) {
+/**
+ * Resolve shader include directives and send shader code via WebSocket
+ * @param {object} params
+ * @param {string} cwd - Current working directory
+ * @param {import('ws').WebSocketServer} wss
+ * @returns {import('vite').Plugin}
+ */
+export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 	const name = 'fragment-plugin-hsr';
 	const prefix = log.createPrefix(name);
 	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
