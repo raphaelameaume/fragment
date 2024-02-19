@@ -1,8 +1,8 @@
-import path from 'path';
-import fs from 'fs/promises';
-import fsSync from 'fs';
+import path from 'node:path';
+import { writeFile } from 'node:fs/promises';
 import bodyParser from 'body-parser';
-import log from '../log.js';
+import { log } from '../log.js';
+import { mkdirp } from '../utils.js';
 
 export default function screenshot({ cwd, inlineExportDir }) {
 	function resolveDirectory(directoryPath) {
@@ -50,17 +50,10 @@ export default function screenshot({ cwd, inlineExportDir }) {
 					const filepath = path.join(directory, filename);
 					const buffer = Buffer.from(dataURL, 'base64');
 
-					if (!fsSync.existsSync(directory)) {
-						try {
-							await fs.mkdir(directory, { recursive: true });
-						} catch (error) {
-							log.error('Cannot create directory for exports');
-							console.log(error);
-						}
-					}
+					mkdirp(directory);
 
 					try {
-						await fs.writeFile(filepath, buffer);
+						await writeFile(filepath, buffer);
 
 						log.success(`Saved ${filepath}`);
 

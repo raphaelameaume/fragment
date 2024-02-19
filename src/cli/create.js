@@ -1,20 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import * as p from '@clack/prompts';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { file, mkdirp } from './utils.js';
-import log from './log.js';
-import {
-	bold,
-	cyan,
-	grey,
-	magenta,
-	red,
-	white,
-	yellow,
-	green,
-} from 'kleur/colors';
-import { packageManager } from './utils.js';
+import { bold, cyan, grey, red, white, yellow, green } from 'kleur/colors';
+import * as p from '@clack/prompts';
+import { packageManager, file, mkdirp } from './utils.js';
 
 const addExtension = (name) => {
 	if (path.extname(name) === '') {
@@ -24,11 +13,14 @@ const addExtension = (name) => {
 	return name;
 };
 
-export async function create({
-	entry,
-	templateName,
-	cwd = process.cwd(),
-} = {}) {
+/**
+ * Create a new sketch from the command line
+ * @param {string} entry
+ * @param {object} options
+ * @param {string} options.templateName
+ */
+export async function create(entry, { templateName } = {}) {
+	const cwd = process.cwd();
 	const handleCancellation = (prompt) => {
 		if (p.isCancel(prompt)) {
 			p.cancel(`${red('✖')} Cancelled`);
@@ -41,14 +33,9 @@ export async function create({
 	let dir, name;
 
 	if (entry) {
-		const {
-			dir: entryDir,
-			name: entryName,
-			base: entryBase,
-		} = path.parse(entry);
+		const { dir: entryDir, base: entryBase } = path.parse(entry);
 
 		dir = entryDir;
-
 		name = entryBase;
 
 		if (fs.existsSync(path.join(dir ?? cwd, addExtension(name)))) {
@@ -62,6 +49,10 @@ export async function create({
 	});
 
 	handleCancellation(dir);
+
+	if (!dir) {
+		dir = cwd;
+	}
 
 	name = await p.text({
 		message: 'What is the name of your sketch file?',

@@ -1,9 +1,9 @@
-import { posix, sep, resolve, dirname, extname, relative } from 'path';
-import { readFileSync } from 'fs';
+import { posix, sep, resolve, dirname, extname, relative } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { dim, green, yellow } from 'kleur/colors';
 import glslify from 'glslify';
-import log from '../log.js';
-import { readFile } from 'fs/promises';
-import kleur from 'kleur';
+import { log } from '../log.js';
 
 /**
  * @typedef {Object} ShaderUpdate
@@ -35,9 +35,7 @@ export default function hotShaderReplacement({ cwd, wss, watch = false }) {
 		if (clone.length > 0) {
 			const { file } = clone[0];
 			const filepath = relative(cwd, file);
-			console.log(
-				`${log.prefix} ${kleur.green(`hmr update`)} /${filepath}`,
-			);
+			log.text(`${green(`hmr update`)} /${filepath}`);
 
 			server.ws.send({
 				type: 'custom',
@@ -214,12 +212,9 @@ ${keyword}${shaderParts[1]}
 			const { location } = warning;
 			const line = 1;
 			const column = 4;
-			log.text(
-				`${kleur.yellow(warning.type)} ${warning.importer}`,
-				prefix,
-			);
+			log.text(`${yellow(warning.type)} ${warning.importer}`, prefix);
 			console.log();
-			console.log(`  ${kleur.dim(location.lineText)}`);
+			console.log(`  ${dim(location.lineText)}`);
 			console.log();
 			console.log(warning.message);
 			console.log();
@@ -240,7 +235,7 @@ ${keyword}${shaderParts[1]}
 		if (shadersNeedReload.length > 0) {
 			shadersNeedReload.forEach((shaderUpdate) => {
 				log.text(
-					`${kleur.yellow('hsr ignore')} ${shaderUpdate.filepath}`,
+					`${yellow('hsr ignore')} ${shaderUpdate.filepath}`,
 					prefix,
 				);
 			});
@@ -249,7 +244,7 @@ ${keyword}${shaderParts[1]}
 		} else {
 			shaderUpdates.forEach((shaderUpdate) => {
 				log.text(
-					`${kleur.green('hsr update')} ${shaderUpdate.filepath}`,
+					`${green('hsr update')} ${shaderUpdate.filepath}`,
 					prefix,
 				);
 			});
@@ -332,7 +327,7 @@ ${keyword}${shaderParts[1]}
 						);
 
 						log.text(
-							`${kleur.yellow(`dependency update`)} ${unixPath}`,
+							`${yellow(`dependency update`)} ${unixPath}`,
 							prefix,
 						);
 

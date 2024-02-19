@@ -1,6 +1,6 @@
-import path from 'path';
-import fs from 'fs';
-import log from '../log.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { log } from '../log.js';
 
 export default function checkDependencies({
 	cwd,

@@ -1,6 +1,5 @@
-import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
-import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 /** @type {string} */
 export const packageManager = getPackageManager() || 'npm';
@@ -19,34 +18,16 @@ function getPackageManager() {
 	return name === 'npminstall' ? 'cnpm' : name;
 }
 
-/** @param {string} dir */
+/**
+ * Create a directory without throwing error if it already exists
+ * @param {string} dir
+ */
 export function mkdirp(dir) {
 	try {
 		fs.mkdirSync(dir, { recursive: true });
 	} catch (e) {
 		if (/** @type {any} */ (e).code === 'EEXIST') return;
 		throw e;
-	}
-}
-
-/**
- * @param {string} from
- * @param {string} to
- * @param {(basename: string) => string} rename
- */
-export function copy(from, to, rename = (name) => name) {
-	if (!fs.existsSync(from)) return;
-
-	const stats = fs.statSync(from);
-
-	if (stats.isDirectory()) {
-		fs.readdirSync(from).forEach((file) => {
-			console.log(`copy ${file} to ${to}`);
-			copy(path.join(from, file), path.join(to, rename(file)));
-		});
-	} else {
-		mkdirp(path.dirname(to));
-		fs.copyFileSync(from, to);
 	}
 }
 

@@ -1,6 +1,6 @@
 import kleur from 'kleur';
 
-const log = (() => {
+export const log = (() => {
 	let _prefix = createPrefix('fragment');
 
 	const success = (message, prefix = _prefix) => {
@@ -32,5 +32,3 @@ const log = (() => {
 		text,
 	};
 })();
-
-export default log;

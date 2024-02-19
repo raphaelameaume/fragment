@@ -1,9 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import getPort from 'get-port';
-import log from './log.js';
 import WebSocket, { WebSocketServer } from 'ws';
-import db from './db.js';
 
 export async function start({ port = 1234, cwd = '' } = {}) {
 	port = await getPort({ port });
@@ -14,11 +10,6 @@ export async function start({ port = 1234, cwd = '' } = {}) {
 		socket.on('message', (message) => {
 			const json = JSON.parse(message);
 			const { event, data } = json;
-
-			if (event === 'save') {
-				const { key, value } = data;
-				db.save(key, value);
-			}
 
 			send(json, {
 				sender: socket,
