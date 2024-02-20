@@ -1,14 +1,27 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { bold, cyan, grey, white, yellow, green } from 'kleur/colors';
-import * as p from '@clack/prompts';
+import {
+	bold,
+	cyan,
+	grey,
+	white,
+	yellow,
+	green,
+	inverse,
+	dim,
+	magenta,
+} from 'kleur/colors';
+// import * as p from '@clack/prompts';
+import * as p from './prompts.js';
 import {
 	packageManager,
 	file,
 	mkdirp,
 	handleCancelledPrompt,
+	prettifyTime,
 } from './utils.js';
+import { log } from './log.js';
 
 /**
  * Create a new sketch
@@ -27,7 +40,9 @@ export async function create(entry, { templateName } = {}) {
 		return name;
 	};
 
-	p.intro(`Welcome to Fragment!`);
+	const s = log.task(`create`);
+
+	s.message(`${magenta(entry)}\n`);
 
 	let dir, name;
 
@@ -39,8 +54,9 @@ export async function create(entry, { templateName } = {}) {
 	}
 
 	dir = await p.text({
-		message: 'Where should we create your sketch?',
-		placeholder: '.  (hit Enter to use current directory)',
+		message: 'Specify an output directory:',
+		placeholder: '.',
+		hint: '(hit Enter to use current directory)',
 		initialValue: dir,
 	});
 
@@ -51,8 +67,9 @@ export async function create(entry, { templateName } = {}) {
 	}
 
 	name = await p.text({
-		message: 'What is the name of your sketch file?',
-		placeholder: `  (hit Enter to validate)`,
+		message: 'Specify a sketch name:',
+		placeholder: `  `,
+		hint: '(hit Enter to validate)',
 		initialValue: name,
 		validate: (value) => {
 			if (value.length === 0) return `A name is required.`;
@@ -65,10 +82,10 @@ export async function create(entry, { templateName } = {}) {
 
 	const checkForFileExistence = async () => {
 		if (fs.existsSync(path.join(dir ?? cwd, addExtension(name)))) {
-			p.log.warn(yellow(`${name} already exists in ${dir ?? cwd}.`));
+			log.warn(yellow(`${name} already exists in ${dir ?? cwd}.\n`), '');
 
 			let override = await p.confirm({
-				message: `Do you want to override ${addExtension(name)}?`,
+				message: `Override ${addExtension(name)}?`,
 				active: 'Yes',
 				inactive: 'No',
 				initialValue: false,
@@ -78,8 +95,9 @@ export async function create(entry, { templateName } = {}) {
 
 			if (!override) {
 				name = await p.text({
-					message: 'Pick a different sketch name',
-					placeholder: `  (hit Enter to validate)`,
+					message: 'Pick a different name:',
+					placeholder: `  `,
+					hint: '(hit Enter to validate)',
 					initialValue: name,
 					validate: (value) => {
 						if (value.length === 0) return `A name is required.`;
@@ -111,7 +129,7 @@ export async function create(entry, { templateName } = {}) {
 	templatesOptions = templatesOptions.sort((a, b) => (a.isDefault ? -1 : 1));
 
 	templateName = await p.select({
-		message: 'Pick a Fragment template:',
+		message: 'Pick a template:',
 		options: templatesOptions,
 		initialValue: templatesOptions.find(
 			(option) => templateName === option.name,
@@ -123,6 +141,17 @@ export async function create(entry, { templateName } = {}) {
 	let template = templatesOptions.find(
 		(option) => option.value === templateName,
 	);
+
+	const hasDependencies = template.dependencies?.length > 0;
+	const singleDependency = template.dependencies?.length === 1;
+
+	if (hasDependencies) {
+		log.warn(
+			yellow(
+				`This template has the following ${singleDependency ? 'dependency' : 'dependencies'}: ${template.dependencies.map((dependency) => bold(`${dependency}`)).join(',')}. ${singleDependency ? 'It' : 'They'} need${singleDependency ? 's' : ''} to be installed before running Fragment.\n`,
+			),
+		);
+	}
 
 	mkdirp(dir);
 
@@ -137,7 +166,8 @@ export async function create(entry, { templateName } = {}) {
 
 	const files = [];
 
-	p.log.step(`Create sketch from template: ${white(template.name)}`);
+	let startTime = Date.now();
+	s.message(`Creating sketch from template ${magenta(template.name)}...\n`);
 
 	let index = 0;
 
@@ -161,31 +191,37 @@ export async function create(entry, { templateName } = {}) {
 		let maxAttempts = 100;
 
 		const checkForFileExistence = async () => {
-			p.log.message(
+			log.message(
 				grey(
 					`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
 				),
 			);
-			if (fs.existsSync(dest)) {
-				attempts++;
-				index++;
+			// if (fs.existsSync(dest)) {
+			// 	attempts++;
+			// 	index++;
 
-				p.log.message(yellow(`File already exists. Retrying...`));
+			// 	log.message(yellow(`File already exists. Retrying...`));
 
-				dest = path.join(to, composeFilename());
+			// 	dest = path.join(to, composeFilename());
 
-				if (attempts < maxAttempts) {
-					checkForFileExistence();
-				} else {
-					dest = path.join(to, `${filename}-${Date.now()}${ext}`);
-				}
-			}
+			// 	if (attempts < maxAttempts) {
+			// 		checkForFileExistence();
+			// 	} else {
+			// 		dest = path.join(to, `${filename}-${Date.now()}${ext}`);
+			// 	}
+			// }
 		};
 
-		checkForFileExistence();
+		// checkForFileExistence();
 
 		let buffer = await readFile(source);
 		let content = buffer.toString();
+
+		log.message(
+			grey(
+				`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
+			),
+		);
 
 		templateFiles
 			.filter((f) => f !== file)
@@ -197,37 +233,24 @@ export async function create(entry, { templateName } = {}) {
 			});
 
 		await writeFile(dest, Buffer.from(content));
+
 		files.push(dest);
 	}
 
-	p.log.success(`Sketch created from template: ${white(template.name)}`);
+	console.log();
+	s.message(`${green(`Done in ${prettifyTime(Date.now() - startTime)}`)}\n`);
 
-	p.log.message(
-		`${files.map((file) => `- ${path.relative(cwd, file)}`).join('\n')}`,
-	);
-
-	const hasDependencies = template.dependencies?.length > 0;
-	const singleDependency = template.dependencies?.length === 1;
+	log.message(`${files.map((file) => grey(`${file}`)).join('\n')}\n`);
 
 	let i = 1;
-
-	if (hasDependencies) {
-		p.log.warn(
-			yellow(
-				`This template has the following ${singleDependency ? 'dependency' : 'dependencies'}: ${template.dependencies.map((dependency) => bold(`${dependency}`)).join(',')}. ${singleDependency ? 'It' : 'They'} need${singleDependency ? 's' : ''} to be installed before running Fragment.`,
-			),
-		);
-	}
 
 	let nextSteps = ``;
 
 	if (hasDependencies) {
-		nextSteps += `${i++}. Install dependencies\n${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
+		nextSteps += `${dim(`${i++}. Install dependencies\n`)}${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
 	}
 
-	nextSteps += `${i++}. Start Fragment\n${bold(cyan(`fragment ${entry}`))}`;
+	nextSteps += `${dim(`${i++}. Start Fragment\n`)}${bold(cyan(`fragment ${entry}`))}`;
 
-	p.note(nextSteps, `Next steps`);
-
-	p.outro(`${green(`✔ Completed`)}`);
+	p.note(nextSteps, 'Next steps');
 }

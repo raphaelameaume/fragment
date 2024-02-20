@@ -1,10 +1,14 @@
 import getPort from 'get-port';
 import WebSocket, { WebSocketServer } from 'ws';
+import { log } from './log.js';
+import { gray } from 'kleur/colors';
 
 export async function start({ port = 1234 } = {}) {
 	port = await getPort({ port });
 
 	let wss = new WebSocketServer({ port });
+
+	log.message(gray(`Starting WebSocket server...`));
 
 	wss.on('connection', (socket) => {
 		socket.on('message', (message) => {

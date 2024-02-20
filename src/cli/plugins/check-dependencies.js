@@ -3,6 +3,7 @@ import path from 'node:path';
 import { log } from '../log.js';
 import { bold, cyan, grey, yellow } from 'kleur/colors';
 import { packageManager } from '../utils.js';
+import * as p from '../prompts.js';
 
 /**
  *
@@ -62,14 +63,13 @@ export default function checkDependencies({
 It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.
 					`),
 					);
+
 					console.log(
 						`Follow the next steps to start running ${filename} with Fragment:\n`,
 					);
-					console.log(
-						`${grey(`1. Install dependencies`)}\n${cyan(`${packageManager} install ${dependency}`)}\n`,
-					);
-					console.log(
-						`${grey(`2. Start Fragment`)}\n${cyan(`fragment ${filename}`)}\n`,
+
+					p.note(
+						`${grey(`1. Install dependencies`)}\n${cyan(`${packageManager} install ${dependency}`)}\n${grey(`2. Start Fragment`)}\n${cyan(`fragment ${filename}`)}`,
 					);
 
 					process.exit(1);

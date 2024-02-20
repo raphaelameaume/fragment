@@ -3,6 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import bodyParser from 'body-parser';
 import { log } from '../log.js';
 import { mkdirp } from '../utils.js';
+import { green, inverse } from 'kleur/colors';
 
 /**
  *
@@ -62,13 +63,14 @@ export default function screenshot({ cwd = process.cwd(), inlineExportDir }) {
 					try {
 						await writeFile(filepath, buffer);
 
-						log.success(`Saved ${filepath}`);
+						log.message(`${green(`export`)} Saved ${filepath}`);
 
 						res.writeHead(200, {
 							'Content-Type': 'application/json',
 						});
 						res.end(JSON.stringify({ filepath }));
 					} catch (error) {
+						console.error(error);
 						res.writeHead(500, {
 							'Content-Type': 'application/json',
 						});

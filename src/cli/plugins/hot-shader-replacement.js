@@ -42,7 +42,7 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 		if (clone.length > 0) {
 			const { file } = clone[0];
 			const filepath = relative(cwd, file);
-			log.text(`${green(`hmr update`)} /${filepath}`);
+			log.message(`${green(`hmr update`)} /${filepath}`);
 
 			server.ws.send({
 				type: 'custom',
@@ -219,7 +219,7 @@ ${keyword}${shaderParts[1]}
 			const { location } = warning;
 			const line = 1;
 			const column = 4;
-			log.text(`${yellow(warning.type)} ${warning.importer}`, prefix);
+			log.message(`${yellow(warning.type)} ${warning.importer}`, prefix);
 			console.log();
 			console.log(`  ${dim(location.lineText)}`);
 			console.log();
@@ -241,8 +241,8 @@ ${keyword}${shaderParts[1]}
 
 		if (shadersNeedReload.length > 0) {
 			shadersNeedReload.forEach((shaderUpdate) => {
-				log.text(
-					`${yellow('hsr ignore')} ${shaderUpdate.filepath}`,
+				log.message(
+					`${yellow('hsr ignore')} /${relative(cwd, shaderUpdate.filepath)}`,
 					prefix,
 				);
 			});
@@ -250,8 +250,8 @@ ${keyword}${shaderParts[1]}
 			return reloadSketch();
 		} else {
 			shaderUpdates.forEach((shaderUpdate) => {
-				log.text(
-					`${green('hsr update')} ${shaderUpdate.filepath}`,
+				log.message(
+					`${green('hsr update')} /${relative(cwd, shaderUpdate.filepath)}`,
 					prefix,
 				);
 			});
@@ -333,7 +333,7 @@ ${keyword}${shaderParts[1]}
 							}),
 						);
 
-						log.text(
+						log.message(
 							`${yellow(`dependency update`)} ${unixPath}`,
 							prefix,
 						);

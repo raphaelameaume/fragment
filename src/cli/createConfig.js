@@ -6,6 +6,8 @@ import hotSketchReload from './plugins/hot-sketch-reload.js';
 import screenshot from './plugins/screenshot.js';
 import checkDependencies from './plugins/check-dependencies.js';
 import { file } from './utils.js';
+import { log } from './log.js';
+import { gray } from 'kleur/colors';
 
 /**
  * Create Vite config from
@@ -24,6 +26,8 @@ export function createConfig(
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
 	const root = file('../client');
 	const app = path.join(root, 'app');
+
+	log.message(gray(`Creating Vite configuration...`));
 
 	return defineConfig({
 		configFile: false,

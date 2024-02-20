@@ -11,7 +11,7 @@ const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'),
 );
 
-console.log(grey(`[fragment] v${version}\n`));
+console.log(`${grey(`[fragment] v${version}`)}\n`);
 
 const prog = sade('fragment');
 prog.version(`${version}`);

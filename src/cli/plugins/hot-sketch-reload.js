@@ -16,7 +16,7 @@ export default function hotSketchReload({ cwd = process.cwd() } = {}) {
 			if (file.includes(cwd) && !shaderRegex.test(file)) {
 				const filepath = path.relative(cwd, file);
 
-				log.text(`${green(`hmr update`)} /${filepath}`);
+				log.message(`${green(`hmr update`)} /${filepath}`);
 
 				server.ws.send({
 					type: 'custom',
