@@ -1,5 +1,5 @@
 {
 	"name": "three-perspective",
-	"description": "a scene with a PerspectiveCamera with THREE.js",
+	"description": "An empty scene with a THREE.PerspectiveCamera",
 	"dependencies": ["three"]
 }

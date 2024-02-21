@@ -1,5 +1,5 @@
 {
 	"name": "p5",
-	"description": "A sketch with p5.js",
+	"description": "An empty sketch with p5.js",
 	"dependencies": ["p5"]
 }

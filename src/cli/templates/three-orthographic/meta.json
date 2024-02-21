@@ -1,5 +1,5 @@
 {
 	"name": "three-orthographic",
-	"description": "a scene with a Orthographic Camera with THREE.js",
+	"description": "An empty scene with a THREE.OrthographicCamera",
 	"dependencies": ["three"]
 }

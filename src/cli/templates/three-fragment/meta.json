@@ -1,5 +1,5 @@
 {
 	"name": "three-fragment",
-	"description": "a fullscreen fragment shader with THREE.js",
+	"description": "A fullscreen fragment shader with THREE.js",
 	"dependencies": ["three"]
 }
