@@ -1,25 +1,25 @@
 import path from 'node:path';
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import hotShaderReplacement from './plugins/hot-shader-replacement.js';
-import hotSketchReload from './plugins/hot-sketch-reload.js';
-import screenshot from './plugins/screenshot.js';
+
 import checkDependencies from './plugins/check-dependencies.js';
 import { file } from './utils.js';
 import { log } from './log.js';
 
 /**
- * Create Vite config from
+ * Create Vite config from entries
  * @param {string[]} entries
- * @param {string[]} fragmentFilepath
+ * @param {string} fragmentFilepath
  * @param {options} options
+ * @param {boolean} [options.dev=false]
+ * @param {boolean} [options.build=false]
+ * @param {string} [cwd=process.cwd()]
  * @returns {import('vite').UserConfig}
  */
 export function createConfig(
 	entries,
 	fragmentFilepath,
-	{ dev = false, exportDir, build = false, port } = {},
-	fragmentServer,
+	{ dev = false, build = false } = {},
 	cwd = process.cwd(),
 ) {
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
@@ -58,11 +58,6 @@ export function createConfig(
 					}
 				},
 			}),
-			hotSketchReload({
-				cwd,
-			}),
-			hotShaderReplacement({ cwd, wss: fragmentServer }),
-			screenshot({ cwd, inlineExportDir: exportDir }),
 			checkDependencies({
 				cwd,
 				app,
@@ -70,17 +65,10 @@ export function createConfig(
 				build,
 			}),
 		],
-		server: {
-			port,
-			host: true,
-			fs: {
-				strict: false,
-				allow: ['..'],
-			},
-		},
+
 		define: {
 			__CWD__: `${JSON.stringify(cwd)}`,
-			__FRAGMENT_PORT__: fragmentServer?.port,
+			__FRAGMENT_PORT__: undefined,
 			__START_TIME__: Date.now(),
 			__SEED__: Date.now(),
 			__BUILD__: build,

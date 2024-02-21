@@ -1,11 +1,14 @@
-import { createServer } from 'vite';
+import { createServer, mergeConfig } from 'vite';
 import { createConfig } from './createConfig.js';
 import { createFragmentFile } from './createFragmentFile.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta, bold, cyan, red } from './log.js';
+import screenshot from './plugins/screenshot.js';
 import * as p from './prompts.js';
 import { prettifyTime } from './utils.js';
 import { start as startWebSocketServer } from './ws.js';
+import hotSketchReload from './plugins/hot-sketch-reload.js';
+import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 
 /**
  * Run a sketch
@@ -70,16 +73,34 @@ export async function run(entry, options = {}) {
 				{
 					dev: options.development,
 					build: false,
-					exportDir: options.exportDir,
-					port: options.port,
 				},
-				fragmentServer,
 				cwd,
 			);
 
 			log.info(`Starting Vite server...`);
 
-			const server = await createServer(config);
+			const server = await createServer(
+				mergeConfig(config, {
+					server: {
+						port: options.port,
+						host: true,
+						fs: {
+							strict: false,
+							allow: ['..'],
+						},
+					},
+					define: {
+						__FRAGMENT_PORT__: fragmentServer.port,
+					},
+					plugins: [
+						hotSketchReload({
+							cwd,
+						}),
+						hotShaderReplacement({ cwd, wss: fragmentServer }),
+						screenshot({ cwd, inlineExportDir: options.exportDir }),
+					],
+				}),
+			);
 			await server.listen();
 
 			// line break after logs

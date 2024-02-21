@@ -7,6 +7,7 @@ import { getEntries } from './getEntries.js';
 import { log, magenta } from './log.js';
 import * as p from './prompts.js';
 import { handleCancelledPrompt, mkdirp, prettifyTime } from './utils.js';
+import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 
 /**
  * Build a sketch for production
@@ -81,7 +82,6 @@ export async function build(entry, options) {
 					dev: options.development,
 					build: true,
 				},
-				undefined,
 				cwd,
 			);
 
@@ -103,6 +103,7 @@ export async function build(entry, options) {
 						outDir: outDirPath,
 						emptyOutDir,
 					},
+					plugins: [hotShaderReplacement({ cwd })],
 				}),
 			);
 
