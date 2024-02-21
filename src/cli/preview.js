@@ -7,10 +7,10 @@ import * as p from './prompts.js';
 /**
  * Preview a sketch
  * @param {string} dir
- * @param {object} options
- * @param {boolean} options.open
+ * @param {object} [options]
+ * @param {boolean} [options.open=false]
  */
-export async function preview(dir, options) {
+export async function preview(dir, options = {}) {
 	const cwd = process.cwd();
 	const prefix = log.prefix('preview');
 

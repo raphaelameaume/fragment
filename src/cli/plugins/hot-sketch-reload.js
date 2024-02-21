@@ -3,8 +3,8 @@ import { log, green } from '../log.js';
 
 /**
  * Send a custom event to Fragment when a sketch changes
- * @param {object} params
- * @param {string} params.cwd - Current working directory
+ * @param {object} [params]
+ * @param {string} [params.cwd=process.cwd()] - Current working directory
  * @returns {import('vite').Plugin}
  */
 export default function hotSketchReload({ cwd = process.cwd() } = {}) {

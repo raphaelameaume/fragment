@@ -6,12 +6,15 @@ import { mkdirp } from '../utils.js';
 
 /**
  *
- * @param {object} params
- * @param {string} cwd - Current working directory
- * @param {string} inlineExportDir - Directory path used for exports
+ * @param {object} [params]
+ * @param {string} [cwd=process.cwd()] - Current working directory
+ * @param {string} [inlineExportDir] - Directory path used for exports
  * @returns {import('vite').Plugin}
  */
-export default function screenshot({ cwd = process.cwd(), inlineExportDir }) {
+export default function screenshot({
+	cwd = process.cwd(),
+	inlineExportDir,
+} = {}) {
 	function resolveDirectory(directoryPath) {
 		return path.isAbsolute(directoryPath)
 			? directoryPath
