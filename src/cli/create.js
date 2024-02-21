@@ -21,16 +21,16 @@ export async function create(entry, { templateName } = {}) {
 	const cwd = process.cwd();
 	const prefix = log.prefix('create');
 
+	const addExtension = (name, ext) => {
+		if (path.extname(name) === '') {
+			return `${name}${ext}`;
+		}
+
+		return name;
+	};
+
 	try {
 		log.message(`${magenta(entry)}\n`, prefix);
-
-		const addExtension = (name, ext) => {
-			if (path.extname(name) === '') {
-				return `${name}${ext}`;
-			}
-
-			return name;
-		};
 
 		let dir, name;
 
@@ -107,8 +107,12 @@ export async function create(entry, { templateName } = {}) {
 		const singleDependency = template.dependencies?.length === 1;
 
 		if (hasDependencies) {
+			const dependenciesList = template.dependencies
+				.map((dependency) => bold(`${dependency}`))
+				.join(',');
+
 			log.warn(
-				`This template has the following ${singleDependency ? 'dependency' : 'dependencies'}: ${template.dependencies.map((dependency) => bold(`${dependency}`)).join(',')}. ${singleDependency ? 'It' : 'They'} need${singleDependency ? 's' : ''} to be installed before running Fragment.\n`,
+				`This template has the following ${singleDependency ? 'dependency' : 'dependencies'}: ${dependenciesList}. ${singleDependency ? 'It' : 'They'} need${singleDependency ? 's' : ''} to be installed before running Fragment.\n`,
 			);
 		}
 
@@ -162,6 +166,8 @@ export async function create(entry, { templateName } = {}) {
 					});
 
 					handleCancelledPrompt(filename, prefix);
+
+					filename = filename.replace(/\s/g, '-');
 
 					return await checkForFileExistence(
 						path.join(dirname, addExtension(filename, ext)),
@@ -229,7 +235,7 @@ export async function create(entry, { templateName } = {}) {
 			nextSteps += `${dim(`${i++}. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
 		}
 
-		nextSteps += `${dim(`${i++}. Start Fragment`)}\n${bold(cyan(`fragment ${entry}`))}`;
+		nextSteps += `${dim(`${i++}. Start Fragment`)}\n${bold(cyan(`fragment ${path.relative(cwd, newFiles[newFiles.length - 1])}`))}`;
 
 		p.note(nextSteps, 'Next steps');
 	} catch (error) {
