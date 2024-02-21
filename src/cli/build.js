@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
-import { build as viteBuild } from 'vite';
+import { mergeConfig, build as viteBuild } from 'vite';
 import { createFragmentFile } from './createFragmentFile.js';
 import { createConfig } from './createConfig.js';
 import { getEntries } from './getEntries.js';
@@ -34,7 +34,7 @@ export async function build(entry, options) {
 				options.outDir ?? entries[0].split(path.extname(entries[0]))[0],
 		});
 
-		handleCancelledPrompt(outDir);
+		handleCancelledPrompt(outDir, prefix);
 
 		let outDirPath = path.join(cwd, outDir);
 
@@ -55,7 +55,7 @@ export async function build(entry, options) {
 				initialValue: emptyOutDir ?? true,
 			});
 
-			handleCancelledPrompt(emptyOutDir);
+			handleCancelledPrompt(emptyOutDir, prefix);
 		}
 
 		const base = await p.text({
@@ -64,6 +64,8 @@ export async function build(entry, options) {
 			hint: '(Hit Enter to validate)',
 			initialValue: options.base,
 		});
+
+		handleCancelledPrompt(base, prefix);
 
 		if (entries.length > 0) {
 			log.message(
@@ -93,15 +95,16 @@ export async function build(entry, options) {
 
 			let startTime = Date.now();
 
-			await viteBuild({
-				...config,
-				logLevel: 'info',
-				base,
-				build: {
-					outDir: outDirPath,
-					emptyOutDir,
-				},
-			});
+			await viteBuild(
+				mergeConfig(config, {
+					logLevel: 'info',
+					base,
+					build: {
+						outDir: outDirPath,
+						emptyOutDir,
+					},
+				}),
+			);
 
 			// line break from vite logs
 			log.message();
@@ -112,6 +115,7 @@ export async function build(entry, options) {
 			);
 		}
 	} catch (error) {
-		throw error;
+		log.error(`Error\n`, prefix);
+		console.error(error);
 	}
 }

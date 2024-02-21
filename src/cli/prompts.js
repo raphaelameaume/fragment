@@ -96,8 +96,8 @@ export const text = (opts) => {
 					return `${color.dim(`${title}`)} ${color.green(this.value || opts.placeholder)}\n`;
 				case 'cancel':
 					return `${title} ${color.strikethrough(
-						color.dim(this.value ?? ''),
-					)}${this.value?.trim() ? '\n' : ''}`;
+						color.dim(this.value ?? placeholder),
+					)}\n`;
 				default:
 					return `${title} ${value}\n`;
 			}

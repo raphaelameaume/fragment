@@ -1,4 +1,4 @@
-import { green, yellow, grey, inverse } from 'kleur/colors';
+import { green, yellow, grey, inverse, red } from 'kleur/colors';
 
 export const log = {
 	message: (message = '', prefix) => {
@@ -15,10 +15,10 @@ export const log = {
 		log.message(yellow(`${message}`), prefix);
 	},
 	/** alias for `log.warn()`. */
-	warning: (message = '') => {
+	warning: (message = '', prefix) => {
 		log.warn(message, prefix);
 	},
-	error: (message = '') => {
+	error: (message = '', prefix) => {
 		log.message(red(`${message}`), prefix);
 	},
 	prefix: (label) => {

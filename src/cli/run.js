@@ -16,19 +16,11 @@ import { start as startWebSocketServer } from './ws.js';
  * @param {number} options.exportDir
  */
 export async function run(entry, options = {}) {
-	const cwd = process.cwd();
-	const prefix = log.prefix('run');
-
-	if (entry === undefined) {
-		log.error(`Missing argument.`);
-		return;
-	}
-
 	let fragmentServer;
 
-	const startTime = Date.now();
-
-	function exit() {
+	const cwd = process.cwd();
+	const prefix = log.prefix('run');
+	const exit = () => {
 		process.off('SIGTERM', exit);
 		process.off('exit', exit);
 
@@ -38,10 +30,17 @@ export async function run(entry, options = {}) {
 
 		console.log();
 		log.error(`Aborted\n`, prefix);
-	}
+	};
 
 	process.once('SIGTERM', exit);
 	process.on('exit', exit);
+
+	if (entry === undefined) {
+		log.error(`Missing argument.`);
+		return;
+	}
+
+	const startTime = Date.now();
 
 	try {
 		const entries = await getEntries(entry, cwd);

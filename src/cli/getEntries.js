@@ -9,10 +9,9 @@ import { log } from './log.js';
  * @returns {string[]}
  */
 export async function getEntries(entry, cwd = process.cwd()) {
-	const entryPath = path.join(cwd, entry);
-	const entries = [];
-
 	try {
+		const entries = [];
+		const entryPath = path.join(cwd, entry);
 		const stats = await lstat(entryPath);
 
 		if (stats.isFile()) {
@@ -34,13 +33,9 @@ export async function getEntries(entry, cwd = process.cwd()) {
 				),
 			);
 		}
-	} catch (error) {
-		if (error.code === 'ENOENT') {
-			log.error(`Error: ${entry} doesn't exist.`);
-		} else {
-			log.error(error.message);
-		}
-	}
 
-	return entries;
+		return entries;
+	} catch (error) {
+		throw error;
+	}
 }

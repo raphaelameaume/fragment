@@ -38,9 +38,9 @@ export function file(path) {
 	return fileURLToPath(new URL(`${path}`, import.meta.url).href);
 }
 
-export function handleCancelledPrompt(prompt) {
+export function handleCancelledPrompt(prompt, prefix) {
 	if (isCancel(prompt)) {
-		log.error(`Cancelled`);
+		log.error(`Cancelled`, prefix);
 		process.exit(1);
 	}
 }
