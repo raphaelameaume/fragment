@@ -1,6 +1,5 @@
 import path from 'node:path';
-import { green } from 'kleur/colors';
-import { log } from '../log.js';
+import { log, green } from '../log.js';
 
 /**
  * Send a custom event to Fragment when a sketch changes

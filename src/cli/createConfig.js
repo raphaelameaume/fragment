@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
 import path from 'node:path';
+import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 import hotSketchReload from './plugins/hot-sketch-reload.js';
@@ -7,7 +7,6 @@ import screenshot from './plugins/screenshot.js';
 import checkDependencies from './plugins/check-dependencies.js';
 import { file } from './utils.js';
 import { log } from './log.js';
-import { gray } from 'kleur/colors';
 
 /**
  * Create Vite config from
@@ -27,7 +26,7 @@ export function createConfig(
 	const root = file('../client');
 	const app = path.join(root, 'app');
 
-	log.message(gray(`Creating Vite configuration...`));
+	log.info(`Creating Vite configuration...`);
 
 	return defineConfig({
 		configFile: false,

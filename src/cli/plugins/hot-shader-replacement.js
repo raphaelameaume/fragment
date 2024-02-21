@@ -1,9 +1,8 @@
-import { posix, sep, resolve, dirname, extname, relative } from 'node:path';
-import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { dim, green, yellow } from 'kleur/colors';
 import glslify from 'glslify';
-import { log } from '../log.js';
+import { log, dim, green, yellow } from '../log.js';
 
 /**
  * @typedef {Object} ShaderUpdate
@@ -22,13 +21,13 @@ import { log } from '../log.js';
  */
 export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 	const name = 'fragment-plugin-hsr';
-	const prefix = log.createPrefix(name);
+	const prefix = log.prefix(name);
 	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
 	const includeRegex = /#include(\s+([^\s<>]+));?/gi;
 	const ignoreRegex = /^(?:\/|\*)*\s*@fragment-nohsr/;
 	const commentRegex =
 		/(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi;
-	const base = process.cwd().split(sep).join(posix.sep);
+	const base = process.cwd().split(path.sep).join(path.posix.sep);
 
 	let dependencies = new Map();
 	let shaders = [];
@@ -41,7 +40,7 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 
 		if (clone.length > 0) {
 			const { file } = clone[0];
-			const filepath = relative(cwd, file);
+			const filepath = path.relative(cwd, file);
 			log.message(`${green(`hmr update`)} /${filepath}`);
 
 			server.ws.send({
@@ -70,7 +69,7 @@ ${keyword}${shaderParts[1]}
 	}
 
 	function getUnixPath(shaderPath) {
-		return shaderPath.split(sep).join(posix.sep);
+		return shaderPath.split(path.sep).join(path.posix.sep);
 	}
 
 	function compileGLSL(shaderSource, shaderPath) {
@@ -111,7 +110,7 @@ ${keyword}${shaderParts[1]}
 			parentSource = parentSource.replace(commentRegex, '');
 
 			let parentUnixPath = getUnixPath(parentPath);
-			let directory = dirname(parentUnixPath);
+			let directory = path.dirname(parentUnixPath);
 
 			if (includeRegex.test(parentSource)) {
 				const currentDirectory = directory;
@@ -133,7 +132,7 @@ ${keyword}${shaderParts[1]}
 						directory = currentDirectory;
 
 						if (directoryIndex !== -1) {
-							directory = resolve(
+							directory = path.resolve(
 								directory,
 								chunkPath.slice(0, directoryIndex + 1),
 							);
@@ -143,10 +142,13 @@ ${keyword}${shaderParts[1]}
 							);
 						}
 
-						let chunkResolvedPath = resolve(directory, chunkPath);
+						let chunkResolvedPath = path.resolve(
+							directory,
+							chunkPath,
+						);
 						let extension = 'glsl';
 
-						if (!extname(chunkResolvedPath))
+						if (!path.extname(chunkResolvedPath))
 							chunkResolvedPath = `${chunkResolvedPath}.${extension}`;
 
 						const chunkUnixPath = getUnixPath(chunkResolvedPath);
@@ -182,7 +184,7 @@ ${keyword}${shaderParts[1]}
 						}
 
 						const { code: chunkCode } = resolveDependencies(
-							readFileSync(chunkResolvedPath, 'utf8'),
+							fs.readFileSync(chunkResolvedPath, 'utf8'),
 							chunkResolvedPath,
 							deps,
 							warnings,

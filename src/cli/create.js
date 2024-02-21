@@ -1,18 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import {
-	bold,
-	cyan,
-	grey,
-	white,
-	yellow,
-	green,
-	inverse,
-	dim,
-	magenta,
-} from 'kleur/colors';
-// import * as p from '@clack/prompts';
+import { log, magenta, bold, cyan, dim } from './log.js';
 import * as p from './prompts.js';
 import {
 	packageManager,
@@ -21,7 +10,6 @@ import {
 	handleCancelledPrompt,
 	prettifyTime,
 } from './utils.js';
-import { log } from './log.js';
 
 /**
  * Create a new sketch
@@ -31,6 +19,7 @@ import { log } from './log.js';
  */
 export async function create(entry, { templateName } = {}) {
 	const cwd = process.cwd();
+	const prefix = log.prefix('create');
 
 	const addExtension = (name) => {
 		if (path.extname(name) === '') {
@@ -40,9 +29,7 @@ export async function create(entry, { templateName } = {}) {
 		return name;
 	};
 
-	const s = log.task(`create`);
-
-	s.message(`${magenta(entry)}\n`);
+	log.message(`${magenta(entry)}\n`, prefix);
 
 	let dir, name;
 
@@ -82,7 +69,7 @@ export async function create(entry, { templateName } = {}) {
 
 	const checkForFileExistence = async () => {
 		if (fs.existsSync(path.join(dir ?? cwd, addExtension(name)))) {
-			log.warn(yellow(`${name} already exists in ${dir ?? cwd}.\n`), '');
+			log.warn(`${name} already exists in ${dir ?? cwd}.\n`);
 
 			let override = await p.confirm({
 				message: `Override ${addExtension(name)}?`,
@@ -147,9 +134,7 @@ export async function create(entry, { templateName } = {}) {
 
 	if (hasDependencies) {
 		log.warn(
-			yellow(
-				`This template has the following ${singleDependency ? 'dependency' : 'dependencies'}: ${template.dependencies.map((dependency) => bold(`${dependency}`)).join(',')}. ${singleDependency ? 'It' : 'They'} need${singleDependency ? 's' : ''} to be installed before running Fragment.\n`,
-			),
+			`This template has the following ${singleDependency ? 'dependency' : 'dependencies'}: ${template.dependencies.map((dependency) => bold(`${dependency}`)).join(',')}. ${singleDependency ? 'It' : 'They'} need${singleDependency ? 's' : ''} to be installed before running Fragment.\n`,
 		);
 	}
 
@@ -167,7 +152,10 @@ export async function create(entry, { templateName } = {}) {
 	const files = [];
 
 	let startTime = Date.now();
-	s.message(`Creating sketch from template ${magenta(template.name)}...\n`);
+	log.message(
+		`Creating sketch from template ${magenta(template.name)}...\n`,
+		prefix,
+	);
 
 	let index = 0;
 
@@ -191,10 +179,8 @@ export async function create(entry, { templateName } = {}) {
 		let maxAttempts = 100;
 
 		const checkForFileExistence = async () => {
-			log.message(
-				grey(
-					`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
-				),
+			log.info(
+				`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
 			);
 			// if (fs.existsSync(dest)) {
 			// 	attempts++;
@@ -217,10 +203,8 @@ export async function create(entry, { templateName } = {}) {
 		let buffer = await readFile(source);
 		let content = buffer.toString();
 
-		log.message(
-			grey(
-				`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
-			),
+		log.info(
+			`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
 		);
 
 		templateFiles
@@ -238,19 +222,18 @@ export async function create(entry, { templateName } = {}) {
 	}
 
 	console.log();
-	s.message(`${green(`Done in ${prettifyTime(Date.now() - startTime)}`)}\n`);
-
-	log.message(`${files.map((file) => grey(`${file}`)).join('\n')}\n`);
+	log.success(`Done in ${prettifyTime(Date.now() - startTime)}\n`, prefix);
+	log.info(`${files.join('\n')}\n`);
 
 	let i = 1;
 
 	let nextSteps = ``;
 
 	if (hasDependencies) {
-		nextSteps += `${dim(`${i++}. Install dependencies\n`)}${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
+		nextSteps += `${dim(`${i++}. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
 	}
 
-	nextSteps += `${dim(`${i++}. Start Fragment\n`)}${bold(cyan(`fragment ${entry}`))}`;
+	nextSteps += `${dim(`${i++}. Start Fragment`)}\n${bold(cyan(`fragment ${entry}`))}`;
 
 	p.note(nextSteps, 'Next steps');
 }

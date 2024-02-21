@@ -1,9 +1,8 @@
 import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
 import bodyParser from 'body-parser';
-import { log } from '../log.js';
+import { log, green } from '../log.js';
 import { mkdirp } from '../utils.js';
-import { green, inverse } from 'kleur/colors';
 
 /**
  *

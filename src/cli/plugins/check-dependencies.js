@@ -1,7 +1,6 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import { log } from '../log.js';
-import { bold, cyan, grey, yellow } from 'kleur/colors';
+import fs from 'node:fs';
+import { log, bold, cyan, dim } from '../log.js';
 import { packageManager } from '../utils.js';
 import * as p from '../prompts.js';
 
@@ -56,20 +55,20 @@ export default function checkDependencies({
 
 				if (!isInstalled) {
 					const filename = entry.split(`${cwd}/`)[1];
-					const error = `Missing dependency "${dependency}" in ${filename}`;
-					log.error(error);
-					console.log(
-						yellow(`
-It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.
-					`),
+					log.error(
+						`Missing dependency "${dependency}" in ${filename}`,
+					);
+					log.warn(
+						`It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.`,
 					);
 
-					console.log(
+					log.message(
 						`Follow the next steps to start running ${filename} with Fragment:\n`,
 					);
 
 					p.note(
-						`${grey(`1. Install dependencies`)}\n${cyan(`${packageManager} install ${dependency}`)}\n${grey(`2. Start Fragment`)}\n${cyan(`fragment ${filename}`)}`,
+						`${dim(`1. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${dependency}`))}\n${dim(`2. Start Fragment`)}\n${bold(cyan(`fragment ${filename}`))}`,
+						'',
 					);
 
 					process.exit(1);

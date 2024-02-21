@@ -13,10 +13,6 @@ const s = (c, fallback) => (unicode ? c : fallback);
 
 const S_RADIO_ACTIVE = s('●', '>');
 const S_RADIO_INACTIVE = s('○', ' ');
-const S_STEP_ACTIVE = s('◆', '*');
-const S_STEP_ERROR = s('▲', 'x');
-const S_STEP_CANCEL = s('■', 'x');
-const S_STEP_SUBMIT = s('◇', 'o');
 
 const S_BAR_H = s('─', '-');
 const S_CORNER_TOP_LEFT = s('╭', '+');
@@ -25,26 +21,12 @@ const S_CORNER_BOTTOM_RIGHT = s('╯', '+');
 const S_CORNER_BOTTOM_LEFT = s('╰', '+');
 const S_BAR = s('│', '|');
 
-const symbol = (state) => {
-	switch (state) {
-		case 'initial':
-		case 'active':
-			return color.cyan(S_STEP_ACTIVE);
-		case 'cancel':
-			return color.red(S_STEP_CANCEL);
-		case 'error':
-			return color.yellow(S_STEP_ERROR);
-		case 'submit':
-			return color.green(S_STEP_SUBMIT);
-	}
-};
-
 /**
  * @param {object} opts
  * @param {string} opts.active
  * @param {string} opts.inactive
  * @param {boolean} opts.initialValue
- * @returns {Promise<boolean|symbol}
+ * @returns {Promise<boolean|symbol>}
  */
 export const confirm = (opts) => {
 	const active = opts.active ?? 'Yes';
@@ -175,6 +157,7 @@ const limitOptions = (params) => {
  * @param {Option<Value>[]} opts.options
  * @param {Value} [opts.initialValue]
  * @param {number} [opts.maxItems]
+ * @returns {Promise<boolean|symbol>}
  */
 export const select = (opts) => {
 	/**
@@ -260,15 +243,14 @@ export const note = (message = '', title = '') => {
 	const msg = lines
 		.map(
 			(ln) =>
-				`${color.gray(S_BAR)}  ${color.dim(ln)}${' '.repeat(len - strip(ln).length)}${color.gray(
+				`${color.gray(S_BAR)}  ${ln}${' '.repeat(len - strip(ln).length)}${color.gray(
 					S_BAR,
 				)}`,
 		)
 		.join('\n');
 
-	const head = title
-		? ` ${color.reset(title)} `
-		: `${color.gray(S_BAR_H.repeat(2))}`;
+	const head = title ? ` ${title} ` : `${color.gray(S_BAR_H.repeat(2))}`;
+
 	process.stdout.write(
 		`${color.gray(S_CORNER_TOP_LEFT + S_BAR_H)}${head}${color.gray(
 			S_BAR_H.repeat(Math.max(len - titleLen - 1, 1)) +

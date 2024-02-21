@@ -1,8 +1,7 @@
+import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
-import path, { sep, posix } from 'node:path';
-import { mkdirp } from './utils.js';
 import { log } from './log.js';
-import { gray } from 'kleur/colors';
+import { mkdirp } from './utils.js';
 
 /**
  * Create local files needed by Fragment
@@ -22,8 +21,7 @@ export async function createFragmentFile(entries = [], cwd = process.cwd()) {
 			return `sketches.js`;
 		}
 
-		log.message(gray(`Generating files...`));
-		// entries.forEach((entry) => console.log(`- ${entry}`));
+		log.info(`Generating files...`);
 
 		const dir = '/node_modules/.fragment';
 		const dirpath = path.join(cwd, dir);
@@ -37,10 +35,10 @@ export async function createFragmentFile(entries = [], cwd = process.cwd()) {
 export const sketches = {
     ${entries
 		.map((entry) => {
-			const entryPath = entry.split(sep).join(posix.sep);
+			const entryPath = entry.split(path.sep).join(path.posix.sep);
 			const relativeEntryPath = `../../${entry}`
-				.split(sep)
-				.join(posix.sep);
+				.split(path.sep)
+				.join(path.posix.sep);
 
 			return `"${entryPath}": () => import("${relativeEntryPath}")`;
 		})

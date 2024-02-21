@@ -1,13 +1,11 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { build as viteBuild } from 'vite';
-import { green, grey, inverse, magenta, yellow } from 'kleur/colors';
-// import * as p from '@clack/prompts';
-import * as p from './prompts.js';
 import { createFragmentFile } from './createFragmentFile.js';
-import { getEntries } from './getEntries.js';
 import { createConfig } from './createConfig.js';
-import { log } from './log.js';
+import { getEntries } from './getEntries.js';
+import { log, magenta } from './log.js';
+import * as p from './prompts.js';
 import { handleCancelledPrompt, mkdirp, prettifyTime } from './utils.js';
 
 /**
@@ -21,10 +19,10 @@ import { handleCancelledPrompt, mkdirp, prettifyTime } from './utils.js';
  */
 export async function build(entry, options) {
 	const cwd = process.cwd();
+	const prefix = log.prefix('build');
 
 	try {
-		const s = log.task(`build`);
-		s.message(`${magenta(entry)}\n`);
+		log.message(`${magenta(entry)}\n`, prefix);
 
 		const entries = await getEntries(entry, cwd);
 
@@ -48,7 +46,7 @@ export async function build(entry, options) {
 		let emptyOutDir = options.emptyOutDir ?? true;
 
 		if (files.length > 0) {
-			log.warn(`${outDirPath} is not an empty folder.\n`, '');
+			log.warn(`${outDirPath} is not an empty folder.\n`);
 
 			emptyOutDir = await p.confirm({
 				message: 'Empty folder before building?',
@@ -68,7 +66,10 @@ export async function build(entry, options) {
 		});
 
 		if (entries.length > 0) {
-			s.message(`Building ${magenta(entries[0])} for production...\n`);
+			log.message(
+				`Building ${magenta(entries[0])} for production...\n`,
+				prefix,
+			);
 
 			const fragmentFilepath = await createFragmentFile(entries, cwd);
 			const config = createConfig(
@@ -83,7 +84,10 @@ export async function build(entry, options) {
 			);
 
 			if (entries.length > 1) {
-				log.error(`fragment can only build one sketch at a time.`);
+				log.error(
+					`fragment can only build one sketch at a time.`,
+					prefix,
+				);
 				return;
 			}
 
@@ -99,13 +103,15 @@ export async function build(entry, options) {
 				},
 			});
 
-			console.log(`\n`);
+			// line break from vite logs
+			log.message();
 
-			s.message(
-				`${green(`Done in ${prettifyTime(Date.now() - startTime)}`)}`,
+			log.success(
+				`Done in ${prettifyTime(Date.now() - startTime)}`,
+				prefix,
 			);
 		}
 	} catch (error) {
-		console.log(error);
+		throw error;
 	}
 }

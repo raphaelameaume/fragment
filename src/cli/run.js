@@ -1,12 +1,11 @@
 import { createServer } from 'vite';
-import { bold, cyan, gray, green, inverse, magenta, red } from 'kleur/colors';
-import { log } from './log.js';
-import { start as startWebSocketServer } from './ws.js';
 import { createConfig } from './createConfig.js';
-import { getEntries } from './getEntries.js';
-import * as p from './prompts.js';
 import { createFragmentFile } from './createFragmentFile.js';
+import { getEntries } from './getEntries.js';
+import { log, magenta, bold, cyan, red } from './log.js';
+import * as p from './prompts.js';
 import { prettifyTime } from './utils.js';
+import { start as startWebSocketServer } from './ws.js';
 
 /**
  * Run a sketch
@@ -17,16 +16,17 @@ import { prettifyTime } from './utils.js';
  * @param {number} options.exportDir
  */
 export async function run(entry, options = {}) {
+	const cwd = process.cwd();
+	const prefix = log.prefix('run');
+
 	if (entry === undefined) {
 		log.error(`Missing argument.`);
 		return;
 	}
 
 	let fragmentServer;
-	const cwd = process.cwd();
 
 	const startTime = Date.now();
-	const s = log.task('run');
 
 	function exit() {
 		process.off('SIGTERM', exit);
@@ -37,7 +37,7 @@ export async function run(entry, options = {}) {
 		}
 
 		console.log();
-		s.message(red(`Aborted\n`));
+		log.error(`Aborted\n`, prefix);
 	}
 
 	process.once('SIGTERM', exit);
@@ -47,8 +47,9 @@ export async function run(entry, options = {}) {
 		const entries = await getEntries(entry, cwd);
 
 		if (entries.length > 0) {
-			s.message(
+			log.message(
 				`Starting ${entries.length > 1 ? `${entries.length} sketches` : magenta(entries[0])}\n`,
+				prefix,
 			);
 
 			if (entries.length > 1) {
@@ -76,14 +77,15 @@ export async function run(entry, options = {}) {
 				cwd,
 			);
 
-			log.message(gray(`Starting Vite server...\n`));
+			log.info(`Starting Vite server...\n`);
 
 			const server = await createServer(config);
 
 			await server.listen();
 
-			s.message(
-				green(`Started in ${prettifyTime(Date.now() - startTime)}\n`),
+			log.success(
+				`Started in ${prettifyTime(Date.now() - startTime)}\n`,
+				prefix,
 			);
 
 			const { resolvedUrls } = server;
@@ -100,6 +102,7 @@ export async function run(entry, options = {}) {
 
 			p.note(urls);
 
+			// line break before fragment logs
 			log.message(``);
 
 			return server;

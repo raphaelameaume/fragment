@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import * as p from '@clack/prompts';
-import { red } from 'kleur/colors';
+import { isCancel } from '@clack/core';
 import { log } from './log.js';
 
 /** @type {string} */
@@ -40,7 +39,7 @@ export function file(path) {
 }
 
 export function handleCancelledPrompt(prompt) {
-	if (p.isCancel(prompt)) {
+	if (isCancel(prompt)) {
 		log.error(`Cancelled`);
 		process.exit(1);
 	}
