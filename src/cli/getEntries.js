@@ -18,13 +18,12 @@ export async function getEntries(entry, cwd = process.cwd()) {
 			entries.push(path.relative(cwd, entryPath));
 		} else if (stats.isDirectory()) {
 			const files = await readdir(entryPath);
-			const sketchFiles = files.filter(
-				(file) => path.extname(file) === '.js',
-			);
+			const sketchFiles = files
+				.filter((file) => path.extname(file) === '.js')
+				.map((file) => path.join(entryPath, file));
 
 			if (sketchFiles.length === 0) {
-				log.error(`Folder doesn't contain any sketch files.`);
-				return;
+				throw new Error(`Folder doesn't contain any sketch files.`);
 			}
 
 			entries.push(

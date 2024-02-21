@@ -29,25 +29,26 @@ export async function run(entry, options = {}) {
 		}
 
 		console.log();
-		log.error(`Aborted\n`, prefix);
 	};
 
 	process.once('SIGTERM', exit);
 	process.on('exit', exit);
 
-	if (entry === undefined) {
-		log.error(`Missing argument.`);
-		return;
-	}
-
 	const startTime = Date.now();
 
 	try {
+		if (entry === undefined) {
+			log.error(`Error\n`, prefix);
+			log.warn(`You need to specify a file to start Fragment.\n`);
+			p.note(bold(cyan(`fragment [your-file].js`)));
+			return;
+		}
+
 		const entries = await getEntries(entry, cwd);
 
 		if (entries.length > 0) {
 			log.message(
-				`Starting ${entries.length > 1 ? `${entries.length} sketches` : magenta(entries[0])}\n`,
+				`Starting ${entries.length > 1 ? `${entries.length} sketches in ${entry}` : magenta(entries[0])}\n`,
 				prefix,
 			);
 
@@ -76,11 +77,13 @@ export async function run(entry, options = {}) {
 				cwd,
 			);
 
-			log.info(`Starting Vite server...\n`);
+			log.info(`Starting Vite server...`);
 
 			const server = await createServer(config);
-
 			await server.listen();
+
+			// line break after logs
+			log.message();
 
 			log.success(
 				`Started in ${prettifyTime(Date.now() - startTime)}\n`,
@@ -102,11 +105,14 @@ export async function run(entry, options = {}) {
 			p.note(urls);
 
 			// line break before fragment logs
-			log.message(``);
+			log.message();
 
 			return server;
 		}
 	} catch (error) {
-		throw error;
+		// line break before error
+		log.message();
+		log.error(`Error\n`, prefix);
+		console.error(error);
 	}
 }

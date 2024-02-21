@@ -183,16 +183,39 @@ ${keyword}${shaderParts[1]}
 							return '';
 						}
 
-						const { code: chunkCode } = resolveDependencies(
-							fs.readFileSync(chunkResolvedPath, 'utf8'),
-							chunkResolvedPath,
-							deps,
-							warnings,
-						);
+						try {
+							const chunkSource = fs.readFileSync(
+								chunkResolvedPath,
+								'utf8',
+							);
 
-						const prefix = server ? `//#include ${include}\n` : ``;
+							const { code: chunkCode } = resolveDependencies(
+								chunkSource,
+								chunkResolvedPath,
+								deps,
+								warnings,
+							);
 
-						return `${prefix}\n${chunkCode}`;
+							const prefix = server
+								? `//#include ${include}\n`
+								: ``;
+
+							return `${prefix}\n${chunkCode}`;
+						} catch (error) {
+							if (error.code === 'ENOENT') {
+								warnings.push({
+									type: 'not found',
+									message: `Cannot find ${chunkResolvedPath}`,
+									importer: parentPath,
+									url: chunkResolvedPath,
+									location: {
+										lineText: `#include ${include}`,
+									},
+								});
+							}
+
+							return ``;
+						}
 					},
 				);
 			}
@@ -244,8 +267,7 @@ ${keyword}${shaderParts[1]}
 		if (shadersNeedReload.length > 0) {
 			shadersNeedReload.forEach((shaderUpdate) => {
 				log.message(
-					`${yellow('hsr ignore')} /${relative(cwd, shaderUpdate.filepath)}`,
-					prefix,
+					`${yellow('hsr ignore')} /${path.relative(cwd, shaderUpdate.filepath)}`,
 				);
 			});
 
@@ -253,8 +275,7 @@ ${keyword}${shaderParts[1]}
 		} else {
 			shaderUpdates.forEach((shaderUpdate) => {
 				log.message(
-					`${green('hsr update')} /${relative(cwd, shaderUpdate.filepath)}`,
-					prefix,
+					`${green('hsr update')} /${path.relative(cwd, shaderUpdate.filepath)}`,
 				);
 			});
 
@@ -336,8 +357,7 @@ ${keyword}${shaderParts[1]}
 						);
 
 						log.message(
-							`${yellow(`dependency update`)} ${unixPath}`,
-							prefix,
+							`${yellow(`dependency update`)} /${path.relative(cwd, unixPath)}`,
 						);
 
 						/** @type ShaderUpdate[] */

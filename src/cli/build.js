@@ -106,7 +106,7 @@ export async function build(entry, options) {
 				}),
 			);
 
-			// line break from vite logs
+			// line break after vite logs
 			log.message();
 
 			log.success(

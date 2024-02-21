@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { log, bold, cyan, dim } from '../log.js';
+import { log, bold, cyan, dim, magenta } from '../log.js';
 import { packageManager } from '../utils.js';
 import * as p from '../prompts.js';
 
@@ -55,15 +55,17 @@ export default function checkDependencies({
 
 				if (!isInstalled) {
 					const filename = entry.split(`${cwd}/`)[1];
+					log.message();
 					log.error(
-						`Missing dependency "${dependency}" in ${filename}`,
+						`Missing dependency "${dependency}" in ${filename}\n`,
+						log.prefix(`run`),
 					);
 					log.warn(
-						`It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.`,
+						`It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.\n`,
 					);
 
 					log.message(
-						`Follow the next steps to start running ${filename} with Fragment:\n`,
+						`Follow the next steps to start running ${magenta(filename)} with Fragment:\n`,
 					);
 
 					p.note(

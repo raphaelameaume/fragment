@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
 import bodyParser from 'body-parser';
-import { log, green } from '../log.js';
+import { log, green, red } from '../log.js';
 import { mkdirp } from '../utils.js';
 
 /**
@@ -69,6 +69,7 @@ export default function screenshot({ cwd = process.cwd(), inlineExportDir }) {
 						});
 						res.end(JSON.stringify({ filepath }));
 					} catch (error) {
+						log.message(`${red(`export`)} Error`);
 						console.error(error);
 						res.writeHead(500, {
 							'Content-Type': 'application/json',
