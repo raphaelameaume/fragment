@@ -6,6 +6,7 @@ import { grey } from 'kleur/colors';
 import { run } from '../src/cli/run.js';
 import { build } from '../src/cli/build.js';
 import { create } from '../src/cli/create.js';
+import { preview } from '../src/cli/preview.js';
 
 const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'),
@@ -68,6 +69,13 @@ prog.command('build [entry]')
 	.option('-dev, --development', 'Enable development mode', false)
 	.action((entry, options) => {
 		build(entry, options);
+	});
+
+prog.command('preview [directory]')
+	.describe('Preview a sketch')
+	.option('-o, --open', 'Open in browser', false)
+	.action((dir, options) => {
+		preview(dir, options);
 	});
 
 prog.parse(process.argv);
