@@ -24,9 +24,9 @@ export async function create(entry, { templateName } = {}) {
 	try {
 		log.message(`${magenta(entry)}\n`, prefix);
 
-		const addExtension = (name) => {
+		const addExtension = (name, ext) => {
 			if (path.extname(name) === '') {
-				return `${name}.js`;
+				return `${name}${ext}`;
 			}
 
 			return name;
@@ -67,38 +67,6 @@ export async function create(entry, { templateName } = {}) {
 		handleCancelledPrompt(name, prefix);
 
 		name = name.replace(/\s/g, '-');
-
-		const checkForFileExistence = async () => {
-			if (fs.existsSync(path.join(dir ?? cwd, addExtension(name)))) {
-				log.warn(`${name} already exists in ${dir ?? cwd}.\n`);
-
-				let override = await p.confirm({
-					message: `Override ${addExtension(name)}?`,
-					active: 'Yes',
-					inactive: 'No',
-					initialValue: false,
-				});
-
-				handleCancelledPrompt(override, prefix);
-
-				if (!override) {
-					name = await p.text({
-						message: 'Pick a different name:',
-						placeholder: `  `,
-						hint: '(hit Enter to validate)',
-						initialValue: name,
-						validate: (value) => {
-							if (value.length === 0)
-								return `A name is required.`;
-						},
-					});
-
-					await checkForFileExistence();
-				}
-			}
-		};
-
-		await checkForFileExistence();
 
 		let templatesOptions = fs
 			.readdirSync(file('./templates'))
@@ -157,86 +125,101 @@ export async function create(entry, { templateName } = {}) {
 			(file) => !excludes.includes(file),
 		);
 
-		const files = [];
-
 		let startTime = Date.now();
 		log.message(
 			`Creating sketch from template ${magenta(template.name)}...\n`,
 			prefix,
 		);
 
-		let index = 0;
+		const checkForFileExistence = async (filepath) => {
+			if (fs.existsSync(filepath)) {
+				const dirname = path.dirname(filepath);
+				const ext = path.extname(filepath);
+
+				let filename = path.basename(filepath);
+
+				log.warn(`${filename} already exists in ${dirname}.\n`);
+
+				let override = await p.confirm({
+					message: `Override ${filename}?`,
+					active: 'Yes',
+					inactive: 'No',
+					initialValue: false,
+				});
+
+				handleCancelledPrompt(override, prefix);
+
+				if (!override) {
+					filename = await p.text({
+						message: 'Pick a different name:',
+						placeholder: `  `,
+						hint: '(hit Enter to validate)',
+						initialValue: filename,
+						validate: (value) => {
+							if (value.length === 0)
+								return `A name is required.`;
+						},
+					});
+
+					handleCancelledPrompt(filename, prefix);
+
+					return await checkForFileExistence(
+						path.join(dirname, addExtension(filename, ext)),
+					);
+				}
+
+				return filepath;
+			}
+
+			return filepath;
+		};
+
+		const newFiles = [];
 
 		for (let i = 0; i < templateFiles.length; i++) {
 			const file = templateFiles[i];
 			const source = path.join(from, file);
-
 			const ext = path.extname(source);
 
-			const composeFilename = () => {
-				if (index > 0) {
-					return `${filename}-${`${index}`.padStart(2, '0')}${ext}`;
-				}
-
-				return `${filename}${ext}`;
-			};
-
-			let dest = path.join(to, composeFilename());
-
-			let attempts = 0;
-			let maxAttempts = 100;
-
-			const checkForFileExistence = async () => {
-				log.info(
-					`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
-				);
-				// if (fs.existsSync(dest)) {
-				// 	attempts++;
-				// 	index++;
-
-				// 	log.message(yellow(`File already exists. Retrying...`));
-
-				// 	dest = path.join(to, composeFilename());
-
-				// 	if (attempts < maxAttempts) {
-				// 		checkForFileExistence();
-				// 	} else {
-				// 		dest = path.join(to, `${filename}-${Date.now()}${ext}`);
-				// 	}
-				// }
-			};
-
-			// checkForFileExistence();
-
-			let buffer = await readFile(source);
-			let content = buffer.toString();
+			let dest = path.join(to, `${filename}${ext}`);
 
 			log.info(
 				`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
 			);
 
-			templateFiles
-				.filter((f) => f !== file)
-				.forEach((f) => {
+			dest = await checkForFileExistence(dest);
+
+			let buffer = await readFile(source);
+			let content = buffer.toString();
+
+			// replace references to template files by new files paths
+			templateFiles.forEach((templateFile, index) => {
+				if (index === i) return;
+
+				if (newFiles.length > 0) {
+					const newFile = newFiles[index];
+
 					content = content.replace(
-						new RegExp(f, 'g'),
-						`${filename}${path.extname(f)}`,
+						new RegExp(templateFile, 'g'),
+						`${path.basename(newFile)}`,
 					);
-				});
+				}
+			});
 
 			await writeFile(dest, Buffer.from(content));
 
-			files.push(dest);
-		}
+			log.success(
+				`Copied templates/${template.path}/${file} to ${path.relative(cwd, dest)}\n`,
+			);
 
-		// line break from copy logs
-		log.message();
+			newFiles.push(dest);
+		}
 
 		log.success(
 			`Done in ${prettifyTime(Date.now() - startTime)}\n`,
 			prefix,
 		);
-		log.info(`${files.join('\n')}\n`);
+		log.info(`${newFiles.join('\n')}\n`);
 
 		let i = 1;
 
