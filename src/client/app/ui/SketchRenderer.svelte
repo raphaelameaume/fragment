@@ -611,7 +611,11 @@
 		const keyboardEvent = event.detail;
 		if (!keyboardEvent.metaKey && !keyboardEvent.ctrlKey) {
 			keyboardEvent.preventDefault();
-			resetProps(key);
+			resetProps(key, {
+				width: $rendering.width,
+				height: $rendering.height,
+				pixelRatio: $rendering.pixelRatio,
+			});
 			console.log(`[fragment] ${key} reloaded.`);
 			createSketch(key);
 		}
