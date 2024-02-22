@@ -78,3 +78,54 @@ export function inferFieldType({ type, value, params, key }) {
 
 	console.warn(`Field: cannot find field type  for ${key}`);
 }
+
+export function hasChanged(initialValue, currentValue) {
+	const initialType = typeof initialValue;
+	const currentType = typeof currentValue;
+
+	if (initialType !== currentType) return true;
+
+	if (Array.isArray(currentValue)) {
+		if (initialValue.length !== currentValue.length) {
+			return true;
+		}
+
+		for (let i = 0; i < currentValue.length; i++) {
+			if (currentValue[i] !== initialValue[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (initialType === 'object') {
+		const keys1 = Object.keys(initialValue);
+		const keys2 = Object.keys(currentValue);
+
+		if (
+			keys1.length !== keys2.length ||
+			!keys1.every((key) => keys2.includes(key))
+		) {
+			return true;
+		}
+
+		for (const key of keys1) {
+			const value1 = initialValue[key];
+			const value2 = currentValue[key];
+
+			if (typeof value1 === 'object' && typeof value2 === 'object') {
+				// If both values are objects, recursively compare them
+				if (hasChanged(value1, value2)) {
+					return true;
+				}
+			} else if (value1 !== value2) {
+				// If values are not objects, directly compare them
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	return initialValue !== currentValue;
+}
