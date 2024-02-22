@@ -33,7 +33,14 @@ export function resetProps(sketchKey) {
 export function reconcile(newProps = {}, prevProps = {}) {
 	Object.keys(newProps).forEach((propKey) => {
 		let newProp = newProps[propKey];
-		newProp.__initialValue = newProp.value;
+
+		if (Array.isArray(newProp.value)) {
+			newProp.__initialValue = [...newProp.value];
+		} else if (typeof newProp.value === 'object') {
+			newProp.__initialValue = structuredClone(newProp.value);
+		} else {
+			newProp.__initialValue = newProp.value;
+		}
 
 		if (!newProp.params) {
 			newProp.params = {};
