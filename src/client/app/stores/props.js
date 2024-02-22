@@ -18,12 +18,43 @@ sketches.subscribe((sketches) => {
 	});
 });
 
-export function resetProps(sketchKey) {
+function resetProp(prop) {
+	function copyProperties(source, target) {
+		for (const key in source) {
+			if (source.hasOwnProperty(key)) {
+				// Check if the property is an object (including nested objects)
+				if (typeof source[key] === 'object' && source[key] !== null) {
+					// If the property is an object, recursively copy its properties
+					target[key] = target[key] || {};
+					copyProperties(source[key], target[key]);
+				} else {
+					// If the property is not an object, copy its value
+					target[key] = source[key];
+				}
+			}
+		}
+	}
+
+	if (Array.isArray(prop.value)) {
+		for (let i = 0; i < prop.__initialValue.length; i++) {
+			prop.value[i] = prop.__initialValue[i];
+		}
+	} else if (typeof prop.value === 'object') {
+		copyProperties(prop.__initialValue, prop.value);
+	} else {
+		prop.value = prop.__initialValue;
+	}
+}
+
+export function resetProps(sketchKey, params = {}) {
 	props.update((all) => {
 		const sketchProps = all[sketchKey];
 
 		Object.keys(sketchProps).forEach((propKey) => {
-			sketchProps[propKey].value = sketchProps[propKey].__initialValue;
+			const prop = sketchProps[propKey];
+			resetProp(prop);
+
+			prop.onChange?.(prop, params);
 		});
 
 		return all;
