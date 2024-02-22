@@ -7,41 +7,85 @@ Once `fragment` is properly [installed](../../README.md#installation), you can l
 
 ## Usage
 
-`fragment [file] [opts]`
+### Create
 
-## Examples
+Create a new sketch.
 
-```
-# Start fragment with an existing sketch
-fragment ./sketch.js
-
-# Create a new file on disk and start
-fragment ./sketch.js --new
-
-# Create a new file from a pre-defined template
-fragment ./sketch.js --new --template=three/orthographic
+```bash
+fragment create [filename]
 ```
 
-## Options
+#### Options
 
 | Flag | Shortcut | Description | Default |
 |---|---|---|---|
-|`--new`| `-n` | Create a new file and start | `false` |
-|`--template`| `-t` | Specify the type of template to use as source | `2d` |
+|`--template`| `-t` | Prepopulate template choice | `2d` |
+
+#### Example
+
+```bash
+fragment create sketch.js
+```
+
+### Run
+
+Run an existing sketch.
+
+```bash
+fragment run [filename]
+```
+The command `run` can be omitted since it's the default command
+
+```bash
+fragment [filename]
+```
+
+#### Options
+
+| Flag | Shortcut | Description | Default |
+|---|---|---|---|
 |`--port`| `-p` | Specify the server port.  | `3000` |
-|`--build`| `-b` | Build sketch for production  | `false` |
-|`--exportDir`| none | Change directory used for export  | `undefined` |
-|`--outDir`| none | Change directory used for production build  | `[/[sketch-name]` |
+|`--exportDir`| none | Override directory used for exports  | `undefined` |
+|`--new`| `-n` | Redirect to create prompts | `false` |
+|`--template`| `-t` | Pre-populate template choice in create prompts | `2d` |
+|`--build`| `-b` | Redirect to build prompts  | `false` |
+|`--outDir`| none | Pre-populate outDir in build prompts  | `[/[sketch-name]` |
+|`--emptyOutDir`| none | Pre-populate emptyOutDir in build prompts  | `false` |
+|`--base`| none | Pre-populate base path in build prompts | `undefined` |
+|`--development`| none | Run Fragment in development mode  | `false` |
+
+### Build
+
+Build a sketch into static files for production.
+
+```bash
+fragment build [filename]
+```
+
+#### Options
+
+| Flag | Shortcut | Description | Default |
+|---|---|---|---|
+|`--outDir`| none | Pre-populate out directory  | `[/[sketch-name]` |
 |`--emptyOutDir`| none | Empty outDir before static build  | `false` |
 |`--base`| none | Base public path when served in production  | `undefined` |
+|`--development`| none | Run Fragment in development mode  | `false` |
+
+### Preview
+
+Start a local server to preview a sketch built locally with `fragment build`.
+
+```bash
+fragment preview [directory]
+```
 
 ## Templates
 
 `fragment` currently supports the following templates:
-- [blank](../../src/cli/templates/2d.js)
-- [2d](../../src/cli/templates/2d.js)
-- [fragment](../../src/cli/templates/fragment.js)
-- [three/fragment](../../src/cli/templates/three-fragment.js)
-- [three/orthographic](../../src/cli/templates/three-orthographic.js)
-- [three/perspective](../../src/cli/templates/three-perspective.js)
-- [p5](../../src/cli/templates/p5.js)
+- [blank](../../src/cli/templates/blank/index.js)
+- [2d](../../src/cli/templates/default/index.js)
+- [fragment](../../src/cli/templates/fragment-gl/index.js)
+- [three/fragment](../../src/cli/templates/three-fragment/index.js)
+- [three/orthographic](../../src/cli/templates/three-orthographic/index.js)
+- [three/perspective](../../src/cli/templates/three-perspective/index.js)
+- [p5](../../src/cli/templates/p5/index.js)

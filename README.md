@@ -17,11 +17,30 @@
 
 ## Installation
 
+### With `npx`
+
+```bash
+npx fragment-tools sketch.js --new
 ```
-npm install fragment-tools -g
+
+### Installing globally with `--global`
+
+```bash
+npm install fragment-tools --global
 ```
 
 You should now be able to run `fragment` from your command line.
+
+```bash
+fragment sketch.js --new
+```
+
+### Installing locally
+
+```bash
+npm install fragment-tools
+npx fragment sketch.js --new
+```
 
 ## Usage
 
@@ -33,7 +52,7 @@ mkdir sketches
 cd sketches
 
 # create a sketch from a template
-fragment ./sketch.js --new --template=2d
+npx fragment-tools ./sketch.js --new --template=2d
 ```
 
 Learn more about the available flag options in the [CLI docs](./docs/api/CLI.md).

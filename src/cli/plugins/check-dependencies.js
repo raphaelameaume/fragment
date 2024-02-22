@@ -1,9 +1,20 @@
-import path from 'path';
-import fs from 'fs';
-import log from '../log.js';
+import path from 'node:path';
+import fs from 'node:fs';
+import { log, bold, cyan, dim, magenta } from '../log.js';
+import { packageManager } from '../utils.js';
+import * as p from '../prompts.js';
 
+/**
+ *
+ * @param {object} params
+ * @param {string} params.cwd - Current working directory
+ * @param {string} params.app - App directory
+ * @param {string[]} params.entriesPaths - Absolute entries paths
+ * @param {boolean} params.build - Building for production
+ * @returns {import('vite').Plugin}
+ */
 export default function checkDependencies({
-	cwd,
+	cwd = process.cwd(),
 	app,
 	entriesPaths,
 	build,
@@ -44,14 +55,25 @@ export default function checkDependencies({
 
 				if (!isInstalled) {
 					const filename = entry.split(`${cwd}/`)[1];
-					const error = `Missing dependency "${dependency}" in ${filename}`;
-					log.error(error);
-					console.log(`
-It looks like you're trying to build a ${dependency} sketch (${filename}) without having ${dependency} installed.
-Run 'npm install ${dependency}' before starting Fragment to run ${filename}.
-					`);
+					log.message();
+					log.error(
+						`Missing dependency "${dependency}" in ${filename}\n`,
+						log.prefix(`run`),
+					);
+					log.warn(
+						`It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.\n`,
+					);
 
-					throw new Error(error);
+					log.message(
+						`Follow the next steps to start running ${magenta(filename)} with Fragment:\n`,
+					);
+
+					p.note(
+						`${dim(`1. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${dependency}`))}\n${dim(`2. Start Fragment`)}\n${bold(cyan(`fragment ${filename}`))}`,
+						'',
+					);
+
+					process.exit(1);
 				}
 			});
 		}

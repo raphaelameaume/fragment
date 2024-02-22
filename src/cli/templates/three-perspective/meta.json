@@ -1,0 +1,5 @@
+{
+	"name": "three-perspective",
+	"description": "An empty scene with a THREE.PerspectiveCamera",
+	"dependencies": ["three"]
+}

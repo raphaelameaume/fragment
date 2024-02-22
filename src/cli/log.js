@@ -1,36 +1,38 @@
-import kleur from 'kleur';
+import { green, yellow, grey, inverse, red } from 'kleur/colors';
 
-const log = (() => {
-	let _prefix = createPrefix('fragment');
+export const log = {
+	message: (message = '', prefix) => {
+		const prefixed = prefix ? `${prefix} ` : ``;
+		process.stdout.write(`${prefixed}${message}\n`);
+	},
+	info: (message = '', prefix) => {
+		log.message(grey(`${message}`), prefix);
+	},
+	success: (message = '', prefix) => {
+		log.message(green(`${message}`), prefix);
+	},
+	warn: (message = '', prefix) => {
+		log.message(yellow(`${message}`), prefix);
+	},
+	/** alias for `log.warn()`. */
+	warning: (message = '', prefix) => {
+		log.warn(message, prefix);
+	},
+	error: (message = '', prefix) => {
+		log.message(red(`${message}`), prefix);
+	},
+	prefix: (label) => {
+		return inverse(` ${label} `);
+	},
+};
 
-	const success = (message, prefix = _prefix) => {
-		console.log(prefix, kleur.green(`✔ ${message}`));
-	};
-
-	const warning = (message, prefix = _prefix) => {
-		console.log(prefix, kleur.yellow(`ℹ ${message}`));
-	};
-
-	const error = (message, prefix = _prefix) => {
-		console.log(prefix, kleur.red(`✖ ${message}`));
-	};
-
-	const text = (message, prefix = _prefix) => {
-		console.log(prefix, message);
-	};
-
-	function createPrefix(prefix) {
-		return kleur.grey(`[${prefix}]`);
-	}
-
-	return {
-		prefix: _prefix,
-		createPrefix,
-		success,
-		warning,
-		error,
-		text,
-	};
-})();
-
-export default log;
+export {
+	green,
+	magenta,
+	cyan,
+	bold,
+	grey,
+	yellow,
+	dim,
+	red,
+} from 'kleur/colors';

@@ -1,9 +1,8 @@
-import { posix, sep, resolve, dirname, extname, relative } from 'path';
-import { readFileSync } from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import glslify from 'glslify';
-import log from '../log.js';
-import { readFile } from 'fs/promises';
-import kleur from 'kleur';
+import { log, dim, green, yellow } from '../log.js';
 
 /**
  * @typedef {Object} ShaderUpdate
@@ -13,15 +12,22 @@ import kleur from 'kleur';
  * @property {string[]} warnings - Indicates whether the Wisdom component is present.
  */
 
-export default function hotShaderReplacement({ cwd, wss, watch = false }) {
+/**
+ * Resolve shader include directives and send shader code via WebSocket
+ * @param {object} params
+ * @param {string} [params.cwd=process.cwd()] - Current working directory
+ * @param {import('ws').WebSocketServer} params.wss
+ * @returns {import('vite').Plugin}
+ */
+export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 	const name = 'fragment-plugin-hsr';
-	const prefix = log.createPrefix(name);
+	const prefix = log.prefix(name);
 	const fileRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
 	const includeRegex = /#include(\s+([^\s<>]+));?/gi;
 	const ignoreRegex = /^(?:\/|\*)*\s*@fragment-nohsr/;
 	const commentRegex =
 		/(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi;
-	const base = process.cwd().split(sep).join(posix.sep);
+	const base = process.cwd().split(path.sep).join(path.posix.sep);
 
 	let dependencies = new Map();
 	let shaders = [];
@@ -34,10 +40,8 @@ export default function hotShaderReplacement({ cwd, wss, watch = false }) {
 
 		if (clone.length > 0) {
 			const { file } = clone[0];
-			const filepath = relative(cwd, file);
-			console.log(
-				`${log.prefix} ${kleur.green(`hmr update`)} /${filepath}`,
-			);
+			const filepath = path.relative(cwd, file);
+			log.message(`${green(`hmr update`)} /${filepath}`);
 
 			server.ws.send({
 				type: 'custom',
@@ -65,7 +69,7 @@ ${keyword}${shaderParts[1]}
 	}
 
 	function getUnixPath(shaderPath) {
-		return shaderPath.split(sep).join(posix.sep);
+		return shaderPath.split(path.sep).join(path.posix.sep);
 	}
 
 	function compileGLSL(shaderSource, shaderPath) {
@@ -106,7 +110,7 @@ ${keyword}${shaderParts[1]}
 			parentSource = parentSource.replace(commentRegex, '');
 
 			let parentUnixPath = getUnixPath(parentPath);
-			let directory = dirname(parentUnixPath);
+			let directory = path.dirname(parentUnixPath);
 
 			if (includeRegex.test(parentSource)) {
 				const currentDirectory = directory;
@@ -128,7 +132,7 @@ ${keyword}${shaderParts[1]}
 						directory = currentDirectory;
 
 						if (directoryIndex !== -1) {
-							directory = resolve(
+							directory = path.resolve(
 								directory,
 								chunkPath.slice(0, directoryIndex + 1),
 							);
@@ -138,10 +142,13 @@ ${keyword}${shaderParts[1]}
 							);
 						}
 
-						let chunkResolvedPath = resolve(directory, chunkPath);
+						let chunkResolvedPath = path.resolve(
+							directory,
+							chunkPath,
+						);
 						let extension = 'glsl';
 
-						if (!extname(chunkResolvedPath))
+						if (!path.extname(chunkResolvedPath))
 							chunkResolvedPath = `${chunkResolvedPath}.${extension}`;
 
 						const chunkUnixPath = getUnixPath(chunkResolvedPath);
@@ -176,16 +183,39 @@ ${keyword}${shaderParts[1]}
 							return '';
 						}
 
-						const { code: chunkCode } = resolveDependencies(
-							readFileSync(chunkResolvedPath, 'utf8'),
-							chunkResolvedPath,
-							deps,
-							warnings,
-						);
+						try {
+							const chunkSource = fs.readFileSync(
+								chunkResolvedPath,
+								'utf8',
+							);
 
-						const prefix = server ? `//#include ${include}\n` : ``;
+							const { code: chunkCode } = resolveDependencies(
+								chunkSource,
+								chunkResolvedPath,
+								deps,
+								warnings,
+							);
 
-						return `${prefix}\n${chunkCode}`;
+							const prefix = server
+								? `//#include ${include}\n`
+								: ``;
+
+							return `${prefix}\n${chunkCode}`;
+						} catch (error) {
+							if (error.code === 'ENOENT') {
+								warnings.push({
+									type: 'not found',
+									message: `Cannot find ${chunkResolvedPath}`,
+									importer: parentPath,
+									url: chunkResolvedPath,
+									location: {
+										lineText: `#include ${include}`,
+									},
+								});
+							}
+
+							return ``;
+						}
 					},
 				);
 			}
@@ -214,12 +244,9 @@ ${keyword}${shaderParts[1]}
 			const { location } = warning;
 			const line = 1;
 			const column = 4;
-			log.text(
-				`${kleur.yellow(warning.type)} ${warning.importer}`,
-				prefix,
-			);
+			log.message(`${yellow(warning.type)} ${warning.importer}`, prefix);
 			console.log();
-			console.log(`  ${kleur.dim(location.lineText)}`);
+			console.log(`  ${dim(location.lineText)}`);
 			console.log();
 			console.log(warning.message);
 			console.log();
@@ -239,18 +266,16 @@ ${keyword}${shaderParts[1]}
 
 		if (shadersNeedReload.length > 0) {
 			shadersNeedReload.forEach((shaderUpdate) => {
-				log.text(
-					`${kleur.yellow('hsr ignore')} ${shaderUpdate.filepath}`,
-					prefix,
+				log.message(
+					`${yellow('hsr ignore')} /${path.relative(cwd, shaderUpdate.filepath)}`,
 				);
 			});
 
 			return reloadSketch();
 		} else {
 			shaderUpdates.forEach((shaderUpdate) => {
-				log.text(
-					`${kleur.green('hsr update')} ${shaderUpdate.filepath}`,
-					prefix,
+				log.message(
+					`${green('hsr update')} /${path.relative(cwd, shaderUpdate.filepath)}`,
 				);
 			});
 
@@ -331,9 +356,8 @@ ${keyword}${shaderParts[1]}
 							}),
 						);
 
-						log.text(
-							`${kleur.yellow(`dependency update`)} ${unixPath}`,
-							prefix,
+						log.message(
+							`${yellow(`dependency update`)} /${path.relative(cwd, unixPath)}`,
 						);
 
 						/** @type ShaderUpdate[] */

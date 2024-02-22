@@ -1,10 +1,20 @@
-import path from 'path';
-import fs from 'fs/promises';
-import fsSync from 'fs';
+import path from 'node:path';
+import { writeFile } from 'node:fs/promises';
 import bodyParser from 'body-parser';
-import log from '../log.js';
+import { log, green, red } from '../log.js';
+import { mkdirp } from '../utils.js';
 
-export default function screenshot({ cwd, inlineExportDir }) {
+/**
+ *
+ * @param {object} [params]
+ * @param {string} [cwd=process.cwd()] - Current working directory
+ * @param {string} [inlineExportDir] - Directory path used for exports
+ * @returns {import('vite').Plugin}
+ */
+export default function screenshot({
+	cwd = process.cwd(),
+	inlineExportDir,
+} = {}) {
 	function resolveDirectory(directoryPath) {
 		return path.isAbsolute(directoryPath)
 			? directoryPath
@@ -50,25 +60,20 @@ export default function screenshot({ cwd, inlineExportDir }) {
 					const filepath = path.join(directory, filename);
 					const buffer = Buffer.from(dataURL, 'base64');
 
-					if (!fsSync.existsSync(directory)) {
-						try {
-							await fs.mkdir(directory, { recursive: true });
-						} catch (error) {
-							log.error('Cannot create directory for exports');
-							console.log(error);
-						}
-					}
+					mkdirp(directory);
 
 					try {
-						await fs.writeFile(filepath, buffer);
+						await writeFile(filepath, buffer);
 
-						log.success(`Saved ${filepath}`);
+						log.message(`${green(`export`)} Saved ${filepath}`);
 
 						res.writeHead(200, {
 							'Content-Type': 'application/json',
 						});
 						res.end(JSON.stringify({ filepath }));
 					} catch (error) {
+						log.message(`${red(`export`)} Error`);
+						console.error(error);
 						res.writeHead(500, {
 							'Content-Type': 'application/json',
 						});

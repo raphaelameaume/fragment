@@ -1,24 +1,21 @@
-import fs from 'fs';
-import path from 'path';
 import getPort from 'get-port';
-import log from './log.js';
 import WebSocket, { WebSocketServer } from 'ws';
-import db from './db.js';
+import { log } from './log.js';
 
-export async function start({ port = 1234, cwd = '' } = {}) {
+/**
+ * @param {object} params
+ * @param {number} params.port
+ */
+export async function start({ port = 1234 } = {}) {
 	port = await getPort({ port });
 
 	let wss = new WebSocketServer({ port });
 
+	log.info(`Starting WebSocket server...`);
+
 	wss.on('connection', (socket) => {
 		socket.on('message', (message) => {
 			const json = JSON.parse(message);
-			const { event, data } = json;
-
-			if (event === 'save') {
-				const { key, value } = data;
-				db.save(key, value);
-			}
 
 			send(json, {
 				sender: socket,
