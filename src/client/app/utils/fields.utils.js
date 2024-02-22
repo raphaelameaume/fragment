@@ -99,19 +99,19 @@ export function hasChanged(initialValue, currentValue) {
 	}
 
 	if (initialType === 'object') {
-		const keys1 = Object.keys(current);
-		const keys2 = Object.keys(next);
+		const keys1 = Object.keys(initialValue);
+		const keys2 = Object.keys(currentValue);
 
 		if (
 			keys1.length !== keys2.length ||
 			!keys1.every((key) => keys2.includes(key))
 		) {
-			return false;
+			return true;
 		}
 
 		for (const key of keys1) {
-			const value1 = current[key];
-			const value2 = next[key];
+			const value1 = initialValue[key];
+			const value2 = currentValue[key];
 
 			if (typeof value1 === 'object' && typeof value2 === 'object') {
 				// If both values are objects, recursively compare them
@@ -122,6 +122,8 @@ export function hasChanged(initialValue, currentValue) {
 				// If values are not objects, directly compare them
 				return true;
 			}
+
+			return false;
 		}
 	}
 
