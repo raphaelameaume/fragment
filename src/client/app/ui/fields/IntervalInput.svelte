@@ -92,6 +92,12 @@
 		isDragging = false;
 	}
 
+	function handleValueChange(index, newValue) {
+		value[index] = newValue;
+
+		dispatch('change', value);
+	}
+
 	$: {
 		if (value[0] > value[1]) {
 			console.warn(`Values provided for ${key} are in the wrong order. `);
@@ -133,6 +139,7 @@
 				{max}
 				progress={false}
 				bind:value={value[0]}
+				on:change={(event) => handleValueChange(0, event.detail)}
 			/>
 			<NumberInput
 				{label}
@@ -145,6 +152,7 @@
 				{max}
 				progress={false}
 				bind:value={value[1]}
+				on:change={(event) => handleValueChange(1, event.detail)}
 			/>
 		</div>
 	</FieldInputRow>
