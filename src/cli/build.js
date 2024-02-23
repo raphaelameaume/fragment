@@ -20,12 +20,15 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  */
 export async function build(entry, options) {
 	const cwd = process.cwd();
-	const prefix = log.prefix('build');
+	const command = 'build';
+	const prefix = log.prefix(command);
 
 	try {
-		log.message(`${magenta(entry)}\n`, prefix);
+		const entries = await getEntries(entry, cwd, command, prefix);
 
-		const entries = await getEntries(entry, cwd);
+		if (!entries.length) return;
+
+		log.message(`${magenta(entry)}\n`, prefix);
 
 		const outDir = await p.text({
 			message: 'Output directory:',

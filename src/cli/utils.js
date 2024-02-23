@@ -1,3 +1,4 @@
+import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isCancel } from '@clack/core';
@@ -52,4 +53,18 @@ export function prettifyTime(milliseconds) {
 	} else {
 		return milliseconds + 'ms';
 	}
+}
+
+/**
+ * Add extension to a string if it doesn't have any
+ * @param {string} filepath
+ * @param {string} ext
+ * @returns {string}
+ */
+export function addExtension(filepath, ext) {
+	if (path.extname(filepath) === '') {
+		return `${filepath}${ext}`;
+	}
+
+	return filepath;
 }
