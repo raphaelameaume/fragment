@@ -9,6 +9,7 @@ import {
 	mkdirp,
 	handleCancelledPrompt,
 	prettifyTime,
+	addExtension,
 } from './utils.js';
 
 /**
@@ -20,14 +21,6 @@ import {
 export async function create(entry, { templateName } = {}) {
 	const cwd = process.cwd();
 	const prefix = log.prefix('create');
-
-	const addExtension = (name, ext) => {
-		if (path.extname(name) === '') {
-			return `${name}${ext}`;
-		}
-
-		return name;
-	};
 
 	try {
 		log.message(`${magenta(entry)}\n`, prefix);

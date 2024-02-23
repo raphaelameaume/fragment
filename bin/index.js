@@ -30,8 +30,7 @@ prog.command('run [entry]', '', { default: true })
 	.option('--base', 'Base public path when served in production', undefined)
 	.action((entry, options) => {
 		if (options.new) {
-			return create({
-				entry,
+			return create(entry, {
 				templateName: options.template,
 			});
 		}
