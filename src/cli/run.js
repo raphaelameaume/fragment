@@ -1,5 +1,3 @@
-import path from 'node:path';
-import fs from 'node:fs';
 import { createServer, mergeConfig } from 'vite';
 import { createConfig } from './createConfig.js';
 import { createFragmentFile } from './createFragmentFile.js';
@@ -7,7 +5,7 @@ import { getEntries } from './getEntries.js';
 import { log, magenta, bold, cyan, red } from './log.js';
 import screenshot from './plugins/screenshot.js';
 import * as p from './prompts.js';
-import { addExtension, prettifyTime, removeExtension } from './utils.js';
+import { prettifyTime } from './utils.js';
 import { start as startWebSocketServer } from './ws.js';
 import hotSketchReload from './plugins/hot-sketch-reload.js';
 import hotShaderReplacement from './plugins/hot-shader-replacement.js';

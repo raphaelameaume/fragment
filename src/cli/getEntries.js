@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { lstat, readdir } from 'node:fs/promises';
 import { bold, cyan, log } from './log.js';
 import * as p from './prompts.js';
-import { addExtension, removeExtension } from './utils.js';
+import { addExtension } from './utils.js';
 
 /**
  * Build entries from entry filepath or folder path

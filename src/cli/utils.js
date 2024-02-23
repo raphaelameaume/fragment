@@ -68,12 +68,3 @@ export function addExtension(filepath, ext) {
 
 	return filepath;
 }
-
-/**
- * Remove extension to a string if it has one
- * @param {string} filepath
- * @returns {string}
- */
-export function removeExtension(filepath) {
-	return path.basename(filepath, path.extname(filepath));
-}
