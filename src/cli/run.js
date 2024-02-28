@@ -108,17 +108,15 @@ export async function run(entry, options = {}) {
 
 		const { resolvedUrls } = server;
 
-		let urls = ``;
-
-		for (const url of resolvedUrls.local) {
-			urls += `${bold('Local')}:   ${bold(cyan(url))}\n`;
-		}
-
-		for (const url of resolvedUrls.network) {
-			urls += `${bold('Network')}: ${bold(cyan(url))}`;
-		}
-
-		p.note(urls);
+		let urls = [
+			...resolvedUrls.local.map(
+				(url) => `${bold('Local')}:   ${bold(cyan(url))}`,
+			),
+			...resolvedUrls.network.map(
+				(url) => `${bold('Network')}: ${bold(cyan(url))}`,
+			),
+		];
+		p.note(urls.join(`\n`));
 
 		// line break before fragment logs
 		log.message();
