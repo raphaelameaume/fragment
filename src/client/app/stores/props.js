@@ -3,21 +3,6 @@ import { getStore } from './utils';
 
 export const props = getStore('props', {});
 
-sketches.subscribe((sketches) => {
-	props.update((currentProps) => {
-		Object.keys(sketches).forEach((key) => {
-			const sketch = sketches[key];
-
-			if (sketch) {
-				// sketch can be undefined if failed to load
-				currentProps[key] = reconcile(sketch.props, currentProps[key]);
-			}
-		});
-
-		return currentProps;
-	});
-});
-
 function resetProp(prop) {
 	function copyProperties(source, target) {
 		for (const key in source) {
