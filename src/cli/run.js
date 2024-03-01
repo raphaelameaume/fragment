@@ -3,7 +3,7 @@ import { createConfig } from './createConfig.js';
 import { createFragmentFile } from './createFragmentFile.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta, bold, cyan, red } from './log.js';
-import screenshot from './plugins/screenshot.js';
+import save from './plugins/save.js';
 import * as p from './prompts.js';
 import { prettifyTime } from './utils.js';
 import { start as startWebSocketServer } from './ws.js';
@@ -92,7 +92,7 @@ export async function run(entry, options = {}) {
 						cwd,
 					}),
 					hotShaderReplacement({ cwd, wss: fragmentServer }),
-					screenshot({ cwd, inlineExportDir: options.exportDir }),
+					save({ cwd, inlineExportDir: options.exportDir }),
 				],
 			}),
 		);

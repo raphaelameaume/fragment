@@ -14,49 +14,70 @@ import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 
-export async function saveDataURL(dataURL, options, blob) {
-	async function saveInBrowser() {
-		if (!blob) {
-			blob = await createBlobFromDataURL(dataURL);
-		}
-
-		await downloadBlob(blob, options);
+export async function saveInBrowser(files, options = {}) {
+	if (!blob) {
+		blob = await createBlobFromDataURL(dataURL);
 	}
 
-	async function onError(err) {
-		if (typeof options.onError === 'function') {
-			options.onError(err);
-		}
+	await downloadBlob(blob, options);
+}
 
-		await saveInBrowser();
-	}
+export async function saveFiles(files = []) {
+	if (__DEV__) {
+		// estimate file sizes in Mb
+		const sizes = files.map(({ data }) => {
+			let base64Length = data.length - (data.indexOf(',') + 1);
 
-	try {
-		if (__DEV__) {
-			const body = {
-				dataURL: dataURL.split(',')[1], // remove extension,
-				...options,
-			};
-			const response = await fetch('/save', {
-				method: 'POST',
-				body: JSON.stringify(body),
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			});
-			const { filepath, error } = await response.json();
+			return (base64Length * 0.75 * (3 / 4) - 2) / 1000 / 1000;
+		}, 0);
 
-			if (response.ok && filepath) {
-				console.log(`[fragment] Saved ${filepath}`);
+		const limitInMb = 10;
+		const body = {
+			files: [],
+		};
+
+		let size = 0;
+
+		for (let i = 0; i < files.length; i++) {
+			if (size < limitInMb) {
+				body.files.push(files[i]);
+				size += sizes[i];
 			} else {
-				onError(error);
+				break;
+			}
+		}
+
+		const response = await fetch('/save', {
+			method: 'POST',
+			body: JSON.stringify(body),
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+		});
+		const { filepaths, error } = await response.json();
+
+		if (response.ok && filepaths?.length) {
+			if (filepaths.length < 10) {
+				filepaths.forEach((filepath) => {
+					console.log(`[fragment] Saved ${filepath}`);
+				});
+			} else {
+				console.log(`[fragment] Saved ${filepaths.length} files.`, {
+					filepaths,
+				});
+			}
+
+			if (body.files.length < files.length) {
+				return saveFiles(
+					files.slice(body.files.length, files.length + 1),
+				);
 			}
 		} else {
-			await saveInBrowser();
+			throw new Error(error);
 		}
-	} catch (error) {
-		onError(error);
+	} else {
+		await saveInBrowser(files);
 	}
 }
 
@@ -76,10 +97,17 @@ export async function createDataURLFromBlob(blob) {
 	});
 }
 
-export async function saveBlob(blob, options) {
-	const dataURL = await createDataURLFromBlob(blob);
+export async function saveBlob(blob, { filename, exportDir }) {
+	const data = await createDataURLFromBlob(blob);
 
-	return saveDataURL(dataURL, options, blob);
+	return saveFiles([
+		{
+			filename,
+			data,
+			exportDir,
+			encoding: 'base64',
+		},
+	]);
 }
 
 function getFilenameParams() {
@@ -148,14 +176,21 @@ export async function screenshotCanvas(
 		dataURL = changeDpiDataUrl(dataURL, pixelsPerInch);
 	}
 
-	await saveDataURL(dataURL, {
-		filename: `${name}${extension}`,
-		exportDir,
-		onError: (error) => {
-			console.error(`[fragment] Error while saving screenshot.`);
-			console.log(error);
+	const files = [
+		{
+			filename: `${name}${extension}`,
+			exportDir,
+			data: dataURL,
+			encoding: 'base64',
 		},
-	});
+	];
+
+	try {
+		await saveFiles(files);
+	} catch (error) {
+		console.error(`[fragment] Error while saving screenshot.`);
+		console.log(error);
+	}
 }
 
 function recordCanvasWebM(canvas, options) {
@@ -200,35 +235,46 @@ export function recordCanvas(
 		onStart = () => {},
 		onTick = () => {},
 		onComplete = () => {},
+		params = {},
 	} = {},
 ) {
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, ...patternParams });
 
-	function complete(result) {
+	async function complete(result) {
+		const files = [];
+
 		if (Array.isArray(result)) {
 			const frmt =
 				format === VIDEO_FORMATS.FRAMES ? imageEncoding : format;
 
 			for (let i = 0; i < result.length; i++) {
 				const index = `${i}`.padStart(`${result.length}`.length, '0');
-				saveBlob(result[i], {
-					filename: `${name}-${index}.${frmt}`,
-					exportDir,
-					onError: () => {
-						console.log(`[fragment] Error while saving record.`);
-					},
+				const filename = `${name}-${index}.${frmt}`;
+				const blob = result[i];
+				const data = await createDataURLFromBlob(blob);
+
+				files.push({
+					filename,
+					data,
+					blob: exportDir,
+					encoding: 'base64',
 				});
 			}
 		} else {
-			saveBlob(result, {
+			const blob = result;
+			const data = await createDataURLFromBlob(blob);
+
+			files.push({
 				filename: `${name}.${format}`,
+				data,
+				blob,
+				encoding: 'base64',
 				exportDir,
-				onError: () => {
-					console.log(`[fragment] Error while saving record.`);
-				},
 			});
 		}
+
+		await saveFiles(files);
 		onComplete();
 	}
 
