@@ -1,9 +1,28 @@
 <script>
 	import { assignSketchFiles } from '../triggers/shared.js';
-	import { loadAll, sketchesKeys } from '../stores/sketches.js';
+	import { loadAll, sketchesKeys, sketches } from '../stores/sketches.js';
 	import { onSketchReload } from '@fragment/sketches';
 	import { getFilename } from '../utils/file.utils.js';
 	import '../utils/glslErrors.js';
+	import { props, reconcile } from '../stores/props.js';
+
+	sketches.subscribe((sketches) => {
+		props.update((currentProps) => {
+			Object.keys(sketches).forEach((key) => {
+				const sketch = sketches[key];
+
+				if (sketch) {
+					// sketch can be undefined if failed to load
+					currentProps[key] = reconcile(
+						sketch.props,
+						currentProps[key],
+					);
+				}
+			});
+
+			return currentProps;
+		});
+	});
 
 	sketchesKeys.subscribe((keys) => {
 		if (keys.length > 0) {
