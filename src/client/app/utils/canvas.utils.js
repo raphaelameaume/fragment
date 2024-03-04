@@ -107,7 +107,8 @@ export async function saveFiles(files = [], out = []) {
 
 			return out;
 		} else {
-			throw new Error(error);
+			console.error(`[fragment] Error while saving files on disk.`);
+			await saveInBrowser(files);
 		}
 	} else {
 		await saveInBrowser(files);
