@@ -245,6 +245,7 @@
 		params = {
 			...mountParams,
 			canvas,
+			publicPath: `@fs${__CWD__}`,
 		};
 
 		framerate = isFinite(sketch.fps) ? sketch.fps : 60;
@@ -257,7 +258,13 @@
 			elapsedRenderingTime = 0;
 
 			if (sketch.load) {
-				await sketch.load();
+				await sketch.load({
+					width,
+					height,
+					pixelRatio,
+					props: $sketchProps,
+					...params,
+				});
 			}
 
 			init({
