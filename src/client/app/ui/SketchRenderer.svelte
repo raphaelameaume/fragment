@@ -339,6 +339,9 @@
 				format: $exports.videoFormat,
 				imageEncoding: $exports.imageEncoding,
 				quality: $exports.videoQuality,
+				params: {
+					props: sketch?.props,
+				},
 				onStart: () => {
 					beforeRecordCallbacks.forEach((callback) => {
 						callback(recordArgs);
@@ -528,6 +531,9 @@
 				pattern: sketch?.filenamePattern,
 				exportDir: sketch?.exportDir,
 				index: imageCount > 1 ? i : undefined,
+				params: {
+					props: sketch?.props,
+				},
 			});
 			paused = false;
 			$capturing = false;
