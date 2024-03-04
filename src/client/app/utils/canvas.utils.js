@@ -49,7 +49,7 @@ export async function saveInBrowser(files) {
 }
 
 /**
- * Save files to disk by sending them to Fragment save plugin. Fallbacks to saveInBrowser if
+ * Save files to disk by sending them to Fragment save plugin. Fallback to saveInBrowser if fails
  * @param {File[]} files
  * @returns {Promise<string[]>}
  */
