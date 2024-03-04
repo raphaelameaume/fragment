@@ -39,6 +39,12 @@ export function download(data, filename) {
 	downloadBlob(blob, { filename });
 }
 
+/**
+ * Download a blob from the browser
+ * @param {Blob} blob
+ * @param {object} [options]
+ * @param {string} [options.filename="untitled"]
+ */
 export function downloadBlob(blob, { filename = 'untitled' } = {}) {
 	let a = document.createElement('a');
 	a.style.visibility = 'hidden';
@@ -67,6 +73,16 @@ export function downloadBlob(blob, { filename = 'untitled' } = {}) {
  */
 export function getFilename(path) {
 	return path.split(/[\\/]/).pop();
+}
+
+/**
+ * Estimate file size in megabytes from a Data URL
+ * @param {string} data
+ * @returns {number}
+ */
+export function estimateFileSize(data) {
+	const base64Length = data.length - (data.indexOf(',') + 1);
+	return (base64Length * (3 / 4) - 2) / 1024 / 1024;
 }
 
 export function getFileExtension(path) {

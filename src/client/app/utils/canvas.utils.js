@@ -2,11 +2,14 @@
 https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad843fb7688/lib/save.js
 */
 
-import { changeDpiDataUrl } from 'changedpi';
 import { get } from 'svelte/store';
 import { exports } from '../stores';
 import { VIDEO_FORMATS } from '../stores/exports';
-import { downloadBlob, createBlobFromDataURL } from './file.utils';
+import {
+	downloadBlob,
+	createBlobFromDataURL,
+	estimateFileSize,
+} from './file.utils';
 import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
 import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
@@ -14,24 +17,51 @@ import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 
-export async function saveInBrowser(files, options = {}) {
-	if (!blob) {
-		blob = await createBlobFromDataURL(dataURL);
+/**
+ * @typedef {Object} File
+ * @property {string} filepath
+ * @property {string} exportDir
+ * @property {string} data
+ * @property {string} [encoding]
+ */
+
+/**
+ *
+ * @param {File|File[]} files
+ */
+export async function saveInBrowser(files) {
+	/**
+	 * @param {File} file
+	 */
+	async function saveFile({ filename, data, blob }) {
+		if (!blob) {
+			blob = await createBlobFromDataURL(data);
+		}
+
+		await downloadBlob(blob, { filename });
 	}
 
-	await downloadBlob(blob, options);
+	if (Array.isArray(files)) {
+		return Promise.all(files.map((file) => saveFile(file)));
+	} else {
+		await saveFile(files);
+	}
 }
 
-export async function saveFiles(files = []) {
+/**
+ * Save files to disk by sending them to Fragment save plugin. Fallbacks to saveInBrowser if
+ * @param {File[]} files
+ * @returns {Promise<string[]>}
+ */
+export async function saveFiles(files = [], out = []) {
 	if (__DEV__) {
-		// estimate file sizes in Mb
-		const sizes = files.map(({ data }) => {
-			let base64Length = data.length - (data.indexOf(',') + 1);
+		files.forEach((file) => {
+			if (!file.size) {
+				file.size = estimateFileSize(file.data);
+			}
+		});
 
-			return (base64Length * 0.75 * (3 / 4) - 2) / 1000 / 1000;
-		}, 0);
-
-		const limitInMb = 10;
+		const limitInMb = 100;
 		const body = {
 			files: [],
 		};
@@ -39,9 +69,10 @@ export async function saveFiles(files = []) {
 		let size = 0;
 
 		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
 			if (size < limitInMb) {
-				body.files.push(files[i]);
-				size += sizes[i];
+				body.files.push(file);
+				size += file.size;
 			} else {
 				break;
 			}
@@ -58,21 +89,23 @@ export async function saveFiles(files = []) {
 		const { filepaths, error } = await response.json();
 
 		if (response.ok && filepaths?.length) {
-			if (filepaths.length < 10) {
-				filepaths.forEach((filepath) => {
+			out.push(...filepaths);
+
+			if (body.files.length < files.length) {
+				return saveFiles(files.slice(body.files.length), out);
+			}
+
+			if (out.length < 15) {
+				out.forEach((filepath) => {
 					console.log(`[fragment] Saved ${filepath}`);
 				});
 			} else {
-				console.log(`[fragment] Saved ${filepaths.length} files.`, {
-					filepaths,
+				out.log(`[fragment] Saved ${filepaths.length} files.`, {
+					filepaths: out,
 				});
 			}
 
-			if (body.files.length < files.length) {
-				return saveFiles(
-					files.slice(body.files.length, files.length + 1),
-				);
-			}
+			return out;
 		} else {
 			throw new Error(error);
 		}
@@ -81,6 +114,11 @@ export async function saveFiles(files = []) {
 	}
 }
 
+/**
+ * Transform a Blob into a Data URL
+ * @param {Blob} blob
+ * @returns {Promise<string>}
+ */
 export async function createDataURLFromBlob(blob) {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
@@ -97,6 +135,12 @@ export async function createDataURLFromBlob(blob) {
 	});
 }
 
+/**
+ * Save a blob on disk
+ * @param {Blob} blob
+ * @param {object} options
+ * @returns {Promise<string[]>}
+ */
 export async function saveBlob(blob, { filename, exportDir }) {
 	const data = await createDataURLFromBlob(blob);
 
@@ -153,6 +197,32 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 	return name;
 };
 
+export function createFilename({
+	name,
+	index,
+	extension = '',
+	pattern = defaultFilenamePattern,
+	...params
+}) {
+	let patternParams = getFilenameParams();
+	let filename = pattern({
+		filename: name,
+		index,
+		...params,
+		...patternParams,
+	});
+
+	return `${filename}${extension}`;
+}
+
+/**
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} sketchKey
+ * @param {Sketch} sketch
+ * @param {number} [index]
+ * @param {Promise<string[]>}
+ */
 export async function screenshotCanvas(
 	canvas,
 	{
@@ -167,14 +237,11 @@ export async function screenshotCanvas(
 	let { extension, dataURL } = exportCanvas(canvas, {
 		encoding: `image/${imageEncoding}`,
 		encodingQuality: map(imageQuality, 1, 100, 0, 1),
+		pixelsPerInch,
 	});
 
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, index, ...params, ...patternParams });
-
-	if (imageEncoding !== 'webp' && pixelsPerInch !== 72) {
-		dataURL = changeDpiDataUrl(dataURL, pixelsPerInch);
-	}
 
 	const files = [
 		{
