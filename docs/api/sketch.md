@@ -10,6 +10,7 @@ A sketch in `fragment` is the entry point of your project. Its API is fairly sim
 Each time your sketch is saved, the previous one is destroyed and a new *lifecycle* is called. Internally, `fragment` will call available [exports](./#exports) from your sketch in this specific order.
 
 ```js
+await sketch.load();
 sketch.init();
 sketch.resize();
 sketch.update();
@@ -19,8 +20,22 @@ sketch.update();
 
 `fragment` leverages the power of [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export), meaning that you can export various properties from your sketch entry point and they will be picked up on runtime.
 
+#### `load`
+
+- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, pixelRatio, publicPath, ...params: {...InitParams, ...MountParams }}) => void`
+
+Fragment will wait until the Promise returned from `load()` resolves to call `init()`. This is useful for preloading assets needed later, such as images, models or fonts.
+
+##### Example
+
+```js
+export let load = ({ publicPath }) => {
+  await loadImage(`${publicPath}/assets/image.jpg`);
+}
+```
+
 #### `init`
-- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, pixelRatio, ...params: {...InitParams, ...MountParams }}) => void`
+- Type: `({ canvas: HTMLCanvasElement, width: number, height: number, pixelRatio, publicPath, ...params: {...InitParams, ...MountParams }}) => void`
 
 | name | type | description |
 |---|---|---|
@@ -28,6 +43,7 @@ sketch.update();
 | width | `number` | Width of the canvas |
 | height | `number` | Height of the canvas |
 | pixelRatio | `number` | PixelRatio of the canvas |
+| publicPath | `string` | Current working directory path |
 
 Depending on the rendering context, params can contain different things.
 
