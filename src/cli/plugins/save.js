@@ -21,7 +21,7 @@ export default function screenshot({
 			: path.join(cwd, directoryPath);
 	}
 
-	function resolveExportDirectory({ exportDir }) {
+	function resolveExportDirectory(exportDir) {
 		let directory;
 
 		if (inlineExportDir) {
@@ -48,29 +48,42 @@ export default function screenshot({
 	let inlineExportDirPath;
 
 	return {
-		name: 'screenshot',
+		name: 'save',
 		configureServer(server) {
 			server.middlewares.use(bodyParser.json({ limit: '100mb' }));
 			server.middlewares.use('/save', async (req, res, next) => {
 				if (req.method === 'POST') {
-					const { filename, dataURL } = req.body;
-
-					let directory = resolveExportDirectory(req.body);
-
-					const filepath = path.join(directory, filename);
-					const buffer = Buffer.from(dataURL, 'base64');
-
-					mkdirp(directory);
+					const { files } = req.body;
 
 					try {
-						await writeFile(filepath, buffer);
+						const filepaths = [];
 
-						log.message(`${green(`export`)} Saved ${filepath}`);
+						for (let i = 0; i < files.length; i++) {
+							const { filename, data, encoding, exportDir } =
+								files[i];
+
+							let directory = resolveExportDirectory(exportDir);
+							mkdirp(directory);
+
+							let filepath = path.join(directory, filename);
+
+							let buffer = Buffer.from(
+								encoding === 'base64'
+									? data.split(',')[1]
+									: data,
+								encoding,
+							);
+
+							await writeFile(filepath, buffer);
+
+							log.message(`${green(`export`)} Saved ${filepath}`);
+							filepaths.push(filepath);
+						}
 
 						res.writeHead(200, {
 							'Content-Type': 'application/json',
 						});
-						res.end(JSON.stringify({ filepath }));
+						res.end(JSON.stringify({ filepaths }));
 					} catch (error) {
 						log.message(`${red(`export`)} Error`);
 						console.error(error);

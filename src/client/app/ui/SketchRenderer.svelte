@@ -5,7 +5,6 @@
 	import { sketches, sketchesKeys } from '../stores/sketches.js';
 	import { layout } from '../stores/layout.js';
 	import { rendering, SIZES, sync, monitors } from '../stores/rendering.js';
-	import { current as currentTime } from '../stores/time.js';
 	import { errors, displayError, clearError } from '../stores/errors.js';
 	import { exports, props } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
@@ -341,7 +340,7 @@
 				imageEncoding: $exports.imageEncoding,
 				quality: $exports.videoQuality,
 				params: {
-					props: sketch.props,
+					props: sketch?.props,
 				},
 				onStart: () => {
 					beforeRecordCallbacks.forEach((callback) => {
@@ -533,7 +532,7 @@
 				exportDir: sketch?.exportDir,
 				index: imageCount > 1 ? i : undefined,
 				params: {
-					props: sketch.props,
+					props: sketch?.props,
 				},
 			});
 			paused = false;
