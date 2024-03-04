@@ -1,3 +1,37 @@
+/**
+ * @typedef {Object} File
+ * @property {string} filepath
+ * @property {string} exportDir
+ * @property {string} data
+ * @property {string} [encoding]
+ */
+
+/**
+ * Transform a Blob into a Data URL
+ * @param {Blob} blob
+ * @returns {Promise<string>}
+ */
+export async function createDataURLFromBlob(blob) {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+
+		reader.onerror = (err) => {
+			reject(err);
+		};
+
+		reader.onload = (e) => {
+			resolve(e.target.result);
+		};
+
+		reader.readAsDataURL(blob);
+	});
+}
+
+/**
+ * Transform a Data URL into a blob
+ * @param {string} dataURL
+ * @returns {Blob}
+ */
 export function createBlobFromDataURL(dataURL) {
 	return new Promise((resolve, reject) => {
 		const splitIndex = dataURL.indexOf(',');
@@ -96,11 +130,120 @@ export function getFileExtension(path) {
 /**
  *
  * @param {string} extension
- * @returns {string} mimeType
+ * @returns {string}
  */
 export function getMimeType(extension) {
 	if (extension === 'json') return 'application/json';
 	if (extension === 'txt') return 'text';
 	if (extension === 'png') return 'image/png';
 	if (extension === 'jpeg' || extension === 'jpg') return 'image/jpeg';
+}
+
+/**
+ *
+ * @param {File|File[]} files
+ */
+export async function saveInBrowser(files) {
+	/**
+	 * @param {File} file
+	 */
+	async function saveFile({ filename, data, blob }) {
+		if (!blob) {
+			blob = await createBlobFromDataURL(data);
+		}
+
+		await downloadBlob(blob, { filename });
+	}
+
+	if (Array.isArray(files)) {
+		return Promise.all(files.map((file) => saveFile(file)));
+	} else {
+		await saveFile(files);
+	}
+}
+
+/**
+ * Save files to disk by sending them to Fragment save plugin. Fallback to saveInBrowser if fails
+ * @param {File[]} files
+ * @returns {Promise<string[]>}
+ */
+export async function saveFiles(files = [], out = []) {
+	if (__DEV__) {
+		files.forEach((file) => {
+			if (!file.size) {
+				file.size = estimateFileSize(file.data);
+			}
+		});
+
+		const limitInMb = 100;
+		const body = {
+			files: [],
+		};
+
+		let size = 0;
+
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+			if (size < limitInMb) {
+				body.files.push(file);
+				size += file.size;
+			} else {
+				break;
+			}
+		}
+
+		const response = await fetch('/save', {
+			method: 'POST',
+			body: JSON.stringify(body),
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+		});
+		const { filepaths, error } = await response.json();
+
+		if (response.ok && filepaths?.length) {
+			out.push(...filepaths);
+
+			if (body.files.length < files.length) {
+				return saveFiles(files.slice(body.files.length), out);
+			}
+
+			if (out.length < 15) {
+				out.forEach((filepath) => {
+					console.log(`[fragment] Saved ${filepath}`);
+				});
+			} else {
+				console.log(`[fragment] Saved ${filepaths.length} files.`, {
+					filepaths: out,
+				});
+			}
+
+			return out;
+		} else {
+			console.error(`[fragment] Error while saving files on disk.`);
+			await saveInBrowser(files);
+		}
+	} else {
+		await saveInBrowser(files);
+	}
+}
+
+/**
+ * Save a blob on disk
+ * @param {Blob} blob
+ * @param {object} options
+ * @returns {Promise<string[]>}
+ */
+export async function saveBlob(blob, { filename, exportDir }) {
+	const data = await createDataURLFromBlob(blob);
+
+	return saveFiles([
+		{
+			filename,
+			data,
+			exportDir,
+			encoding: 'base64',
+		},
+	]);
 }

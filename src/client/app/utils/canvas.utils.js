@@ -5,155 +5,13 @@ https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad84
 import { get } from 'svelte/store';
 import { exports } from '../stores';
 import { VIDEO_FORMATS } from '../stores/exports';
-import {
-	downloadBlob,
-	createBlobFromDataURL,
-	estimateFileSize,
-} from './file.utils';
 import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
 import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
 import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
-
-/**
- * @typedef {Object} File
- * @property {string} filepath
- * @property {string} exportDir
- * @property {string} data
- * @property {string} [encoding]
- */
-
-/**
- *
- * @param {File|File[]} files
- */
-export async function saveInBrowser(files) {
-	/**
-	 * @param {File} file
-	 */
-	async function saveFile({ filename, data, blob }) {
-		if (!blob) {
-			blob = await createBlobFromDataURL(data);
-		}
-
-		await downloadBlob(blob, { filename });
-	}
-
-	if (Array.isArray(files)) {
-		return Promise.all(files.map((file) => saveFile(file)));
-	} else {
-		await saveFile(files);
-	}
-}
-
-/**
- * Save files to disk by sending them to Fragment save plugin. Fallback to saveInBrowser if fails
- * @param {File[]} files
- * @returns {Promise<string[]>}
- */
-export async function saveFiles(files = [], out = []) {
-	if (__DEV__) {
-		files.forEach((file) => {
-			if (!file.size) {
-				file.size = estimateFileSize(file.data);
-			}
-		});
-
-		const limitInMb = 100;
-		const body = {
-			files: [],
-		};
-
-		let size = 0;
-
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i];
-			if (size < limitInMb) {
-				body.files.push(file);
-				size += file.size;
-			} else {
-				break;
-			}
-		}
-
-		const response = await fetch('/save', {
-			method: 'POST',
-			body: JSON.stringify(body),
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-		});
-		const { filepaths, error } = await response.json();
-
-		if (response.ok && filepaths?.length) {
-			out.push(...filepaths);
-
-			if (body.files.length < files.length) {
-				return saveFiles(files.slice(body.files.length), out);
-			}
-
-			if (out.length < 15) {
-				out.forEach((filepath) => {
-					console.log(`[fragment] Saved ${filepath}`);
-				});
-			} else {
-				out.log(`[fragment] Saved ${filepaths.length} files.`, {
-					filepaths: out,
-				});
-			}
-
-			return out;
-		} else {
-			console.error(`[fragment] Error while saving files on disk.`);
-			await saveInBrowser(files);
-		}
-	} else {
-		await saveInBrowser(files);
-	}
-}
-
-/**
- * Transform a Blob into a Data URL
- * @param {Blob} blob
- * @returns {Promise<string>}
- */
-export async function createDataURLFromBlob(blob) {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-
-		reader.onerror = (err) => {
-			reject(err);
-		};
-
-		reader.onload = (e) => {
-			resolve(e.target.result);
-		};
-
-		reader.readAsDataURL(blob);
-	});
-}
-
-/**
- * Save a blob on disk
- * @param {Blob} blob
- * @param {object} options
- * @returns {Promise<string[]>}
- */
-export async function saveBlob(blob, { filename, exportDir }) {
-	const data = await createDataURLFromBlob(blob);
-
-	return saveFiles([
-		{
-			filename,
-			data,
-			exportDir,
-			encoding: 'base64',
-		},
-	]);
-}
+import { createDataURLFromBlob, saveFiles } from './file.utils';
 
 function getFilenameParams() {
 	const now = new Date();
@@ -197,24 +55,6 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 
 	return name;
 };
-
-export function createFilename({
-	name,
-	index,
-	extension = '',
-	pattern = defaultFilenamePattern,
-	...params
-}) {
-	let patternParams = getFilenameParams();
-	let filename = pattern({
-		filename: name,
-		index,
-		...params,
-		...patternParams,
-	});
-
-	return `${filename}${extension}`;
-}
 
 /**
  *
