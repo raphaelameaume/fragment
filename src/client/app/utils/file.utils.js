@@ -214,7 +214,7 @@ export async function saveFiles(files = [], out = []) {
 					console.log(`[fragment] Saved ${filepath}`);
 				});
 			} else {
-				console.log(`[fragment] Saved ${filepaths.length} files.`, {
+				console.log(`[fragment] Saved ${out.length} files.`, {
 					filepaths: out,
 				});
 			}
