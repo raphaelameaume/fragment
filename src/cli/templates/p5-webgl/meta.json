@@ -1,0 +1,5 @@
+{
+	"name": "p5-webgl",
+	"description": "An empty sketch with p5.js in WebGL mode",
+	"dependencies": ["p5"]
+}

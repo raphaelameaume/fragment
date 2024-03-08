@@ -81,7 +81,7 @@ fragment preview [directory]
 
 ## Templates
 
-`fragment` currently supports the following templates:
+`fragment` currently has the following templates:
 - [blank](../../src/cli/templates/blank/index.js)
 - [2d](../../src/cli/templates/default/index.js)
 - [fragment](../../src/cli/templates/fragment-gl/index.js)
@@ -89,3 +89,4 @@ fragment preview [directory]
 - [three/orthographic](../../src/cli/templates/three-orthographic/index.js)
 - [three/perspective](../../src/cli/templates/three-perspective/index.js)
 - [p5](../../src/cli/templates/p5/index.js)
+- [p5-webgl](../../src/cli/templates/p5-webgl/index.js)
