@@ -14,6 +14,8 @@ await sketch.load();
 sketch.init();
 sketch.resize();
 sketch.update();
+// on sketch hot reload
+sketch.dispose();
 ```
 
 ## Exports
