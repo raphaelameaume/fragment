@@ -17,6 +17,10 @@ function loadRenderer(renderingMode) {
 		return import('../renderers/P5Renderer.js');
 	}
 
+	if (__P5_WEBGL_RENDERER__ && renderingMode === 'p5-webgl') {
+		return import('../renderers/P5GLRenderer.js');
+	}
+
 	if (__2D_RENDERER__ && renderingMode === '2d') {
 		return import('../renderers/2DRenderer.js');
 	}

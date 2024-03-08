@@ -25,12 +25,14 @@ export default function checkDependencies({
 	const dependenciesMap = new Map();
 	dependenciesMap.set('three', ['three']);
 	dependenciesMap.set('p5', ['p5']);
+	dependenciesMap.set('p5-webgl', ['p5']);
 	dependenciesMap.set('fragment', []);
 	dependenciesMap.set('2d', []);
 
 	const renderers = new Map();
 	renderers.set('three', `${app}/renderers/THREERenderer.js`);
 	renderers.set('p5', `${app}/renderers/P5Renderer.js`);
+	renderers.set('p5-webgl', `${app}/renderers/P5GLRenderer.js`);
 	renderers.set('ogl', `${app}/renderers/OGLRenderer.js`);
 	renderers.set('fragment', `${app}/renderers/FragmentRenderer.js`);
 	renderers.set('2d', `${app}/renderers/2DRenderer.js`);
@@ -42,40 +44,42 @@ export default function checkDependencies({
 		const match = content.match(regex);
 		const rendering = match && match[2];
 
-		if (rendering && dependenciesMap.has(rendering)) {
+		if (rendering) {
 			renderings.push(rendering);
 
-			const dependencies = dependenciesMap.get(rendering);
-			dependencies.forEach((dependency) => {
-				const dependencyPath = path.join(
-					cwd,
-					`node_modules/${dependency}`,
-				);
-				const isInstalled = fs.existsSync(dependencyPath);
-
-				if (!isInstalled) {
-					const filename = entry.split(`${cwd}/`)[1];
-					log.message();
-					log.error(
-						`Missing dependency "${dependency}" in ${filename}\n`,
-						log.prefix(`run`),
+			if (dependenciesMap.has(rendering)) {
+				const dependencies = dependenciesMap.get(rendering);
+				dependencies.forEach((dependency) => {
+					const dependencyPath = path.join(
+						cwd,
+						`node_modules/${dependency}`,
 					);
-					log.warn(
-						`It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.\n`,
-					);
+					const isInstalled = fs.existsSync(dependencyPath);
 
-					log.message(
-						`Follow the next steps to start running ${magenta(filename)} with Fragment:\n`,
-					);
+					if (!isInstalled) {
+						const filename = entry.split(`${cwd}/`)[1];
+						log.message();
+						log.error(
+							`Missing dependency "${dependency}" in ${filename}\n`,
+							log.prefix(`run`),
+						);
+						log.warn(
+							`It looks like you're trying to build a sketch with the following dependency: ${bold(dependency)}. It needs to be installed before running Fragment.\n`,
+						);
 
-					p.note(
-						`${dim(`1. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${dependency}`))}\n${dim(`2. Start Fragment`)}\n${bold(cyan(`fragment ${filename}`))}`,
-						'',
-					);
+						log.message(
+							`Follow the next steps to start running ${magenta(filename)} with Fragment:\n`,
+						);
 
-					process.exit(1);
-				}
-			});
+						p.note(
+							`${dim(`1. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${dependency}`))}\n${dim(`2. Start Fragment`)}\n${bold(cyan(`fragment ${filename}`))}`,
+							'',
+						);
+
+						process.exit(1);
+					}
+				});
+			}
 		}
 	});
 
@@ -98,6 +102,9 @@ export default function checkDependencies({
 					: true,
 				__P5_RENDERER__: build
 					? renderings.some((rendering) => rendering === 'p5')
+					: true,
+				__P5_WEBGL_RENDERER__: build
+					? renderings.some((rendering) => rendering === 'p5-webgl')
 					: true,
 				__FRAGMENT_RENDERER__: build
 					? renderings.some((rendering) => rendering === 'fragment')
