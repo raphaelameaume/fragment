@@ -3,8 +3,7 @@ import fragmentShader from './fragment.fs';
 
 export let props = {
 	backgroundColor: {
-		value: [0, 0, 255],
-		type: 'color',
+		value: 'rgb(255, 0, 0)',
 	},
 };
 
@@ -56,7 +55,7 @@ void main() {
  * @param {number} params.playcount
  */
 export function draw({ p, width, height, time }) {
-	p.background(255, 120, 0);
+	p.background(props.backgroundColor.value);
 
 	p.shader(shader);
 
