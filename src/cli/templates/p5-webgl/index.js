@@ -17,7 +17,7 @@ let shader;
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let setup = ({ p, width, height }) => {
+export function setup({ p, width, height }) {
 	shader = p.createShader(
 		/* glsl */ `
 attribute vec3 aPosition;
@@ -39,7 +39,7 @@ void main() {
 `,
 		fragmentShader,
 	);
-};
+}
 
 /**
  * @param {object} params
