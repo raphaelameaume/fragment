@@ -460,7 +460,7 @@
 			elapsed += dt;
 
 			if (!$sync) {
-				if (elapsed >= (1 / framerate) * 1000) {
+				if (elapsed >= (1 / framerate) * 1000 && _created) {
 					elapsed = 0;
 					_renderSketch();
 				}
