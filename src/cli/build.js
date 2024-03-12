@@ -17,11 +17,14 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * @param {string} options.outDir
  * @param {boolean} options.emptyOutDir
  * @param {boolean} options.development
+ * @param {boolean} [options.prompts=true]
  */
 export async function build(entry, options) {
 	const cwd = process.cwd();
 	const command = 'build';
 	const prefix = log.prefix(command);
+
+	const { prompts = true } = options;
 
 	try {
 		const entries = await getEntries(entry, cwd, command, prefix);
@@ -30,15 +33,19 @@ export async function build(entry, options) {
 
 		log.message(`${magenta(entry)}\n`, prefix);
 
-		const outDir = await p.text({
-			message: 'Output directory:',
-			placeholder: '.',
-			hint: '(hit Enter to use current directory)',
-			initialValue:
-				options.outDir ?? entries[0].split(path.extname(entries[0]))[0],
-		});
+		let outDir =
+			options.outDir ?? entries[0].split(path.extname(entries[0]))[0];
 
-		handleCancelledPrompt(outDir, prefix);
+		if (prompts) {
+			outDir = await p.text({
+				message: 'Output directory:',
+				placeholder: '.',
+				hint: '(hit Enter to use current directory)',
+				initialValue: outDir,
+			});
+
+			handleCancelledPrompt(outDir, prefix);
+		}
 
 		let outDirPath = path.join(cwd, outDir);
 
@@ -52,24 +59,30 @@ export async function build(entry, options) {
 		if (files.length > 0) {
 			log.warn(`${outDirPath} is not an empty folder.\n`);
 
-			emptyOutDir = await p.confirm({
-				message: 'Empty folder before building?',
-				active: 'Yes',
-				inactive: 'No',
-				initialValue: emptyOutDir ?? true,
-			});
+			if (prompts) {
+				emptyOutDir = await p.confirm({
+					message: 'Empty folder before building?',
+					active: 'Yes',
+					inactive: 'No',
+					initialValue: emptyOutDir,
+				});
 
-			handleCancelledPrompt(emptyOutDir, prefix);
+				handleCancelledPrompt(emptyOutDir, prefix);
+			}
 		}
 
-		const base = await p.text({
-			message: 'Base public path:',
-			placeholder: `/`,
-			hint: '(Hit Enter to validate)',
-			initialValue: options.base,
-		});
+		let base = options.base;
 
-		handleCancelledPrompt(base, prefix);
+		if (prompts) {
+			base = await p.text({
+				message: 'Base public path:',
+				placeholder: `/`,
+				hint: '(Hit Enter to validate)',
+				initialValue: base,
+			});
+
+			handleCancelledPrompt(base, prefix);
+		}
 
 		if (entries.length > 0) {
 			log.message(

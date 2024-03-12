@@ -53,6 +53,7 @@ fragment [filename]
 |`--emptyOutDir`| none | Pre-populate emptyOutDir in build prompts  | `false` |
 |`--base`| none | Pre-populate base path in build prompts | `undefined` |
 |`--development`| none | Run Fragment in development mode  | `false` |
+|`--prompts`| none | Enable interactive prompts in build prompts  | `true` |
 
 ### Build
 
@@ -70,6 +71,7 @@ fragment build [filename]
 |`--emptyOutDir`| none | Empty outDir before static build  | `false` |
 |`--base`| none | Base public path when served in production  | `undefined` |
 |`--development`| none | Run Fragment in development mode  | `false` |
+|`--prompts`| none | Enable interactive prompts  | `true` |
 
 ### Preview
 
