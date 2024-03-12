@@ -57,7 +57,7 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 };
 
 export let onDestroyPreview = ({ id }) => {
-	const previewIndex = previews.find((p) => p.id === id);
+	const previewIndex = previews.findIndex((preview) => preview.id === id);
 	const preview = previews[previewIndex];
 
 	if (preview) {
