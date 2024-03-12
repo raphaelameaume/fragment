@@ -28,6 +28,7 @@ prog.command('run [entry]', '', { default: true })
 	.option('--outDir', 'Build output directory')
 	.option('--emptyOutDir', 'Empty outDir before static build')
 	.option('--base', 'Base public path when served in production', undefined)
+	.option('--prompts', 'Enable interactive prompts', true)
 	.action((entry, options) => {
 		if (options.new) {
 			return create(entry, {
@@ -41,6 +42,7 @@ prog.command('run [entry]', '', { default: true })
 				outDir: options.outDir,
 				emptyOutDir: options.emptyOutDir,
 				base: options.base,
+				prompts: options.prompts,
 			});
 		}
 
@@ -66,6 +68,7 @@ prog.command('build [entry]')
 	.option('--emptyOutDir', 'Empty outDir before building for production')
 	.option('--base', 'Base public path', undefined)
 	.option('-dev, --development', 'Enable development mode', false)
+	.option('--prompts', 'Enable interactive prompts', true)
 	.action((entry, options) => {
 		build(entry, options);
 	});
