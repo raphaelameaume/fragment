@@ -165,7 +165,8 @@ export function recordCanvas(
 				files.push({
 					filename,
 					data,
-					blob: exportDir,
+					blob,
+					exportDir,
 					encoding: 'base64',
 				});
 			}
