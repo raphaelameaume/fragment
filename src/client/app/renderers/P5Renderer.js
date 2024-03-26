@@ -22,6 +22,14 @@ export let onMountPreview = ({ id, width, height }) => {
 	};
 };
 
+export let onBeforeUpdatePreview = ({ id }) => {
+	const preview = previews.find((p) => p.id === id);
+
+	if (preview) {
+		preview.p.resetMatrix();
+	}
+};
+
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
