@@ -80,8 +80,8 @@ export function inferFieldType({ type, value, params, key }) {
 }
 
 export function hasChanged(initialValue, currentValue) {
-	const initialType = typeof initialValue;
-	const currentType = typeof currentValue;
+	const initialType = initialValue && typeof initialValue;
+	const currentType = currentValue && typeof currentValue;
 
 	if (initialType !== currentType) return true;
 
