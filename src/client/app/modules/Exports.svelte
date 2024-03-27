@@ -58,7 +58,6 @@
 			value={$exports.imageCount || 1}
 			params={{ step: 1 }}
 			on:change={(e) => {
-				console.log(e.detail, $exports.imageCount);
 				$exports.imageCount = e.detail;
 			}}
 		/>
