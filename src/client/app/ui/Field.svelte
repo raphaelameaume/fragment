@@ -279,13 +279,15 @@
 				</button>
 			{/if}
 		</div>
-		<svelte:component
-			this={input}
-			{value}
-			{...fieldProps}
-			on:change
-			on:click={onTrigger}
-		/>
+		{#if value !== undefined}
+			<svelte:component
+				this={input}
+				{value}
+				{...fieldProps}
+				on:change
+				on:click={onTrigger}
+			/>
+		{/if}
 		<slot />
 	</FieldSection>
 	{#if triggerable}

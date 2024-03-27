@@ -5,6 +5,7 @@
 		'midi',
 		'console',
 		'exports',
+		'audio',
 	];
 </script>
 
@@ -21,6 +22,7 @@
 		midi: () => import('../modules/MidiPanel.svelte'),
 		console: () => import('../modules/Console.svelte'),
 		exports: () => import('../modules/Exports.svelte'),
+		audio: () => import('../modules/Audio/Audio.svelte'),
 	};
 </script>
 
