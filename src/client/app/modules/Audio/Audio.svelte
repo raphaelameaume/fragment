@@ -1,13 +1,18 @@
 <script>
 	import { onMount } from 'svelte';
 	import Field from '../../ui/Field.svelte';
-	import FieldGroup from '../../ui/FieldGroup.svelte';
 	import Module from '../../ui/Module.svelte';
-	import ButtonInput from '../../ui/fields/ButtonInput.svelte';
 	import FieldInputRow from '../../ui/fields/FieldInputRow.svelte';
-	import NumberInput from '../../ui/fields/NumberInput.svelte';
-	import Select from '../../ui/fields/Select.svelte';
-	import { audio, audioSettings, resync, tap } from './audio.js';
+
+	import {
+		SOURCE_TYPES,
+		audio,
+		audioSettings,
+		fft,
+		resync,
+		tap,
+	} from './audio.js';
+	import Audio from '../../inputs/Audio.js';
 
 	let container, canvas, context;
 	let pixelRatio;
@@ -104,6 +109,31 @@
 		drawBar();
 	});
 
+	const { bufferLength } = Audio;
+
+	fft.subscribe((data) => {
+		if (!canvas) return;
+
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		drawBackground();
+		drawBar();
+
+		let barWidth = (canvas.width / bufferLength) * 1.5;
+
+		for (var i = 0, x = 0; i < bufferLength; i++) {
+			let barHeight = data[i];
+
+			let r = barHeight + 25 * (i / bufferLength);
+			let g = 250 * (i / bufferLength);
+			let b = 50;
+
+			context.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+			context.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+			x += barWidth + 2;
+		}
+	});
+
 	$: bars = new Array($audioSettings.beatsPerMeasure)
 		.fill()
 		.map((v, index) => ({
@@ -115,6 +145,14 @@
 	<div class="canvas-container" bind:this={container}>
 		<canvas class="canvas" bind:this={canvas}></canvas>
 	</div>
+	<Field
+		key="source"
+		value={$audioSettings.sourceType}
+		params={{ options: SOURCE_TYPES }}
+		on:change={(e) => {
+			$audioSettings.sourceType = e.detail;
+		}}
+	/>
 	<Field
 		key="time"
 		value={$audioSettings.beatsPerMeasure}

@@ -1,13 +1,18 @@
-import { derived, readable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 import { createStore } from '../../stores/utils.js';
 import { current } from '../../stores/time.js';
 import { get } from 'svelte/store';
 import { bpms } from '../../triggers/Audio.js';
-import { tick } from 'svelte';
+import Audio from '../../inputs/Audio.js';
+
+const SOURCE_TYPE_NONE = 'none';
+const SOURCE_TYPE_MICROPHONE = 'microphone';
+export const SOURCE_TYPES = [SOURCE_TYPE_NONE, SOURCE_TYPE_MICROPHONE];
 
 export const audioSettings = createStore(
 	`audioSettings`,
 	{
+		sourceType: SOURCE_TYPES[0],
 		bpm: 120,
 		beatsPerMeasure: 4,
 	},
@@ -22,10 +27,24 @@ export const audio = createStore(`audio`, {
 	bar: 0,
 });
 
+export const fft = writable(new Uint8Array());
+
 let period;
 
-audioSettings.subscribe(({ bpm }) => {
+audioSettings.subscribe(({ bpm, sourceType }) => {
 	period = (60 / bpm) * 1000;
+
+	if (sourceType === SOURCE_TYPE_MICROPHONE) {
+		if (!Audio.running) {
+			Audio.start();
+		}
+	} else {
+		Audio.stop();
+	}
+});
+
+Audio.onUpdate((data) => {
+	fft.set(data);
 });
 
 let elapsed = 0;
