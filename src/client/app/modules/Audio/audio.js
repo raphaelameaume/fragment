@@ -69,7 +69,8 @@ current.subscribe(({ time, deltaTime }) => {
 				current.bar < get(audioSettings).beatsPerMeasure - 1
 					? current.bar + 1
 					: 0;
-			const measure = bar === 0 ? current.measure + 1 : current.measure;
+			let measure = bar === 0 ? current.measure + 1 : current.measure;
+			measure %= 4;
 
 			return {
 				...current,
