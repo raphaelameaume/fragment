@@ -26,16 +26,35 @@ export const removeHotListeners = (context) => {
 };
 
 export const checkForTriggers = ({ bar, measure, beatsPerMeasure }) => {
+	const barIndices = Array.from({ length: beatsPerMeasure }).map(
+		(v, index) => index,
+	);
+
 	for (const [, triggers] of bpms) {
 		triggers.forEach((trigger) => {
 			const { repetition, offset } = trigger.params;
 
-			const shouldRun =
-				repetition === 1 ||
-				(repetition === 2 / beatsPerMeasure &&
-					(bar + offset) % 2 === 0);
+			let validBarIndices = [...barIndices];
 
-			if (shouldRun) {
+			if (repetition !== 1) {
+				// the more the repetition, the more indices
+				const r = (1 - repetition) * beatsPerMeasure;
+
+				validBarIndices = validBarIndices.slice(
+					0,
+					validBarIndices.length - r,
+				);
+
+				// handle 2 / 4 without affecting others
+				validBarIndices = validBarIndices.map((index) => index * r);
+
+				// handle offset
+				validBarIndices = validBarIndices.map(
+					(index) => (index + offset) % beatsPerMeasure,
+				);
+			}
+
+			if (validBarIndices.includes(bar)) {
 				trigger.run({ bar, measure, beatsPerMeasure });
 			}
 		});
