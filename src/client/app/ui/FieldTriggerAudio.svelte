@@ -1,6 +1,7 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import Select from './fields/Select.svelte';
+	import { audioSettings } from '../modules/Audio/audio';
 
 	export let eventOptions = [];
 	export let eventName = undefined;
@@ -10,6 +11,45 @@
 	};
 
 	const dispatch = createEventDispatcher();
+
+	let occurrenceOptions = [];
+	let offsetOptions = [];
+
+	audioSettings.subscribe(({ beatsPerMeasure }) => {
+		occurrenceOptions = Array.from({ length: beatsPerMeasure }).map(
+			(v, index) => {
+				return {
+					label: `${beatsPerMeasure - index}/${beatsPerMeasure}`,
+					value: (beatsPerMeasure - index) / beatsPerMeasure,
+				};
+			},
+		);
+
+		offsetOptions = occurrenceOptions.map((opt, index) => {
+			return index;
+		});
+
+		// match existing occurrence and offset if value exists in the new options
+		let occurenceIndex = occurrenceOptions.findIndex(
+			(opt) => opt.value === params.occurrence,
+		);
+
+		let offset = offsetOptions.find((offset) => offset === params.offset);
+
+		// or fallback to first option if no match
+		if (occurenceIndex < 0) {
+			occurenceIndex = 0;
+		}
+
+		if (!offset) {
+			offset = 0;
+		}
+
+		params.occurrence = occurrenceOptions[occurenceIndex].value;
+		params.offset = offset;
+
+		dispatch('change', { eventName, ...params });
+	});
 </script>
 
 <div
@@ -28,12 +68,7 @@
 	/>
 	{#if eventName === 'onBPM'}
 		<Select
-			options={[
-				{ label: '4/4', value: 4 / 4 },
-				{ label: '3/4', value: 3 / 4 },
-				{ label: '2/4', value: 2 / 4 },
-				{ label: '1/4', value: 1 / 4 },
-			]}
+			options={occurrenceOptions}
 			value={params.occurrence}
 			on:change={(e) => {
 				params.occurrence = e.detail;
@@ -42,7 +77,7 @@
 			}}
 		/>
 		<Select
-			options={[0, 1, 2, 3]}
+			options={offsetOptions}
 			value={params.offset}
 			on:change={(e) => {
 				params.offset = e.detail;
