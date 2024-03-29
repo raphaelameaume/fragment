@@ -154,6 +154,14 @@
 		}}
 	/>
 	<Field
+		key="gain"
+		value={Audio.master.gain.value * 100}
+		params={{ min: 0, max: 100, step: 1 }}
+		on:change={(e) => {
+			Audio.master.gain.value = e.detail / 100;
+		}}
+	/>
+	<Field
 		key="time"
 		value={$audioSettings.beatsPerMeasure}
 		on:change={(e) => {

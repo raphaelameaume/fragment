@@ -10,9 +10,30 @@
 		},
 		Keyboard: {
 			events: [
-				{ name: 'onKeyDown', triggerable: true, controllable: false },
-				{ name: 'onKeyPress', triggerable: true, controllable: false },
-				{ name: 'onKeyUp', triggerable: true, controllable: false },
+				{
+					name: 'onKeyDown',
+					triggerable: true,
+					controllable: false,
+					validate: (eventName, params = {}) => {
+						return eventName && params.key !== '';
+					},
+				},
+				{
+					name: 'onKeyPress',
+					triggerable: true,
+					controllable: false,
+					validate: (eventName, params = {}) => {
+						return eventName && params.key !== '';
+					},
+				},
+				{
+					name: 'onKeyUp',
+					triggerable: true,
+					controllable: false,
+					validate: (eventName, params = {}) => {
+						return eventName && params.key !== '';
+					},
+				},
 			],
 		},
 		MIDI: {
@@ -25,10 +46,24 @@
 					name: 'onControlChange',
 					triggerable: false,
 					controllable: true,
+					validate: (eventName, params = {}) => {
+						return eventName && params.key !== '';
+					},
 				},
 			],
 		},
+		Audio: {
+			events: [
+				{ name: 'onBPM', triggerable: true, controllable: false },
+				{ name: 'onMeasure', triggerable: true, controllable: false },
+				{ name: 'FFT', triggerable: false, controllable: true },
+			],
+		},
 	};
+
+	const events = Object.keys(inputs)
+		.map((key) => inputs[key].events)
+		.flat();
 </script>
 
 <script>
@@ -36,9 +71,13 @@
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
 	import Select from './fields/Select.svelte';
-	import TextInput from './fields/TextInput.svelte';
+
 	import * as triggersMap from '../triggers/index.js';
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import FieldTriggerMouse from './FieldTriggerMouse.svelte';
+	import FieldTriggerMidi from './FieldTriggerMIDI.svelte';
+	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
+	import FieldTriggerAudio from './FieldTriggerAudio.svelte';
 
 	export let index;
 	export let inputType = undefined;
@@ -48,12 +87,13 @@
 	export let triggerable = false;
 	export let context;
 	export let onTrigger = () => {};
-	export let params = { key: [] };
+	export let params = {};
+
+	const dispatch = createEventDispatcher();
 
 	let trigger;
-	let dispatch = createEventDispatcher();
 
-	function registerTrigger() {
+	function registerTrigger(name, params = {}) {
 		if (trigger) {
 			enabled = trigger.enabled;
 
@@ -61,14 +101,20 @@
 			trigger = null;
 		}
 
-		const createTrigger = triggersMap[eventName];
+		const createTrigger = triggersMap[name];
 
-		trigger = createTrigger(onTrigger, {
-			...params,
-			context,
-			hot: false,
-			enabled,
-		});
+		console.log('registerTrigger', { name, params });
+
+		if (createTrigger) {
+			eventName = name;
+
+			trigger = createTrigger(onTrigger, {
+				...params,
+				context,
+				hot: false,
+				enabled,
+			});
+		}
 	}
 
 	function onTypeChange(event) {
@@ -76,7 +122,7 @@
 
 		if (!eventOptions.includes(eventName)) {
 			eventName = undefined;
-			params.key = null;
+			params = {};
 		}
 
 		if (trigger) {
@@ -85,29 +131,10 @@
 		}
 	}
 
-	function onEventChange(event) {
-		const clearParams =
-			inputType === 'MIDI' &&
-			eventName !== undefined &&
-			((eventName.includes('Number') && event.detail.includes('Note')) ||
-				(eventName.includes('Note') &&
-					event.detail.includes('Number')));
+	function onTriggerChange(e) {
+		const { eventName, ...params } = e.detail;
 
-		eventName = event.detail;
-
-		if (clearParams) {
-			params.key = '';
-		}
-
-		if (inputType === 'Mouse') {
-			registerTrigger();
-		}
-	}
-
-	function onTextChange(e) {
-		params.key = e.detail;
-
-		registerTrigger();
+		registerTrigger(eventName, params);
 	}
 
 	function handleClickDelete() {
@@ -120,20 +147,21 @@
 		}
 	}
 
+	$: event = events.find((e) => e.name === eventName);
+	$: isValid = event
+		? event.validate
+			? event.validate(eventName, params)
+			: true
+		: false;
+
 	onMount(() => {
-		if (
-			(inputType === 'Mouse' && eventName) ||
-			(inputType && eventName && params.key)
-		) {
-			registerTrigger();
+		if (isValid) {
+			registerTrigger(eventName, params);
 		}
 	});
 
 	onDestroy(() => {
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
-		}
+		trigger?.destroy();
 	});
 
 	$: validInputs = [...Object.keys(inputs)].reduce((all, inputName) => {
@@ -169,46 +197,51 @@
 				})),
 			]
 		: [];
-
-	$: isValid = inputType && eventName;
-	$: key = params.key;
 </script>
 
-<div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
-	<FieldInputRow
-		--grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)"
-	>
+<div class="field-trigger" class:input-selected={inputType !== undefined}>
+	<FieldInputRow>
 		<button
 			class="activity"
 			class:valid={isValid}
 			class:enabled={trigger && trigger.enabled}
 			class:disabled={!trigger || !trigger.enabled}
 			on:click={toggleTrigger}
-		></button>
+		>
+			<span class="visually-hidden">toggle</span>
+		</button>
 		<Select
 			name="trigger-input"
 			value={inputType}
 			options={inputOptions}
 			on:change={onTypeChange}
 		/>
-		{#if inputType}
-			<Select
-				options={eventOptions}
-				bind:value={eventName}
-				disabled={inputType === undefined}
-				on:change={onEventChange}
+		{#if inputType === 'Mouse'}
+			<FieldTriggerMouse
+				{eventName}
+				{eventOptions}
+				on:change={onTriggerChange}
 			/>
-		{/if}
-		{#if inputType === 'Keyboard'}
-			<TextInput bind:value={key} label="key" on:input={onTextChange} />
-		{/if}
-		{#if inputType === 'MIDI'}
-			<TextInput
-				bind:value={key}
-				label={['onNoteOn', 'onNoteOff'].includes(eventName)
-					? 'note'
-					: 'number'}
-				on:input={onTextChange}
+		{:else if inputType === 'Keyboard'}
+			<FieldTriggerKeyboard
+				{eventName}
+				{eventOptions}
+				{params}
+				on:change={onTriggerChange}
+			/>
+		{:else if inputType === 'MIDI'}
+			<FieldTriggerMidi
+				{eventName}
+				{eventOptions}
+				{params}
+				on:change={onTriggerChange}
+			/>
+		{:else if inputType === 'Audio'}
+			<FieldTriggerAudio
+				{eventName}
+				{eventOptions}
+				{params}
+				on:change={onTriggerChange}
 			/>
 		{/if}
 		<ButtonInput
@@ -229,9 +262,15 @@
 		--width-delete: var(--height-input);
 		--width-input: 90px;
 		--width-activity: 16px;
-		--width-cols: 1fr;
+		--grid-template-columns: var(--width-activity) auto var(--width-delete);
+		--align-items: start;
 
 		width: 100%;
+	}
+
+	.field-trigger.input-selected {
+		--grid-template-columns: var(--width-activity) var(--width-input) auto
+			var(--width-delete);
 	}
 
 	.activity {
@@ -240,7 +279,8 @@
 		position: relative;
 
 		width: var(--width-activity);
-		height: 100%;
+		height: var(--height-input);
+		margin: 2px 0;
 
 		background-color: transparent;
 	}
@@ -267,14 +307,5 @@
 
 	.activity.valid.disabled {
 		--background-color: var(--color-red);
-	}
-
-	.field-trigger.mouse {
-		--width-cols: var(--width-input) 1fr;
-	}
-
-	.field-trigger.keyboard,
-	.field-trigger.midi {
-		--width-cols: var(--width-input) 1fr 0.75fr;
 	}
 </style>

@@ -55,7 +55,7 @@ function onBPM(
 	{ bar, measure } = get(audio),
 	{ beatsPerMeasure } = get(audioSettings),
 ) {
-	for (const [context, triggers] of bpms) {
+	for (const [, triggers] of bpms) {
 		triggers.forEach((trigger) => {
 			const { occurrence, offset } = trigger.params;
 

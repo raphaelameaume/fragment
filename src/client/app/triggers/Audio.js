@@ -3,9 +3,11 @@ import { wildcard, getContext } from './shared.js';
 import { addToMapArray, removeFromMapArray } from '../utils';
 
 export const bpms = new Map();
+export const measures = new Map();
 
 export const reset = (context) => {
 	bpms.delete(context);
+	measures.delete(context);
 };
 
 export const removeHotListeners = (context) => {
@@ -44,14 +46,14 @@ const checkForTriggers = (collection, event, scope) => {
 const createTrigger = (eventName, collection) => {
 	return (
 		fn,
-		occurrence = 4 / 4,
-		offset = 0,
-		{ context, hot, enabled } = {},
+		{ context, hot, enabled, occurrence = 4 / 4, offset = 0 } = {},
 	) => {
 		try {
 			if (!context) {
 				context = getContext();
 			}
+
+			console.log({ occurrence });
 
 			const trigger = new Trigger({
 				inputType: 'Audio',
@@ -82,3 +84,9 @@ const createTrigger = (eventName, collection) => {
 };
 
 export const onBPM = createTrigger('onBPM', bpms);
+export const onMeasure = createTrigger('onMeasure', measures);
+export const fft = createTrigger('fft');
+
+export const triggers = {
+	onBPM,
+};

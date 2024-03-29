@@ -8,6 +8,6 @@
 		width: 100%;
 		column-gap: var(--column-gap);
 		grid-template-columns: var(--grid-template-columns, 1fr);
-		align-items: center;
+		align-items: var(--align-items, center);
 	}
 </style>
