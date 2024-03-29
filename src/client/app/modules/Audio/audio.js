@@ -1,12 +1,13 @@
-import { derived, readable, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { createStore } from '../../stores/utils.js';
 import { current } from '../../stores/time.js';
 import { get } from 'svelte/store';
-import { bpms } from '../../triggers/Audio.js';
+import { bpms, checkForTriggers } from '../../triggers/Audio.js';
 import Audio from '../../inputs/Audio.js';
 
 const SOURCE_TYPE_NONE = 'none';
 const SOURCE_TYPE_MICROPHONE = 'microphone';
+
 export const SOURCE_TYPES = [SOURCE_TYPE_NONE, SOURCE_TYPE_MICROPHONE];
 
 export const audioSettings = createStore(
@@ -48,48 +49,28 @@ Audio.onUpdate((data) => {
 });
 
 let elapsed = 0;
-let currentTime = 0;
 let paused = false;
 
 function onBPM(
 	{ bar, measure } = get(audio),
 	{ beatsPerMeasure } = get(audioSettings),
 ) {
-	for (const [, triggers] of bpms) {
-		triggers.forEach((trigger) => {
-			const { occurrence, offset } = trigger.params;
-
-			const shouldRun =
-				occurrence === 1 ||
-				(occurrence === 2 / beatsPerMeasure &&
-					(bar + offset) % 2 === 0);
-
-			if (shouldRun) {
-				trigger.run();
-			}
-		});
-	}
+	checkForTriggers({ bar, measure, beatsPerMeasure });
 }
 
-audio.subscribe(({ measure, bar }) => {
-	onBPM({ bar, measure });
-});
-
 current.subscribe(({ time, deltaTime }) => {
-	currentTime = time;
-
 	elapsed += deltaTime;
 
 	if (elapsed > period) {
 		elapsed = 0;
 
 		audio.update((current) => {
-			const bar =
-				current.bar < get(audioSettings).beatsPerMeasure - 1
-					? current.bar + 1
-					: 0;
+			const { beatsPerMeasure } = get(audioSettings);
+			const bar = current.bar < beatsPerMeasure - 1 ? current.bar + 1 : 0;
 			let measure = bar === 0 ? current.measure + 1 : current.measure;
 			measure %= 4;
+
+			onBPM({ bar, measure });
 
 			return {
 				...current,
@@ -101,6 +82,8 @@ current.subscribe(({ time, deltaTime }) => {
 });
 
 export function resync() {
+	elapsed = 0;
+
 	audio.update((current) => ({
 		...current,
 		measure: 0,

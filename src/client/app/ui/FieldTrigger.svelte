@@ -55,7 +55,6 @@
 		Audio: {
 			events: [
 				{ name: 'onBPM', triggerable: true, controllable: false },
-				{ name: 'onMeasure', triggerable: true, controllable: false },
 				{ name: 'FFT', triggerable: false, controllable: true },
 			],
 		},

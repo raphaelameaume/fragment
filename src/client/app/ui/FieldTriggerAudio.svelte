@@ -6,17 +6,17 @@
 	export let eventOptions = [];
 	export let eventName = undefined;
 	export let params = {
-		occurrence: 4 / 4,
+		repetition: 4 / 4,
 		offset: 0,
 	};
 
 	const dispatch = createEventDispatcher();
 
-	let occurrenceOptions = [];
+	let repetitionOptions = [];
 	let offsetOptions = [];
 
 	audioSettings.subscribe(({ beatsPerMeasure }) => {
-		occurrenceOptions = Array.from({ length: beatsPerMeasure }).map(
+		repetitionOptions = Array.from({ length: beatsPerMeasure }).map(
 			(v, index) => {
 				return {
 					label: `${beatsPerMeasure - index}/${beatsPerMeasure}`,
@@ -25,13 +25,13 @@
 			},
 		);
 
-		offsetOptions = occurrenceOptions.map((opt, index) => {
+		offsetOptions = repetitionOptions.map((opt, index) => {
 			return index;
 		});
 
-		// match existing occurrence and offset if value exists in the new options
-		let occurenceIndex = occurrenceOptions.findIndex(
-			(opt) => opt.value === params.occurrence,
+		// match existing repetition and offset if value exists in the new options
+		let occurenceIndex = repetitionOptions.findIndex(
+			(opt) => opt.value === params.repetition,
 		);
 
 		let offset = offsetOptions.find((offset) => offset === params.offset);
@@ -45,7 +45,7 @@
 			offset = 0;
 		}
 
-		params.occurrence = occurrenceOptions[occurenceIndex].value;
+		params.repetition = repetitionOptions[occurenceIndex].value;
 		params.offset = offset;
 
 		dispatch('change', { eventName, ...params });
@@ -68,10 +68,10 @@
 	/>
 	{#if eventName === 'onBPM'}
 		<Select
-			options={occurrenceOptions}
-			value={params.occurrence}
+			options={repetitionOptions}
+			value={params.repetition}
 			on:change={(e) => {
-				params.occurrence = e.detail;
+				params.repetition = e.detail;
 
 				dispatch('change', { eventName, ...params });
 			}}

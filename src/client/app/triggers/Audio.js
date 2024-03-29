@@ -3,11 +3,9 @@ import { wildcard, getContext } from './shared.js';
 import { addToMapArray, removeFromMapArray } from '../utils';
 
 export const bpms = new Map();
-export const measures = new Map();
 
 export const reset = (context) => {
 	bpms.delete(context);
-	measures.delete(context);
 };
 
 export const removeHotListeners = (context) => {
@@ -27,17 +25,22 @@ export const removeHotListeners = (context) => {
 	removeHotFrom(bpms);
 };
 
-const checkForTriggers = (collection, event, scope) => {
-	const triggers = [
-		...(collection.has(scope) ? collection.get(scope) : []),
-		...(collection.has(wildcard) ? collection.get(wildcard) : []),
-	];
+export const checkForTriggers = ({ bar, measure, beatsPerMeasure }) => {
+	for (const [, triggers] of bpms) {
+		triggers.forEach((trigger) => {
+			const { repetition, offset } = trigger.params;
 
-	triggers.forEach((trigger) => {
-		trigger.run(event);
-	});
+			const shouldRun =
+				repetition === 1 ||
+				(repetition === 2 / beatsPerMeasure &&
+					(bar + offset) % 2 === 0);
+
+			if (shouldRun) {
+				trigger.run({ bar, measure, beatsPerMeasure });
+			}
+		});
+	}
 };
-
 /**
  *
  * @param {Map} collection
@@ -46,20 +49,18 @@ const checkForTriggers = (collection, event, scope) => {
 const createTrigger = (eventName, collection) => {
 	return (
 		fn,
-		{ context, hot, enabled, occurrence = 4 / 4, offset = 0 } = {},
+		{ context, hot, enabled, repetition = 4 / 4, offset = 0 } = {},
 	) => {
 		try {
 			if (!context) {
 				context = getContext();
 			}
 
-			console.log({ occurrence });
-
 			const trigger = new Trigger({
 				inputType: 'Audio',
 				eventName,
 				fn,
-				params: { context, occurrence, offset },
+				params: { context, repetition, offset },
 				context,
 				hot,
 				enabled,
@@ -84,7 +85,6 @@ const createTrigger = (eventName, collection) => {
 };
 
 export const onBPM = createTrigger('onBPM', bpms);
-export const onMeasure = createTrigger('onMeasure', measures);
 export const fft = createTrigger('fft');
 
 export const triggers = {
