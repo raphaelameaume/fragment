@@ -13,29 +13,35 @@
 		tap,
 	} from './audio.js';
 	import Audio from '../../inputs/Audio.js';
+	import FieldSpace from '../../ui/FieldSpace.svelte';
 
-	let container, canvas, context;
+	let containerFFT, canvasFFT, contextFFT;
+	let containerBPM, canvasBPM, contextBPM;
 	let pixelRatio;
 
 	onMount(() => {
 		pixelRatio = window.devicePixelRatio;
-		canvas.width = container.offsetWidth * pixelRatio;
-		canvas.height = container.offsetHeight * pixelRatio;
 
-		context = canvas.getContext('2d');
+		canvasBPM.width = containerBPM.offsetWidth * pixelRatio;
+		canvasBPM.height = containerBPM.offsetHeight * pixelRatio;
+		contextBPM = canvasBPM.getContext('2d');
+
+		canvasFFT.width = containerFFT.offsetWidth * pixelRatio;
+		canvasFFT.height = containerFFT.offsetHeight * pixelRatio;
+		contextFFT = canvasFFT.getContext('2d');
 
 		drawBackground();
 		drawBar();
 	});
 
 	const drawBackground = () => {
-		if (!canvas) return;
+		if (!canvasBPM) return;
 
 		const { beatsPerMeasure } = $audioSettings;
 
-		const width = canvas.width;
-		const height = canvas.height;
-		context.clearRect(0, 0, width, height);
+		const width = canvasBPM.width;
+		const height = canvasBPM.height;
+		contextBPM.clearRect(0, 0, width, height);
 
 		const barCount = beatsPerMeasure * 4;
 
@@ -44,18 +50,18 @@
 
 			if (i % beatsPerMeasure === 0) {
 				x -= 1;
-				context.lineWidth = 2 * pixelRatio;
-				context.strokeStyle = 'black';
+				contextBPM.lineWidth = 2 * pixelRatio;
+				contextBPM.strokeStyle = 'black';
 			} else {
-				context.lineWidth = 0.5 * pixelRatio;
-				context.strokeStyle = '#030303';
+				contextBPM.lineWidth = 1 * pixelRatio;
+				contextBPM.strokeStyle = '#101010';
 			}
 
-			// context.strokeStyle = 'black';
-			context.beginPath();
-			context.moveTo(x, 0);
-			context.lineTo(x, height);
-			context.stroke();
+			// contextBPM.strokeStyle = 'black';
+			contextBPM.beginPath();
+			contextBPM.moveTo(x, 0);
+			contextBPM.lineTo(x, height);
+			contextBPM.stroke();
 		}
 	};
 
@@ -68,36 +74,36 @@
 			t = 4 * beatsPerMeasure - 1;
 		}
 
-		const barWidth = canvas.width / ($audioSettings.beatsPerMeasure * 4);
-		const barHeight = canvas.height;
+		const barWidth = canvasBPM.width / ($audioSettings.beatsPerMeasure * 4);
+		const barHeight = canvasBPM.height;
 
-		const fillWidth = barWidth - 20;
-		const fillHeight = 3 * pixelRatio;
+		const fillWidth = Math.round(barWidth - 8 * pixelRatio);
+		const fillHeight = Math.round(barHeight - 8 * pixelRatio);
 
 		let x = t * barWidth;
 		x += barWidth * 0.5 - fillWidth * 0.5;
 		x = Math.round(x);
-		let y = 3 * pixelRatio;
+		let y = Math.round(canvasBPM.height * 0.5 - fillHeight * 0.5);
 
 		return [x, y, fillWidth, fillHeight];
 	};
 
 	const drawBar = () => {
-		if (!canvas) return;
+		if (!canvasBPM) return;
 
 		const { beatsPerMeasure } = $audioSettings;
 
-		context.fillStyle = '#177bd0';
+		contextBPM.fillStyle = '#177bd0';
 
 		for (let i = 0; i < beatsPerMeasure * 4; i++) {
 			const bar = i % beatsPerMeasure;
 			const measure = Math.floor(i / beatsPerMeasure);
-			context.clearRect(...getRectForBar(bar, measure));
+			contextBPM.clearRect(...getRectForBar(bar, measure));
 		}
 
-		context.beginPath();
-		context.roundRect(...getRectForBar($audio.bar, $audio.measure), 3);
-		context.fill();
+		contextBPM.beginPath();
+		contextBPM.roundRect(...getRectForBar($audio.bar, $audio.measure), 3);
+		contextBPM.fill();
 	};
 
 	audioSettings.subscribe(() => {
@@ -112,13 +118,11 @@
 	const { bufferLength } = Audio;
 
 	fft.subscribe((data) => {
-		if (!canvas) return;
+		if (!canvasFFT) return;
 
-		context.clearRect(0, 0, canvas.width, canvas.height);
-		drawBackground();
-		drawBar();
+		contextFFT.clearRect(0, 0, canvasFFT.width, canvasFFT.height);
 
-		let barWidth = (canvas.width / bufferLength) * 1.5;
+		let barWidth = (canvasFFT.width / bufferLength) * 1.5;
 
 		for (var i = 0, x = 0; i < bufferLength; i++) {
 			let barHeight = data[i];
@@ -127,8 +131,13 @@
 			let g = 250 * (i / bufferLength);
 			let b = 50;
 
-			context.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-			context.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+			contextFFT.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+			contextFFT.fillRect(
+				x,
+				canvasFFT.height - barHeight,
+				barWidth,
+				barHeight,
+			);
 
 			x += barWidth + 2;
 		}
@@ -142,25 +151,18 @@
 </script>
 
 <Module name="Audio">
-	<div class="canvas-container" bind:this={container}>
-		<canvas class="canvas" bind:this={canvas}></canvas>
+	<Field key="bpm" value={$audioSettings.bpm} step={0.01} />
+	<FieldSpace />
+	<Field key="bpm" displayName={null}>
+		<div class="container container-bpm" bind:this={containerBPM}>
+			<canvas class="canvas" bind:this={canvasBPM}></canvas>
+		</div>
+		<FieldSpace />
+	</Field>
+	<div class="bpm-visualizer">
+		<FieldInputRow></FieldInputRow>
 	</div>
-	<Field
-		key="source"
-		value={$audioSettings.sourceType}
-		params={{ options: SOURCE_TYPES }}
-		on:change={(e) => {
-			$audioSettings.sourceType = e.detail;
-		}}
-	/>
-	<Field
-		key="gain"
-		value={Audio.master.gain.value * 100}
-		params={{ min: 0, max: 100, step: 1 }}
-		on:change={(e) => {
-			Audio.master.gain.value = e.detail / 100;
-		}}
-	/>
+
 	<Field
 		key="time"
 		value={$audioSettings.beatsPerMeasure}
@@ -175,7 +177,7 @@
 			],
 		}}
 	/>
-	<Field key="bpm" value={$audioSettings.bpm} step={0.01} />
+
 	<FieldInputRow --grid-template-columns="1fr 1fr 1fr 1fr 1fr 1fr">
 		<Field
 			params={{ label: '-' }}
@@ -247,54 +249,51 @@
 			}}
 		/>
 	</FieldInputRow>
+	<FieldSpace />
+	<Field key="fft" displayName={null}>
+		<div class="container" bind:this={containerFFT}>
+			<canvas class="canvas" bind:this={canvasFFT}></canvas>
+		</div>
+		<FieldSpace />
+	</Field>
+	<Field
+		key="source"
+		value={$audioSettings.sourceType}
+		params={{ options: SOURCE_TYPES }}
+		on:change={(e) => {
+			$audioSettings.sourceType = e.detail;
+		}}
+	/>
+	<Field
+		key="gain"
+		value={Audio.master.gain.value * 100}
+		params={{ min: 0, max: 100, step: 1 }}
+		on:change={(e) => {
+			Audio.master.gain.value = e.detail / 100;
+		}}
+	/>
 </Module>
 
 <style>
-	.visualizer {
-		display: grid;
-		grid-template-columns: var(--grid-template-columns);
-		column-gap: var(--column-gap);
-	}
-	.temp {
+	.container {
 		position: relative;
-		height: var(--height-input);
-		background-color: var(--color-background-input);
-		border: 1px solid var(--color-border-input);
-		border-radius: var(--border-radius-input);
-	}
-
-	.temp:before {
-		content: '';
-
-		position: absolute;
-		top: 3px;
-		left: 3px;
-		right: 3px;
-		bottom: 3px;
-
-		background-color: var(--color-active);
-		border-radius: calc(var(--border-radius-input) * 0.5);
-
-		opacity: 0.2;
-	}
-
-	.temp.active:before {
-		opacity: 0.5;
-	}
-
-	.canvas-container {
-		position: relative;
-		padding: 3px 0px 3px 12px;
 		width: 100%;
-		height: 100px;
+		aspect-ratio: 2 / 0.4;
 	}
 
 	.canvas {
-		position: relative;
 		width: 100%;
 		height: 100%;
 		border-radius: var(--border-radius-input);
 		border: 1px solid var(--color-border-input);
 		background-color: var(--color-background-input);
+	}
+
+	.bpm-visualizer {
+		padding: 3px 6px 0px 12px;
+	}
+
+	.container-bpm {
+		height: var(--height-input);
 	}
 </style>
