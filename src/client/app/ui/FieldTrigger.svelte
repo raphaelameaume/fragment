@@ -268,7 +268,17 @@
 		--align-items: start;
 
 		width: 100%;
+		padding: 0 3px;
+	}
+
+	.field-trigger:first-child {
+		padding-top: 3px;
+	}
+
+	.field-trigger:not(:last-child) {
+		padding-bottom: 3px;
 		margin-bottom: 3px;
+		border-bottom: 1px solid var(--color-spacing);
 	}
 
 	.field-trigger.input-selected {

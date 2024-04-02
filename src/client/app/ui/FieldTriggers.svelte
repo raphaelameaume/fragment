@@ -29,29 +29,36 @@
 
 {#if onTrigger}
 	<div class="field-triggers">
-		<ButtonInput label="add trigger" on:click={handleClickAdd} />
-		{#each $triggers as trigger, index}
-			<FieldTrigger
-				{index}
-				bind:inputType={trigger.inputType}
-				bind:eventName={trigger.eventName}
-				bind:params={trigger.params}
-				bind:enabled={trigger.enabled}
-				{onTrigger}
-				{context}
-				{controllable}
-				{triggerable}
-				on:delete={onTriggerDelete}
-			/>
-		{/each}
+		<header>
+			<ButtonInput label="add trigger" on:click={handleClickAdd} />
+		</header>
+		<ul class="field-triggers-list">
+			{#each $triggers as trigger, index}
+				<FieldTrigger
+					{index}
+					bind:inputType={trigger.inputType}
+					bind:eventName={trigger.eventName}
+					bind:params={trigger.params}
+					bind:enabled={trigger.enabled}
+					{onTrigger}
+					{context}
+					{controllable}
+					{triggerable}
+					on:delete={onTriggerDelete}
+				/>
+			{/each}
+		</ul>
 	</div>
 {/if}
 
 <style>
 	.field-triggers {
 		width: 100%;
-		padding: var(--column-gap);
-		margin-top: var(--column-gap);
+		padding: var(--column-gap) 0;
 		border: 1px solid var(--color-spacing);
+	}
+
+	header {
+		padding: 0 3px;
 	}
 </style>
