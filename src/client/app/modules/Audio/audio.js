@@ -2,7 +2,10 @@ import { writable } from 'svelte/store';
 import { createStore } from '../../stores/utils.js';
 import { current } from '../../stores/time.js';
 import { get } from 'svelte/store';
-import { bpms, checkForTriggers } from '../../triggers/Audio.js';
+import {
+	checkForBPMProgressTriggers,
+	checkForBPMTriggers,
+} from '../../triggers/Audio.js';
 import Audio from '../../inputs/Audio.js';
 
 const SOURCE_TYPE_NONE = 'none';
@@ -13,13 +16,13 @@ export const SOURCE_TYPES = [SOURCE_TYPE_NONE, SOURCE_TYPE_MICROPHONE];
 export const audioSettings = createStore(
 	`audioSettings`,
 	{
-		sourceType: SOURCE_TYPES[0],
+		sourceType: undefined,
 		bpm: 120,
 		beatsPerMeasure: 4,
 	},
 	{
 		persist: !__BUILD__,
-		reset: true,
+		reset: false,
 	},
 );
 
@@ -35,12 +38,10 @@ let period;
 audioSettings.subscribe(({ bpm, sourceType }) => {
 	period = (60 / bpm) * 1000;
 
-	if (sourceType === SOURCE_TYPE_MICROPHONE) {
-		if (!Audio.running) {
-			Audio.start();
-		}
-	} else {
-		Audio.stop();
+	Audio.stop();
+
+	if (sourceType) {
+		Audio.start(sourceType);
 	}
 });
 
@@ -55,17 +56,17 @@ function onBPM(
 	{ bar, measure } = get(audio),
 	{ beatsPerMeasure } = get(audioSettings),
 ) {
-	checkForTriggers({ bar, measure, beatsPerMeasure });
+	checkForBPMTriggers({ bar, measure, beatsPerMeasure });
 }
 
 current.subscribe(({ time, deltaTime }) => {
 	elapsed += deltaTime;
 
+	const { beatsPerMeasure } = get(audioSettings);
+
 	if (elapsed > period) {
 		elapsed = 0;
-
 		audio.update((current) => {
-			const { beatsPerMeasure } = get(audioSettings);
 			const bar = current.bar < beatsPerMeasure - 1 ? current.bar + 1 : 0;
 			let measure = bar === 0 ? current.measure + 1 : current.measure;
 			measure %= 4;
@@ -79,6 +80,10 @@ current.subscribe(({ time, deltaTime }) => {
 			};
 		});
 	}
+
+	const playhead = elapsed / period;
+	const { bar, measure } = get(audio);
+	checkForBPMProgressTriggers({ bar, measure, beatsPerMeasure, playhead });
 });
 
 export function resync() {

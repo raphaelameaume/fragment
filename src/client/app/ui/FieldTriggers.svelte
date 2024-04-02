@@ -28,8 +28,8 @@
 </script>
 
 {#if onTrigger}
-	<ButtonInput label="add trigger" on:click={handleClickAdd} />
 	<div class="field-triggers">
+		<ButtonInput label="add trigger" on:click={handleClickAdd} />
 		{#each $triggers as trigger, index}
 			<FieldTrigger
 				{index}
@@ -50,9 +50,8 @@
 <style>
 	.field-triggers {
 		width: 100%;
-	}
-
-	.field-triggers:not(:empty) {
+		padding: var(--column-gap);
 		margin-top: var(--column-gap);
+		border: 1px solid var(--color-spacing);
 	}
 </style>

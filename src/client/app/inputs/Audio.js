@@ -10,7 +10,7 @@ class Audio extends Input {
 		this.requested = false;
 		this.context = new AudioContext();
 		this.analyser = this.context.createAnalyser();
-		this.analyser.fftSize = 512;
+		this.analyser.fftSize = 256;
 		this.bufferLength = this.analyser.frequencyBinCount;
 		this.data = new Uint8Array(this.bufferLength);
 
@@ -18,9 +18,9 @@ class Audio extends Input {
 		this.master.connect(this.analyser);
 
 		this.listeners = [];
+		this.devices = [];
 
 		const unlock = () => {
-			console.log('unlock');
 			if (
 				this.context.state === 'suspended' ||
 				this.context.state === 'interrupted'
@@ -46,9 +46,9 @@ class Audio extends Input {
 		// }
 	}
 
-	start() {
+	start(deviceId = 'default') {
 		if (!this.requested) {
-			this.request();
+			this.request(deviceId);
 			return;
 		}
 
@@ -96,14 +96,28 @@ class Audio extends Input {
 		this.listeners.push(listener);
 	}
 
-	async request() {
+	async listDevices() {
+		this.devices = await navigator.mediaDevices.enumerateDevices();
+		this.devices = this.devices.filter(
+			(device) =>
+				device.kind === 'audioinput' && device.deviceId !== 'default',
+		);
+
+		return this.devices;
+	}
+
+	async request(deviceId = 'default') {
 		try {
 			if (!this.requesting && !this.requested) {
 				localStorage.setItem(LOCAL_STORAGE_KEY, true);
 				this.requesting = true;
 
 				this.stream = await navigator.mediaDevices.getUserMedia({
-					audio: true,
+					audio: {
+						deviceId,
+						echoCancellation: false,
+						noiseSuppression: false,
+					},
 					video: false,
 				});
 
@@ -117,7 +131,7 @@ class Audio extends Input {
 				this.enabled = true;
 				this.requesting = false;
 				this.requested = true;
-				this.start();
+				this.start(deviceId);
 			}
 		} catch (error) {
 			console.error(

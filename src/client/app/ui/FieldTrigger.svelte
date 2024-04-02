@@ -55,6 +55,11 @@
 		Audio: {
 			events: [
 				{ name: 'onBPM', triggerable: true, controllable: false },
+				{
+					name: 'onBPMProgress',
+					triggerable: false,
+					controllable: true,
+				},
 				{ name: 'FFT', triggerable: false, controllable: true },
 			],
 		},
@@ -101,8 +106,6 @@
 		}
 
 		const createTrigger = triggersMap[name];
-
-		console.log('registerTrigger', { name, params });
 
 		if (createTrigger) {
 			eventName = name;

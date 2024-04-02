@@ -118,6 +118,7 @@
 						{type}
 						{index}
 						disabled={isDisabled}
+						trackChanges
 						bind:params={sketchProps[key].params}
 						on:click={() => {
 							$props[sketchKey][key].value._refresh = true;

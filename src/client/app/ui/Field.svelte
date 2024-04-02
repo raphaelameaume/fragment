@@ -46,6 +46,7 @@
 	export let type = null;
 	export let disabled = false;
 	export let displayName = undefined;
+	export let trackChanges = false;
 	export let index = null;
 
 	let offsetWidth;
@@ -102,6 +103,7 @@
 				isFinite(params.max)
 			) {
 				let v = map(event.value, 0, 1, params.min, params.max);
+
 				let step = params.step ? params.step : 1;
 				let value = Math.round(v * (1 / step)) / (1 / step);
 
@@ -114,12 +116,14 @@
 	$: fieldProps = composeFieldProps(params, disabled);
 	$: onTrigger = frameDebounce(onTriggers[fieldType]);
 	$: input = fields[fieldType];
-	$: triggerable =
-		params.triggerable !== false &&
-		((fieldType === fieldTypes.NUMBER &&
-			isFinite(params.min) &&
-			isFinite(params.max)) ||
-			fieldType === fieldTypes.BUTTON);
+	$: canHaveTriggers = params.triggerable !== false;
+	$: triggerable = canHaveTriggers && fieldType === fieldTypes.BUTTON;
+	$: controllable =
+		canHaveTriggers &&
+		fieldType === fieldTypes.NUMBER &&
+		isFinite(params.min) &&
+		isFinite(params.max);
+
 	$: {
 		const isDownload = fieldType === fieldTypes.DOWNLOAD;
 		const isButton = fieldType === fieldTypes.BUTTON;
@@ -131,6 +135,7 @@
 	$: xsmall = !xxsmall && offsetWidth < 260;
 	$: small = !xxsmall && !xsmall && offsetWidth < 320;
 	$: triggersActive = $triggers.length > 0;
+	$: changed = !disabled && trackChanges && !hasChanged(initialValue, value);
 
 	function toggleTriggers(event) {
 		event.preventDefault();
@@ -156,19 +161,19 @@
 	class:xxsmall
 	class:xsmall
 	class:small
-	class:changed={!disabled && hasChanged(initialValue, value)}
+	class:changed
 	bind:offsetWidth
 	style="--index: {index};"
 >
 	<FieldSection
 		{key}
 		{displayName}
-		interactive={triggerable}
+		interactive={canHaveTriggers}
 		on:click={toggleTriggers}
 		{disabled}
 	>
 		<div slot="infos" class="field__actions">
-			{#if triggerable && !disabled}
+			{#if canHaveTriggers && !disabled}
 				<button
 					on:click={toggleTriggers}
 					class="field__action field__action--triggers"
@@ -290,14 +295,14 @@
 		{/if}
 		<slot />
 	</FieldSection>
-	{#if triggerable}
-		<FieldSection {key} visible={showTriggers} secondary>
+	{#if canHaveTriggers}
+		<FieldSection {key} visible={showTriggers} secondary displayName={null}>
 			<FieldTriggers
 				{triggers}
 				{onTrigger}
 				{context}
-				triggerable={fieldType === 'button'}
-				controllable={fieldType === 'number'}
+				{triggerable}
+				{controllable}
 			/>
 		</FieldSection>
 	{/if}

@@ -2,18 +2,26 @@
 	import { createEventDispatcher } from 'svelte';
 	import Select from './fields/Select.svelte';
 	import { audioSettings } from '../modules/Audio/audio';
+	import Field from './Field.svelte';
 
 	export let eventOptions = [];
 	export let eventName = undefined;
 	export let params = {
-		repetition: 4 / 4,
-		offset: 0,
+		direction: 1,
 	};
+
+	if (!params.direction) {
+		params.direction = 1;
+	}
 
 	const dispatch = createEventDispatcher();
 
 	let repetitionOptions = [];
 	let offsetOptions = [];
+	let directionOptions = [
+		{ label: '>', value: 1 },
+		{ label: '<', value: -1 },
+	];
 
 	audioSettings.subscribe(({ beatsPerMeasure }) => {
 		repetitionOptions = Array.from({ length: beatsPerMeasure }).map(
@@ -30,23 +38,24 @@
 		});
 
 		// match existing repetition and offset if value exists in the new options
-		let occurenceIndex = repetitionOptions.findIndex(
+		let repetitionIndex = repetitionOptions.findIndex(
 			(opt) => opt.value === params.repetition,
 		);
 
 		let offset = offsetOptions.find((offset) => offset === params.offset);
 
 		// or fallback to first option if no match
-		if (occurenceIndex < 0) {
-			occurenceIndex = 0;
+		if (repetitionIndex < 0) {
+			repetitionIndex = 0;
 		}
 
 		if (!offset) {
-			offset = 0;
+			params.offset = 0;
 		}
 
-		params.repetition = repetitionOptions[occurenceIndex].value;
-		params.offset = offset;
+		if (params.repetition === undefined) {
+			params.repetition = repetitionOptions[repetitionIndex].value;
+		}
 
 		dispatch('change', { eventName, ...params });
 	});
@@ -56,6 +65,7 @@
 	class="field-trigger-audio"
 	class:event-selected={eventName !== undefined}
 	class:bpm={eventName === 'onBPM'}
+	class:bpm-progress={eventName === 'onBPMProgress'}
 >
 	<Select
 		options={eventOptions}
@@ -66,9 +76,20 @@
 			dispatch('change', { eventName });
 		}}
 	/>
-	{#if eventName === 'onBPM'}
-		<Select
-			options={repetitionOptions}
+	{#if eventName === 'onBPM' || eventName === 'onBPMProgress'}
+		{#if eventName === 'onBPMProgress'}
+			<Field
+				key="direction"
+				params={{ label: params.direction > 0 ? '>' : '<' }}
+				value={() => {
+					params.direction = -params.direction;
+					dispatch('change', { eventName, ...params });
+				}}
+			/>
+		{/if}
+		<Field
+			key="repetition"
+			params={{ options: repetitionOptions }}
 			value={params.repetition}
 			on:change={(e) => {
 				params.repetition = e.detail;
@@ -76,15 +97,20 @@
 				dispatch('change', { eventName, ...params });
 			}}
 		/>
-		<Select
-			options={offsetOptions}
-			value={params.offset}
-			on:change={(e) => {
-				params.offset = e.detail;
+		{#if params.repetition !== 1}
+			<Field
+				key="offset"
+				params={{
+					options: offsetOptions,
+				}}
+				value={params.offset}
+				on:change={(e) => {
+					params.offset = e.detail;
 
-				dispatch('change', { eventName, ...params });
-			}}
-		/>
+					dispatch('change', { eventName, ...params });
+				}}
+			/>
+		{/if}
 	{/if}
 </div>
 
@@ -93,9 +119,5 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		column-gap: var(--column-gap);
-	}
-
-	.field-trigger-audio.bpm {
-		grid-template-columns: 1fr 0.5fr 0.5fr;
 	}
 </style>

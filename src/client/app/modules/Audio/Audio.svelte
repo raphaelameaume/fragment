@@ -19,7 +19,9 @@
 	let containerBPM, canvasBPM, contextBPM;
 	let pixelRatio;
 
-	onMount(() => {
+	let devices = [];
+
+	onMount(async () => {
 		pixelRatio = window.devicePixelRatio;
 
 		canvasBPM.width = containerBPM.offsetWidth * pixelRatio;
@@ -32,6 +34,8 @@
 
 		drawBackground();
 		drawBar();
+
+		devices = await Audio.listDevices();
 	});
 
 	const drawBackground = () => {
@@ -125,7 +129,7 @@
 		let barWidth = (canvasFFT.width / bufferLength) * 1.5;
 
 		for (var i = 0, x = 0; i < bufferLength; i++) {
-			let barHeight = data[i];
+			let barHeight = (data[i] / 256.0) * canvasFFT.height;
 
 			let r = barHeight + 25 * (i / bufferLength);
 			let g = 250 * (i / bufferLength);
@@ -259,7 +263,15 @@
 	<Field
 		key="source"
 		value={$audioSettings.sourceType}
-		params={{ options: SOURCE_TYPES }}
+		params={{
+			options: [
+				{ label: 'none', value: undefined },
+				...devices.map((device) => ({
+					label: device.label,
+					value: device.deviceId,
+				})),
+			],
+		}}
 		on:change={(e) => {
 			$audioSettings.sourceType = e.detail;
 		}}

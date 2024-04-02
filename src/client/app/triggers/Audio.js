@@ -1,11 +1,13 @@
 import Trigger from './Trigger';
-import { wildcard, getContext } from './shared.js';
+import { getContext } from './shared.js';
 import { addToMapArray, removeFromMapArray } from '../utils';
 
 export const bpms = new Map();
+export const bpmProgress = new Map();
 
 export const reset = (context) => {
 	bpms.delete(context);
+	bpmProgress.delete(context);
 };
 
 export const removeHotListeners = (context) => {
@@ -23,9 +25,10 @@ export const removeHotListeners = (context) => {
 	}
 
 	removeHotFrom(bpms);
+	removeHotFrom(bpmProgress);
 };
 
-export const checkForTriggers = ({ bar, measure, beatsPerMeasure }) => {
+export const checkForBPMTriggers = ({ bar, measure, beatsPerMeasure }) => {
 	const barIndices = Array.from({ length: beatsPerMeasure }).map(
 		(v, index) => index,
 	);
@@ -60,6 +63,30 @@ export const checkForTriggers = ({ bar, measure, beatsPerMeasure }) => {
 		});
 	}
 };
+
+export const checkForBPMProgressTriggers = ({
+	bar,
+	measure,
+	beatsPerMeasure,
+	playhead,
+}) => {
+	for (const [, triggers] of bpmProgress) {
+		triggers.forEach((trigger) => {
+			const value =
+				trigger.params.direction > 0 ? playhead : 1 - playhead;
+
+			trigger.run({
+				...trigger.params,
+				bar,
+				measure,
+				beatsPerMeasure,
+				value,
+				playhead,
+			});
+		});
+	}
+};
+
 /**
  *
  * @param {Map} collection
@@ -68,7 +95,14 @@ export const checkForTriggers = ({ bar, measure, beatsPerMeasure }) => {
 const createTrigger = (eventName, collection) => {
 	return (
 		fn,
-		{ context, hot, enabled, repetition = 4 / 4, offset = 0 } = {},
+		{
+			context,
+			hot,
+			enabled,
+			direction = 1,
+			repetition = 0 / 4,
+			offset = 1,
+		} = {},
 	) => {
 		try {
 			if (!context) {
@@ -79,7 +113,7 @@ const createTrigger = (eventName, collection) => {
 				inputType: 'Audio',
 				eventName,
 				fn,
-				params: { context, repetition, offset },
+				params: { context, repetition, offset, direction },
 				context,
 				hot,
 				enabled,
@@ -104,6 +138,7 @@ const createTrigger = (eventName, collection) => {
 };
 
 export const onBPM = createTrigger('onBPM', bpms);
+export const onBPMProgress = createTrigger('onBPMProgress', bpmProgress);
 export const fft = createTrigger('fft');
 
 export const triggers = {
