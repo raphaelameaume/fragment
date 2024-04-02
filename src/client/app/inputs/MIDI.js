@@ -6,7 +6,20 @@ const commands = {
 	0xb: 'controlchange',
 };
 
-const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+export const notes = [
+	'C',
+	'C#',
+	'D',
+	'D#',
+	'E',
+	'F',
+	'F#',
+	'G',
+	'G#',
+	'A',
+	'A#',
+	'B',
+];
 
 const LOCAL_STORAGE_KEY = 'midi.requested';
 

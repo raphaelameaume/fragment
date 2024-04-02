@@ -135,7 +135,12 @@
 	$: xsmall = !xxsmall && offsetWidth < 260;
 	$: small = !xxsmall && !xsmall && offsetWidth < 320;
 	$: triggersActive = $triggers.length > 0;
-	$: changed = !disabled && trackChanges && !hasChanged(initialValue, value);
+	$: changed =
+		!disabled &&
+		trackChanges &&
+		controllable &&
+		!triggersActive &&
+		hasChanged(initialValue, value);
 
 	function toggleTriggers(event) {
 		event.preventDefault();
@@ -291,6 +296,7 @@
 				{...fieldProps}
 				on:change
 				on:click={onTrigger}
+				on:input
 			/>
 		{/if}
 		<slot />

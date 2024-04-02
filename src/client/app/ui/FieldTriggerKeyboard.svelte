@@ -2,6 +2,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import Select from './fields/Select.svelte';
 	import TextInput from './fields/TextInput.svelte';
+	import Field from './Field.svelte';
 
 	export let eventOptions = [];
 	export let eventName = undefined;
@@ -21,18 +22,21 @@
 <div class="field-trigger-keyboard">
 	<Select
 		options={eventOptions}
-		bind:value={eventName}
+		value={eventName}
 		on:change={(e) => {
 			eventName = e.detail;
+
+			dispatch('change', { eventName, ...params });
 		}}
 	/>
-	<TextInput bind:value={params.key} label="key" on:input={onTextChange} />
+	{#if eventName}
+		<Field key="key" value={params.key ?? ''} on:input={onTextChange} />
+	{/if}
 </div>
 
 <style>
 	.field-trigger-keyboard {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
 		column-gap: var(--column-gap);
 	}
 </style>

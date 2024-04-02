@@ -268,6 +268,7 @@
 		--align-items: start;
 
 		width: 100%;
+		margin-bottom: 3px;
 	}
 
 	.field-trigger.input-selected {

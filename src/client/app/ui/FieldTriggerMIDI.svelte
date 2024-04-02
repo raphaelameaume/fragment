@@ -1,7 +1,8 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import Select from './fields/Select.svelte';
-	import TextInput from './fields/TextInput.svelte';
+	import Field from './Field.svelte';
+	import { notes } from '../inputs/MIDI.js';
 
 	export let eventOptions = [];
 	export let eventName = undefined;
@@ -34,17 +35,24 @@
 			eventName = e.detail;
 		}}
 	/>
-	<TextInput
-		value={params.key}
-		label={isEventNote(eventName) ? 'note' : 'number'}
-		on:input={onTextChange}
-	/>
+	{#if eventName}
+		{#if eventName.includes('onNote')}
+			<Field
+				key="note"
+				value={params.key}
+				params={{ options: notes }}
+				on:input={onTextChange}
+			/>
+		{:else}
+			<Field key="number" value={params.key} on:input={onTextChange} />
+		{/if}
+	{/if}
 </div>
 
 <style>
 	.field-trigger-midi {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr;
 		column-gap: var(--column-gap);
 	}
 </style>
