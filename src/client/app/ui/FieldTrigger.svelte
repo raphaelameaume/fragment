@@ -97,7 +97,7 @@
 
 	let trigger;
 
-	function registerTrigger(name, params = {}) {
+	function registerTrigger(triggerName, triggerParams = {}) {
 		if (trigger) {
 			enabled = trigger.enabled;
 
@@ -105,13 +105,15 @@
 			trigger = null;
 		}
 
-		const createTrigger = triggersMap[name];
+		const createTrigger = triggersMap[triggerName];
 
 		if (createTrigger) {
-			eventName = name;
+			// assign for binding
+			eventName = triggerName;
+			params = triggerParams;
 
 			trigger = createTrigger(onTrigger, {
-				...params,
+				...triggerParams,
 				context,
 				hot: false,
 				enabled,
@@ -146,6 +148,7 @@
 	function toggleTrigger() {
 		if (trigger) {
 			trigger.enabled = !trigger.enabled;
+			enabled = trigger.enabled;
 		}
 	}
 

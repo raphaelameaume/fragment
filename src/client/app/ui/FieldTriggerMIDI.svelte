@@ -13,7 +13,7 @@
 	const dispatch = createEventDispatcher();
 	const isEventNote = (name = '') => name.includes('Note');
 
-	function onTextChange(e) {
+	function onKeyChange(e) {
 		params.key = e.detail;
 
 		dispatch('change', { eventName, ...params });
@@ -29,10 +29,12 @@
 			const isCurrentNote = isEventNote(e.detail);
 
 			if (isPreviousNote !== isCurrentNote) {
-				params.key = '';
+				params.key = isCurrentNote ? notes[0] : '';
 			}
 
 			eventName = e.detail;
+
+			dispatch('change', { eventName, ...params });
 		}}
 	/>
 	{#if eventName}
@@ -41,10 +43,10 @@
 				key="note"
 				value={params.key}
 				params={{ options: notes }}
-				on:input={onTextChange}
+				on:change={onKeyChange}
 			/>
 		{:else}
-			<Field key="number" value={params.key} on:input={onTextChange} />
+			<Field key="number" value={params.key} on:input={onKeyChange} />
 		{/if}
 	{/if}
 </div>

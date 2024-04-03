@@ -28,38 +28,75 @@ export const removeHotListeners = (context) => {
 	removeHotFrom(bpmProgress);
 };
 
-export const checkForBPMTriggers = ({ bar, measure, beatsPerMeasure }) => {
+const createTriggerValidation = ({ beatsPerMeasure }) => {
 	const barIndices = Array.from({ length: beatsPerMeasure }).map(
 		(v, index) => index,
 	);
 
+	return (trigger, bar) => {
+		const { repetition, offset } = trigger.params;
+
+		let validBarIndices = [...barIndices];
+
+		if (repetition !== 1) {
+			// the more the repetition, the more indices
+			const r = (1 - repetition) * beatsPerMeasure;
+
+			validBarIndices = validBarIndices.slice(
+				0,
+				validBarIndices.length - r,
+			);
+
+			// handle 2 / 4 without affecting others
+
+			if (repetition === -1) {
+				validBarIndices = [0, 2];
+			}
+
+			// handle offset
+			validBarIndices = validBarIndices.map(
+				(index) => (index + offset) % beatsPerMeasure,
+			);
+		}
+
+		return validBarIndices.includes(bar);
+	};
+};
+
+export const checkForBPMTriggers = ({ bar, measure, beatsPerMeasure }) => {
+	const isTriggerValid = createTriggerValidation({ beatsPerMeasure });
+
 	for (const [, triggers] of bpms) {
 		triggers.forEach((trigger) => {
-			const { repetition, offset } = trigger.params;
-
-			let validBarIndices = [...barIndices];
-
-			if (repetition !== 1) {
-				// the more the repetition, the more indices
-				const r = (1 - repetition) * beatsPerMeasure;
-
-				validBarIndices = validBarIndices.slice(
-					0,
-					validBarIndices.length - r,
-				);
-
-				// handle 2 / 4 without affecting others
-				validBarIndices = validBarIndices.map((index) => index * r);
-
-				// handle offset
-				validBarIndices = validBarIndices.map(
-					(index) => (index + offset) % beatsPerMeasure,
-				);
-			}
-
-			if (validBarIndices.includes(bar)) {
+			if (isTriggerValid(trigger, bar)) {
 				trigger.run({ bar, measure, beatsPerMeasure });
 			}
+
+			// const { repetition, offset } = trigger.params;
+
+			// let validBarIndices = [...barIndices];
+
+			// if (repetition !== 1) {
+			// 	// the more the repetition, the more indices
+			// 	const r = (1 - repetition) * beatsPerMeasure;
+
+			// 	validBarIndices = validBarIndices.slice(
+			// 		0,
+			// 		validBarIndices.length - r,
+			// 	);
+
+			// 	// handle 2 / 4 without affecting others
+			// 	validBarIndices = validBarIndices.map((index) => index * r);
+
+			// 	// handle offset
+			// 	validBarIndices = validBarIndices.map(
+			// 		(index) => (index + offset) % beatsPerMeasure,
+			// 	);
+			// }
+
+			// if (validBarIndices.includes(bar)) {
+			// 	trigger.run({ bar, measure, beatsPerMeasure });
+			// }
 		});
 	}
 };
@@ -70,19 +107,23 @@ export const checkForBPMProgressTriggers = ({
 	beatsPerMeasure,
 	playhead,
 }) => {
+	const isTriggerValid = createTriggerValidation({ beatsPerMeasure });
+
 	for (const [, triggers] of bpmProgress) {
 		triggers.forEach((trigger) => {
-			const value =
-				trigger.params.direction > 0 ? playhead : 1 - playhead;
+			if (isTriggerValid(trigger, bar)) {
+				const value =
+					trigger.params.direction > 0 ? playhead : 1 - playhead;
 
-			trigger.run({
-				...trigger.params,
-				bar,
-				measure,
-				beatsPerMeasure,
-				value,
-				playhead,
-			});
+				trigger.run({
+					...trigger.params,
+					bar,
+					measure,
+					beatsPerMeasure,
+					value,
+					playhead,
+				});
+			}
 		});
 	}
 };
@@ -100,7 +141,7 @@ const createTrigger = (eventName, collection) => {
 			hot,
 			enabled,
 			direction = 1,
-			repetition = 0 / 4,
+			repetition = 4 / 4,
 			offset = 1,
 		} = {},
 	) => {

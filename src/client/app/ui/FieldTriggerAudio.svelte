@@ -12,18 +12,20 @@
 		offset: 0,
 	};
 
-	// if (!params.repetition) {
-	// 	params.repetition = 1;
-	// }
+	if (!params.repetition) {
+		params.repetition = 1;
+	}
 
-	// if (!params.direction) {
-	// 	params.direction = 1;
-	// }
+	if (!params.direction) {
+		params.direction = 1;
+	}
 
 	const dispatch = createEventDispatcher();
 
 	let repetitionOptions = [];
 	let offsetOptions = [];
+
+	$: console.log(params.repetition);
 
 	audioSettings.subscribe(({ beatsPerMeasure }) => {
 		repetitionOptions = Array.from({ length: beatsPerMeasure }).map(
@@ -84,7 +86,7 @@
 		on:change={(e) => {
 			eventName = e.detail;
 
-			dispatch('change', { eventName });
+			dispatch('change', { eventName, ...params });
 		}}
 	/>
 	{#if eventName === 'onBPM' || eventName === 'onBPMProgress'}

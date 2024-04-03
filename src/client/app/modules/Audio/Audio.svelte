@@ -15,6 +15,9 @@
 	import Audio from '../../inputs/Audio.js';
 	import FieldSpace from '../../ui/FieldSpace.svelte';
 
+	export let mID;
+	export let hasHeader;
+
 	let containerFFT, canvasFFT, contextFFT;
 	let containerBPM, canvasBPM, contextBPM;
 	let pixelRatio;
@@ -154,7 +157,7 @@
 		}));
 </script>
 
-<Module name="Audio">
+<Module {mID} {hasHeader} name="Audio">
 	<Field key="bpm" value={$audioSettings.bpm} step={0.01} />
 	<FieldSpace />
 	<Field key="bpm" displayName={null}>

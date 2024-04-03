@@ -1,4 +1,5 @@
 <script>
+	import Trigger from '../triggers/Trigger';
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 
@@ -16,13 +17,7 @@
 
 	function handleClickAdd() {
 		triggers.update((current) => {
-			return [
-				...current,
-				{
-					inputType: undefined,
-					eventName: undefined,
-				},
-			];
+			return [...current, new Trigger({ enabled: true })];
 		});
 	}
 </script>
