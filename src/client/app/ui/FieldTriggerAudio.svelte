@@ -7,21 +7,23 @@
 	export let eventOptions = [];
 	export let eventName = undefined;
 	export let params = {
+		repetition: 1,
 		direction: 1,
+		offset: 0,
 	};
 
-	if (!params.direction) {
-		params.direction = 1;
-	}
+	// if (!params.repetition) {
+	// 	params.repetition = 1;
+	// }
+
+	// if (!params.direction) {
+	// 	params.direction = 1;
+	// }
 
 	const dispatch = createEventDispatcher();
 
 	let repetitionOptions = [];
 	let offsetOptions = [];
-	let directionOptions = [
-		{ label: '>', value: 1 },
-		{ label: '<', value: -1 },
-	];
 
 	audioSettings.subscribe(({ beatsPerMeasure }) => {
 		repetitionOptions = Array.from({ length: beatsPerMeasure }).map(
@@ -33,9 +35,18 @@
 			},
 		);
 
-		offsetOptions = repetitionOptions.map((opt, index) => {
-			return index;
-		});
+		if (beatsPerMeasure === 4) {
+			repetitionOptions = [
+				...repetitionOptions,
+				{ label: 'every 2', value: -1 },
+			];
+		}
+
+		offsetOptions = Array.from({ length: beatsPerMeasure }).map(
+			(opt, index) => {
+				return index;
+			},
+		);
 
 		// match existing repetition and offset if value exists in the new options
 		let repetitionIndex = repetitionOptions.findIndex(
@@ -94,6 +105,10 @@
 			on:change={(e) => {
 				params.repetition = e.detail;
 
+				if (params.repetition === -1) {
+					params.offset = 0;
+				}
+
 				dispatch('change', { eventName, ...params });
 			}}
 		/>
@@ -101,7 +116,9 @@
 			<Field
 				key="offset"
 				params={{
-					options: offsetOptions,
+					options: offsetOptions.filter((opt) =>
+						params.repetition === -1 ? opt < 2 : true,
+					),
 				}}
 				value={params.offset}
 				on:change={(e) => {
