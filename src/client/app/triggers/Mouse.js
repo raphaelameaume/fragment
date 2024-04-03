@@ -11,13 +11,6 @@ const ups = new Map();
 const moves = new Map();
 const clicks = new Map();
 
-export const reset = (context) => {
-	downs.delete(context);
-	ups.delete(context);
-	moves.delete(context);
-	clicks.delete(context);
-};
-
 export const removeHotListeners = (context) => {
 	function removeHotFrom(collection) {
 		const triggers = collection.get(context);

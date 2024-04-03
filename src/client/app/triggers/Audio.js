@@ -6,11 +6,6 @@ export const bpms = new Map();
 export const bpmProgress = new Map();
 export const ffts = new Map();
 
-export const reset = (context) => {
-	bpms.delete(context);
-	bpmProgress.delete(context);
-};
-
 export const removeHotListeners = (context) => {
 	function removeHotFrom(collection) {
 		const triggers = collection.get(context);
@@ -27,6 +22,7 @@ export const removeHotListeners = (context) => {
 
 	removeHotFrom(bpms);
 	removeHotFrom(bpmProgress);
+	removeHotFrom(ffts);
 };
 
 const createTriggerValidation = ({ beatsPerMeasure }) => {
@@ -72,32 +68,6 @@ export const checkForBPMTriggers = ({ bar, measure, beatsPerMeasure }) => {
 			if (isTriggerValid(trigger, bar)) {
 				trigger.run({ bar, measure, beatsPerMeasure });
 			}
-
-			// const { repetition, offset } = trigger.params;
-
-			// let validBarIndices = [...barIndices];
-
-			// if (repetition !== 1) {
-			// 	// the more the repetition, the more indices
-			// 	const r = (1 - repetition) * beatsPerMeasure;
-
-			// 	validBarIndices = validBarIndices.slice(
-			// 		0,
-			// 		validBarIndices.length - r,
-			// 	);
-
-			// 	// handle 2 / 4 without affecting others
-			// 	validBarIndices = validBarIndices.map((index) => index * r);
-
-			// 	// handle offset
-			// 	validBarIndices = validBarIndices.map(
-			// 		(index) => (index + offset) % beatsPerMeasure,
-			// 	);
-			// }
-
-			// if (validBarIndices.includes(bar)) {
-			// 	trigger.run({ bar, measure, beatsPerMeasure });
-			// }
 		});
 	}
 };
@@ -193,7 +163,7 @@ export const TRIGGERS = {
 	onFFT: {
 		name: 'onFFT',
 		controllable: true,
-		triggerable: true,
+		triggerable: false,
 	},
 };
 
