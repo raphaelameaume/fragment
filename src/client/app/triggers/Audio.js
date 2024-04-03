@@ -4,6 +4,7 @@ import { addToMapArray, removeFromMapArray } from '../utils';
 
 export const bpms = new Map();
 export const bpmProgress = new Map();
+export const ffts = new Map();
 
 export const reset = (context) => {
 	bpms.delete(context);
@@ -178,10 +179,27 @@ const createTrigger = (eventName, collection) => {
 	};
 };
 
-export const onBPM = createTrigger('onBPM', bpms);
-export const onBPMProgress = createTrigger('onBPMProgress', bpmProgress);
-export const fft = createTrigger('fft');
-
-export const triggers = {
-	onBPM,
+export const TRIGGERS = {
+	onBPM: {
+		name: 'onBPM',
+		controllable: false,
+		triggerable: true,
+	},
+	onBPMProgress: {
+		name: 'onBPMProgress',
+		controllable: true,
+		triggerable: false,
+	},
+	onFFT: {
+		name: 'onFFT',
+		controllable: true,
+		triggerable: true,
+	},
 };
+
+export const onBPM = createTrigger(TRIGGERS.onBPM.name, bpms);
+export const onBPMProgress = createTrigger(
+	TRIGGERS.onBPMProgress.name,
+	bpmProgress,
+);
+export const fft = createTrigger(TRIGGERS.onFFT.name, ffts);

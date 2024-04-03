@@ -99,6 +99,33 @@ window.addEventListener('keypress', createEventListener(pressedKeys));
 window.addEventListener('keyup', createEventListener(upKeys));
 window.addEventListener('keydown', createEventListener(downKeys));
 
-export const onKeyPress = createTrigger('onKeyPress', pressedKeys);
-export const onKeyDown = createTrigger('onKeyDown', downKeys);
-export const onKeyUp = createTrigger('onKeyUp', upKeys);
+export const TRIGGERS = {
+	onKeyDown: {
+		name: 'onKeyDown',
+		triggerable: true,
+		controllable: false,
+		validate: (eventName, params = {}) => {
+			return eventName && params.key !== '';
+		},
+	},
+	onKeyPress: {
+		name: 'onKeyPress',
+		triggerable: true,
+		controllable: false,
+		validate: (eventName, params = {}) => {
+			return eventName && params.key !== '';
+		},
+	},
+	onKeyUp: {
+		name: 'onKeyUp',
+		triggerable: true,
+		controllable: false,
+		validate: (eventName, params = {}) => {
+			return eventName && params.key !== '';
+		},
+	},
+};
+
+export const onKeyPress = createTrigger(TRIGGERS.onKeyPress.name, pressedKeys);
+export const onKeyDown = createTrigger(TRIGGERS.onKeyDown.name, downKeys);
+export const onKeyUp = createTrigger(TRIGGERS.onKeyUp.name, upKeys);

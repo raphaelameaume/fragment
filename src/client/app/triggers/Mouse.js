@@ -98,7 +98,22 @@ export const checkForTriggersUp = (event, context) =>
 export const checkForTriggersClick = (event, context) =>
 	checkForTriggers(clicks, event, context);
 
-export const onMouseDown = createTrigger('onMouseDown', downs);
-export const onMouseUp = createTrigger('onMouseUp', ups);
-export const onMouseMove = createTrigger('onMouseMove', moves);
-export const onClick = createTrigger('onClick', clicks);
+export const TRIGGERS = {
+	onMouseDown: {
+		name: 'onMouseDown',
+		triggerable: true,
+		controllable: false,
+	},
+	onMouseUp: { name: 'onMouseUp', triggerable: true, controllable: false },
+	onMouseMove: {
+		name: 'onMouseMove',
+		triggerable: true,
+		controllable: false,
+	},
+	onClick: { name: 'onClick', triggerable: true, controllable: false },
+};
+
+export const onMouseDown = createTrigger(TRIGGERS.onMouseDown.name, downs);
+export const onMouseUp = createTrigger(TRIGGERS.onMouseUp.name, ups);
+export const onMouseMove = createTrigger(TRIGGERS.onMouseMove.name, moves);
+export const onClick = createTrigger(TRIGGERS.onClick.name, clicks);

@@ -145,8 +145,30 @@ MIDI.addEventListener(
 	createEventListener(controlchanges, (event) => event.note.number),
 );
 
-export const onNoteOn = createTrigger('onNoteOn', noteons);
-export const onNoteOff = createTrigger('onNoteOff', noteoffs);
-export const onNumberOn = createTrigger('onNumberOn', numberons);
-export const onNumberOff = createTrigger('onNumberOff', numberoffs);
-export const onControlChange = createTrigger('onControlChange', controlchanges);
+export const TRIGGERS = {
+	onNoteOn: { name: 'onNoteOn', triggerable: true, controllable: false },
+	onNoteOff: { name: 'onNoteOff', triggerable: true, controllable: false },
+	onNumberOn: { name: 'onNumberOn', triggerable: true, controllable: false },
+	onNumberOff: {
+		name: 'onNumberOff',
+		triggerable: true,
+		controllable: false,
+	},
+	onControlChange: {
+		name: 'onControlChange',
+		triggerable: false,
+		controllable: true,
+		validate: (eventName, params = {}) => {
+			return eventName && params.key !== '';
+		},
+	},
+};
+
+export const onNoteOn = createTrigger(TRIGGERS.onNoteOn.name, noteons);
+export const onNoteOff = createTrigger(TRIGGERS.onNoteOff.name, noteoffs);
+export const onNumberOn = createTrigger(TRIGGERS.onNumberOn.name, numberons);
+export const onNumberOff = createTrigger(TRIGGERS.onNumberOff.name, numberoffs);
+export const onControlChange = createTrigger(
+	TRIGGERS.onControlChange.name,
+	controlchanges,
+);

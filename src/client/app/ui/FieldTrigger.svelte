@@ -1,72 +1,19 @@
 <script context="module">
+	import { TRIGGERS as TRIGGERS_MOUSE } from '../triggers/Mouse.js';
+	import { TRIGGERS as TRIGGERS_KEYBOARD } from '../triggers/Keyboard.js';
+	import { TRIGGERS as TRIGGERS_AUDIO } from '../triggers/Audio.js';
+	import { TRIGGERS as TRIGGERS_MIDI } from '../triggers/MIDI.js';
+
 	const inputs = {
-		Mouse: {
-			events: [
-				{ name: 'onMouseDown', triggerable: true, controllable: false },
-				{ name: 'onMouseUp', triggerable: true, controllable: false },
-				{ name: 'onMouseMove', triggerable: true, controllable: false },
-				{ name: 'onClick', triggerable: true, controllable: false },
-			],
-		},
-		Keyboard: {
-			events: [
-				{
-					name: 'onKeyDown',
-					triggerable: true,
-					controllable: false,
-					validate: (eventName, params = {}) => {
-						return eventName && params.key !== '';
-					},
-				},
-				{
-					name: 'onKeyPress',
-					triggerable: true,
-					controllable: false,
-					validate: (eventName, params = {}) => {
-						return eventName && params.key !== '';
-					},
-				},
-				{
-					name: 'onKeyUp',
-					triggerable: true,
-					controllable: false,
-					validate: (eventName, params = {}) => {
-						return eventName && params.key !== '';
-					},
-				},
-			],
-		},
-		MIDI: {
-			events: [
-				{ name: 'onNoteOn', triggerable: true, controllable: false },
-				{ name: 'onNoteOff', triggerable: true, controllable: false },
-				{ name: 'onNumberOn', triggerable: true, controllable: false },
-				{ name: 'onNumberOff', triggerable: true, controllable: false },
-				{
-					name: 'onControlChange',
-					triggerable: false,
-					controllable: true,
-					validate: (eventName, params = {}) => {
-						return eventName && params.key !== '';
-					},
-				},
-			],
-		},
-		Audio: {
-			events: [
-				{ name: 'onBPM', triggerable: true, controllable: false },
-				{
-					name: 'onBPMProgress',
-					triggerable: false,
-					controllable: true,
-				},
-				{ name: 'FFT', triggerable: false, controllable: true },
-			],
-		},
+		Mouse: TRIGGERS_MOUSE,
+		Keyboard: TRIGGERS_KEYBOARD,
+		MIDI: TRIGGERS_MIDI,
+		Audio: TRIGGERS_AUDIO,
 	};
 
 	const events = Object.keys(inputs)
-		.map((key) => inputs[key].events)
+		.map((key) => inputs[key])
+		.map((triggers) => Object.keys(triggers).map((key) => triggers[key]))
 		.flat();
 </script>
 
@@ -171,7 +118,7 @@
 
 	$: validInputs = [...Object.keys(inputs)].reduce((all, inputName) => {
 		const input = inputs[inputName];
-		const { disabled, events } = input;
+		const events = Object.keys(input).map((key) => input[key]);
 		const filteredEvents = events.filter((event) => {
 			return (
 				event.triggerable === triggerable &&
@@ -180,7 +127,7 @@
 		});
 
 		if (filteredEvents.length > 0) {
-			all[inputName] = { events: filteredEvents, disabled };
+			all[inputName] = filteredEvents;
 		}
 
 		return all;
@@ -190,14 +137,13 @@
 		{ label: 'Select input', value: undefined, disabled: true },
 		...Object.keys(validInputs).map((inputName) => ({
 			value: inputName,
-			disabled: validInputs[inputName].disabled,
 		})),
 	];
 
 	$: eventOptions = inputType
 		? [
 				{ label: '-', value: undefined, disabled: true },
-				...validInputs[inputType].events.map((event) => ({
+				...validInputs[inputType].map((event) => ({
 					value: event.name,
 				})),
 			]

@@ -1,7 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import Select from './fields/Select.svelte';
-	import TextInput from './fields/TextInput.svelte';
 
 	export let eventOptions = [];
 	export let eventName = undefined;

@@ -3,6 +3,7 @@
 	import Select from './fields/Select.svelte';
 	import { audioSettings } from '../modules/Audio/audio';
 	import Field from './Field.svelte';
+	import { TRIGGERS } from '../triggers/Audio.js';
 
 	export let eventOptions = [];
 	export let eventName = undefined;
@@ -24,8 +25,6 @@
 
 	let repetitionOptions = [];
 	let offsetOptions = [];
-
-	$: console.log(params.repetition);
 
 	audioSettings.subscribe(({ beatsPerMeasure }) => {
 		repetitionOptions = Array.from({ length: beatsPerMeasure }).map(
@@ -77,8 +76,8 @@
 <div
 	class="field-trigger-audio"
 	class:event-selected={eventName !== undefined}
-	class:bpm={eventName === 'onBPM'}
-	class:bpm-progress={eventName === 'onBPMProgress'}
+	class:bpm={eventName === TRIGGERS.onBPM.name}
+	class:bpm-progress={eventName === TRIGGERS.onBPMProgress.name}
 >
 	<Select
 		options={eventOptions}
@@ -89,11 +88,14 @@
 			dispatch('change', { eventName, ...params });
 		}}
 	/>
-	{#if eventName === 'onBPM' || eventName === 'onBPMProgress'}
-		{#if eventName === 'onBPMProgress'}
+	{#if eventName === TRIGGERS.onBPM.name || eventName === TRIGGERS.onBPMProgress.name}
+		{#if eventName === TRIGGERS.onBPMProgress.name}
 			<Field
 				key="direction"
-				params={{ label: params.direction > 0 ? '>' : '<' }}
+				params={{
+					label: params.direction > 0 ? '>' : '<',
+					triggerable: false,
+				}}
 				value={() => {
 					params.direction = -params.direction;
 					dispatch('change', { eventName, ...params });
@@ -102,7 +104,7 @@
 		{/if}
 		<Field
 			key="repetition"
-			params={{ options: repetitionOptions }}
+			params={{ options: repetitionOptions, triggerable: false }}
 			value={params.repetition}
 			on:change={(e) => {
 				params.repetition = e.detail;
@@ -121,6 +123,7 @@
 					options: offsetOptions.filter((opt) =>
 						params.repetition === -1 ? opt < 2 : true,
 					),
+					triggerable: false,
 				}}
 				value={params.offset}
 				on:change={(e) => {
