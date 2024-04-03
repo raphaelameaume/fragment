@@ -22,5 +22,7 @@
 <style>
 	.field-trigger-mouse {
 		display: grid;
+
+		--align-items: center;
 	}
 </style>

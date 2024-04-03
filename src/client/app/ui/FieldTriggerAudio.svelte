@@ -3,7 +3,8 @@
 	import Select from './fields/Select.svelte';
 	import { audioSettings } from '../modules/Audio/audio';
 	import Field from './Field.svelte';
-	import { TRIGGERS } from '../triggers/Audio.js';
+	import { TRIGGERS, onFFT } from '../triggers/Audio.js';
+	import Audio from '../inputs/Audio.js';
 
 	export let eventOptions = [];
 	export let eventName = undefined;
@@ -11,6 +12,8 @@
 		repetition: 1,
 		direction: 1,
 		offset: 0,
+		fftRange: [0, Audio.bufferLength],
+		gain: 1,
 	};
 
 	if (!params.repetition) {
@@ -19,6 +22,14 @@
 
 	if (!params.direction) {
 		params.direction = 1;
+	}
+
+	if (!params.fftRange) {
+		params.fftRange = [0, Audio.bufferLength];
+	}
+
+	if (!params.gain) {
+		params.gain = 1;
 	}
 
 	const dispatch = createEventDispatcher();
@@ -68,9 +79,13 @@
 		if (params.repetition === undefined) {
 			params.repetition = repetitionOptions[repetitionIndex].value;
 		}
-
-		dispatch('change', { eventName, ...params });
 	});
+
+	const dispatchChange = () => dispatch('change', { eventName, ...params });
+	const updateParam = (key, value) => {
+		params[key] = value;
+		dispatchChange();
+	};
 </script>
 
 <div
@@ -85,7 +100,7 @@
 		on:change={(e) => {
 			eventName = e.detail;
 
-			dispatch('change', { eventName, ...params });
+			dispatchChange();
 		}}
 	/>
 	{#if eventName === TRIGGERS.onBPM.name || eventName === TRIGGERS.onBPMProgress.name}
@@ -97,8 +112,7 @@
 					triggerable: false,
 				}}
 				value={() => {
-					params.direction = -params.direction;
-					dispatch('change', { eventName, ...params });
+					updateParam('direction', -params.direction);
 				}}
 			/>
 		{/if}
@@ -113,7 +127,7 @@
 					params.offset = 0;
 				}
 
-				dispatch('change', { eventName, ...params });
+				dispatchChange();
 			}}
 		/>
 		{#if params.repetition !== 1}
@@ -126,13 +140,25 @@
 					triggerable: false,
 				}}
 				value={params.offset}
-				on:change={(e) => {
-					params.offset = e.detail;
-
-					dispatch('change', { eventName, ...params });
-				}}
+				on:change={(e) => updateParam('offset', e.detail)}
 			/>
 		{/if}
+	{/if}
+	{#if eventName === TRIGGERS.onFFT.name}
+		<Field
+			key="fftRange"
+			displayName="range"
+			value={params.fftRange}
+			params={{ min: 0, max: Audio.bufferLength, step: 1 }}
+			on:change={(e) => updateParam('fftRange', e.detail)}
+		/>
+		<Field
+			key="fftGain"
+			displayName="gain"
+			value={params.gain * 100}
+			params={{ min: 0, max: 100, step: 1 }}
+			on:change={(e) => updateParam('gain', e.detail / 100)}
+		/>
 	{/if}
 </div>
 
@@ -141,5 +167,7 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		column-gap: var(--column-gap);
+
+		--align-items: center;
 	}
 </style>

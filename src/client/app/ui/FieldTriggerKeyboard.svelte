@@ -37,5 +37,7 @@
 	.field-trigger-keyboard {
 		display: grid;
 		column-gap: var(--column-gap);
+
+		--align-items: center;
 	}
 </style>

@@ -1,6 +1,7 @@
 import Trigger from './Trigger';
 import { getContext } from './shared.js';
 import { addToMapArray, removeFromMapArray } from '../utils';
+import Audio from '../inputs/Audio.js';
 
 export const bpms = new Map();
 export const bpmProgress = new Map();
@@ -72,6 +73,43 @@ export const checkForBPMTriggers = ({ bar, measure, beatsPerMeasure }) => {
 	}
 };
 
+export const checkForFFTTriggers = (data) => {
+	const getMean = (data = [], start = 0, end = data.length) => {
+		const cols = data.slice(start, end);
+
+		return (
+			data.reduce((sum, freq) => {
+				sum += freq / 256.0;
+
+				return sum;
+			}, 0) / cols.length
+		);
+	};
+
+	const total = getMean(data);
+
+	for (const [, triggers] of ffts) {
+		triggers.forEach((trigger) => {
+			const { fftRange, gain } = trigger.params;
+
+			let mean = total;
+
+			if (fftRange[0] !== 0 || fftRange[1] !== data.length) {
+				mean = getMean(data, fftRange[0], fftRange[1]);
+			}
+
+			mean *= gain;
+
+			const isTriggerValid = true;
+			if (isTriggerValid) {
+				trigger.run({
+					value: mean,
+				});
+			}
+		});
+	}
+};
+
 export const checkForBPMProgressTriggers = ({
 	bar,
 	measure,
@@ -114,6 +152,8 @@ const createTrigger = (eventName, collection) => {
 			direction = 1,
 			repetition = 4 / 4,
 			offset = 1,
+			fftRange = [0, Audio.bufferLength],
+			gain = 1,
 		} = {},
 	) => {
 		try {
@@ -125,7 +165,14 @@ const createTrigger = (eventName, collection) => {
 				inputType: 'Audio',
 				eventName,
 				fn,
-				params: { context, repetition, offset, direction },
+				params: {
+					context,
+					repetition,
+					offset,
+					direction,
+					fftRange,
+					gain,
+				},
 				context,
 				hot,
 				enabled,
@@ -172,4 +219,4 @@ export const onBPMProgress = createTrigger(
 	TRIGGERS.onBPMProgress.name,
 	bpmProgress,
 );
-export const fft = createTrigger(TRIGGERS.onFFT.name, ffts);
+export const onFFT = createTrigger(TRIGGERS.onFFT.name, ffts);

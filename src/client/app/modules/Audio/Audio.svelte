@@ -14,6 +14,7 @@
 	} from './audio.js';
 	import Audio from '../../inputs/Audio.js';
 	import FieldSpace from '../../ui/FieldSpace.svelte';
+	import { checkForFFTTriggers } from '../../triggers';
 
 	export let mID;
 	export let hasHeader;
@@ -131,7 +132,7 @@
 
 		let barWidth = (canvasFFT.width / bufferLength) * 1.5;
 
-		for (var i = 0, x = 0; i < bufferLength; i++) {
+		for (let i = 0, x = 0; i < bufferLength; i++) {
 			let barHeight = (data[i] / 256.0) * canvasFFT.height;
 
 			let r = barHeight + 25 * (i / bufferLength);
@@ -148,6 +149,8 @@
 
 			x += barWidth + 2;
 		}
+
+		checkForFFTTriggers(data);
 	});
 
 	$: bars = new Array($audioSettings.beatsPerMeasure)
