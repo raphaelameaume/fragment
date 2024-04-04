@@ -12,6 +12,7 @@ import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
+import StreamRecorder from '../lib/canvas-recorder/StreamRecorder';
 
 function getFilenameParams() {
 	const now = new Date();
@@ -129,6 +130,13 @@ function recordCanvasFrames(canvas, options) {
 	return recorder;
 }
 
+function recordCanvasStream(canvas, options) {
+	let recorder = new StreamRecorder(canvas, options);
+	recorder.start();
+
+	return recorder;
+}
+
 export function recordCanvas(
 	canvas,
 	{
@@ -174,8 +182,11 @@ export function recordCanvas(
 			const blob = result;
 			const data = await createDataURLFromBlob(blob);
 
+			const extension =
+				format === VIDEO_FORMATS.WEBM_STREAM ? 'webm' : format;
+
 			files.push({
-				filename: `${name}.${format}`,
+				filename: `${name}.${extension}`,
 				data,
 				blob,
 				encoding: 'base64',
@@ -209,6 +220,8 @@ export function recordCanvas(
 			...options,
 			imageEncoding,
 		});
+	} else if (format === VIDEO_FORMATS.WEBM_STREAM) {
+		recorder = recordCanvasStream(canvas, options);
 	}
 
 	if (!recorder) {

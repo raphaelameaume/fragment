@@ -8,6 +8,7 @@ export const VIDEO_FORMATS = {
 	MP4: 'mp4',
 	GIF: 'gif',
 	WEBM: 'webm',
+	WEBM_STREAM: 'webm (stream)',
 };
 
 export const exports = createStore(
