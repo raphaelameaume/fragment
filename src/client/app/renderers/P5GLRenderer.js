@@ -53,7 +53,8 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
 	if (preview) {
-		preview.p.resizeCanvas(width * pixelRatio, height * pixelRatio, false);
+		preview.p.pixelDensity(pixelRatio);
+		preview.p.resizeCanvas(width, height, false);
 	}
 };
 
