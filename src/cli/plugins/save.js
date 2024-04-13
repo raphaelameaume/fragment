@@ -15,13 +15,13 @@ export default function screenshot({
 	cwd = process.cwd(),
 	inlineExportDir,
 } = {}) {
-	function resolveDirectory(directoryPath) {
+	function resolveDirectory(directoryPath, dirname) {
 		return path.isAbsolute(directoryPath)
 			? directoryPath
-			: path.join(cwd, directoryPath);
+			: path.join(path.join(cwd, dirname), directoryPath);
 	}
 
-	function resolveExportDirectory(exportDir) {
+	function resolveExportDirectory(exportDir, dirname) {
 		let directory;
 
 		if (inlineExportDir) {
@@ -37,7 +37,7 @@ export default function screenshot({
 				);
 			}
 		} else if (exportDir) {
-			directory = resolveDirectory(exportDir);
+			directory = resolveDirectory(exportDir, dirname);
 		} else {
 			directory = cwd;
 		}
@@ -62,10 +62,16 @@ export default function screenshot({
 							const { filename, data, encoding, exportDir } =
 								files[i];
 
-							let directory = resolveExportDirectory(exportDir);
+							let directory = resolveExportDirectory(
+								exportDir,
+								path.dirname(filename),
+							);
 							mkdirp(directory);
 
-							let filepath = path.join(directory, filename);
+							let filepath = path.join(
+								directory,
+								path.basename(filename),
+							);
 
 							let buffer = Buffer.from(
 								encoding === 'base64'
