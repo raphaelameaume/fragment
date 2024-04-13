@@ -73,11 +73,11 @@
 					<Monitor hasHeader={false} {sketchKey} />
 				</Column>
 				<Column size={guiConfig.size}>
-					<Params hasHeader={false} {output} />
+					<Params hasHeader={false} />
 				</Column>
 			{:else}
 				<Column size={guiConfig.size}>
-					<Params hasHeader={false} {output} />
+					<Params hasHeader={false} />
 				</Column>
 				<Column size={1 - guiConfig.size}>
 					<Monitor hasHeader={false} {sketchKey} />
