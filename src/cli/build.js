@@ -47,6 +47,10 @@ export async function build(entry, options) {
 			handleCancelledPrompt(outDir, prefix);
 		}
 
+		if (!outDir) {
+			outDir = '';
+		}
+
 		let outDirPath = path.join(cwd, outDir);
 
 		// create directory if it doesn't exist
