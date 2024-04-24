@@ -182,7 +182,7 @@
 	async function createSketch(key) {
 		_created = false;
 
-		sketch?.dispose?.();
+		sketch?.dispose?.(params);
 
 		sketch = $sketches[key];
 
