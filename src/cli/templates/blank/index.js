@@ -30,4 +30,9 @@ export let update = ({ width, height, time, deltaTime }) => {};
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height, pixelRatio }) => {};
+export let resize = ({ canvas, width, height, pixelRatio }) => {
+	canvas.width = width * pixelRatio;
+	canvas.height = height * pixelRatio;
+	canvas.style.width = `${width}px`;
+	canvas.style.height = `${height}px`;
+};

@@ -3,8 +3,39 @@ import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../stores/errors';
 
+/**
+ * @typedef {object} PreviewP5GLRenderer
+ * @property {number} id
+ * @property {p5} p
+ * @property {boolean} rendered
+ */
+
+/**
+ * @typedef {object} MountParamsP5GLRenderer
+ * @property {HTMLCanvasElement} canvas
+ * @property {p5} p
+ */
+
+/**
+ * @typedef {object} PreviewParamsP5GLRenderer
+ * @property {number} params.id
+ * @property {HTMLDivElement} params.container
+ * @property {HTMLCanvasElement} params.canvas
+ */
+
+/** @type {PreviewP5GLRenderer[]} */
 let previews = [];
 
+/**
+ * @param {object} params
+ * @param {number} params.id
+ * @param {HTMLDivElement} params.container
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ * @returns {MountParamsP5GLRenderer}
+ */
 export let onMountPreview = ({ id, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
@@ -12,9 +43,11 @@ export let onMountPreview = ({ id, width, height }) => {
 		};
 	});
 
+	/** @type {PreviewP5GLRenderer} */
 	const preview = {
 		id,
 		p,
+		rendered: false,
 	};
 
 	previews.push(preview);
@@ -25,6 +58,9 @@ export let onMountPreview = ({ id, width, height }) => {
 	};
 };
 
+/**
+ * @param {PreviewParamsP5GLRenderer} params
+ */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -34,6 +70,9 @@ export let onBeforeUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {PreviewParamsP5GLRenderer} params
+ */
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -49,15 +88,17 @@ export let onAfterUpdatePreview = ({ id }) => {
 	}
 };
 
-export let onResizePreview = ({ id, width, height, pixelRatio }) => {
-	const preview = previews.find((p) => p.id === id);
-
-	if (preview) {
-		preview.p.pixelDensity(pixelRatio);
-		preview.p.resizeCanvas(width, height, false);
-	}
+/**
+ * @param {PreviewParamsP5GLRenderer} params
+ */
+export let onResizePreview = ({ p, width, height, pixelRatio }) => {
+	p.pixelDensity(pixelRatio);
+	p.resizeCanvas(width, height, false);
 };
 
+/**
+ * @param {PreviewParamsP5GLRenderer} params
+ */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((preview) => preview.id === id);
 	const preview = previews[previewIndex];

@@ -4,8 +4,11 @@ import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../stores/errors';
 
-let renderer;
 let previews = [];
+
+/** @type {WebGLRenderer} */
+let renderer;
+
 let fragmentShader = /* glsl */ `
     precision highp float;
     uniform sampler2D uSampler;
@@ -66,7 +69,7 @@ export let onMountPreview = ({ id, canvas, width, height, pixelRatio }) => {
 	};
 };
 
-export let onDestroyPreview = ({ id, canvas }) => {
+export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);
 	const preview = previews[previewIndex];
 
@@ -107,9 +110,12 @@ export let onAfterUpdatePreview = ({ id }) => {
 export let resize = ({ width, height, pixelRatio }) => {
 	renderer.setPixelRatio(pixelRatio);
 	renderer.setSize(width, height);
+};
 
-	for (let i = 0; i < previews.length; i++) {
-		const preview = previews[i];
+export let onResizePreview = ({ id, width, height, pixelRatio }) => {
+	const preview = previews.find((p) => p.id === id);
+
+	if (preview) {
 		preview.resize({ width, height, pixelRatio });
 	}
 };

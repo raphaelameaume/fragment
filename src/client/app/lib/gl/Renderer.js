@@ -137,6 +137,9 @@ class Renderer {
 		this.canvas.width = this.state.width * this.state.pixelRatio;
 		this.canvas.height = this.state.height * this.state.pixelRatio;
 
+		this.canvas.style.width = `${this.state.width}px`;
+		this.canvas.style.height = `${this.state.height}px`;
+
 		this.setViewport();
 	}
 

@@ -23,8 +23,8 @@ export let init = ({ canvas, context, width, height }) => {};
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ context, width, height, time, deltaTime }) => {
-	context.clearRect(0, 0, width, height);
+export let update = ({ context, width, height, pixelRatio }) => {
+	context.clearRect(0, 0, width * pixelRatio, height * pixelRatio);
 };
 
 /**

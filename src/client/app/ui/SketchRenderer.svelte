@@ -35,7 +35,9 @@
 	export let paused = false;
 	export let visible = true;
 
-	let node, container;
+	let node;
+	/** @type {HTMLDivElement} */
+	let container;
 	let framerate = 60;
 	let elapsed = 0;
 	let elapsedRenderingTime = 0;
@@ -60,44 +62,46 @@
 	$: beforeRecordCallbacks = $beforeRecord.get(key) || [];
 	$: afterRecordCallbacks = $afterRecord.get(key) || [];
 
-	function checkForResize() {
+	function checkForResize(resizing = $rendering.resizing) {
 		if (!node) return;
 
-		let needsUpdate =
-			$rendering.resizing === SIZES.WINDOW ||
-			$rendering.resizing === SIZES.ASPECT_RATIO;
+		let isWindowResize = resizing === SIZES.WINDOW;
+		let isAspectResize = resizing === SIZES.ASPECT_RATIO;
+		let canUpdate = isWindowResize || isAspectResize;
 
-		let newWidth, newHeight;
+		if (canUpdate) {
+			let newWidth, newHeight;
 
-		if ($rendering.resizing === SIZES.WINDOW) {
-			newWidth = node.offsetWidth;
-			newHeight = node.offsetHeight;
-		} else if ($rendering.resizing === SIZES.ASPECT_RATIO) {
-			const { offsetWidth, offsetHeight } = node;
-			const aspectRatio = $rendering.aspectRatio;
-			const monitorRatio = offsetWidth / offsetHeight;
+			if (isWindowResize) {
+				newWidth = node.offsetWidth;
+				newHeight = node.offsetHeight;
+			} else if (isAspectResize) {
+				const { offsetWidth, offsetHeight } = node;
+				const aspectRatio = $rendering.aspectRatio;
+				const monitorRatio = offsetWidth / offsetHeight;
 
-			if (aspectRatio < monitorRatio) {
-				newHeight = offsetHeight;
-				newWidth = newHeight * aspectRatio;
-			} else {
-				newWidth = offsetWidth;
-				newHeight = newWidth / aspectRatio;
+				if (aspectRatio < monitorRatio) {
+					newHeight = offsetHeight;
+					newWidth = newHeight * aspectRatio;
+				} else {
+					newWidth = offsetWidth;
+					newHeight = newWidth / aspectRatio;
+				}
 			}
-		}
 
-		needsUpdate =
-			needsUpdate &&
-			(newWidth !== $rendering.width || newHeight !== $rendering.height);
+			let needsUpdate =
+				newWidth !== $rendering.width ||
+				newHeight !== $rendering.height;
 
-		if (needsUpdate) {
-			rendering.update((curr) => {
-				return {
-					...curr,
-					width: newWidth,
-					height: newHeight,
-				};
-			});
+			if (needsUpdate) {
+				rendering.update((curr) => {
+					return {
+						...curr,
+						width: newWidth,
+						height: newHeight,
+					};
+				});
+			}
 		}
 	}
 
@@ -202,7 +206,7 @@
 
 		if (canvas) {
 			if (renderer && typeof renderer.onDestroyPreview === 'function') {
-				renderer.onDestroyPreview({ id, canvas });
+				renderer.onDestroyPreview({ id, container, canvas });
 			}
 
 			destroyCanvas(canvas);
@@ -487,30 +491,6 @@
 		}
 	}
 
-	rendering.subscribe((current) => {
-		if (canvas && _created) {
-			if (current.resizing === SIZES.SCALE) {
-				canvas.style.transform = `scale(${current.scale})`;
-			} else {
-				canvas.style.transform = null;
-			}
-
-			const { width, height, pixelRatio } = current;
-			const resize = sketch.resize || noop;
-
-			resize({
-				canvas,
-				width,
-				height,
-				pixelRatio,
-				...params,
-			});
-
-			_renderSketch = createRenderLoop();
-			needsRender = true;
-		}
-	});
-
 	async function save() {
 		paused = true;
 
@@ -649,21 +629,38 @@
 	$: {
 		checkForResize();
 
+		const { width, height, pixelRatio, resizing, scale } = $rendering;
+
 		if (renderer && typeof renderer.onResizePreview === 'function') {
 			renderer.onResizePreview({
 				id,
 				container,
-				width: $rendering.width,
-				height: $rendering.height,
-				pixelRatio: $rendering.pixelRatio,
+				width,
+				height,
+				pixelRatio,
+				...params,
 			});
 		}
 
 		if (canvas) {
-			const pixelRatio = $rendering.pixelRatio;
+			if (resizing === SIZES.SCALE) {
+				canvas.style.transform = `scale(${scale})`;
+			} else {
+				canvas.style.transform = null;
+			}
 
-			canvas.width = $rendering.width * pixelRatio;
-			canvas.height = $rendering.height * pixelRatio;
+			if (_created) {
+				sketch?.resize?.({
+					canvas,
+					width,
+					height,
+					pixelRatio,
+					...params,
+				});
+
+				_renderSketch = createRenderLoop();
+				_renderSketch();
+			}
 		}
 	}
 
