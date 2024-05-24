@@ -131,9 +131,6 @@
 	});
 
 	function createCanvas(canvas = document.createElement('canvas')) {
-		canvas.width = $rendering.width * $rendering.pixelRatio;
-		canvas.height = $rendering.height * $rendering.pixelRatio;
-
 		canvas.onmousedown = (event) => checkForTriggersDown(event, key);
 		canvas.onmousemove = (event) => checkForTriggersMove(event, key);
 		canvas.onmouseup = (event) => checkForTriggersUp(event, key);
@@ -677,6 +674,10 @@
 						)) // if none of current monitors match the key
 				? $errors.get($errors.keys().next().value)
 				: null;
+
+	$: isSquare = $rendering.width === $rendering.height;
+	$: isLandscape = $rendering.width > $rendering.height;
+	$: isPortrait = $rendering.width < $rendering.height;
 </script>
 
 <div
@@ -688,7 +689,7 @@
 >
 	<div
 		class="canvas-container"
-		style="max-width: {$rendering.width}px; max-height: {$rendering.height}px;"
+		style="--aspect-ratio: {$rendering.width} / {$rendering.height}; --aspect-ratio-inverse: {$rendering.height} / {$rendering.width}; --width: {$rendering.width}px; --height: {$rendering.height}px;"
 		bind:this={container}
 	/>
 	{#if $recording}
@@ -706,7 +707,6 @@
 
 <style>
 	.sketch-renderer {
-		position: absolute;
 		display: flex;
 		width: 100%;
 		height: 100%;
@@ -714,6 +714,8 @@
 		align-items: center;
 
 		background-color: var(--background-color, var(--color-lightblack));
+
+		container-type: size;
 	}
 
 	.sketch-renderer:not(.visible) {
@@ -721,13 +723,27 @@
 	}
 
 	.canvas-container {
+		--w: min(100cqw, calc(100cqh * var(--aspect-ratio)));
 		position: relative;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		height: 100%;
-		max-height: 100%;
+
+		max-width: var(--width);
+		max-height: var(--height);
+
+		width: var(--w);
+		height: calc(var(--w) * var(--aspect-ratio-inverse));
+
+		background-color: red;
+	}
+
+	:global(.canvas-container canvas) {
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		width: 100% !important;
+		height: 100% !important;
+
+		background-color: var(--background-color, #000000);
 	}
 
 	.sketch-renderer.recording .canvas-container {
@@ -779,17 +795,5 @@
 		100% {
 			opacity: 0;
 		}
-	}
-
-	:global(.canvas-container canvas) {
-		max-width: 100%;
-		max-height: 100%;
-
-		flex: none;
-
-		width: auto !important;
-		height: auto !important;
-
-		background-color: var(--background-color, #000000);
 	}
 </style>
