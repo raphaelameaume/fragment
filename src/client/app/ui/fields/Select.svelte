@@ -1,20 +1,7 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import SelectChevrons from '../SelectChevrons.svelte';
 
-	export let options = [];
-	export let name = '';
-	export let value;
-	export let disabled = false;
-	export let title = '';
-	export let context = null;
-	export let key = '';
-
-	let node;
-	let sanitizedValue,
-		sanitizedOptions = [];
-
-	const dispatch = createEventDispatcher();
+	let { options, name = '', value, disabled = false, key, context, title = '', onchange } = $props();
 
 	function toStringifiedValue(option, optionType = typeof option) {
 		if (option === null) {
@@ -30,38 +17,32 @@
 		return option.toString();
 	}
 
-	$: {
-		sanitizedOptions = [];
+	let sanitizedOptions = $derived(options.map((option) => {
+		let optionType = typeof option;
+		let disabled =
+			optionType === 'object' && typeof option.disabled === 'boolean'
+				? option.disabled
+				: false;
+		let _value = optionType === 'object' ? option.value : option;
 
-		for (let i = 0; i < options.length; i++) {
-			let option = options[i];
-			let optionType = typeof option;
-			let disabled =
-				optionType === 'object' && typeof option.disabled === 'boolean'
-					? option.disabled
-					: false;
-			let _value = optionType === 'object' ? option.value : option;
+		let stringifiedValue = toStringifiedValue(option);
+		let label;
 
-			let stringifiedValue = toStringifiedValue(option);
-			let label;
-
-			if (_value === value) {
-				sanitizedValue = stringifiedValue;
-			}
-
-			if (option.label) {
-				label = option.label;
-			} else {
-				label = stringifiedValue;
-			}
-
-			sanitizedOptions[i] = {
-				label,
-				value: stringifiedValue,
-				disabled,
-			};
+		if (option.label) {
+			label = option.label;
+		} else {
+			label = stringifiedValue;
 		}
-	}
+
+		return {
+			label,
+			_value,
+			value: stringifiedValue,
+			disabled,
+		}
+	}));
+
+	let sanitizedValue = $state(sanitizedOptions.find((opt) => opt._value === value)?.[0]);
 
 	function handleChange(event) {
 		const index = sanitizedOptions.findIndex(
@@ -72,7 +53,10 @@
 
 		value = newValue;
 
-		dispatch('change', newValue);
+		console.log('handleChange', newValue);
+		console.log('onchange', onchange);
+
+		onchange(newValue);
 	}
 </script>
 
@@ -84,8 +68,7 @@
 	<div class="container">
 		<select
 			class="select"
-			bind:this={node}
-			on:change={handleChange}
+			onchange={handleChange}
 			{name}
 			{disabled}
 			{title}

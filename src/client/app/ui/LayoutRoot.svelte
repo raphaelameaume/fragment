@@ -1,11 +1,15 @@
 <script>
-	import { tree } from '../stores/layout';
+	import { layout } from '../state/layout.svelte';
 	import LayoutComponent from './LayoutComponent.svelte';
 
-	$: type = $tree.type;
-	$: size = $tree.size;
+	let { children } = $props();
+	
+	let type = $derived(layout.current.type);
+	let size = $derived(layout.current.size);
+
+	$inspect(layout.current);
 </script>
 
-<LayoutComponent tree={$tree} {type} {size}>
-	<slot />
+<LayoutComponent tree={layout.current} {type} {size}>
+	{@render children()}
 </LayoutComponent>

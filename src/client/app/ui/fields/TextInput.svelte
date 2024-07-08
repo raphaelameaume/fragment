@@ -1,11 +1,7 @@
 <script>
 	import Input from './Input.svelte';
 
-	export let value;
-	export let label = '';
-	export let disabled = false;
-	export let context = null;
-	export let key = '';
+	let { value, label = '', disabled = false, context = null, key = ''} = $props();
 </script>
 
 <div class="text-input">

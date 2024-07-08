@@ -557,6 +557,7 @@
 	});
 
 	function checkForPause(event) {
+		
 		const keyboardEvent = event.detail;
 
 		if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
@@ -572,10 +573,8 @@
 	}
 
 	function checkForSave(event) {
-		const keyboardEvent = event.detail;
-
-		if (keyboardEvent.metaKey || keyboardEvent.ctrlKey) {
-			keyboardEvent.preventDefault();
+		if (event.metaKey || event.ctrlKey) {
+			event.preventDefault();
 
 			if (!$recording) {
 				save();
@@ -586,16 +585,14 @@
 	}
 
 	function checkForRecord(event) {
-		const keyboardEvent = event.detail;
-		keyboardEvent.preventDefault();
+		event.preventDefault();
 
 		$recording = !$recording;
 	}
 
 	function checkForRefresh(event) {
-		const keyboardEvent = event.detail;
-		if (!keyboardEvent.metaKey && !keyboardEvent.ctrlKey) {
-			keyboardEvent.preventDefault();
+		if (!event.metaKey && !event.ctrlKey) {
+			event.preventDefault();
 			resetProps(key, {
 				width: $rendering.width,
 				height: $rendering.height,
@@ -696,10 +693,10 @@
 		<span class="record">REC</span>
 	{/if}
 </div>
-<KeyBinding type="down" key=" " on:trigger={checkForPause} />
-<KeyBinding type="down" key="r" on:trigger={checkForRefresh} />
-<KeyBinding type="down" key="s" on:trigger={checkForSave} />
-<KeyBinding type="down" key="S" on:trigger={checkForRecord} />
+<KeyBinding type="down" key=" " onTrigger={checkForPause} />
+<KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
+<KeyBinding type="down" key="s" onTrigger={checkForSave} />
+<KeyBinding type="down" key="S" onTrigger={checkForRecord} />
 
 {#if error}
 	<ErrorOverlay {error} />

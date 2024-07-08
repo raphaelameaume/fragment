@@ -8,63 +8,28 @@
 
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { sketches } from '../stores/sketches.js';
+	import { sketches, sketchesKeys } from '../state/sketches.svelte.js';
 	import { monitors, rendering } from '../stores/rendering';
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import OutputParams from '../ui/ParamsOutput.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
-	import { updateProp, props } from '../stores/props';
+	import { updateProp, props as sketchesProps } from '../state/props.svelte';
 
-	export let mID;
-	export let hasHeader = true;
-	export let output = true;
+	let { mID, hasHeader = true, output = true } = $props();
 
-	let id = ID++;
-	let selected = id;
-	let sketch,
-		sketchKey,
-		sketchProps = {};
-	let monitor, showOutputParams;
+	let sketchKey = $derived(sketchesKeys[0]);
+	let sketch = $derived(sketches[sketchKey]);
+	let sketchProps = $derived(sketchesProps[sketchKey]);
+	let showOutputParams = true;
 
-	onMount(() => {
-		$params = [
-			...$params,
-			{
-				id,
-			},
-		];
-	});
-
-	onDestroy(() => {
-		$params = $params.filter((p) => p.id !== id);
-	});
-
-	$: options = [
-		...$monitors.map((monitor, index) => {
-			return { value: index, label: `monitor ${index + 1}` };
-		}),
-		...($params.length > 1 ? [{ value: 'output', label: 'output' }] : []),
-	];
-
-	monitors.subscribe((value) => {
-		monitor = $monitors[Math.min(selected, $monitors.length - 1)];
-		sketchKey = monitor ? monitor.selected : undefined;
-	});
-
-	$: {
-		sketch = $sketches[sketchKey];
-		sketchProps = $props[sketchKey];
-	}
-
-	$: showOutputParams =
-		(monitor && monitor.selected === 'output') ||
-		$params.length === 1 ||
-		selected === 'output';
+	$effect(() => {
+		console.log(sketchKey, sketch, sketchProps);
+	})
 </script>
 
-<Module {mID} {hasHeader} name={`Parameters`} slug="params">
-	<div slot="header-right">
+<Module {hasHeader} name={`Parameters`} slug="params">
+	<!-- <div slot="header-right">
 		{#if options.length > 1}
 			<ModuleHeaderAction
 				value={selected}
@@ -74,13 +39,13 @@
 				{options}
 			/>
 		{/if}
-	</div>
+	</div> -->
 	{#if showOutputParams && output}
 		<OutputParams />
 	{/if}
 
 	{#if sketch}
-		{#if typeof props === 'object'}
+		{#if typeof sketchProps === 'object'}
 			{#if output}
 				<Field
 					key="framerate"
@@ -120,7 +85,7 @@
 						disabled={isDisabled}
 						bind:params={sketchProps[key].params}
 						on:click={() => {
-							$props[sketchKey][key].value._refresh = true;
+							sketchProps[key].value._refresh = true;
 						}}
 						on:change={(event) => {
 							updateProp(sketchKey, key, event.detail, {

@@ -1,7 +1,5 @@
 <script>
-	export let name;
-
-	export let collapsed = false;
+	let { name, collapsed = false } = $props();
 
 	function handleClick() {
 		collapsed = !collapsed;

@@ -4,32 +4,30 @@
 	import TextInput from './TextInput.svelte';
 	import Field from '../Field.svelte';
 
-	export let value;
-	export let context = null;
-	export let key = '';
-	export let disabled = false;
+	let { value, context = null, key = '', disabled = false, onchange } = $props();
 
 	const dispatch = createEventDispatcher();
 
-	$: format = color.getColorFormat(value);
-	$: hexValue = color.toHex(value, format);
-	$: textValue = color.toString(value, format);
-	$: alpha = 1;
-	$: hasAlpha = [
+	let format = $state(color.getColorFormat(value));
+	let hexValue = $state(color.toHex(value, format));
+	let textValue = $state(color.toString(value, format));
+	let alpha = $state(1);
+	let hasAlpha = $derived([
 		color.FORMATS.RGBA_STRING,
 		color.FORMATS.VEC4_STRING,
 		color.FORMATS.VEC4_ARRAY,
 		color.FORMATS.RGBA_OBJECT,
 		color.FORMATS.HSLA_STRING,
-	].includes(format);
-	$: {
+	].includes(format));
+
+	$effect(() => {
 		if (hasAlpha) {
 			const [r, g, b, a = 1] = color.toComponents(value);
 			alpha = a;
 		} else {
 			alpha = 1;
 		}
-	}
+	})
 
 	function dispatchChange() {
 		const [r, g, b] = color.hexToComponents(hexValue);
@@ -40,14 +38,15 @@
 				value[0] = r;
 				value[1] = g;
 				value[2] = b;
-				dispatch('change', value);
+				
+				onchange(value);
 				break;
 			case color.FORMATS.VEC4_ARRAY:
 				value[0] = r;
 				value[1] = g;
 				value[2] = b;
 				value[3] = alpha;
-				dispatch('change', value);
+				onchange(value);
 				break;
 			case color.FORMATS.THREE:
 			case color.FORMATS.RGB_OBJECT:
@@ -55,7 +54,7 @@
 				value.g = g;
 				value.b = b;
 
-				dispatch('change', value);
+				onchange(value);
 				break;
 			case color.FORMATS.RGBA_OBJECT:
 				value.r = r;
@@ -63,10 +62,10 @@
 				value.b = b;
 				value.a = alpha;
 
-				dispatch('change', value);
+				onchange(value);
 				break;
 			default:
-				dispatch('change', textValue);
+				onchange(textValue);
 		}
 	}
 

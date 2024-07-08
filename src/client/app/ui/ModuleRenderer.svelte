@@ -11,7 +11,6 @@
 <script>
 	import Module from './Module.svelte';
 
-	export let mID = undefined;
 	export let name;
 	export let hasHeader = true;
 
@@ -26,12 +25,12 @@
 
 {#if moduleList[name]}
 	{#await moduleList[name]()}
-		<Module {hasHeader} {mID} {name} />
+		<Module {hasHeader} {name} />
 	{:then value}
-		<svelte:component this={value.default} {mID} {hasHeader} />
+		<svelte:component this={value.default} {hasHeader} />
 	{:catch error}
 		<p>Something went wrong: {error.message}</p>
 	{/await}
 {:else}
-	<Module {hasHeader} {mID} {name} />
+	<Module {hasHeader} {name} />
 {/if}

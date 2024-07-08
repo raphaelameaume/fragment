@@ -8,43 +8,36 @@
 </script>
 
 <script>
-	import { layout, resize, traverse, tree } from '../stores/layout.js';
+	import { layout } from '../state/layout.svelte.js';
 	import { clamp, map } from '../utils/math.utils.js';
 
-	export let direction = DIRECTIONS.HORIZONTAL;
-	export let current;
-	export let parent = {};
+	let { direction = DIRECTIONS.HORIZONTAL, current, parent } = $props();
 
-	const { children } = parent;
-
-	let visible = false;
-	let isDragging = false;
-	let next;
-
-	function findNext() {
-		if (children && current.node && current.node) {
-			const { parentNode } = current.node;
-			const childNodes = [...parentNode.children];
-
-			const index = childNodes.findIndex((c) => c === current.node);
-			const nextNode = childNodes[index + 2];
-
-			next = $children.find((c) => c.node === nextNode);
-
-			traverse((c) => {
-				if (c.id === next.id) {
-					nextSize = c.size;
-				}
-
-				if (c.id === current.id) {
-					currentSize = c.size;
-				}
-			}, $tree);
-		}
-	}
-
+	let visible = $state(false);
+	let isDragging = $state(false);
+	let next = $state(null);
 	let currentRect, nextRect;
 	let currentSize, nextSize, totalSize;
+
+	function findNext() {
+		const parentNode = parent.node;
+		const childNodes = [...parentNode.children];
+
+		const index = childNodes.findIndex((c) => c === current.node);
+		const nextNode = childNodes[index + 2];
+
+		next = parent.children.find((c) => c.node === nextNode);
+
+		layout.traverse((c) => {
+			if (c.id === next.id) {
+				nextSize = c.size;
+			}
+
+			if (c.id === current.id) {
+				currentSize = c.size;
+			}
+		});
+	}
 
 	function handleMouseDown() {
 		findNext();
@@ -134,7 +127,7 @@
 			nextFlex = 0;
 		}
 
-		resize([
+		layout.resize([
 			{ id: current.id, size: prevFlex },
 			{ id: next.id, size: nextFlex },
 		]);
@@ -144,12 +137,12 @@
 <div
 	class="resizer resizer--{direction}"
 	class:dragging={isDragging}
-	class:editing={$layout.editing}
+	class:editing={layout.editing}
 >
 	<div
 		class="resizer-hover"
 		class:visible
-		on:mousedown={handleMouseDown}
+		onmousedown={handleMouseDown}
 	></div>
 </div>
 <svelte:window on:mouseup={handleMouseUp} on:mousemove={handleMouseMove} />

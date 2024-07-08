@@ -5,28 +5,12 @@
 	import Select from './fields/Select.svelte';
 	import { moduleNames } from './ModuleRenderer.svelte';
 
+	let { moduleName, isRoot, vertical = false, onAddColumn, onAddRow, onDelete, onchange } = $props();
+
 	const defaultValue = 'Select a module';
-
-	export let moduleName = undefined;
-	export let isRoot = false;
-	export let vertical = false;
-
-	const dispatch = createEventDispatcher();
 
 	let splitColumns = false;
 	let splitRows = false;
-
-	function handleAddRow() {
-		dispatch('add-row');
-	}
-
-	function handleAddColumn() {
-		dispatch('add-column');
-	}
-
-	function handleDelete() {
-		dispatch('delete');
-	}
 
 	const options = [
 		{ value: undefined, label: defaultValue, disabled: true },
@@ -46,7 +30,7 @@
 				<Select
 					value={moduleName}
 					{options}
-					on:change
+					{onchange}
 					title="Switch module"
 				/>
 			</div>
@@ -57,9 +41,9 @@
 				label="Split in columns"
 				showLabel={false}
 				title="Split in columns"
-				on:mouseenter={() => (splitColumns = true)}
-				on:mouseleave={() => (splitColumns = false)}
-				on:click={handleAddColumn}
+				onmouseenter={() => (splitColumns = true)}
+				onmouseleave={() => (splitColumns = false)}
+				onclick={onAddColumn}
 			>
 				<div class="icon-layout">
 					<div class="icon-box"></div>
@@ -70,9 +54,9 @@
 				label="Split in rows"
 				showLabel={false}
 				title="Split in rows"
-				on:mouseenter={() => (splitRows = true)}
-				on:mouseleave={() => (splitRows = false)}
-				on:click={handleAddRow}
+				onmouseenter={() => (splitRows = true)}
+				onmouseleave={() => (splitRows = false)}
+				onclick={onAddRow}
 			>
 				<div class="icon-layout row">
 					<div class="icon-box"></div>
@@ -84,7 +68,7 @@
 					<ButtonInput
 						label="Delete"
 						showLabel={false}
-						on:click={handleDelete}
+						onclick={onDelete}
 						--color-text="white"
 						--background-color="var(--color-red)"
 						--box-shadow-color-active="var(--color-lightred)"

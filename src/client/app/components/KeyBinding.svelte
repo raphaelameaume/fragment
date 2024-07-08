@@ -2,10 +2,7 @@
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import { onKeyPress, onKeyDown, onKeyUp } from '../triggers';
 
-	export let key;
-	export let type = 'press';
-
-	const dispatch = createEventDispatcher();
+	let { key, type = 'press', onTrigger = () => {} } = $props();
 
 	const triggers = {
 		press: onKeyPress,
@@ -19,7 +16,7 @@
 
 	onMount(() => {
 		trigger = triggerType(key, (event) => {
-			dispatch('trigger', event);
+			onTrigger(event);
 		});
 	});
 

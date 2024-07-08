@@ -1,177 +1,111 @@
 <script context="module">
-	let ID = 0;
+	
 </script>
 
 <script>
-	import { getContext, hasContext, onDestroy, setContext } from 'svelte';
+	import { getContext, hasContext, onDestroy, onMount, setContext } from 'svelte';
 	import { writable } from 'svelte/store';
 	import {
-		addChildren,
-		addSibling,
 		layout,
-		remove,
-		replaceChildren,
-		swapRoot,
-		updateModule,
-	} from '../stores/layout';
+	} from '../state/layout.svelte';
 	import Toolbar from './LayoutToolbar.svelte';
 	import Resizer from './LayoutResizer.svelte';
-	import { getModuleID } from './Module.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import Preview from './Preview.svelte';
 
-	export let size = 1;
-	export let type = 'column';
-	export let tree = { children: [] };
+	let { size = 1, type = 'column', tree = { children: [] }, children } = $props();
 
 	let parent = hasContext('parent') ? getContext('parent') : null;
 	let depth = hasContext('depth') ? getContext('depth') + 1 : 0;
-	let module = writable({});
-	setContext('depth', depth);
-	setContext('module', module);
+	let isColumn = $derived(type === 'column');
+	let isRow = $derived(!isColumn);
 
-	let isRoot = parent === null;
-	let children = writable([]);
-	let style = '';
-
-	function createComponent({
-		id,
-		parent = null,
-		root = false,
-		node = null,
-		depth,
-		size = 1,
-		minimized = false,
-		type,
-		children = [],
-	}) {
-		return {
-			id,
-			root,
-			node,
-			depth,
-			size,
-			minimized,
-			parent: parent ? parent.id : null,
-			type,
-			children,
-		};
-	}
-
-	let current = createComponent({
-		id: !isNaN(tree.id) ? tree.id : ID++,
-		root: isRoot,
+	let current = $state(layout.createComponent({
+		id: tree.id,
 		depth,
 		size,
 		parent,
 		type,
-	});
+	}));
+	let isRoot = $derived(current.root);
+	// let children = $derived(current.children);
+	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
+	let value = $derived(current.children
+		.map(({ size }) => `minmax(25px, ${size}fr) 0px`)
+		.join(' '));
+	let style = $derived(Array.isArray(current.children) && current.children.length > 1 ? `${property}:${value}` : '');
 
-	ID = Math.max(ID, !isNaN(current.id) ? current.id + 1 : 0);
+	setContext('parent', current);
+	setContext('depth', depth);
 
-	$: isColumn = type === 'column';
-	$: isRow = !isColumn;
-
-	const context = {
-		id: current.id,
-		children,
-		registerChild: (child) => {
-			$children = [...$children, child];
-
-			onDestroy(() => {
-				$children = $children.filter((c) => c !== child);
-			});
-		},
-	};
-
-	setContext('parent', context);
+	if (!__BUILD__ && isRoot) {
+		layout.current = current;
+	}
 
 	if (parent) {
 		parent.registerChild(current);
 	}
 
-	if (!__BUILD__) {
-		$layout.registerChild(current, () => $children);
-	}
-
-	$: {
-		let property = ``,
-			value = ``;
-
-		const nodes = tree.children;
-
-		if (Array.isArray(nodes) && nodes.length > 1) {
-			if (isColumn) {
-				property = `grid-template-rows`;
-				value = nodes
-					.map((row, i) => {
-						let size = `${row.size}fr`;
-
-						return `minmax(25px, ${size}) 0px`;
-					})
-					.join(' ');
-			} else {
-				property = `grid-template-columns`;
-				value = nodes
-					.map((col, i) => {
-						let size = `${col.size}fr`;
-
-						return `minmax(25px, ${size}) 0px`;
-					})
-					.join(' ');
-			}
-
-			style = `${property}:${value}`;
-		} else {
-			style = '';
+	onMount(() => {
+		return () => {
+			layout.remove(current);
 		}
-	}
+	})
 
 	function addComponent(newType) {
 		const isSibling = newType === type;
+		console.log('addComponent', type, isSibling);
 
-		const newborn = createComponent({
-			id: ID++,
-			parent: isSibling ? parent : context,
+		const newborn = layout.createComponent({
+			parent: isSibling ? parent : current,
 			depth: isSibling ? depth : depth + 1,
 			type: newType,
-			children: [{ mID: getModuleID(), type: 'module' }],
 		});
+	
+		newborn.children.push(layout.createComponent({
+			parent: newborn,
+			type: 'module',
+			root: false,
+			depth: newborn.depth + 1,
+		}))
 
 		if (isSibling) {
-			if (isRoot) {
-				const newSibling = createComponent({
-					id: ID++,
+			if (current.root) {
+				const newSibling = layout.createComponent({
 					depth: newborn.depth,
 					type: newborn.type,
 					children: current.children,
+					parent: current,
+					root: false,
 				});
 
 				// switch type
 				current.children = [newSibling, newborn];
 				current.type = current.type === 'column' ? 'row' : 'column';
 
-				swapRoot(current);
+				layout.swapRoot(current);
 			} else {
-				addSibling(current, newborn);
+				console.log('addSibling', newborn);
+				layout.addSibling(current, newborn);
 			}
 		} else {
-			if ($children.length === 1 && $children[0].type === 'module') {
-				replaceChildren(current, [
-					...$children.map((c, i) =>
-						createComponent({
-							id: ID++,
+			if (current.children.length === 1 && current.children[0].type === 'module') {
+				layout.replaceChildren(current, [
+					...current.children.map((c, i) => {
+						const middle = layout.createComponent({
 							type: type === 'row' ? 'column' : 'row',
 							depth: depth + 1,
-							children: [c],
-						}),
-					),
+							root: false,
+						});
+						middle.children.push(c);
+
+						return middle;
+					}),
 					newborn,
 				]);
-
-				module.set({});
 			} else {
-				addChildren(current, newborn);
+				console.log('addChild', newborn);
+				layout.addChild(current, newborn);
 			}
 		}
 	}
@@ -185,23 +119,15 @@
 	}
 
 	function deleteCurrent() {
-		remove(current);
-
-		$children = current.children;
+		layout.remove(current);
 	}
 
-	function handleModuleChange(event) {
-		const moduleName = event.detail;
-		$children[0].name = moduleName; // keep state when replacingChildren
-
-		updateModule($module, {
-			name: moduleName,
-		});
+	function handleModuleChange(moduleName) {
+		current.children[0].name = moduleName; // keep state when replacingChildren
 	}
 
 	let offsetWidth;
-
-	$: minimized = current.minimized;
+	let minimized = $derived(current.minimized);
 </script>
 
 <div
@@ -213,7 +139,7 @@
 	bind:this={current.node}
 	bind:offsetWidth
 >
-	{#if isRoot && $layout.previewing}
+	{#if isRoot && layout.previewing}
 		<Preview />
 	{:else if tree && Array.isArray(tree.children) && tree.children.length > 0}
 		{#each tree.children as child (child.id)}
@@ -222,22 +148,21 @@
 			{:else if child.type === 'module'}
 				<ModuleRenderer
 					name={child.name}
-					mID={child.mID}
 					hasHeader={child.hasHeader}
 				/>
 			{/if}
 		{/each}
 	{:else}
-		<slot />
+		{@render children()}
 	{/if}
-	{#if $layout.editing && (($children.length === 1 && $children[0].type === 'module') || isRoot)}
+	{#if layout.editing && ((current.children.length === 1 && current.children[0].type === 'module') || isRoot)}
 		<Toolbar
 			{isRoot}
-			moduleName={$children[0].name}
-			on:change={handleModuleChange}
-			on:add-row={addRow}
-			on:add-column={addColumn}
-			on:delete={deleteCurrent}
+			moduleName={current.children[0]?.name}
+			onchange={handleModuleChange}
+			onAddRow={addRow}
+			onAddColumn={addColumn}
+			onDelete={deleteCurrent}
 			vertical={offsetWidth < 300}
 		/>
 	{/if}

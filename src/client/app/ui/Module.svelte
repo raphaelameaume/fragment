@@ -1,49 +1,40 @@
-<script context="module">
-	let MODULE_ID = 0;
-
-	export let getModuleID = () => {
-		return MODULE_ID++;
-	};
-</script>
-
 <script>
-	import { getContext } from 'svelte';
-	import { layout } from '../stores/layout.js';
+	import { onMount, getContext, onDestroy } from 'svelte';
+	import { layout } from '../state/layout.svelte.js';
 
-	export let mID = undefined;
-	export let name;
-	export let slug = name;
-	export let scrollable = true;
-	export let hasHeader = true;
+	let { name, slug = name, scrollable = true, hasHeader = true, children } = $props();
 
 	const parent = getContext('parent');
+	const depth = getContext('depth');
 
-	const current = {
-		mID: !isNaN(mID) ? mID : MODULE_ID++,
+	const current = $state(layout.createComponent({
 		type: 'module',
-		name: slug,
+		name: 'slug',
 		hasHeader,
-	};
-
-	MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
+		root: false,
+		parent,
+		depth: depth+1
+	}))
 
 	parent.registerChild(current);
 
-	const m = getContext('module');
-	m.set(current);
+	onDestroy(() => {
+		layout.remove(current);
+	});
 </script>
 
 <div
 	class="module module--{slug}"
 	class:scrollable
 	class:no-header={!hasHeader}
-	class:editing={$layout.editing}
+	class:editing={layout.editing}
+	bind:this={current.node}
 >
 	{#if hasHeader && name}
 		<header class="module__header">
 			<div class="header__col">
 				<div class="slot slot--left">
-					<slot name="header-left" />
+					<!-- <slot name="header-left" /> -->
 				</div>
 			</div>
 			<div class="header__col">
@@ -51,13 +42,13 @@
 			</div>
 			<div class="header__col">
 				<div class="slot slot--right">
-					<slot name="header-right" />
+					<!-- <slot name="header-right" /> -->
 				</div>
 			</div>
 		</header>
 	{/if}
 	<div class="module__container">
-		<slot />
+		{@render children()}
 	</div>
 </div>
 

@@ -20,7 +20,7 @@
 >
 	<Params {output} />
 </div>
-<KeyBinding key="h" on:trigger={() => (visible = !visible)} />
+<KeyBinding key="h" onTrigger={() => (visible = !visible)} />
 
 <style>
 	.container {

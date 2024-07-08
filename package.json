@@ -33,8 +33,7 @@
     "is-unicode-supported": "^2.0.0",
     "kleur": "^4.1.4",
     "sade": "^1.7.4",
-    "svelte": "^4.0.0",
-    "svelte-json-tree": "^2.2.0",
+    "svelte": "^5.0.0-next.175",
     "vite": "^5.3.3",
     "webm-writer": "^1.0.0",
     "ws": "^8.2.3"

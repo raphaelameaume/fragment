@@ -1,16 +1,5 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
-
-	export let value;
-	export let context = null;
-	export let key = '';
-	export let disabled = false;
-
-	const dispatch = createEventDispatcher();
-
-	function handleChange() {
-		dispatch('change', value);
-	}
+	let { value, context, key = '', disabled = false, onchange } = $props();
 </script>
 
 <div class="checkbox">
@@ -18,7 +7,7 @@
 		class="input"
 		bind:checked={value}
 		type="checkbox"
-		on:change={handleChange}
+		{onchange}
 		disabled={disabled ? 'disabled' : null}
 	/>
 	<div class="checked" />

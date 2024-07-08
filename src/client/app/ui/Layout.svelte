@@ -4,25 +4,25 @@
 	import Build from './Build.svelte';
 	import Row from './LayoutRow.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
-	import { layout } from '../stores/layout.js';
+	import { layout } from '../state/layout.svelte.js';
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import { monitors, preview } from '../stores/rendering';
 
 	function toggleEdition() {
-		$layout.editing = !$layout.editing;
+		layout.editing = !layout.editing;
 	}
 
 	function togglePreview() {
-		if ($monitors.length === 1 && !$layout.previewing) {
-			$preview = $monitors[0].selected;
-		}
+		// if ($monitors.length === 1 && !layout.previewing) {
+		// 	$preview = $monitors[0].selected;
+		// }
 
-		$layout.previewing = !$layout.previewing;
+		layout.previewing = !layout.previewing;
 	}
 </script>
 
 <Root>
-	{#if __BUILD__ || $layout.previewing}
+	{#if __BUILD__ || layout.previewing}
 		<Build />
 	{:else}
 		<Row size={1}>
@@ -41,9 +41,9 @@
 	{/if}
 </Root>
 {#if !__BUILD__}
-	<KeyBinding key="w" on:trigger={toggleEdition} />
-	<KeyBinding key="p" on:trigger={togglePreview} />
+	<KeyBinding key="w" onTrigger={toggleEdition} />
+	<KeyBinding key="p" onTrigger={togglePreview} />
 {/if}
-{#if $layout.editing}
-	<KeyBinding key="Escape" type="down" on:trigger={toggleEdition} />
+{#if layout.editing}
+	<KeyBinding key="Escape" type="down" onTrigger={toggleEdition} />
 {/if}

@@ -4,12 +4,13 @@
 	import Field from '../ui/Field.svelte';
 	import MIDI from '../inputs/MIDI.js';
 
-	export let mID;
-	export let hasHeader;
+	let { mID, hasHeader = true, ...restProps } = $props();
 
-	let input, output;
-	let inputs = [],
-		outputs = [];
+	let input = $state(null);
+	let output = $state(null);
+	let inputs = $state([]);
+	let outputs = $state([]);
+	let messages = $state([]);
 
 	function createDeviceOptions(deviceMap = new Map()) {
 		let options = [];
@@ -35,15 +36,10 @@
 		return options;
 	}
 
-	let messages = [];
-
-	$: {
+	$effect(() => {
 		MIDI.selectedInputID = input;
-	}
-
-	$: {
-		MIDI.selectedOutputID = output;
-	}
+		MIDI.selectedInputID = output;
+	})
 
 	onMount(async () => {
 		await MIDI.request();
@@ -74,17 +70,14 @@
 				? ` note:${note.name}`
 				: ``;
 
-			messages = [
-				...messages,
-				`${time} ${type} number:${note.number}${noteLog}`,
-			];
+			messages.push(`${time} ${type} number:${note.number}${noteLog}`)
 		});
 
 		refresh();
 	});
 </script>
 
-<Module {mID} {hasHeader} name="MIDI" {...$$props} slug="midi">
+<Module {hasHeader} name="MIDI" {...restProps} slug="midi">
 	<Field
 		key="inputs"
 		value={input}

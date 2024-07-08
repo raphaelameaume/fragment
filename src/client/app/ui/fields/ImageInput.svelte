@@ -1,23 +1,23 @@
 <script>
-	import { onMount } from 'svelte';
 	import { loadImage } from '../../lib/loader/loadImage';
 	import ButtonInput from './ButtonInput.svelte';
 	import FieldInputRow from './FieldInputRow.svelte';
 	import TextInput from './TextInput.svelte';
 
-	export let value;
-	export let context = null;
-	export let key = '';
-	export let disabled = false;
+	let { value, context = null, key = '', disabled = false } = $props();
 
-	let img, input, name;
-	$: url = typeof value === HTMLImageElement ? value.src : value;
-	$: displayUrl = name ? name : url.replace(`/@fs${__CWD__}`, '');
-	$: {
-		(async () => {
-			await loadImage(url, { img });
-		})();
-	}
+	/** @type {HTMLImageElement} */
+	let img;
+	/** @type {HTMLInputElement} */
+	let input;
+
+	let name = $state('');
+	let url = $derived(typeof value === HTMLImageElement ? value.src : value);
+	let displayUrl = $derived(name ? name : url.replace(`/@fs${__CWD__}`, ''));
+
+	$effect(async () => {
+		await loadImage(url, { img });
+	});
 
 	function handleClick() {
 		input.click();
