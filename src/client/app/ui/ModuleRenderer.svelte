@@ -11,7 +11,7 @@
 <script>
 	import Module from './Module.svelte';
 
-	let { name, hasHeader = true, isDynamic = false } = $props();
+	let { id, name, hasHeader = true, isDynamic = false } = $props();
 
 	const moduleList = {
 		monitor: () => import('../modules/Monitor.svelte'),
@@ -24,12 +24,13 @@
 
 {#if moduleList[name]}
 	{#await moduleList[name]()}
-		<Module {hasHeader} {name} />
+		<p>Loading module...</p>
+		<!-- <Module {hasHeader} {name} {id}/> -->
 	{:then value}
-		<svelte:component this={value.default} {hasHeader} />
+		<svelte:component this={value.default} {hasHeader} {id} />
 	{:catch error}
 		<p>Something went wrong: {error.message}</p>
 	{/await}
 {:else}
-	<Module {hasHeader} {name} />
+	<Module {hasHeader} {name} {id}/>
 {/if}

@@ -5,7 +5,9 @@
 	import { recording, capturing, IMAGE_ENCODINGS,
 		VIDEO_FORMATS, exports } from '../state/exports.svelte';
 
-	let { hasHeader = true } = $props();
+	let { id, hasHeader = true } = $props();
+
+	console.log(`Exports :: id`, id);
 
 	const LABEL_RECORD = 'start';
 	const LABEL_RECORDING = 'stop';
@@ -14,7 +16,7 @@
 	
 </script>
 
-<Module {hasHeader} name="exports">
+<Module {id} {hasHeader} name="exports">
 	<FieldGroup name="image">
 		<Field
 			key="encoding"

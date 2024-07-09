@@ -28,21 +28,31 @@
 		type,
 	}));
 
-	let isRoot = current.root;
+	$effect(() => {
+		console.log(`current has changed`, current.id);
+	})
+
+	let isRoot = $derived(current.root);
 	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
-	let value = $derived(current.children
+	let nodes = $derived(tree.children ?? current.children);
+	let value = $derived(nodes
 		.map(({ size }) => `minmax(25px, ${size}fr) 0px`)
 		.join(' '));
-	let style = $derived(Array.isArray(current.children) && current.children.length > 1 ? `${property}:${value}` : '');
+	let style = $derived(Array.isArray(nodes) && nodes.length > 1 ? `${property}:${value}` : '');
 
 	setContext('parent', current);
 	setContext('depth', depth);
 
 	onMount(() => {
-		
+		console.log(`LayoutComponent :: mount`, current.id, tree.children);
+		if (current.root) {
+			console.log('assign layout to current', current);
+			layout.current = current;
+		}
 
 		return () => {
-			layout.remove(current);
+			console.log(`LayoutComponent :: destroy`, current.id);
+			// layout.remove(current);
 		}
 	})
 
@@ -90,6 +100,7 @@
 				<svelte:self type={child.type} size={child.size} tree={child} />
 			{:else if child.type === 'module'}
 				<ModuleRenderer
+					id={child.id}
 					name={child.name}
 					hasHeader={child.hasHeader}
 					isDynamic={true}

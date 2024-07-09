@@ -9,13 +9,13 @@
 	let tree = $state(layout.current);
 
 	$effect(() => {
-		console.log('tree has changed');
+		console.log('tree has changed', tree);
 	});
 
 </script>
 
 <LayoutComponent {tree} {type} {size}>
-	<!-- {#if !tree.children} -->
+	{#if !tree.children}
 		{@render children()}
-	<!-- {/if} -->
+	{/if}
 </LayoutComponent>

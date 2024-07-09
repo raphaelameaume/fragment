@@ -16,19 +16,15 @@
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
 	import { updateProp, props as sketchesProps } from '../state/props.svelte';
 
-	let { mID, hasHeader = true, output = true } = $props();
+	let { id, hasHeader = true, output = true } = $props();
 
 	let sketchKey = $derived(sketchesKeys[0]);
 	let sketch = $derived(sketches[sketchKey]);
 	let sketchProps = $derived(sketchesProps[sketchKey]);
 	let showOutputParams = true;
-
-	$effect(() => {
-		console.log(sketchKey, sketch, sketchProps);
-	})
 </script>
 
-<Module {hasHeader} name={`Parameters`} slug="params">
+<Module {id} {hasHeader} name={`Parameters`} slug="params">
 	<!-- <div slot="header-right">
 		{#if options.length > 1}
 			<ModuleHeaderAction

@@ -7,9 +7,11 @@
 	import { getMonitorID } from '../state/monitors.svelte';
 	import { sketchesKeys } from '../state/sketches.svelte';
 
-	let { hasHeader = true, sketchKey = null, } = $props();
+	let { id, hasHeader = true, sketchKey = null, } = $props();
 
-	let id = getMonitorID();
+	console.log(`Monitor :: id`, id);
+
+	// let id = getMonitorID();
 	let selected = $derived(sketchKey ?? sketchesKeys[0]);
 	let index = $derived(monitors.findIndex((monitor) => monitor.id === id));
 	let name = $derived(`Monitor ${$monitors.length > 1 ? index + 1 : ''}`.trim());
@@ -19,7 +21,7 @@
 	<SketchSelect monitorID={id} {selected} />
 {/snippet}
 
-<Module {hasHeader} slug="monitor" {name} scrollable={false} {headerLeft}>
+<Module {id} {hasHeader} slug="monitor" {name} scrollable={false} {headerLeft}>
 	{#if selected && selected !== 'output'}
 		<SketchRenderer key={selected} {id} />
 	{:else if selected}

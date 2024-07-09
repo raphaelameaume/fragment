@@ -2,21 +2,28 @@
 	import { onMount, getContext, onDestroy } from 'svelte';
 	import { layout } from '../state/layout.svelte.js';
 
-	let { name, key, slug = name, scrollable = true, hasHeader = true, children, headerLeft } = $props();
+	let { id, name, key, slug = name, scrollable = true, hasHeader = true, children, headerLeft } = $props();
 
 	const parent = getContext('parent');
 	const depth = getContext('depth');
 
+	console.log(`Module :: id`, id);
+
 	const current = layout.createComponent({
+		id,
 		type: 'module',
 		name: slug,
 		hasHeader,
 		origin: parent,
 	});
 
-	onDestroy(() => {
-		layout.remove(current);
-	});
+	// const current = {};
+
+	console.log(`Module :: current`, current.id);
+
+	// onDestroy(() => {
+	// 	// layout.remove(current);
+	// });
 </script>
 
 <div
