@@ -7,8 +7,6 @@
 
 	let { id, hasHeader = true } = $props();
 
-	console.log(`Exports :: id`, id);
-
 	const LABEL_RECORD = 'start';
 	const LABEL_RECORDING = 'stop';
 

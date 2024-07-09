@@ -6,7 +6,7 @@
 	
 	let type = $derived(layout.current.type);
 	let size = $derived(layout.current.size);
-	let tree = $state(layout.current);
+	let tree = $derived(layout.current);
 
 	$effect(() => {
 		console.log('tree has changed', tree);

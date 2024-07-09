@@ -9,8 +9,6 @@
 
 	let { id, hasHeader = true, sketchKey = null, } = $props();
 
-	console.log(`Monitor :: id`, id);
-
 	// let id = getMonitorID();
 	let selected = $derived(sketchKey ?? sketchesKeys[0]);
 	let index = $derived(monitors.findIndex((monitor) => monitor.id === id));

@@ -28,11 +28,8 @@
 		type,
 	}));
 
-	$effect(() => {
-		console.log(`current has changed`, current.id);
-	})
-
 	let isRoot = $derived(current.root);
+	console.log(`render :: ${current.id} :: root`, isRoot);
 	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
 	let nodes = $derived(tree.children ?? current.children);
 	let value = $derived(nodes
@@ -44,32 +41,33 @@
 	setContext('depth', depth);
 
 	onMount(() => {
-		console.log(`LayoutComponent :: mount`, current.id, tree.children);
+		// this is what makes the whole layout rerender after setup
+		// onMount of <LayoutRoot> is trigger the last, so by this time, every child component has registered himself into the layout tree
 		if (current.root) {
-			console.log('assign layout to current', current);
 			layout.current = current;
 		}
-
-		return () => {
-			console.log(`LayoutComponent :: destroy`, current.id);
-			// layout.remove(current);
-		}
-	})
+	});
 
 	function addComponent(newType) {
+		const childCount = current.children.length;
+
 		layout.createComponent({
 			origin: current,
 			type: newType,
 		});
+
+		// create a second child of new type to create divisions
+		// instead of a single child component which wouldn't make any visual change
+		if (childCount === 0 && newType !== current.type) {
+			layout.createComponent({
+				origin: current,
+				type: newType,
+			});
+		}
 	}
 
-	function addColumn() {
-		addComponent('column');
-	}
-
-	function addRow() {
-		addComponent('row');
-	}
+	const addColumn = () => addComponent('column');
+	const addRow = () => addComponent('row');
 
 	function deleteCurrent() {
 		layout.remove(current);

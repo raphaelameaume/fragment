@@ -15,9 +15,9 @@ function createLayout() {
 		name,
 		children = [],
 	}) {
-		if (getComponent(id)) {
-			console.log('root already exists', getComponent(id));
-			return getComponent(id);
+		let existingComponent = getComponent(id);
+		if (existingComponent) {
+			return existingComponent;
 		}
 
 		const component = {
@@ -35,23 +35,28 @@ function createLayout() {
 
 		if (component.root) {
 			component.depth = 0;
+		} else if (isSibling) {
+			if (origin.root) {
+				const prevRoot = origin;
 
-			// if (isSibling) {
-			// 	const newSibling = createComponent({
-			// 		type: component.type,
-			// 		children: [...parent.children],
-			// 		parent: parent,
-			// 		root: false,
-			// 	});
+				const newRoot = createComponent({
+					root: true,
+					type: prevRoot.type === 'column' ? 'row' : 'column',
+				});
 
-			// 	// switch type
-			// 	parent.children = [newSibling, component];
-			// 	parent.type = current.type === 'column' ? 'row' : 'column';
+				console.log(newRoot);
 
-			// 	swapRoot(parent);
-			// }
-		} else {
-			if (isSibling) {
+				prevRoot.root = false;
+				component.parent = newRoot;
+				prevRoot.parent = newRoot;
+				prevRoot.size = 0.5;
+				component.size = 0.5;
+
+				newRoot.children.push(prevRoot);
+				newRoot.children.push(component);
+
+				layout = newRoot;
+			} else {
 				// add sibling
 				const { parent } = origin;
 
@@ -65,27 +70,27 @@ function createLayout() {
 				component.depth = origin.depth;
 				component.parent = parent;
 				parent.children.splice(index + 1, 0, component);
-			} else if (
-				origin.children.length === 1 &&
-				origin.children[0].type === 'module'
-			) {
-				const childModule = origin.children[0];
-				childModule.depth += 1;
-				origin.children.length = 0;
-
-				const replacement = createComponent({
-					type: origin.type === 'column' ? 'row' : 'column',
-					origin,
-				});
-				replacement.children.push(childModule);
-				component.parent = origin;
-				origin.children.splice(0, 1, replacement, component);
-			} else {
-				component.depth = origin.depth + 1;
-				component.parent = origin;
-
-				origin.children.push(component);
 			}
+		} else if (
+			origin.children.length === 1 &&
+			origin.children[0].type === 'module'
+		) {
+			const childModule = origin.children[0];
+			childModule.depth += 1;
+			origin.children.length = 0;
+
+			const replacement = createComponent({
+				type: origin.type === 'column' ? 'row' : 'column',
+				origin,
+			});
+			replacement.children.push(childModule);
+			component.parent = origin;
+			origin.children.splice(0, 1, replacement, component);
+		} else {
+			component.depth = origin.depth + 1;
+			component.parent = origin;
+
+			origin.children.push(component);
 		}
 
 		return component;
@@ -164,27 +169,30 @@ function createLayout() {
 		});
 	}
 
-	function remove(node) {
-		console.log(`Layout :: remove`, node);
-		traverse((c) => {
-			const { children = [] } = c;
-			const childIndex = children.findIndex((k) => k.id === node.id);
+	function remove(component) {
+		console.log(`Layout :: remove`, component);
 
-			if (childIndex >= 0) {
-				const newChildren = [...children];
-				newChildren.splice(childIndex, 1);
+		const { parent } = component;
 
-				newChildren.forEach((k) => {
-					k.size = 1 / newChildren.length;
-				});
+		const componentIndex = parent.children.findIndex(
+			(c) => c.id === component.id,
+		);
 
-				if (newChildren.length === 0) {
-					remove(c);
-				}
+		console.log({ componentIndex });
 
-				c.children = newChildren;
-			}
+		// parent.children = parent.children.filter(
+		// 	(c, i) => c.id !== component.id,
+		// );
+
+		parent.children.splice(componentIndex, 1);
+		const newSize = 1 / (parent.children.length - 1);
+		parent.children.forEach((child) => {
+			child.size = newSize;
 		});
+
+		if (parent.children.length === 0) {
+			// remove(parent);
+		}
 	}
 
 	function getComponent(id) {
