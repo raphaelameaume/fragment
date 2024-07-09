@@ -35,9 +35,6 @@ function createLayout() {
 
 		if (component.root) {
 			component.depth = 0;
-			// Object.assign(layout, component);
-
-			console.log('create root', component);
 
 			// if (isSibling) {
 			// 	const newSibling = createComponent({
@@ -66,12 +63,23 @@ function createLayout() {
 				origin.size = size * 0.5;
 				component.size = size * 0.5;
 				component.depth = origin.depth;
+				component.parent = parent;
 				parent.children.splice(index + 1, 0, component);
 			} else if (
 				origin.children.length === 1 &&
 				origin.children[0].type === 'module'
 			) {
-				origin.children = [component];
+				const childModule = origin.children[0];
+				childModule.depth += 1;
+				origin.children.length = 0;
+
+				const replacement = createComponent({
+					type: origin.type === 'column' ? 'row' : 'column',
+					origin,
+				});
+				replacement.children.push(childModule);
+				component.parent = origin;
+				origin.children.splice(0, 1, replacement, component);
 			} else {
 				component.depth = origin.depth + 1;
 				component.parent = origin;

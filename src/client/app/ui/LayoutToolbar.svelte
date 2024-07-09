@@ -1,5 +1,4 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import IconCross from '../components/IconCross.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import Select from './fields/Select.svelte';
@@ -11,8 +10,6 @@
 
 	let splitColumns = false;
 	let splitRows = false;
-
-	console.log(moduleName);
 
 	const options = [
 		{ value: undefined, label: defaultValue, disabled: true },

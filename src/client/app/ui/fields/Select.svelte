@@ -5,9 +5,9 @@
 
 	function toStringifiedValue(option, optionType = typeof option) {
 		if (option === null) {
-			return `null`;
+			return null;
 		} else if (option === undefined) {
-			return `undefined`;
+			return undefined;
 		} else if (optionType === 'object') {
 			return toStringifiedValue(option.value);
 		} else if (optionType === 'function') {
@@ -72,7 +72,7 @@
 			{name}
 			{disabled}
 			{title}
-			bind:value={sanitizedValue}
+			value={value}
 		>
 			{#each sanitizedOptions as option}
 				<option
