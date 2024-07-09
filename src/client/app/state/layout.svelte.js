@@ -6,29 +6,98 @@ function createLayout() {
 
 	function createComponent({
 		id = COMPONENT_ID++,
-		parent = null,
-		root = parent === null,
+		origin = null,
+		root = origin === null,
 		node = null,
-		depth,
 		size = 1,
 		minimized = false,
 		type,
+		name,
 		children = [],
 	}) {
 		const component = {
 			id,
 			root,
 			node,
-			depth,
 			size,
 			minimized,
-			parent: parent ? parent.id : null,
+			name,
 			type,
 			children,
-			registerChild: (child) => {
-				addChild(component, child);
-			},
 		};
+
+		const isSibling = component.type === origin?.type;
+
+		if (component.root) {
+			component.depth = 0;
+			Object.assign(layout, component);
+
+			console.log('create root', component);
+
+			// if (isSibling) {
+			// 	const newSibling = createComponent({
+			// 		type: component.type,
+			// 		children: [...parent.children],
+			// 		parent: parent,
+			// 		root: false,
+			// 	});
+
+			// 	// switch type
+			// 	parent.children = [newSibling, component];
+			// 	parent.type = current.type === 'column' ? 'row' : 'column';
+
+			// 	swapRoot(parent);
+			// }
+		} else {
+			if (isSibling) {
+				// add sibling
+				console.log('add sibling to origin', component.type);
+				console.log(origin);
+				const { parent } = origin;
+
+				// console.log({ origin, component });
+				// // retrieve origin index
+				const index = parent.children.findIndex(
+					(k) => k.id === origin.id,
+				);
+
+				console.log(`origin is index`, index);
+				const { size } = origin;
+				origin.size = size * 0.5;
+				component.size = size * 0.5;
+				component.depth = origin.depth;
+
+				const newChildren = [...parent.children];
+				newChildren.splice(index + 1, 0, component);
+				parent.children.length = 0;
+				parent.children.push(...newChildren);
+
+				console.log(parent.children);
+			} else if (
+				origin.children.length === 1 &&
+				origin.children[0].type === 'module'
+			) {
+				const childModule = origin.children[0];
+				console.log('replace children', component, childModule);
+
+				origin.children = [component];
+
+				// origin.children = [
+				// 	createComponent({
+				// 		type: component.type === 'row' ? 'column' : 'row',
+				// 		children: [childModule],
+				// 		root: false,
+				// 		origin,
+				// 	}),
+				// 	component,
+				// ];
+			} else {
+				component.depth = origin.depth + 1;
+				component.parent = origin;
+
+				origin.children.push(component);
+			}
+		}
 
 		return component;
 	}
@@ -58,8 +127,6 @@ function createLayout() {
 				c.depth = c.depth + 1;
 			}
 		}, newRoot);
-
-		return newRoot;
 	}
 
 	function updateComponent(component, newProperties = {}) {
@@ -86,20 +153,6 @@ function createLayout() {
 	function addSibling(component, sibling) {
 		traverse((c) => {
 			if (c.id === component.parent) {
-				const index = c.children.findIndex(
-					(k) => k.id === component.id,
-				);
-
-				const { size } = c.children[index];
-				c.children[index].size = size * 0.5;
-				sibling.size = size * 0.5;
-
-				const newChildren = [...c.children];
-
-				newChildren.splice(index + 1, 0, sibling);
-
-				c.children.length = 0;
-				c.children.push(...newChildren);
 			}
 		});
 	}
@@ -144,6 +197,18 @@ function createLayout() {
 		});
 	}
 
+	function getComponent(id) {
+		let component;
+
+		traverse((c) => {
+			if (c.id === id) {
+				component = c;
+			}
+		});
+
+		return component;
+	}
+
 	return {
 		get current() {
 			return layout;
@@ -170,6 +235,7 @@ function createLayout() {
 		addSibling,
 		addChild,
 		createComponent,
+		getComponent,
 		resize,
 		remove,
 	};

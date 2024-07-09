@@ -24,11 +24,11 @@
 		id: tree.id,
 		depth,
 		size,
-		parent,
+		origin: parent,
 		type,
 	}));
-	let isRoot = $derived(current.root);
-	// let children = $derived(current.children);
+
+	let isRoot = current.root;
 	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
 	let value = $derived(current.children
 		.map(({ size }) => `minmax(25px, ${size}fr) 0px`)
@@ -38,76 +38,19 @@
 	setContext('parent', current);
 	setContext('depth', depth);
 
-	if (!__BUILD__ && isRoot) {
-		layout.current = current;
-	}
-
-	if (parent) {
-		parent.registerChild(current);
-	}
-
 	onMount(() => {
+		
+
 		return () => {
 			layout.remove(current);
 		}
 	})
 
 	function addComponent(newType) {
-		const isSibling = newType === type;
-		console.log('addComponent', type, isSibling);
-
-		const newborn = layout.createComponent({
-			parent: isSibling ? parent : current,
-			depth: isSibling ? depth : depth + 1,
+		layout.createComponent({
+			origin: current,
 			type: newType,
 		});
-	
-		newborn.children.push(layout.createComponent({
-			parent: newborn,
-			type: 'module',
-			root: false,
-			depth: newborn.depth + 1,
-		}))
-
-		if (isSibling) {
-			if (current.root) {
-				const newSibling = layout.createComponent({
-					depth: newborn.depth,
-					type: newborn.type,
-					children: current.children,
-					parent: current,
-					root: false,
-				});
-
-				// switch type
-				current.children = [newSibling, newborn];
-				current.type = current.type === 'column' ? 'row' : 'column';
-
-				layout.swapRoot(current);
-			} else {
-				console.log('addSibling', newborn);
-				layout.addSibling(current, newborn);
-			}
-		} else {
-			if (current.children.length === 1 && current.children[0].type === 'module') {
-				layout.replaceChildren(current, [
-					...current.children.map((c, i) => {
-						const middle = layout.createComponent({
-							type: type === 'row' ? 'column' : 'row',
-							depth: depth + 1,
-							root: false,
-						});
-						middle.children.push(c);
-
-						return middle;
-					}),
-					newborn,
-				]);
-			} else {
-				console.log('addChild', newborn);
-				layout.addChild(current, newborn);
-			}
-		}
 	}
 
 	function addColumn() {
@@ -149,6 +92,7 @@
 				<ModuleRenderer
 					name={child.name}
 					hasHeader={child.hasHeader}
+					isDynamic={true}
 				/>
 			{/if}
 		{/each}
@@ -158,7 +102,7 @@
 	{#if layout.editing && ((current.children.length === 1 && current.children[0].type === 'module') || isRoot)}
 		<Toolbar
 			{isRoot}
-			moduleName={current.children[0]?.name}
+			moduleName={current.children[0].name}
 			onchange={handleModuleChange}
 			onAddRow={addRow}
 			onAddColumn={addColumn}

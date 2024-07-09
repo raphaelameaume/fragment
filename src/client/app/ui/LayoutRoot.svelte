@@ -6,10 +6,16 @@
 	
 	let type = $derived(layout.current.type);
 	let size = $derived(layout.current.size);
+	let tree = $state(layout.current);
 
-	$inspect(layout.current);
+	$effect(() => {
+		console.log('tree has changed');
+	});
+
 </script>
 
-<LayoutComponent tree={layout.current} {type} {size}>
-	{@render children()}
+<LayoutComponent {tree} {type} {size}>
+	<!-- {#if !tree.children} -->
+		{@render children()}
+	<!-- {/if} -->
 </LayoutComponent>

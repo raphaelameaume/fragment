@@ -7,18 +7,19 @@
 	import { getMonitorID } from '../state/monitors.svelte';
 	import { sketchesKeys } from '../state/sketches.svelte';
 
-	let { mID, hasHeader = true, sketchKey = null } = $props();
+	let { hasHeader = true, sketchKey = null, } = $props();
 
 	let id = getMonitorID();
 	let selected = $derived(sketchKey ?? sketchesKeys[0]);
 	let index = $derived(monitors.findIndex((monitor) => monitor.id === id));
-	let moduleName = $derived(`${name} ${$monitors.length > 1 ? index + 1 : ''}`);
+	let name = $derived(`Monitor ${$monitors.length > 1 ? index + 1 : ''}`.trim());
 </script>
 
-<Module {hasHeader} slug="monitor" name={moduleName} scrollable={false}>
-	<svelte:fragment slot="header-left">
-		<SketchSelect monitorID={id} {selected} />
-	</svelte:fragment>
+{#snippet headerLeft()}
+	<SketchSelect monitorID={id} {selected} />
+{/snippet}
+
+<Module {hasHeader} slug="monitor" {name} scrollable={false} {headerLeft}>
 	{#if selected && selected !== 'output'}
 		<SketchRenderer key={selected} {id} />
 	{:else if selected}

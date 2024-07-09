@@ -12,6 +12,8 @@
 	let splitColumns = false;
 	let splitRows = false;
 
+	console.log(moduleName);
+
 	const options = [
 		{ value: undefined, label: defaultValue, disabled: true },
 		...moduleNames.map((name) => ({ value: name, label: name })),

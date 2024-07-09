@@ -2,21 +2,17 @@
 	import { onMount, getContext, onDestroy } from 'svelte';
 	import { layout } from '../state/layout.svelte.js';
 
-	let { name, slug = name, scrollable = true, hasHeader = true, children } = $props();
+	let { name, key, slug = name, scrollable = true, hasHeader = true, children, headerLeft } = $props();
 
 	const parent = getContext('parent');
 	const depth = getContext('depth');
 
-	const current = $state(layout.createComponent({
+	const current = layout.createComponent({
 		type: 'module',
-		name: 'slug',
+		name: slug,
 		hasHeader,
-		root: false,
-		parent,
-		depth: depth+1
-	}))
-
-	parent.registerChild(current);
+		origin: parent,
+	});
 
 	onDestroy(() => {
 		layout.remove(current);
@@ -34,7 +30,7 @@
 		<header class="module__header">
 			<div class="header__col">
 				<div class="slot slot--left">
-					<!-- <slot name="header-left" /> -->
+					{@render headerLeft() }
 				</div>
 			</div>
 			<div class="header__col">
