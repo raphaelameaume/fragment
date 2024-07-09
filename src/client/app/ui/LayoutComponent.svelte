@@ -76,7 +76,15 @@
 	}
 
 	function handleModuleChange(moduleName) {
-		current.children[0].name = moduleName; // keep state when replacingChildren
+		if (current.children.length && current.children[0].type === 'module') {
+			current.children[0].name = moduleName; // keep state when replacingChildren
+		} else {
+			layout.createComponent({
+				type: 'module',
+				origin: current,
+				name: moduleName,
+			});
+		}
 	}
 
 	let offsetWidth;
@@ -110,10 +118,10 @@
 	{:else}
 		{@render children()}
 	{/if}
-	{#if layout.editing && ((current.children.length === 1 && current.children[0].type === 'module') || isRoot)}
+	{#if layout.editing && ((current.children.length === 1 && current.children[0].type === 'module') || isRoot || current.children.length === 0)}
 		<Toolbar
 			{isRoot}
-			moduleName={current.children[0].name}
+			moduleName={current.children[0]?.name}
 			onchange={handleModuleChange}
 			onAddRow={addRow}
 			onAddColumn={addColumn}
