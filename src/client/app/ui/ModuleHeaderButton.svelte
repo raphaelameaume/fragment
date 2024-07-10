@@ -1,9 +1,9 @@
 <script>
-	export let label;
+	let { label, children, onclick } = $props();
 </script>
 
-<button class="module-header-action__button" aria-label={label} on:click>
-	<slot />
+<button class="module-header-action__button" aria-label={label} {onclick}>
+	{@render children()}
 </button>
 
 <style>

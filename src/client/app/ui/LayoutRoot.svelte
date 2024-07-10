@@ -3,19 +3,12 @@
 	import LayoutComponent from './LayoutComponent.svelte';
 
 	let { children } = $props();
-	
-	let type = $derived(layout.current.type);
-	let size = $derived(layout.current.size);
-	let tree = $derived(layout.current);
 
-	$effect(() => {
-		console.log('tree has changed', tree);
-	});
-
+	let tree = $derived(layout.tree);
 </script>
 
-<LayoutComponent {tree} {type} {size}>
-	{#if !tree.children}
+<LayoutComponent tree={tree.children}>
+	{#if !layout.tree.children}
 		{@render children()}
 	{/if}
 </LayoutComponent>

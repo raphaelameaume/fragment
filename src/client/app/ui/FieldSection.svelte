@@ -1,10 +1,15 @@
 <script>
-	export let key;
-	export let visible = true;
-	export let secondary = false;
-	export let interactive = false;
-	export let displayName = undefined;
-	export let disabled = false;
+	let { 
+		key, 
+		visible = true,
+		secondary,
+		interactive,
+		displayName = undefined,
+		disabled = false,
+		children,
+		infos,
+		onclick,
+	} = $props();
 </script>
 
 <div
@@ -16,17 +21,17 @@
 	<div class="field__infos">
 		{#if displayName !== null}
 			{#if interactive}
-				<button class="field__label" {disabled} on:click
+				<button class="field__label" {disabled} {onclick}
 					>{displayName ?? key}</button
 				>
 			{:else}
 				<span class="field__label">{displayName ?? key}</span>
 			{/if}
 		{/if}
-		<slot name="infos" />
+		{@render infos()}
 	</div>
 	<div class="field__input">
-		<slot />
+		{@render children()}
 	</div>
 </div>
 

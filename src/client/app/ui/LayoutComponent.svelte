@@ -3,7 +3,7 @@
 </script>
 
 <script>
-	import { getContext, hasContext, onDestroy, onMount, setContext } from 'svelte';
+	import { tick, getContext, hasContext, onDestroy, onMount, setContext } from 'svelte';
 	import { writable } from 'svelte/store';
 	import {
 		layout,
@@ -13,7 +13,7 @@
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import Preview from './Preview.svelte';
 
-	let { size = 1, type = 'column', tree = { children: [] }, children } = $props();
+	let { id, size = 1, type = 'column', tree, children } = $props();
 
 	let parent = hasContext('parent') ? getContext('parent') : null;
 	let depth = hasContext('depth') ? getContext('depth') + 1 : 0;
@@ -21,7 +21,7 @@
 	let isRow = $derived(!isColumn);
 
 	let current = $state(layout.createComponent({
-		id: tree.id,
+		id,
 		depth,
 		size,
 		origin: parent,
@@ -29,13 +29,13 @@
 	}));
 
 	let isRoot = $derived(current.root);
-	console.log(`render :: ${current.id} :: root`, isRoot);
+	
 	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
-	let nodes = $derived(tree.children ?? current.children);
+	let nodes = $derived(tree ?? current.children);
 	let value = $derived(nodes
 		.map(({ size }) => `minmax(25px, ${size}fr) 0px`)
 		.join(' '));
-	let style = $derived(Array.isArray(nodes) && nodes.length > 1 ? `${property}:${value}` : '');
+	let style = $derived(Array.isArray(nodes) && nodes.length > 0 ? `${property}:${value}` : '');
 
 	setContext('parent', current);
 	setContext('depth', depth);
@@ -44,7 +44,11 @@
 		// this is what makes the whole layout rerender after setup
 		// onMount of <LayoutRoot> is trigger the last, so by this time, every child component has registered himself into the layout tree
 		if (current.root) {
-			layout.current = current;
+			setTimeout(() => {
+				layout.tree = current;
+			}, 16)
+			
+			// }, 3000);
 		}
 	});
 
@@ -100,10 +104,15 @@
 >
 	{#if isRoot && layout.previewing}
 		<Preview />
-	{:else if tree && Array.isArray(tree.children) && tree.children.length > 0}
-		{#each tree.children as child (child.id)}
+	{:else if tree && tree.length > 0}
+		{#each tree as child (child.id)}
 			{#if child.type === 'column' || child.type === 'row'}
-				<svelte:self type={child.type} size={child.size} tree={child} />
+				<svelte:self
+					id={child.id}
+					type={child.type}
+					size={child.size}
+					tree={child.children}
+				/>
 			{:else if child.type === 'module'}
 				<ModuleRenderer
 					id={child.id}
@@ -111,6 +120,8 @@
 					hasHeader={child.hasHeader}
 					isDynamic={true}
 				/>
+			{:else}
+				<p>Cannot render child</p>
 			{/if}
 		{/each}
 	{:else}

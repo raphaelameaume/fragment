@@ -7,8 +7,6 @@
 	const parent = getContext('parent');
 	const depth = getContext('depth');
 
-	console.log(`Module :: id`, id);
-
 	const current = layout.createComponent({
 		id,
 		type: 'module',
@@ -16,10 +14,6 @@
 		hasHeader,
 		origin: parent,
 	});
-
-	// const current = {};
-
-	console.log(`Module :: current`, current.id);
 
 	// onDestroy(() => {
 	// 	// layout.remove(current);
@@ -51,7 +45,11 @@
 		</header>
 	{/if}
 	<div class="module__container">
-		{@render children()}
+		{#if layout.tree.children}
+			{@render children()}
+		{:else}
+			<p>Do not render children on boot</p>
+		{/if}
 	</div>
 </div>
 

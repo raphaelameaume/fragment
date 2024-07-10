@@ -1,26 +1,17 @@
-<script context="module">
-	import { writable } from 'svelte/store';
-
-	export const params = writable([]);
-
-	let ID = 0;
-</script>
-
 <script>
-	import { onMount, onDestroy } from 'svelte';
-	import { sketches, sketchesKeys } from '../state/sketches.svelte.js';
+	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { monitors, rendering } from '../stores/rendering';
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import OutputParams from '../ui/ParamsOutput.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
-	import { updateProp, props as sketchesProps } from '../state/props.svelte';
 
 	let { id, hasHeader = true, output = true } = $props();
 
-	let sketchKey = $derived(sketchesKeys[0]);
-	let sketch = $derived(sketches[sketchKey]);
-	let sketchProps = $derived(sketchesProps[sketchKey]);
+	let sketchKey = $derived(sketchesManager.keys[0]);
+	let sketch = $derived(sketchesManager.sketches[sketchKey]);
+	let framerate = $derived(sketch.fps);
+	let sketchProps = $derived(sketch.props);
 	let showOutputParams = true;
 </script>
 
@@ -45,7 +36,7 @@
 			{#if output}
 				<Field
 					key="framerate"
-					value={isFinite(sketch.fps) ? sketch.fps : 60}
+					value={framerate}
 					disabled
 				/>
 			{/if}
@@ -53,7 +44,7 @@
 				<Field
 					key="duration"
 					value={sketch.duration}
-					params={{ suffix: 's' }}
+					params={{ suffix: 's', step: 0.1 }}
 					disabled
 				/>
 			{/if}
@@ -80,11 +71,11 @@
 						{index}
 						disabled={isDisabled}
 						bind:params={sketchProps[key].params}
-						on:click={() => {
+						onclick={() => {
 							sketchProps[key].value._refresh = true;
 						}}
-						on:change={(event) => {
-							updateProp(sketchKey, key, event.detail, {
+						onchange={(value) => {
+							sketch.updateProp(key, value, {
 								width: $rendering.width,
 								height: $rendering.height,
 								pixelRatio: $rendering.pixelRatio,

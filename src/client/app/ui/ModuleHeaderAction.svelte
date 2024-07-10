@@ -2,14 +2,20 @@
 	import ModuleHeaderSelect from './ModuleHeaderSelect.svelte';
 	import ModuleHeaderButton from './ModuleHeaderButton.svelte';
 
-	export let label = '';
-	export let permanent = false;
-	export let value = null;
-	export let border = false;
-	export let margin = true;
-	export let options = [];
+	let {
+		label = '',
+		permanent = false,
+		value = null,
+		border = false,
+		margin = true,
+		options = [],
+		onchange,
+		onclick,
+		children,
+		icon,
+	} = $props();
 
-	$: disabled = options.length === 1;
+	let disabled = $derived(options.length === 1);
 </script>
 
 <div
@@ -20,15 +26,22 @@
 	class:disabled
 >
 	{#if options.length > 0}
-		<ModuleHeaderSelect {options} {value} {disabled} on:change />
+		<ModuleHeaderSelect 
+			{options} 
+			{value} 
+			{disabled} 
+			{onchange}
+		/>
 	{:else}
-		<ModuleHeaderButton {label} on:click>
-			<slot name="text">
+		<ModuleHeaderButton {label} {onclick}>
+			{#snippet text()}
 				<div class="text">
-					<slot />
+					{@render children()}
 				</div>
-			</slot>
-			<slot name="icon" />
+			{/snippet}
+			{#if icon}
+				{@render icon()} 
+			{/if}
 		</ModuleHeaderButton>
 	{/if}
 </div>

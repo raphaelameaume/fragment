@@ -1,10 +1,11 @@
-function createLayout() {
-	let COMPONENT_ID = 0;
-	let layout = $state({});
-	let editing = $state(false);
-	let previewing = $state(false);
+let COMPONENT_ID = 0;
 
-	function createComponent({
+class Layout {
+	tree = $state({});
+	editing = $state(false);
+	previewing = $state(false);
+
+	createComponent({
 		id = COMPONENT_ID++,
 		origin = null,
 		root = origin === null,
@@ -15,7 +16,7 @@ function createLayout() {
 		name,
 		children = [],
 	}) {
-		let existingComponent = getComponent(id);
+		let existingComponent = this.getComponent(id);
 		if (existingComponent) {
 			return existingComponent;
 		}
@@ -37,25 +38,35 @@ function createLayout() {
 			component.depth = 0;
 		} else if (isSibling) {
 			if (origin.root) {
-				const prevRoot = origin;
-
-				const newRoot = createComponent({
-					root: true,
-					type: prevRoot.type === 'column' ? 'row' : 'column',
+				origin.children.length = 0;
+				// const intermediate = createComponent({
+				// 	type: 'row',
+				// 	size: 1,
+				// 	origin,
+				// });
+				const col1 = this.createComponent({
+					type: 'row',
+					size: 0.5,
+					origin,
 				});
 
-				console.log(newRoot);
+				const col2 = this.createComponent({
+					type: 'row',
+					size: 0.5,
+					origin,
+				});
 
-				prevRoot.root = false;
-				component.parent = newRoot;
-				prevRoot.parent = newRoot;
-				prevRoot.size = 0.5;
-				component.size = 0.5;
+				const col3 = this.createComponent({
+					type: 'column',
+					size: 0.5,
+					origin: col1,
+				});
 
-				newRoot.children.push(prevRoot);
-				newRoot.children.push(component);
-
-				layout = newRoot;
+				const col4 = this.createComponent({
+					type: 'column',
+					size: 1,
+					origin: col1,
+				});
 			} else {
 				// add sibling
 				const { parent } = origin;
@@ -79,7 +90,7 @@ function createLayout() {
 			childModule.depth += 1;
 			origin.children.length = 0;
 
-			const replacement = createComponent({
+			const replacement = this.createComponent({
 				type: origin.type === 'column' ? 'row' : 'column',
 				origin,
 			});
@@ -96,93 +107,23 @@ function createLayout() {
 		return component;
 	}
 
-	function traverse(fn = () => {}, node = layout) {
+	traverse(fn = () => {}, node = this.tree) {
 		const { children = [] } = node;
 
 		fn(node);
 
 		for (let i = 0; i < children.length; i++) {
 			const child = children[i];
-			traverse(fn, child);
+			this.traverse(fn, child);
 		}
 	}
 
-	function replaceChildren(component, newChildren) {
-		traverse((c) => {
-			if (c.id === component.id) {
-				c.children = newChildren;
-			}
-		});
-	}
-
-	function swapRoot(newRoot) {
-		traverse((c) => {
-			if (!c.root && c.type !== 'module') {
-				c.depth = c.depth + 1;
-			}
-		}, newRoot);
-	}
-
-	function updateComponent(component, newProperties = {}) {
-		let updated = false;
-
-		traverse((c) => {
-			if (c.id === component.id) {
-				updated = true;
-				if (typeof newProperties === 'object') {
-					Object.assign(c, newProperties);
-				} else if (typeof newProperties === 'function') {
-					Object.assign(c, newProperties(c));
-				}
-			}
-		}, t);
-
-		if (!updated) {
-			console.warn(
-				`Cannot find component to update with id ${component.id}`,
-			);
-		}
-	}
-
-	function addSibling(component, sibling) {
-		traverse((c) => {
-			if (c.id === component.parent) {
-			}
-		});
-	}
-
-	function addChild(component, newChild) {
-		traverse((c) => {
-			if (c.id === component.id) {
-				c.children.push(newChild);
-			}
-		});
-	}
-
-	function resize(nodes = []) {
-		traverse((c) => {
-			nodes.forEach((n) => {
-				if (n.id === c.id) {
-					c.size = n.size;
-				}
-			});
-		});
-	}
-
-	function remove(component) {
-		console.log(`Layout :: remove`, component);
-
+	remove(component) {
 		const { parent } = component;
 
 		const componentIndex = parent.children.findIndex(
 			(c) => c.id === component.id,
 		);
-
-		console.log({ componentIndex });
-
-		// parent.children = parent.children.filter(
-		// 	(c, i) => c.id !== component.id,
-		// );
 
 		parent.children.splice(componentIndex, 1);
 		const newSize = 1 / (parent.children.length - 1);
@@ -195,10 +136,20 @@ function createLayout() {
 		}
 	}
 
-	function getComponent(id) {
+	resize(nodes = []) {
+		this.traverse((c) => {
+			nodes.forEach((n) => {
+				if (n.id === c.id) {
+					c.size = n.size;
+				}
+			});
+		});
+	}
+
+	getComponent(id) {
 		let component;
 
-		traverse((c) => {
+		this.traverse((c) => {
 			if (c.id === id) {
 				component = c;
 			}
@@ -206,37 +157,6 @@ function createLayout() {
 
 		return component;
 	}
-
-	return {
-		get current() {
-			return layout;
-		},
-		set current(v) {
-			Object.assign(layout, v);
-		},
-		get editing() {
-			return editing;
-		},
-		set editing(v) {
-			editing = v;
-		},
-		get previewing() {
-			return previewing;
-		},
-		set previewing(v) {
-			previewing = v;
-		},
-		traverse,
-		replaceChildren,
-		swapRoot,
-		updateComponent,
-		addSibling,
-		addChild,
-		createComponent,
-		getComponent,
-		resize,
-		remove,
-	};
 }
 
-export let layout = createLayout();
+export let layout = new Layout();

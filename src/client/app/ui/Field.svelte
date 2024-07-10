@@ -27,66 +27,39 @@
 </script>
 
 <script>
-	import { createEventDispatcher } from 'svelte';
-
 	import FieldSection from './FieldSection.svelte';
 	import FieldTriggers from './FieldTriggers.svelte';
 	import { download } from '../utils/file.utils.js';
 	import { map } from '../utils/math.utils';
 	import frameDebounce from '../lib/helpers/frameDebounce.js';
-	import { getStore } from '../stores/utils';
-	import { writable } from 'svelte/store';
 	import { inferFieldType } from '../utils/fields.utils.js';
 
-	export let key = '';
-	export let value = null;
-	export let initialValue = value;
-	export let context = null;
-	export let params = {};
-	export let type = null;
-	export let disabled = false;
-	export let displayName = undefined;
-	export let index = null;
+	let {
+		key, 
+		value = $bindable(null), 
+		initialValue = value, 
+		context = null,
+		params = $bindable({}),
+		type = null,
+		disabled = false,
+		displayName = undefined,
+		index = null,
+		onchange,
+		onclick,
+		children,
+	} = $props();
 
-	let offsetWidth;
-	let showTriggers = false;
-
-	const store = getStore(
-		context,
-		{ props: {} },
-		{
-			persist: context !== null,
-		},
-	);
-
-	if (!$store.props[key]) {
-		$store.props[key] = { triggers: [] };
-	}
-
-	let triggers = writable(
-		$store.props[key].triggers.filter(
-			(trigger) => trigger.inputType !== undefined,
-		),
-	);
-	triggers.subscribe((all) => {
-		store.update((curr) => {
-			curr.props[key].triggers = all;
-
-			return curr;
-		});
-	});
-
-	const dispatch = createEventDispatcher();
+	let showTriggers = $state(false);
 
 	const onTriggers = {
 		checkbox: () => {
 			value = !value;
 
-			dispatch('change', value);
+			onchange(value);
 		},
 		button: (event) => {
 			value(event);
-			dispatch('click', event);
+			onclick(event);
 		},
 		download: (event) => {
 			let [data, filename] = value(event);
@@ -105,32 +78,38 @@
 				let step = params.step ? params.step : 1;
 				let value = Math.round(v * (1 / step)) / (1 / step);
 
-				dispatch('change', value);
+				onchange(value);
 			}
 		},
 	};
 
-	$: fieldType = inferFieldType({ type, value, params, key });
-	$: fieldProps = composeFieldProps(params, disabled);
-	$: onTrigger = frameDebounce(onTriggers[fieldType]);
-	$: input = fields[fieldType];
-	$: triggerable =
+	let fieldType = $derived(inferFieldType({ type, value, params, key }));
+
+	$effect(() => {
+		if (key === 'framerate') {
+			console.log(value);
+		}
+	})
+
+	let fieldProps = $derived(composeFieldProps(params, disabled));
+	let onTrigger = $derived(frameDebounce(onTriggers[fieldType]));
+	let input = $derived(fields[fieldType]);
+	let triggerable = $derived(
 		params.triggerable !== false &&
 		((fieldType === fieldTypes.NUMBER &&
 			isFinite(params.min) &&
 			isFinite(params.max)) ||
-			fieldType === fieldTypes.BUTTON);
-	$: {
+			fieldType === fieldTypes.BUTTON));
+	let triggers = $state([]);
+	let triggersActive = $derived(triggers.length > 0);
+
+	$effect(() => {
 		const isDownload = fieldType === fieldTypes.DOWNLOAD;
 		const isButton = fieldType === fieldTypes.BUTTON;
 		if ((isDownload || isButton) && params.label == undefined) {
 			fieldProps.label = isDownload ? 'download' : 'run';
 		}
-	}
-	$: xxsmall = offsetWidth < 200;
-	$: xsmall = !xxsmall && offsetWidth < 260;
-	$: small = !xxsmall && !xsmall && offsetWidth < 320;
-	$: triggersActive = $triggers.length > 0;
+	})
 
 	function toggleTriggers(event) {
 		event.preventDefault();
@@ -153,142 +132,140 @@
 <div
 	class="field"
 	class:disabled
-	class:xxsmall
-	class:xsmall
-	class:small
 	class:changed={!disabled && hasChanged(initialValue, value)}
-	bind:offsetWidth
 	style="--index: {index};"
 >
 	<FieldSection
 		{key}
 		{displayName}
 		interactive={triggerable}
-		on:click={toggleTriggers}
+		onclick={toggleTriggers}
 		{disabled}
 	>
-		<div slot="infos" class="field__actions">
-			{#if triggerable && !disabled}
-				<button
-					on:click={toggleTriggers}
-					class="field__action field__action--triggers"
-					class:active={triggersActive}
-				>
-					<svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-							d="M4.75 8H7.25"
-						/>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-							d="M12.75 8H19.25"
-						/>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-							d="M4.75 16H12.25"
-						/>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-							d="M17.75 16H19.25"
-						/>
-						<circle
-							cx="10"
-							cy="8"
-							r="2.25"
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-						/>
-						<circle
-							cx="15"
-							cy="16"
-							r="2.25"
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="1.5"
-						/>
-					</svg>
-				</button>
-			{/if}
-			{#if fieldType === 'vec' && !disabled}
-				<button
-					class="field__action field__action--lock"
-					on:click={() => (params.locked = !params.locked)}
-				>
-					{#if params.locked}
-						<svg
-							class="action__icon"
-							width="16"
-							height="16"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
+		{#snippet infos()}
+			<div class="field__actions">
+				{#if triggerable && !disabled}
+					<button
+						on:click={toggleTriggers}
+						class="field__action field__action--triggers"
+						class:active={triggersActive}
+					>
+						<svg width="16" height="16" fill="none" viewBox="0 0 24 24">
 							<path
 								stroke="currentColor"
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="1.5"
-								d="M5.75 11.75C5.75 11.1977 6.19772 10.75 6.75 10.75H17.25C17.8023 10.75 18.25 11.1977 18.25 11.75V17.25C18.25 18.3546 17.3546 19.25 16.25 19.25H7.75C6.64543 19.25 5.75 18.3546 5.75 17.25V11.75Z"
+								d="M4.75 8H7.25"
 							/>
 							<path
 								stroke="currentColor"
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="1.5"
-								d="M7.75 10.5V10.3427C7.75 8.78147 7.65607 7.04125 8.74646 5.9239C9.36829 5.2867 10.3745 4.75 12 4.75C13.6255 4.75 14.6317 5.2867 15.2535 5.9239C16.3439 7.04125 16.25 8.78147 16.25 10.3427V10.5"
+								d="M12.75 8H19.25"
+							/>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="1.5"
+								d="M4.75 16H12.25"
+							/>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="1.5"
+								d="M17.75 16H19.25"
+							/>
+							<circle
+								cx="10"
+								cy="8"
+								r="2.25"
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="1.5"
+							/>
+							<circle
+								cx="15"
+								cy="16"
+								r="2.25"
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="1.5"
 							/>
 						</svg>
-					{:else}
-						<svg
-							class="action__icon"
-							width="16"
-							height="16"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke="currentColor"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="1.5"
-								d="M5.75 11.75C5.75 11.1977 6.19772 10.75 6.75 10.75H17.25C17.8023 10.75 18.25 11.1977 18.25 11.75V17.25C18.25 18.3546 17.3546 19.25 16.25 19.25H7.75C6.64543 19.25 5.75 18.3546 5.75 17.25V11.75Z"
-							/>
-							<path
-								stroke="currentColor"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="1.5"
-								d="M7.75 10.5V9.84343C7.75 8.61493 7.70093 7.29883 8.42416 6.30578C8.99862 5.51699 10.0568 4.75 12 4.75C14 4.75 15.25 6.25 15.25 6.25"
-							/>
-						</svg>
-					{/if}
-				</button>
-			{/if}
-		</div>
+					</button>
+				{/if}
+				{#if fieldType === 'vec' && !disabled}
+					<button
+						class="field__action field__action--lock"
+						on:click={() => (params.locked = !params.locked)}
+					>
+						{#if params.locked}
+							<svg
+								class="action__icon"
+								width="16"
+								height="16"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="1.5"
+									d="M5.75 11.75C5.75 11.1977 6.19772 10.75 6.75 10.75H17.25C17.8023 10.75 18.25 11.1977 18.25 11.75V17.25C18.25 18.3546 17.3546 19.25 16.25 19.25H7.75C6.64543 19.25 5.75 18.3546 5.75 17.25V11.75Z"
+								/>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="1.5"
+									d="M7.75 10.5V10.3427C7.75 8.78147 7.65607 7.04125 8.74646 5.9239C9.36829 5.2867 10.3745 4.75 12 4.75C13.6255 4.75 14.6317 5.2867 15.2535 5.9239C16.3439 7.04125 16.25 8.78147 16.25 10.3427V10.5"
+								/>
+							</svg>
+						{:else}
+							<svg
+								class="action__icon"
+								width="16"
+								height="16"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="1.5"
+									d="M5.75 11.75C5.75 11.1977 6.19772 10.75 6.75 10.75H17.25C17.8023 10.75 18.25 11.1977 18.25 11.75V17.25C18.25 18.3546 17.3546 19.25 16.25 19.25H7.75C6.64543 19.25 5.75 18.3546 5.75 17.25V11.75Z"
+								/>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="1.5"
+									d="M7.75 10.5V9.84343C7.75 8.61493 7.70093 7.29883 8.42416 6.30578C8.99862 5.51699 10.0568 4.75 12 4.75C14 4.75 15.25 6.25 15.25 6.25"
+								/>
+							</svg>
+						{/if}
+					</button>
+				{/if}
+			</div>
+		{/snippet}
 		<svelte:component
 			this={input}
 			{value}
 			{...fieldProps}
-			on:change
-			on:click={onTrigger}
+			{onchange}
+			onclick={onTrigger}
 		/>
-		<slot />
+		{@render children()}
 	</FieldSection>
-	{#if triggerable}
+	<!-- {#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
 				{triggers}
@@ -298,13 +275,15 @@
 				controllable={fieldType === 'number'}
 			/>
 		</FieldSection>
-	{/if}
+	{/if} -->
 </div>
 
 <style>
 	.field {
 		--column-gap: 3px;
 		--padding: 6px;
+
+		position: relative;
 
 		width: 100%;
 

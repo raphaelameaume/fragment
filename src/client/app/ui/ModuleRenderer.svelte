@@ -25,7 +25,6 @@
 {#if moduleList[name]}
 	{#await moduleList[name]()}
 		<p>Loading module...</p>
-		<!-- <Module {hasHeader} {name} {id}/> -->
 	{:then value}
 		<svelte:component this={value.default} {hasHeader} {id} />
 	{:catch error}

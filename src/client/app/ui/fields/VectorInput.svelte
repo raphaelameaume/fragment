@@ -1,24 +1,25 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import FieldInputRow from './FieldInputRow.svelte';
 	import NumberInput from './NumberInput.svelte';
 
-	export let value;
-	export let suffix = '';
-	export let min = -Infinity;
-	export let max = Infinity;
-	export let step = 0.1;
-	export let locked = false;
-	export let disabled = false;
-	export let context = null;
-	export let key = '';
+	let {
+		value,
+		suffix = '',
+		min = -Infinity,
+		max = Infinity,
+		step = 0.1,
+		locked = false,
+		disabled = false,
+		context = null,
+		key = '',
+		onchange,
+	} = $props();
 
-	const dispatch = createEventDispatcher();
 
-	$: isArray = Array.isArray(value);
-	$: isObject = !isArray && typeof value === 'object';
-	$: components = isObject ? Object.values(value) : value;
-	$: keys = isObject ? Object.keys(value) : value.map(() => undefined);
+	let isArray = $derived(Array.isArray(value));
+	let isObject = $derived(!isArray && typeof value === 'object');
+	let components = $state(isObject ? Object.values(value) : [...value]);
+	let keys = $derived(isObject ? Object.keys(value) : value.map(() => undefined));
 
 	function dispatchChange() {
 		let needsUpdate = false;
@@ -31,8 +32,10 @@
 			}
 		}
 
+		console.log('dispatchChange', components, value);
+
 		if (needsUpdate) {
-			dispatch('change', value);
+			onchange(value);
 		}
 	}
 
@@ -43,8 +46,8 @@
 			ratio = 1;
 		}
 
-		components = components.map((component, index) => {
-			return index === componentIndex
+		components.forEach((component, index) => {
+			components[index] = index === componentIndex
 				? newValue
 				: locked
 					? Math.round(component * ratio * (1 / step)) / (1 / step)
@@ -70,8 +73,8 @@
 				{key}
 				label={keys[index]}
 				value={component}
-				on:change={(event) =>
-					handleComponentChange(event.detail, index)}
+				onchange={(value) =>
+					handleComponentChange(value, index)}
 			/>
 		{/each}
 	</FieldInputRow>

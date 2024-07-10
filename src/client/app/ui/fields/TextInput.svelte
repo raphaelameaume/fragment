@@ -1,7 +1,7 @@
 <script>
 	import Input from './Input.svelte';
 
-	let { value, label = '', disabled = false, context = null, key = ''} = $props();
+	let { value = $bindable(), label = '', disabled = false, context = null, key = ''} = $props();
 </script>
 
 <div class="text-input">

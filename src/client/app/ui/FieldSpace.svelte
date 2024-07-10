@@ -1,5 +1,5 @@
 <script>
-	export let height = 20;
+	let { height = 20 } = $props();
 </script>
 
 <div class="field-space" style="height: {height}px"></div>

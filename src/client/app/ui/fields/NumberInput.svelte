@@ -1,26 +1,28 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import FieldInputRow from './FieldInputRow.svelte';
 	import Input from './Input.svelte';
 	import ProgressInput from './ProgressInput.svelte';
 	import Keyboard from '../../inputs/Keyboard.js';
 	import { clamp, roundToStep } from '../../utils/math.utils.js';
 
-	export let value = null;
-	export let label = '';
-	export let step = 1;
-	export let suffix = '';
-	export let min = -Infinity;
-	export let max = Infinity;
-	export let disabled = false;
-	export let context = null;
-	export let key = '';
-	export let progress = true;
+	
+	let {
+	value = null,
+	label = '',
+	step = 1,
+	suffix = '',
+	min = -Infinity,
+	max = Infinity,
+	disabled = false,
+	context = null,
+	key = '',
+	progress = true,
+	onchange,
+	} = $props();
 
-	$: hasProgress = progress && isFinite(min) && isFinite(max);
-	$: isFocused = false;
-	$: precision = step.toString().split('.')[1]?.length || 0;
-	const dispatch = createEventDispatcher();
+	let hasProgress = $derived(progress && isFinite(min) && isFinite(max));
+	let isFocused = $state(false);
+	let precision = $derived(step.toString().split('.')[1]?.length || 0);
 
 	function sanitize(v, suffix) {
 		return suffix && suffix !== '' ? Number(v.split(suffix)[0]) : Number(v);
@@ -40,8 +42,7 @@
 		return isFocused ? `${fixedValue}` : `${fixedValue}${suffix}`;
 	}
 
-	$: currentValue = value;
-	$: composedValue = composeValue(currentValue, isFocused, suffix, precision);
+	let composedValue = $derived.by(() => composeValue(value, isFocused, suffix, precision));
 
 	function onFocus() {
 		isFocused = true;
@@ -57,12 +58,11 @@
 			newValue = `${value}`;
 		}
 
-		currentValue = sanitize(newValue, suffix);
-
-		dispatch('change', currentValue);
+		onchange(sanitize(newValue, suffix));
 	}
 
 	function onKeyDown(event) {
+		console.log(`onKeyDown`, event);
 		if ([38, 40].includes(event.keyCode)) {
 			event.preventDefault();
 
@@ -70,14 +70,8 @@
 			const direction = event.keyCode === 38 ? 1 : -1;
 			const newValue = sanitize(composedValue, suffix) + direction * diff;
 
-			currentValue = newValue;
-			dispatch('change', currentValue);
+			onchange(newValue);
 		}
-	}
-
-	function handleChangeProgress(event) {
-		currentValue = event.detail;
-		dispatch('change', event.detail);
 	}
 </script>
 
@@ -86,23 +80,23 @@
 		<FieldInputRow --grid-template-columns="1fr 0.5fr">
 			<ProgressInput
 				{step}
-				value={currentValue}
+				{value}
 				{min}
 				{max}
 				{context}
 				{disabled}
 				{key}
-				on:change={handleChangeProgress}
+				{onchange}
 			/>
 			<Input
 				{label}
 				{disabled}
 				{context}
 				{key}
-				on:keydown={onKeyDown}
-				on:focus={onFocus}
-				on:blur={onBlur}
-				bind:value={composedValue}
+				onkeydown={onKeyDown}
+				onfocus={onFocus}
+				onblur={onBlur}
+				value={composedValue}
 			/>
 		</FieldInputRow>
 	{:else}
@@ -111,10 +105,10 @@
 			{disabled}
 			{context}
 			{key}
-			on:keydown={onKeyDown}
-			on:focus={onFocus}
-			on:blur={onBlur}
-			bind:value={composedValue}
+			onkeydown={onKeyDown}
+			onfocus={onFocus}
+			onblur={onBlur}
+			value={composedValue}
 		/>
 	{/if}
 </div>

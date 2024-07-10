@@ -40,43 +40,45 @@ export function resetProps(sketchKey, params = {}) {
 }
 
 export function reconcile(newProps = {}, prevProps = {}) {
-	Object.keys(newProps).forEach((propKey) => {
-		let newProp = newProps[propKey];
+	const props = Object.assign({}, newProps);
 
-		if (Array.isArray(newProp.value)) {
-			newProp.__initialValue = [...newProp.value];
-		} else if (typeof newProp.value === 'object') {
-			newProp.__initialValue = structuredClone(newProp.value);
-		} else {
-			newProp.__initialValue = newProp.value;
-		}
+	Object.keys(props).forEach((propKey) => {
+		let newProp = props[propKey];
 
-		if (!newProp.params) {
-			newProp.params = {};
-		}
+		// if (Array.isArray(newProp.value)) {
+		// 	newProp.__initialValue = [...newProp.value];
+		// } else if (typeof newProp.value === 'object') {
+		// 	newProp.__initialValue = structuredClone(newProp.value);
+		// } else {
+		// 	newProp.__initialValue = newProp.value;
+		// }
+
+		// if (!newProp.params) {
+		// 	newProp.params = {};
+		// }
 	});
 
-	if (prevProps) {
-		Object.keys(prevProps).forEach((propKey) => {
-			let prevProp = prevProps[propKey];
-			let newProp = newProps[propKey];
+	// if (prevProps) {
+	// 	Object.keys(prevProps).forEach((propKey) => {
+	// 		let prevProp = prevProps[propKey];
+	// 		let newProp = newProps[propKey];
 
-			if (newProp) {
-				if (newProp.__initialValue === prevProp.__initialValue) {
-					newProp.value = prevProp.value;
-				}
+	// 		if (newProp) {
+	// 			if (newProp.__initialValue === prevProp.__initialValue) {
+	// 				newProp.value = prevProp.value;
+	// 			}
 
-				if (prevProp.params) {
-					// reconcile locked VectorInput from UI
-					if (prevProp.params.locked !== undefined) {
-						newProp.params.locked = prevProp.params.locked;
-					}
-				}
-			}
-		});
-	}
+	// 			if (prevProp.params) {
+	// 				// reconcile locked VectorInput from UI
+	// 				if (prevProp.params.locked !== undefined) {
+	// 					newProp.params.locked = prevProp.params.locked;
+	// 				}
+	// 			}
+	// 		}
+	// 	});
+	// }
 
-	return newProps;
+	return props;
 }
 
 /**
