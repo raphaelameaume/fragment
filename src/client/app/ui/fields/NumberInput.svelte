@@ -62,7 +62,6 @@
 	}
 
 	function onKeyDown(event) {
-		console.log(`onKeyDown`, event);
 		if ([38, 40].includes(event.keyCode)) {
 			event.preventDefault();
 

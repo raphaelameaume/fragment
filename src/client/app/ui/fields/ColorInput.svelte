@@ -1,12 +1,9 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import * as color from '../../utils/color.utils.js';
 	import TextInput from './TextInput.svelte';
 	import Field from '../Field.svelte';
 
 	let { value, context = null, key = '', disabled = false, onchange } = $props();
-
-	const dispatch = createEventDispatcher();
 
 	let format = $state(color.getColorFormat(value));
 	let hexValue = $state(color.toHex(value, format));

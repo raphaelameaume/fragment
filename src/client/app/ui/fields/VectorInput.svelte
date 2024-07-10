@@ -32,8 +32,6 @@
 			}
 		}
 
-		console.log('dispatchChange', components, value);
-
 		if (needsUpdate) {
 			onchange(value);
 		}

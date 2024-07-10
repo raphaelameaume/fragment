@@ -2,11 +2,12 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { derived } from 'svelte/store';
 	import KeyBinding from '../components/KeyBinding.svelte';
-	import { sketches, sketchesKeys } from '../stores/sketches.js';
+	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { layout } from '../stores/layout.js';
-	import { rendering, SIZES, sync, monitors } from '../stores/rendering.js';
-	import { errors, displayError, clearError } from '../stores/errors.js';
-	import { exports, props } from '../stores/index.js';
+	import { sync, monitors } from '../stores/rendering.js';
+	import { rendering, SIZES } from '../state/rendering.svelte';
+	import { errors, displayError, clearError } from '../state/errors.svelte.js';
+	import { exports } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
 	import { map } from '../utils/math.utils';
 	import {
@@ -28,41 +29,42 @@
 	import { client } from '../client';
 	import { recordCanvas, screenshotCanvas } from '../utils/canvas.utils.js';
 	import ErrorOverlay from './ErrorOverlay.svelte';
-	import { resetProps } from '../stores/props';
+	import RecordHint from '../components/RecordHint.svelte';
 
-	export let key;
-	export let id = 0;
-	export let paused = false;
-	export let visible = true;
+	let { key, id, paused, visible = true } = $props();
 
 	let node;
 	/** @type {HTMLDivElement} */
 	let container;
-	let framerate = 60;
 	let elapsed = 0;
 	let elapsedRenderingTime = 0;
 	let now = performance.now(),
 		then = performance.now(),
 		dt = 0,
 		lastTime = performance.now();
-	let canvas;
 	let _raf;
-	let _key = key;
+	let _cacheKey;
 
-	let sketch;
-	let _created = false,
-		_errored = false;
-	let renderer;
+	let sketch = $derived(sketchesManager.sketches[key]);
+	let sketchProps = $derived(sketch?.props);
+	let framerate = $derived(sketch.fps);
+	let canvas;
+	let created = false;
+	let errored = $state(false);
+	let renderer = $state(null);
 	let noop = () => {};
 	let _renderSketch = noop;
-	let backgroundColor = 'inherit';
+	let needsRender = false;
+	let params = $state({});
+	let mountParams = {};
+	
 
-	$: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
-	$: afterCaptureCallbacks = $afterCapture.get(key) || [];
-	$: beforeRecordCallbacks = $beforeRecord.get(key) || [];
-	$: afterRecordCallbacks = $afterRecord.get(key) || [];
+	// $: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
+	// $: afterCaptureCallbacks = $afterCapture.get(key) || [];
+	// $: beforeRecordCallbacks = $beforeRecord.get(key) || [];
+	// $: afterRecordCallbacks = $afterRecord.get(key) || [];
 
-	function checkForResize(resizing = $rendering.resizing) {
+	function checkForResize(resizing = rendering.current.resizing) {
 		if (!node) return;
 
 		let isWindowResize = resizing === SIZES.WINDOW;
@@ -77,7 +79,7 @@
 				newHeight = node.offsetHeight;
 			} else if (isAspectResize) {
 				const { offsetWidth, offsetHeight } = node;
-				const aspectRatio = $rendering.aspectRatio;
+				const aspectRatio = rendering.current.aspectRatio;
 				const monitorRatio = offsetWidth / offsetHeight;
 
 				if (aspectRatio < monitorRatio) {
@@ -90,17 +92,12 @@
 			}
 
 			let needsUpdate =
-				newWidth !== $rendering.width ||
-				newHeight !== $rendering.height;
+				newWidth !== rendering.current.width ||
+				newHeight !== rendering.current.height;
 
 			if (needsUpdate) {
-				rendering.update((curr) => {
-					return {
-						...curr,
-						width: newWidth,
-						height: newHeight,
-					};
-				});
+				rendering.current.width = newWidth;
+				rendering.current.height = newHeight;
 			}
 		}
 	}
@@ -109,104 +106,76 @@
 		checkForResize();
 	});
 
-	let params = {};
-
-	let sketchProps = derived(props, () => {
-		return $props[key];
+	$effect(() => {
+		checkForResize(rendering.current.resizing);
 	});
 
-	let needsRender = false;
 
-	sketchProps.subscribe(() => {
-		if (framerate === 0) {
-			// ensure we don't double render from createSketch
-			requestAnimationFrame(() => {
-				needsRender = true;
-			});
-		}
-	});
+	// sketchProps.subscribe(() => {
+	// 	if (framerate === 0) {
+	// 		// ensure we don't double render from createSketch
+	// 		requestAnimationFrame(() => {
+	// 			needsRender = true;
+	// 		});
+	// 	}
+	// });
 
-	layout.subscribe(() => {
-		setBackgroundColor();
-	});
+	// function createCanvas(canvas = document.createElement('canvas')) {
+	// 	canvas.onmousedown = (event) => checkForTriggersDown(event, key);
+	// 	canvas.onmousemove = (event) => checkForTriggersMove(event, key);
+	// 	canvas.onmouseup = (event) => checkForTriggersUp(event, key);
+	// 	canvas.onclick = (event) => checkForTriggersClick(event, key);
 
-	function createCanvas(canvas = document.createElement('canvas')) {
-		canvas.onmousedown = (event) => checkForTriggersDown(event, key);
-		canvas.onmousemove = (event) => checkForTriggersMove(event, key);
-		canvas.onmouseup = (event) => checkForTriggersUp(event, key);
-		canvas.onclick = (event) => checkForTriggersClick(event, key);
+	// 	container.appendChild(canvas);
 
-		container.appendChild(canvas);
+	// 	$monitors = $monitors.map((monitor) => {
+	// 		if (monitor.id === id) {
+	// 			return { ...monitor, canvas };
+	// 		}
 
-		$monitors = $monitors.map((monitor) => {
-			if (monitor.id === id) {
-				return { ...monitor, canvas };
-			}
+	// 		return monitor;
+	// 	});
 
-			return monitor;
-		});
+	// 	return canvas;
+	// }
 
-		return canvas;
-	}
-
-	function destroyCanvas(canvas) {
-		canvas.onmousedown = null;
-		canvas.onmousemove = null;
-		canvas.onmouseup = null;
-		canvas.onclick = null;
-
-		if (canvas.parentNode === container) {
-			canvas.parentNode.removeChild(canvas);
-		}
-
-		canvas = null;
-	}
-
-	function setBackgroundColor() {
+	let backgroundColor = $derived.by(() => {
 		if (sketch) {
 			if (
-				($layout.previewing || __BUILD__) &&
+				(layout.previewing || __BUILD__) &&
 				sketch.buildConfig &&
 				sketch.buildConfig.backgroundColor
 			) {
-				backgroundColor = sketch.buildConfig.backgroundColor;
+				return sketch.buildConfig.backgroundColor;
 			} else if (!$layout.previewing && sketch.backgroundColor) {
-				backgroundColor = sketch.backgroundColor;
+				return sketch.backgroundColor;
 			} else {
-				backgroundColor = 'inherit';
+				return 'inherit';
 			}
 		} else {
-			backgroundColor = 'inherit';
+			return 'inherit';
 		}
-	}
+	})
 
-	async function createSketch(key) {
-		_created = false;
-
-		sketch?.dispose?.(params);
-
-		sketch = $sketches[key];
-
-		if (!key || !sketch) {
-			_errored = true;
-
-			if (_raf) {
-				cancelAnimationFrame(_raf);
-				_raf = null;
-			}
-
-			return;
-		}
+	$effect(async () => {
+		if (!sketch) return;
 
 		clearError(key);
-		setBackgroundColor();
-
+		
 		if (canvas) {
 			if (renderer && typeof renderer.onDestroyPreview === 'function') {
 				renderer.onDestroyPreview({ id, container, canvas });
 			}
 
-			destroyCanvas(canvas);
+			if (canvas.parentNode) {
+				canvas.parentNode.removeChild(canvas);
+			}
+
+			canvas.onmousedown = null;
+			canvas.onmousemove = null;
+			canvas.onmouseup = null;
+			canvas.onclick = null;
+			canvas = null;
 		}
 
 		renderer = await findRenderer({
@@ -214,48 +183,35 @@
 			renderer: sketch.renderer,
 		});
 
-		if (!container) return;
-
-		canvas = createCanvas();
-
-		if ($rendering.resizing === SIZES.SCALE) {
-			canvas.style.transform = `scale(${$rendering.scale})`;
-		} else {
-			canvas.style.transform = null;
-		}
-
-		removeHotListeners(key);
-		removeHooksFrom(key);
-
-		let mountParams = {};
+		canvas = sketch.createCanvas();
+		container.appendChild(canvas);
 
 		if (renderer && typeof renderer.onMountPreview === 'function') {
 			mountParams = renderer.onMountPreview({
 				id,
 				canvas,
 				container,
-				width: $rendering.width,
-				height: $rendering.height,
-				pixelRatio: $rendering.pixelRatio,
+				width: rendering.current.width,
+				height: rendering.current.height,
+				pixelRatio: rendering.current.pixelRatio,
 			});
+
+			if (mountParams.canvas && mountParams.canvas !== canvas) {
+				sketch.destroyCanvas();
+				sketch.createCanvas(mountParams.canvas);
+				canvas = mountParams.canvas;
+			}
 		}
 
-		if (mountParams.canvas && mountParams.canvas !== canvas) {
-			destroyCanvas(canvas);
-			canvas = createCanvas(mountParams.canvas);
-		}
-
+		// trigger resize
 		params = {
 			...mountParams,
 			canvas,
 			publicPath: `@fs${__CWD__}`,
 		};
 
-		framerate = isFinite(sketch.fps) ? sketch.fps : 60;
-
-		const init = sketch.setup || sketch.init || noop;
-		const resize = sketch.resize || noop;
-		const { width, height, pixelRatio } = $rendering;
+		const { init, resize } = sketch;
+		const { width, height, pixelRatio } = rendering.current;
 
 		try {
 			elapsedRenderingTime = 0;
@@ -265,30 +221,29 @@
 					width,
 					height,
 					pixelRatio,
-					props: $sketchProps,
+					props: sketchProps,
 					...params,
 				});
 			}
 
-			init({
+			await init({
 				width,
 				height,
 				pixelRatio,
-				props: $sketchProps,
+				props: sketchProps,
 				...params,
 			});
 
 			resize({
-				canvas,
 				width,
 				height,
 				pixelRatio,
-				props: $sketchProps,
+				props: sketchProps,
 				...params,
 			});
 
-			_created = true;
-			_errored = false;
+			created = true;
+			errored = false;
 
 			_renderSketch = createRenderLoop();
 
@@ -302,14 +257,64 @@
 		} catch (error) {
 			onError(error);
 		}
-	}
+	});
+
+	// $effect(async () => {
+	// 	// console.log('create sketch');
+	// 	// // // sketch?.dispose?.(params);
+
+	// 	// // // sketch = sketches[key];
+
+	// 	// if (!sketch) {
+	// 	// 	console.log('errored', sketch);
+	// 	// 	errored = true;
+
+	// 	// 	if (_raf) {
+	// 	// 		cancelAnimationFrame(_raf);
+	// 	// 		_raf = null;
+	// 	// 	}
+
+	// 	// 	return;
+	// 	// }
+
+	// 	console.log('create sketch after', sketch.key);
+
+	// 	// clearError(key);
+
+	// 	if (canvas) {
+	// 		if (renderer && typeof renderer.onDestroyPreview === 'function') {
+	// 			renderer.onDestroyPreview({ id, container, canvas });
+	// 		}
+
+	// 		sketch.destroyCanvas();
+	// 	}
+
+	// 	renderer = await findRenderer({
+	// 		rendering: sketch.rendering,
+	// 		renderer: sketch.renderer,
+	// 	});
+
+	// 	console.log(renderer);
+
+	// 	if (!container) return;
+
+	// 	sketch.createCanvas();
+
+	// 	if (rendering.current.resizing === SIZES.SCALE) {
+	// 		canvas.style.transform = `scale(${rendering.current.scale})`;
+	// 	} else {
+	// 		canvas.style.transform = null;
+	// 	}
+
+	// 	removeHotListeners(sketch.key);
+	// 	removeHooksFrom(sketch.key);
 
 	/**
 	 *
 	 * @param {Error} error
 	 */
 	function onError(error) {
-		_errored = true;
+		errored = true;
 		console.error(error);
 
 		displayError(error, key);
@@ -321,73 +326,72 @@
 	let record = $recording;
 	let capture = $capturing;
 
-	$: {
-		const recordArgs = {
-			encoding: $exports.videoFormat,
-			quality: $exports.videoQuality,
-			framerate: $exports.framerate,
-		};
+	// $: {
+	// 	const recordArgs = {
+	// 		encoding: $exports.videoFormat,
+	// 		quality: $exports.videoQuality,
+	// 		framerate: $exports.framerate,
+	// 	};
 
-		function onRecordEnd() {
-			record = null;
-			paused = false;
+	// 	function onRecordEnd() {
+	// 		record = null;
+	// 		paused = false;
 
-			afterRecordCallbacks.forEach((callback) => {
-				callback(recordArgs);
-			});
+	// 		afterRecordCallbacks.forEach((callback) => {
+	// 			callback(recordArgs);
+	// 		});
 
-			_renderSketch();
-		}
+	// 		_renderSketch();
+	// 	}
 
-		if ($recording && !record) {
-			let recordOptions = {
-				onTick: _renderSketch,
-				framerate: $exports.framerate,
-				filename: key,
-				exportDir: sketch?.exportDir,
-				pattern: sketch?.filenamePattern,
-				format: $exports.videoFormat,
-				imageEncoding: $exports.imageEncoding,
-				quality: $exports.videoQuality,
-				params: {
-					props: sketch?.props,
-				},
-				onStart: () => {
-					beforeRecordCallbacks.forEach((callback) => {
-						callback(recordArgs);
-					});
+	// 	if ($recording && !record) {
+	// 		let recordOptions = {
+	// 			onTick: _renderSketch,
+	// 			framerate: $exports.framerate,
+	// 			filename: key,
+	// 			exportDir: sketch?.exportDir,
+	// 			pattern: sketch?.filenamePattern,
+	// 			format: $exports.videoFormat,
+	// 			imageEncoding: $exports.imageEncoding,
+	// 			quality: $exports.videoQuality,
+	// 			params: {
+	// 				props: sketch?.props,
+	// 			},
+	// 			onStart: () => {
+	// 				beforeRecordCallbacks.forEach((callback) => {
+	// 					callback(recordArgs);
+	// 				});
 
-					elapsedRenderingTime = 0;
-					paused = true;
-				},
-				onComplete: () => {
-					$recording = false;
-					onRecordEnd();
-				},
-			};
+	// 				elapsedRenderingTime = 0;
+	// 				paused = true;
+	// 			},
+	// 			onComplete: () => {
+	// 				$recording = false;
+	// 				onRecordEnd();
+	// 			},
+	// 		};
 
-			if ($exports.useDuration) {
-				recordOptions.duration = sketch.duration * $exports.loopCount;
-			}
+	// 		if ($exports.useDuration) {
+	// 			recordOptions.duration = sketch.duration * $exports.loopCount;
+	// 		}
 
-			record = recordCanvas(canvas, recordOptions);
-		}
+	// 		record = recordCanvas(canvas, recordOptions);
+	// 	}
 
-		if (record && !$recording) {
-			record.stop();
-		}
-	}
+	// 	if (record && !$recording) {
+	// 		record.stop();
+	// 	}
+	// }
 
-	$: {
-		if (!capture && $capturing) {
-			save();
-		}
-	}
+	// $: {
+	// 	if (!capture && $capturing) {
+	// 		save();
+	// 	}
+	// }
 
 	function createRenderLoop() {
-		const { width, height, pixelRatio } = $rendering;
-		const draw = sketch.draw || sketch.update;
-		const { duration } = sketch;
+		const { width, height, pixelRatio } = rendering.current;
+		const { duration, draw } = sketch;
 
 		let playhead = NaN;
 		let playcount = NaN;
@@ -431,7 +435,7 @@
 				draw({
 					...renderer,
 					...params,
-					props: $sketchProps,
+					props: sketchProps,
 					playhead,
 					playcount,
 					frame,
@@ -461,7 +465,7 @@
 			elapsed += dt;
 
 			if (!$sync) {
-				if (elapsed >= (1 / framerate) * 1000 && _created) {
+				if (elapsed >= (1 / framerate) * 1000 && created) {
 					elapsed = 0;
 					_renderSketch();
 				}
@@ -472,21 +476,23 @@
 			lastTime = now;
 		}
 
-		if (needsRender && _created) {
+		if (needsRender && created) {
 			_renderSketch();
 		}
 	}
 
-	$: {
-		if (canvas && _key !== key) {
-			if (_created) {
-				clearError(_key);
-			}
 
-			_key = key;
-			createSketch(key);
-		}
-	}
+
+	// $: {
+	// 	if (canvas && _cacheKey !== key) {
+	// 		if (created) {
+	// 			clearError(_cacheKey);
+	// 		}
+
+	// 		_cacheKey = key;
+	// 		createSketch(key);
+	// 	}
+	// }
 
 	async function save() {
 		paused = true;
@@ -532,20 +538,14 @@
 		}
 	}
 
-	sync.subscribe(() => {
-		if (_created) {
-			_renderSketch = createRenderLoop();
-		}
-	});
+	// sync.subscribe(() => {
+	// 	if (created) {
+	// 		_renderSketch = createRenderLoop();
+	// 	}
+	// });
 
 	onMount(() => {
-		createSketch(key);
-
-		sketches.subscribe(() => {
-			if (_created || _errored) {
-				createSketch(key);
-			}
-		});
+		console.log(`SketchRenderer :: onMount`);
 
 		client.on('shader-update', () => {
 			if (framerate === 0) {
@@ -556,50 +556,48 @@
 		resizeObserver.observe(node);
 	});
 
-	function checkForPause(event) {
+	// function checkForPause(event) {
 		
-		const keyboardEvent = event.detail;
+	// 	const keyboardEvent = event.detail;
 
-		if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
-			keyboardEvent.preventDefault();
+	// 	if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
+	// 		keyboardEvent.preventDefault();
 
-			if (!$recording) {
-				then = performance.now();
-				paused = !paused;
-			} else {
-				console.warn(`Cannot pause while recording.`);
-			}
-		}
-	}
+	// 		if (!$recording) {
+	// 			then = performance.now();
+	// 			paused = !paused;
+	// 		} else {
+	// 			console.warn(`Cannot pause while recording.`);
+	// 		}
+	// 	}
+	// }
 
-	function checkForSave(event) {
-		if (event.metaKey || event.ctrlKey) {
-			event.preventDefault();
+	// function checkForSave(event) {
+	// 	if (event.metaKey || event.ctrlKey) {
+	// 		event.preventDefault();
 
-			if (!$recording) {
-				save();
-			} else {
-				console.warn(`Cannot save while recording.`);
-			}
-		}
-	}
+	// 		if (!$recording) {
+	// 			save();
+	// 		} else {
+	// 			console.warn(`Cannot save while recording.`);
+	// 		}
+	// 	}
+	// }
 
-	function checkForRecord(event) {
-		event.preventDefault();
+	// function checkForRecord(event) {
+	// 	event.preventDefault();
 
-		$recording = !$recording;
-	}
+	// 	$recording = !$recording;
+	// }
 
 	function checkForRefresh(event) {
 		if (!event.metaKey && !event.ctrlKey) {
 			event.preventDefault();
-			resetProps(key, {
-				width: $rendering.width,
-				height: $rendering.height,
-				pixelRatio: $rendering.pixelRatio,
+			sketch.reset({
+				width: rendering.current.width,
+				height: rendering.current.height,
+				pixelRatio: rendering.current.pixelRatio,
 			});
-			console.log(`[fragment] ${key} reloaded.`);
-			createSketch(key);
 		}
 	}
 
@@ -613,17 +611,15 @@
 
 		renderer = null;
 
-		if (canvas) {
-			destroyCanvas(canvas);
-		}
+		// if (sketch) {
+		// 	sketch.destroyCanvas();
+		// }
 
-		_created = false;
+		created = false;
 	});
 
-	$: {
-		checkForResize();
-
-		const { width, height, pixelRatio, resizing, scale } = $rendering;
+	$effect(() => {
+		const { width, height, pixelRatio, resizing, scale } = rendering.current;
 
 		if (renderer && typeof renderer.onResizePreview === 'function') {
 			renderer.onResizePreview({
@@ -642,39 +638,48 @@
 			} else {
 				canvas.style.transform = null;
 			}
-
-			if (_created) {
-				sketch?.resize?.({
-					canvas,
-					width,
-					height,
-					pixelRatio,
-					...params,
-				});
-
-				_renderSketch = createRenderLoop();
-				_renderSketch();
-			}
 		}
-	}
 
-	$: error =
-		key && $errors.has(key)
-			? $errors.get(key) // display error if error context match current key
-			: $errors.size === 1 &&
-				  ![...$errors.keys()].some((key) =>
-						$sketchesKeys.includes(key),
+		if (created) {
+			// sketch?.resize?.({
+			// 	width,
+			// 	height,
+			// 	pixelRatio,
+			// 	...params,
+			// });
+		}
+	})
+
+	// $: {
+	// 	checkForResize();
+
+	
+
+	// 	if (canvas) {
+	
+
+	// 		if (created) {
+	
+
+	// 			_renderSketch = createRenderLoop();
+	// 			_renderSketch();
+	// 		}
+	// 	}
+	// }
+
+	let error = $derived(
+		errors.has(sketch?.key)
+			? errors.get(sketch.key) // display error if error context match current key
+			: errors.size === 1 &&
+				  ![...errors.keys()].some((key) =>
+						sketchesManager.keys.includes(key),
 				  ) &&
 				  ($monitors.length === 1 || // if there's only one monitor
 						!$monitors.some(
-							(m) => m.selected === $errors.keys().next().value,
+							(m) => m.selected === errors.keys().next().value,
 						)) // if none of current monitors match the key
-				? $errors.get($errors.keys().next().value)
-				: null;
-
-	$: isSquare = $rendering.width === $rendering.height;
-	$: isLandscape = $rendering.width > $rendering.height;
-	$: isPortrait = $rendering.width < $rendering.height;
+				? errors.get(errors.keys().next().value)
+				: null);
 </script>
 
 <div
@@ -686,17 +691,17 @@
 >
 	<div
 		class="canvas-container"
-		style="--aspect-ratio: {$rendering.width} / {$rendering.height}; --aspect-ratio-inverse: {$rendering.height} / {$rendering.width}; --width: {$rendering.width}px; --height: {$rendering.height}px;"
+		style="--aspect-ratio: {rendering.current.width} / {rendering.current.height}; --aspect-ratio-inverse: {rendering.current.height} / {rendering.current.width}; --width: {rendering.current.width}px; --height: {rendering.current.height}px;"
 		bind:this={container}
 	/>
 	{#if $recording}
-		<span class="record">REC</span>
+		<RecordHint />		
 	{/if}
 </div>
-<KeyBinding type="down" key=" " onTrigger={checkForPause} />
+<!-- <KeyBinding type="down" key=" " onTrigger={checkForPause} /> -->
 <KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
-<KeyBinding type="down" key="s" onTrigger={checkForSave} />
-<KeyBinding type="down" key="S" onTrigger={checkForRecord} />
+<!-- <KeyBinding type="down" key="s" onTrigger={checkForSave} /> -->
+<!-- <KeyBinding type="down" key="S" onTrigger={checkForRecord} /> -->
 
 {#if error}
 	<ErrorOverlay {error} />
@@ -745,52 +750,5 @@
 
 	.sketch-renderer.recording .canvas-container {
 		opacity: 0.5;
-	}
-
-	.record {
-		position: absolute;
-		top: 4px;
-		right: 4px;
-		z-index: 2;
-
-		display: flex;
-		place-items: center;
-
-		height: 16px;
-		padding: 0 2px;
-
-		color: var(--color-red);
-		font-size: 10px;
-
-		border: 1px solid var(--color-red);
-		border-radius: 2px;
-	}
-
-	.record:before {
-		--size: 6px;
-		content: '';
-
-		width: var(--size);
-		height: var(--size);
-		margin: 0 3px 0 1px;
-
-		background-color: var(--color-red);
-		border-radius: 50%;
-
-		animation: fade 1s ease-in-out infinite;
-	}
-
-	@keyframes fade {
-		0% {
-			opacity: 0;
-		}
-
-		50% {
-			opacity: 1;
-		}
-
-		100% {
-			opacity: 0;
-		}
 	}
 </style>

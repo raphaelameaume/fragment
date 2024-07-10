@@ -2,7 +2,7 @@ import { WebGLRenderer, Scene } from 'three';
 import { Texture, fragment } from '@fragment/lib/gl';
 import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
-import { clearError } from '../stores/errors';
+import { clearError } from '../state/errors.svelte';
 
 let previews = [];
 

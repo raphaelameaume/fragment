@@ -37,16 +37,21 @@ class SketchesManager {
 			}
 		});
 
-		const newInstancedSketches = Object.keys(newSketches).map((key) => {
-			const prevSketch = this.sketches[key];
-			const instanced = new Sketch({
-				key,
-				instance: newSketches[key],
-				previous: prevSketch,
-			});
+		const newInstancedSketches = Object.keys(newSketches).reduce(
+			(all, key, index) => {
+				const prevSketch = this.sketches[key];
+				const instanced = new Sketch({
+					key,
+					instance: newSketches[key],
+					previous: prevSketch,
+				});
 
-			return instanced;
-		});
+				all[key] = instanced;
+
+				return all;
+			},
+			{},
+		);
 
 		this.sketches = newInstancedSketches;
 		this.keys.length = 0;

@@ -1,3 +1,5 @@
+import { rendering } from './rendering.svelte';
+
 const noop = () => {};
 
 export default class Sketch {
@@ -6,6 +8,7 @@ export default class Sketch {
 	fps = $state(60);
 	duration = $state(undefined);
 	reload = $state(0);
+	backgroundColor = $state('inherit');
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -13,6 +16,7 @@ export default class Sketch {
 		this.instance = instance;
 		this.fps = isFinite(this.instance.fps) ? this.instance.fps : 60;
 		this.duration = this.instance.duration;
+		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
 		this.reconcile(previous);
 	}
 
@@ -84,6 +88,35 @@ export default class Sketch {
 					}
 				});
 			}
+		} else {
+			const { props: savedProps } = JSON.parse(
+				window.localStorage.getItem(`fragment.${this.key}`) ?? '{}',
+			);
+			const savedPropsKeys = Object.keys(savedProps);
+
+			if (savedPropsKeys.length > 0) {
+				savedPropsKeys.forEach((propKey) => {
+					let savedProp = savedProps[propKey];
+					let newProp = newProps[propKey];
+					let instanceProp = instanceProps[propKey];
+
+					if (newProp) {
+						if (
+							newProp.__initialValue === savedProp.__initialValue
+						) {
+							newProp.value = savedProp.value;
+							instanceProp.value = savedProp.value;
+						}
+
+						if (savedProp.params) {
+							// reconcile locked VectorInput from UI
+							if (savedProp.params.locked !== undefined) {
+								newProp.params.locked = savedProp.params.locked;
+							}
+						}
+					}
+				});
+			}
 		}
 
 		this.props = newProps;
@@ -101,6 +134,19 @@ export default class Sketch {
 			instanceProp.value = newValue;
 			instanceProp.onChange?.(instanceProp, params);
 		}
+	}
+
+	save() {
+		window.localStorage.setItem(
+			`fragment.${this.key}`,
+			JSON.stringify(this),
+		);
+	}
+
+	toJSON() {
+		return {
+			props: this.props,
+		};
 	}
 
 	get init() {
