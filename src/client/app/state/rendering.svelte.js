@@ -1,4 +1,5 @@
 import { PRESET_ORIENTATIONS } from '../lib/presets';
+import { persist, hydrate } from './utils.svelte';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -17,6 +18,27 @@ class Rendering {
 	scale = $state(1);
 	preset = $state('a4');
 	presetOrientation = $state(PRESET_ORIENTATIONS.PORTRAIT);
+
+	constructor() {
+		this.key = 'rendering';
+
+		$effect.root(() => {
+			$effect(() => {
+				persist(this.key, {
+					width: this.width,
+					height: this.height,
+					pixelRatio: this.pixelRatio,
+					resizing: this.resizing,
+					aspectRatio: this.aspectRatio,
+					scale: this.scale,
+					preset: this.preset,
+					presetOrientation: this.presetOrientation,
+				});
+			});
+		});
+
+		hydrate(this.key, this);
+	}
 }
 
 export let rendering = new Rendering();
