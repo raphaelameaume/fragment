@@ -1,9 +1,17 @@
+import { hydrate, persist } from './utils.svelte';
+
 let COMPONENT_ID = 0;
 
 class Layout {
 	tree = $state({});
 	editing = $state(false);
 	previewing = $state(false);
+
+	constructor() {
+		this.key = 'layout';
+
+		this.tree = hydrate(this.key);
+	}
 
 	createComponent({
 		id = COMPONENT_ID++,
@@ -118,6 +126,30 @@ class Layout {
 		}
 	}
 
+	persist() {
+		const createTree = (source, target) => {
+			target.id = source.id;
+			target.depth = source.depth;
+			target.size = source.size;
+			target.root = source.root;
+			target.type = source.type;
+			target.name = source.name;
+			target.minimized = source.minimized;
+			target.children = [];
+
+			source.children?.forEach((child, index) => {
+				target.children[index] = {};
+				createTree(child, target.children[index]);
+			});
+
+			return target;
+		};
+
+		const mirrored = createTree(this.tree, {});
+
+		persist(this.key, mirrored);
+	}
+
 	remove(component) {
 		const { parent } = component;
 
@@ -144,6 +176,8 @@ class Layout {
 				}
 			});
 		});
+
+		// this.tree.size = nodes[0].size;
 	}
 
 	getComponent(id) {
