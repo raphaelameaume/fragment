@@ -12,8 +12,7 @@
 
 	$effect(() => {
 		Object.keys(sketchesManager.sketches).forEach((key) => {
-			console.log('save sketch to localStorage');
-			window.localStorage.setItem(`fragment.${key}`, JSON.stringify(sketchesManager.sketches[key]));
+			sketchesManager.sketches[key].save();
 		});
 	})
 

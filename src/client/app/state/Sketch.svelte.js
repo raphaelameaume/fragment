@@ -1,4 +1,4 @@
-import { rendering } from './rendering.svelte';
+import { hydrate, persist } from './utils.svelte';
 
 const noop = () => {};
 
@@ -90,9 +90,7 @@ export default class Sketch {
 				});
 			}
 		} else {
-			const { props: savedProps } = JSON.parse(
-				window.localStorage.getItem(`fragment.${this.key}`) ?? '{}',
-			);
+			const { props: savedProps = {} } = hydrate(this.key);
 			const savedPropsKeys = Object.keys(savedProps);
 
 			if (savedPropsKeys.length > 0) {
@@ -141,10 +139,7 @@ export default class Sketch {
 	}
 
 	save() {
-		window.localStorage.setItem(
-			`fragment.${this.key}`,
-			JSON.stringify(this),
-		);
+		persist(this.key, this);
 	}
 
 	toJSON() {
