@@ -26,10 +26,10 @@
 		<Build />
 	{:else}
 		<Row size={1}>
-			<Column size={0.65}>
+			<Column size={1.5}>
 				<ModuleRenderer name="monitor" />
 			</Column>
-			<Column size={0.35}>
+			<Column size={1}>
 				<Row size={1}>
 					<ModuleRenderer name="exports" />
 				</Row>

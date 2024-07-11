@@ -20,21 +20,35 @@
 	let isColumn = $derived(type === 'column');
 	let isRow = $derived(!isColumn);
 
-	let current = $state(layout.createComponent({
+	let current = layout.createComponent({
 		id,
 		depth,
 		size,
 		origin: parent,
 		type,
-	}));
+	});
+
+	let minimized = $derived(current.minimized);
+
+	$effect(() => {
+		layout.persist({
+			id: current.id,
+			size: current.size,
+			name: current.children[0]?.name,
+			minimized: current.minimized,
+		});
+	})
 
 	let isRoot = $derived(current.root);
 	
 	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
 	let nodes = $derived(tree ?? current.children);
-	let value = $derived(nodes
-		.map(({ size }) => `minmax(25px, ${size}fr) 0px`)
-		.join(' '));
+	let value = $derived.by(() => {
+		const totalSize = nodes.reduce((t, n) => t + n.size, 0);
+		return nodes
+		.map(({ size, minimized }) => minimized && isColumn && !layout.editing ? '25px 0px' : `minmax(25px, ${size/totalSize * 100}%) 0px`)
+		.join(' ')
+	});
 	let style = $derived(Array.isArray(nodes) && nodes.length > 0 ? `${property}:${value}` : '');
 
 	setContext('parent', current);
@@ -44,11 +58,10 @@
 		// this is what makes the whole layout rerender after setup
 		// onMount of <LayoutRoot> is trigger the last, so by this time, every child component has registered himself into the layout tree
 		if (current.root) {
+			// avoid mount of module on boot
 			setTimeout(() => {
 				layout.tree = current;
-			}, 16)
-			
-			// }, 3000);
+			}, 16);
 		}
 	});
 
@@ -88,9 +101,6 @@
 			});
 		}
 	}
-
-	let offsetWidth;
-	let minimized = $derived(current.minimized);
 </script>
 
 <div
@@ -100,7 +110,6 @@
 	class:row={isRow}
 	class:minimized
 	bind:this={current.node}
-	bind:offsetWidth
 >
 	{#if isRoot && layout.previewing}
 		<Preview />
@@ -135,7 +144,6 @@
 			onAddRow={addRow}
 			onAddColumn={addColumn}
 			onDelete={deleteCurrent}
-			vertical={offsetWidth < 300}
 		/>
 	{/if}
 </div>

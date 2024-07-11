@@ -15,6 +15,10 @@
 		origin: parent,
 	});
 
+	const toggleMinimized = () => {
+		parent.minimized = !parent.minimized;
+	};
+
 	// onDestroy(() => {
 	// 	// layout.remove(current);
 	// });
@@ -28,7 +32,7 @@
 	bind:this={current.node}
 >
 	{#if hasHeader && name}
-		<header class="module__header">
+		<header class="module__header" onclick={toggleMinimized}>
 			<div class="header__col">
 				<div class="slot slot--left">
 					{@render headerLeft() }

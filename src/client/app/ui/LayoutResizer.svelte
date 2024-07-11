@@ -161,7 +161,7 @@
 
 	.resizer-hover {
 		position: absolute;
-		z-index: 100;
+		z-index: 200;
 
 		display: flex;
 		justify-content: center;

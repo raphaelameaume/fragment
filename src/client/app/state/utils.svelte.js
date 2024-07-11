@@ -1,22 +1,25 @@
-class PersistentState {
-	_current = $state();
-	key = $state('');
-
-	constructor(initialState, key) {
-		this._current = initialState;
-		this.key = key;
-	}
-
-	get current() {
-		return this.current;
-	}
-
-	set current(v) {
-		this._current = v;
+export function persist(key, data) {
+	try {
+		window.localStorage.setItem(`fragment.${key}`, JSON.stringify(data));
+	} catch (err) {
+		throw err;
 	}
 }
 
-export function persistentState(initialState) {
-	const s = new PersistentState(initialState, key);
-	return s.current;
+export function hydrate(key, target) {
+	try {
+		const data = JSON.parse(window.localStorage.getItem(`fragment.${key}`));
+
+		if (target) {
+			Object.keys(data).forEach((key) => {
+				if (target[key] !== undefined) {
+					target[key] = data[key];
+				}
+			});
+		}
+
+		return data;
+	} catch (err) {
+		console.error(err);
+	}
 }
