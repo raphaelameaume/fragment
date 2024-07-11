@@ -169,6 +169,10 @@
 		grid-template-rows: minmax(25px, 1fr);
 	}
 
+	.column.minimized {
+		height: 25px;
+	}
+
 	.column:not(:last-child) {
 		border-right: 0.5px solid var(--color-lightblack);
 	}
