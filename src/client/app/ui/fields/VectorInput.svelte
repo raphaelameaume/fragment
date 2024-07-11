@@ -18,7 +18,7 @@
 
 	let isArray = $derived(Array.isArray(value));
 	let isObject = $derived(!isArray && typeof value === 'object');
-	let components = $state(isObject ? Object.values(value) : [...value]);
+	let components = $derived(isObject ? Object.values(value) : [...value]);
 	let keys = $derived(isObject ? Object.keys(value) : value.map(() => undefined));
 
 	function dispatchChange() {
