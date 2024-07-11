@@ -1,3 +1,5 @@
+import { hydrate, persist } from './utils.svelte';
+
 export const IMAGE_ENCODINGS = ['png', 'jpeg', 'webp'];
 
 export const VIDEO_FORMATS = {
@@ -7,49 +9,47 @@ export const VIDEO_FORMATS = {
 	WEBM: 'webm',
 };
 
-export const exports = $state({
-	imageEncoding: IMAGE_ENCODINGS[0],
-	videoFormat: Object.values(VIDEO_FORMATS)[0],
-	pixelsPerInch: 72,
-	framerate: 60,
-	useDuration: true,
-	duration: 1,
-	loopCount: 1,
-	imageQuality: 100,
-	videoQuality: 100,
-	imageCount: 1,
-});
+class Exports {
+	imageEncoding = $state(IMAGE_ENCODINGS[0]);
+	videoFormat = $state(Object.values(VIDEO_FORMATS)[0]);
+	pixelsPerInch = $state(72);
+	framerate = $state(60);
+	useDuration = $state(true);
+	duration = $state(1);
+	loopCount = $state(1);
+	imageQuality = $state(100);
+	videoQuality = $state(100);
+	imageCount = $state(1);
+	recording = $state(false);
+	capturing = $state(false);
+	imageCollapsed = $state(false);
+	videoCollapsed = $state(false);
 
-function createRecording() {
-	let isActive = $state(false);
+	constructor() {
+		this.key = `exports`;
+		$effect.root(() => {
+			$effect(() => {
+				persist(this.key, {
+					imageEncoding: this.imageEncoding,
+					videoFormat: this.videoFormat,
+					pixelsPerInch: this.pixelsPerInch,
+					framerate: this.framerate,
+					useDuration: this.useDuration,
+					duration: this.duration,
+					loopCount: this.loopCount,
+					imageQuality: this.imageQuality,
+					videoQuality: this.videoQuality,
+					imageCount: this.imageCount,
+					videoCollapsed: this.videoCollapsed,
+					imageCollapsed: this.imageCollapsed,
+				});
+			});
+		});
 
-	function toggle() {
-		isActive = !isActive;
+		hydrate(this.key, this);
+
+		console.log(this.imageCollapsed);
 	}
-
-	return {
-		get isActive() {
-			return isActive;
-		},
-		toggle,
-	};
 }
 
-export let recording = createRecording();
-
-function createCapturing() {
-	let isActive = $state(false);
-
-	function toggle() {
-		isActive = !isActive;
-	}
-
-	return {
-		get isActive() {
-			return isActive;
-		},
-		toggle,
-	};
-}
-
-export let capturing = createCapturing();
+export let exports = new Exports();
