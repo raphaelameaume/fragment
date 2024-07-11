@@ -45,7 +45,7 @@
 		displayName = undefined,
 		index = null,
 		onchange,
-		onclick,
+		onclick = () => {},
 		children,
 		triggers = [],
 	} = $props();
@@ -85,13 +85,6 @@
 	};
 
 	let fieldType = $derived(inferFieldType({ type, value, params, key }));
-
-	$effect(() => {
-		if (key === 'framerate') {
-			console.log(value);
-		}
-	})
-
 	let fieldProps = $derived(composeFieldProps(params, disabled));
 	let onTrigger = $derived(frameDebounce(onTriggers[fieldType]));
 	let input = $derived(fields[fieldType]);

@@ -1,5 +1,9 @@
 <script>
-	let { value, context, key = '', disabled = false, onchange } = $props();
+	let { value = $bindable(), context, key = '', disabled = false, onchange } = $props();
+
+	const handleChange = (event) => {
+		onchange(value);
+	};
 </script>
 
 <div class="checkbox">
@@ -7,7 +11,7 @@
 		class="input"
 		bind:checked={value}
 		type="checkbox"
-		{onchange}
+		onchange={handleChange}
 		disabled={disabled ? 'disabled' : null}
 	/>
 	<div class="checked" />

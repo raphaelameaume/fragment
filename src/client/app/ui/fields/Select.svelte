@@ -1,7 +1,7 @@
 <script>
 	import SelectChevrons from '../SelectChevrons.svelte';
 
-	let { options, name = '', value = $bindable(), disabled = false, key, context, title = '', onchange } = $props();
+	let { options, name = '', value = $bindable(), disabled = false, key, context, title = '', onchange = () => {} } = $props();
 
 	function toStringifiedValue(option, optionType = typeof option) {
 		if (option === null) {
@@ -52,9 +52,6 @@
 		const newValue = typeof option === 'object' ? option.value : option;
 
 		value = newValue;
-
-		console.log('handleChange', newValue);
-		console.log('onchange', onchange);
 
 		onchange(newValue);
 	}

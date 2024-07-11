@@ -1,8 +1,9 @@
 <script>
-	let { name, collapsed = false } = $props();
+	let { name, collapsed = false, onchange = () => {} } = $props();
 
 	function handleClick() {
 		collapsed = !collapsed;
+		onchange(collapsed);
 	}
 </script>
 

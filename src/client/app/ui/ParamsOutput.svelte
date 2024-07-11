@@ -12,8 +12,8 @@
 	import Select from './fields/Select.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
 
-	let canvasWidth = rendering.current.width;
-	let canvasHeight = rendering.current.height;
+	let canvasWidth = rendering.width;
+	let canvasHeight = rendering.height;
 
 	function handleChangeDimensions([width, height]) {
 		const needsUpdate = canvasWidth !== width || canvasHeight !== height;
@@ -22,27 +22,27 @@
 			canvasWidth = width;
 			canvasHeight = height;
 
-			rendering.current.width = width;
-			rendering.current.height = height;
+			rendering.width = width;
+			rendering.height = height;
 		}
 	}
 
 	let sizes = Object.values(SIZES);
-	let dimensions = $derived([rendering.current.width, rendering.current.height]);
+	let dimensions = $derived([rendering.width, rendering.height]);
 	let dimensionsEnabled = $derived([SIZES.FIXED, SIZES.SCALE].includes(
-		rendering.current.resizing,
+		rendering.resizing,
 	));
 
 	$effect(() => {
-		if (rendering.current.resizing === SIZES.PRESET) {
+		if (rendering.resizing === SIZES.PRESET) {
 			const { preset } = rendering;current.
 			const [width, height] = getDimensionsForPreset(preset, {
 				pixelsPerInch: 300,
-				orientation: rendering.current.presetOrientation,
+				orientation: rendering.presetOrientation,
 			});
 
-			rendering.current.width = width;
-			rendering.current.height = height;
+			rendering.width = width;
+			rendering.height = height;
 		}
 	})
 </script>
@@ -60,62 +60,62 @@
 />
 <Field
 	key="canvasSize"
-	value={rendering.current.resizing}
+	value={rendering.resizing}
 	onchange={(resizing) => {
 		if (resizing === SIZES.ASPECT_RATIO) {
 			// compute aspect ratio based on previous props
-			rendering.current.aspectRatio = rendering.current.width / rendering.current.height;
+			rendering.aspectRatio = rendering.width / rendering.height;
 		}
 
 		$exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
-		rendering.current.resizing = resizing;
+		rendering.resizing = resizing;
 	}}
 	params={{
 		options: sizes,
 	}}
 />
-{#if rendering.current.resizing === SIZES.ASPECT_RATIO}
+{#if rendering.resizing === SIZES.ASPECT_RATIO}
 	<Field
 		key="aspectRatio"
-		value={rendering.current.aspectRatio}
+		value={rendering.aspectRatio}
 		onchange={(aspectRatio) => {
-			rendering.current.aspectRatio = aspectRatio;
+			rendering.aspectRatio = aspectRatio;
 		}}
 		params={{
 			step: 0.01,
 		}}
 	/>
 {/if}
-{#if rendering.current.resizing === SIZES.SCALE}
+{#if rendering.resizing === SIZES.SCALE}
 	<Field
 		key="zoom"
-		value={rendering.current.scale}
+		value={rendering.scale}
 		onchange={(event) => {
-			rendering.current.scale = event;
+			rendering.scale = event;
 		}}
 		params={{
 			step: 0.01,
 		}}
 	/>
 {/if}
-{#if rendering.current.resizing === SIZES.PRESET}
+{#if rendering.resizing === SIZES.PRESET}
 	<Field key="preset">
 		<FieldInputRow --grid-template-columns="1fr 1fr">
 			<Select
-				value={rendering.current.preset}
+				value={rendering.preset}
 				options={presets}
 				on:change={(event) => {
-					rendering.current.preset = event.detail;
+					rendering.preset = event.detail;
 				}}
 			/>
 			<Select
-				value={rendering.current.presetOrientation}
+				value={rendering.presetOrientation}
 				options={[
 					PRESET_ORIENTATIONS.PORTRAIT,
 					PRESET_ORIENTATIONS.LANDSCAPE,
 				]}
 				on:change={(event) => {
-					rendering.current.presetOrientation = event.detail;
+					rendering.presetOrientation = event.detail;
 				}}
 			/>
 		</FieldInputRow>
@@ -125,8 +125,8 @@
 {#if rendering.resizing !== SIZES.PRESET}
 	<Field
 		key="pixelRatio"
-		value={Number(rendering.current.pixelRatio)}
-		onchange={(pixelRatio) => (rendering.current.pixelRatio = pixelRatio)}
+		value={Number(rendering.pixelRatio)}
+		onchange={(pixelRatio) => (rendering.pixelRatio = pixelRatio)}
 		params={{
 			step: 0.1,
 		}}

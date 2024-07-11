@@ -7,17 +7,15 @@
 	import { sync, monitors } from '../stores/rendering.js';
 	import { rendering, SIZES } from '../state/rendering.svelte';
 	import { errors, displayError, clearError } from '../state/errors.svelte.js';
-	import { exports } from '../stores/index.js';
 	import { findRenderer } from '../stores/renderers';
 	import { map } from '../utils/math.utils';
 	import {
-		recording,
-		capturing,
-		beforeCapture,
-		afterCapture,
-		beforeRecord,
-		afterRecord,
-	} from '../stores/exports.js';
+		exports,
+		// beforeCapture,
+		// afterCapture,
+		// beforeRecord,
+		// afterRecord,
+	} from '../state/exports.svelte.js';
 	import { removeHotListeners } from '../triggers/index.js';
 	import { removeHooksFrom } from '../hooks';
 	import {
@@ -64,7 +62,7 @@
 	// $: beforeRecordCallbacks = $beforeRecord.get(key) || [];
 	// $: afterRecordCallbacks = $afterRecord.get(key) || [];
 
-	function checkForResize(resizing = rendering.current.resizing) {
+	function checkForResize(resizing = rendering.resizing) {
 		if (!node) return;
 
 		let isWindowResize = resizing === SIZES.WINDOW;
@@ -79,7 +77,7 @@
 				newHeight = node.offsetHeight;
 			} else if (isAspectResize) {
 				const { offsetWidth, offsetHeight } = node;
-				const aspectRatio = rendering.current.aspectRatio;
+				const aspectRatio = rendering.aspectRatio;
 				const monitorRatio = offsetWidth / offsetHeight;
 
 				if (aspectRatio < monitorRatio) {
@@ -92,12 +90,12 @@
 			}
 
 			let needsUpdate =
-				newWidth !== rendering.current.width ||
-				newHeight !== rendering.current.height;
+				newWidth !== rendering.width ||
+				newHeight !== rendering.height;
 
 			if (needsUpdate) {
-				rendering.current.width = newWidth;
-				rendering.current.height = newHeight;
+				rendering.width = newWidth;
+				rendering.height = newHeight;
 			}
 		}
 	}
@@ -107,7 +105,7 @@
 	});
 
 	$effect(() => {
-		checkForResize(rendering.current.resizing);
+		checkForResize(rendering.resizing);
 	});
 
 
@@ -191,9 +189,9 @@
 				id,
 				canvas,
 				container,
-				width: rendering.current.width,
-				height: rendering.current.height,
-				pixelRatio: rendering.current.pixelRatio,
+				width: rendering.width,
+				height: rendering.height,
+				pixelRatio: rendering.pixelRatio,
 			});
 
 			if (mountParams.canvas && mountParams.canvas !== canvas) {
@@ -211,7 +209,7 @@
 		};
 
 		const { init, resize } = sketch;
-		const { width, height, pixelRatio } = rendering.current;
+		const { width, height, pixelRatio } = rendering;
 
 		try {
 			elapsedRenderingTime = 0;
@@ -300,8 +298,8 @@
 
 	// 	sketch.createCanvas();
 
-	// 	if (rendering.current.resizing === SIZES.SCALE) {
-	// 		canvas.style.transform = `scale(${rendering.current.scale})`;
+	// 	if (rendering.resizing === SIZES.SCALE) {
+	// 		canvas.style.transform = `scale(${rendering.scale})`;
 	// 	} else {
 	// 		canvas.style.transform = null;
 	// 	}
@@ -323,8 +321,6 @@
 		_raf = null;
 	}
 
-	let record = $recording;
-	let capture = $capturing;
 
 	// $: {
 	// 	const recordArgs = {
@@ -390,7 +386,7 @@
 	// }
 
 	function createRenderLoop() {
-		const { width, height, pixelRatio } = rendering.current;
+		const { width, height, pixelRatio } = rendering;
 		const { duration, draw } = sketch;
 
 		let playhead = NaN;
@@ -528,7 +524,7 @@
 				},
 			});
 			paused = false;
-			$capturing = false;
+			// $capturing = false;
 
 			afterCaptureCallbacks.forEach((callback) => {
 				callback({ ...captureArgs, index: i });
@@ -594,9 +590,9 @@
 		if (!event.metaKey && !event.ctrlKey) {
 			event.preventDefault();
 			sketch.reset({
-				width: rendering.current.width,
-				height: rendering.current.height,
-				pixelRatio: rendering.current.pixelRatio,
+				width: rendering.width,
+				height: rendering.height,
+				pixelRatio: rendering.pixelRatio,
 			});
 		}
 	}
@@ -619,7 +615,9 @@
 	});
 
 	$effect(() => {
-		const { width, height, pixelRatio, resizing, scale } = rendering.current;
+		const { width, height, pixelRatio, resizing, scale } = rendering;
+		
+		console.log(rendering.width);
 
 		if (renderer && typeof renderer.onResizePreview === 'function') {
 			renderer.onResizePreview({
@@ -686,15 +684,15 @@
 	bind:this={node}
 	class="sketch-renderer"
 	class:visible
-	class:recording={$recording}
+	class:recording={exports.recording}
 	style={`--background-color: ${backgroundColor}`}
 >
 	<div
 		class="canvas-container"
-		style="--aspect-ratio: {rendering.current.width} / {rendering.current.height}; --aspect-ratio-inverse: {rendering.current.height} / {rendering.current.width}; --width: {rendering.current.width}px; --height: {rendering.current.height}px;"
+		style="--aspect-ratio: {rendering.width} / {rendering.height}; --aspect-ratio-inverse: {rendering.height} / {rendering.width}; --width: {rendering.width}px; --height: {rendering.height}px;"
 		bind:this={container}
 	/>
-	{#if $recording}
+	{#if exports.recording}
 		<RecordHint />		
 	{/if}
 </div>
