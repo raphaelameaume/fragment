@@ -71,6 +71,7 @@
 						{index}
 						disabled={isDisabled}
 						bind:params={sketchProps[key].params}
+						triggers={sketchProp.triggers}
 						onclick={() => {
 							sketchProps[key].value._refresh = true;
 						}}

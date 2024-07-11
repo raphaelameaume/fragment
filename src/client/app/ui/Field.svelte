@@ -47,6 +47,7 @@
 		onchange,
 		onclick,
 		children,
+		triggers = [],
 	} = $props();
 
 	let showTriggers = $state(false);
@@ -100,7 +101,6 @@
 			isFinite(params.min) &&
 			isFinite(params.max)) ||
 			fieldType === fieldTypes.BUTTON));
-	let triggers = $state([]);
 	let triggersActive = $derived(triggers.length > 0);
 
 	$effect(() => {
@@ -265,17 +265,17 @@
 		/>
 		{@render children()}
 	</FieldSection>
-	<!-- {#if triggerable}
+	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
-				{triggers}
+				triggers={triggers}
 				{onTrigger}
 				{context}
-				triggerable={fieldType === 'button'}
-				controllable={fieldType === 'number'}
+				triggerable={fieldType === fieldTypes.BUTTON}
+				controllable={fieldType === fieldTypes.NUMBER}
 			/>
 		</FieldSection>
-	{/if} -->
+	{/if}
 </div>
 
 <style>

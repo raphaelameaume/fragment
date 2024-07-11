@@ -38,105 +38,23 @@
 	import Select from './fields/Select.svelte';
 	import TextInput from './fields/TextInput.svelte';
 	import * as triggersMap from '../triggers/index.js';
-	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
-	export let index;
-	export let inputType = undefined;
-	export let eventName = undefined;
-	export let enabled = true;
-	export let controllable = false;
-	export let triggerable = false;
-	export let context;
-	export let onTrigger = () => {};
-	export let params = { key: [] };
+	let {
+		index,
+		inputType,
+		eventName,
+		enabled,
+		controllable = false,
+		triggerable = false,
+		context,
+		onchange = () => {},
+		onTrigger = () => {},
+		onDelete = () => {},
+		params = { key: [] },
+	} = $props();
 
-	let trigger;
-	let dispatch = createEventDispatcher();
-
-	function registerTrigger() {
-		if (trigger) {
-			enabled = trigger.enabled;
-
-			trigger.destroy();
-			trigger = null;
-		}
-
-		const createTrigger = triggersMap[eventName];
-
-		trigger = createTrigger(onTrigger, {
-			...params,
-			context,
-			hot: false,
-			enabled,
-		});
-	}
-
-	function onTypeChange(event) {
-		inputType = event.detail;
-
-		if (!eventOptions.includes(eventName)) {
-			eventName = undefined;
-			params.key = null;
-		}
-
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
-		}
-	}
-
-	function onEventChange(event) {
-		const clearParams =
-			inputType === 'MIDI' &&
-			eventName !== undefined &&
-			((eventName.includes('Number') && event.detail.includes('Note')) ||
-				(eventName.includes('Note') &&
-					event.detail.includes('Number')));
-
-		eventName = event.detail;
-
-		if (clearParams) {
-			params.key = '';
-		}
-
-		if (inputType === 'Mouse') {
-			registerTrigger();
-		}
-	}
-
-	function onTextChange(e) {
-		params.key = e.detail;
-
-		registerTrigger();
-	}
-
-	function handleClickDelete() {
-		dispatch('delete', index);
-	}
-
-	function toggleTrigger() {
-		if (trigger) {
-			trigger.enabled = !trigger.enabled;
-		}
-	}
-
-	onMount(() => {
-		if (
-			(inputType === 'Mouse' && eventName) ||
-			(inputType && eventName && params.key)
-		) {
-			registerTrigger();
-		}
-	});
-
-	onDestroy(() => {
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
-		}
-	});
-
-	$: validInputs = [...Object.keys(inputs)].reduce((all, inputName) => {
+	let validInputs = $derived.by(() => [...Object.keys(inputs)].reduce((all, inputName) => {
 		const input = inputs[inputName];
 		const { disabled, events } = input;
 		const filteredEvents = events.filter((event) => {
@@ -151,27 +69,108 @@
 		}
 
 		return all;
-	}, {});
+	}, {}));
 
-	$: inputOptions = [
+	let inputOptions = $derived([
 		{ label: 'Select input', value: undefined, disabled: true },
 		...Object.keys(validInputs).map((inputName) => ({
 			value: inputName,
 			disabled: validInputs[inputName].disabled,
 		})),
-	];
+	]);
 
-	$: eventOptions = inputType
+	let eventOptions = $derived(inputType
 		? [
 				{ label: '-', value: undefined, disabled: true },
 				...validInputs[inputType].events.map((event) => ({
 					value: event.name,
 				})),
 			]
-		: [];
+		: []);
 
-	$: isValid = inputType && eventName;
-	$: key = params.key;
+	let isValid = $derived(inputType && eventName);
+	let key = $derived(params.key);
+	let trigger;
+
+	function registerTrigger() {
+		let wasEnabled = trigger?.enabled;
+		if (trigger) {
+			trigger.destroy();
+			trigger = null;
+		}
+
+		const createTrigger = triggersMap[eventName];
+
+		trigger = createTrigger(onTrigger, {
+			...params,
+			context,
+			hot: false,
+			enabled: wasEnabled,
+		});
+
+		onchange(index, trigger);
+	}
+
+	function onTypeChange(value) {
+		inputType = value;
+
+		if (!eventOptions.includes(eventName)) {
+			eventName = undefined;
+			params.key = null;
+		}
+
+		if (trigger) {
+			trigger.destroy();
+			trigger = null;
+		}
+	}
+
+	function onEventChange(value) {
+		const clearParams =
+			inputType === 'MIDI' &&
+			eventName !== undefined &&
+			((eventName.includes('Number') && value.includes('Note')) ||
+				(eventName.includes('Note') &&
+					value.includes('Number')));
+
+		eventName = value;
+
+		if (clearParams) {
+			params.key = '';
+		}
+
+		if (inputType === 'Mouse' || inputType === 'Keyboard') {
+			registerTrigger();
+		}
+	}
+
+	function onTextChange(event) {
+		params.key = event.currentTarget.value;
+
+		registerTrigger();
+	}
+
+	function handleClickDelete() {
+		onDelete(index);
+	}
+
+	function toggleTrigger() {
+		if (trigger) {
+			trigger.enabled = !trigger.enabled;
+			registerTrigger();
+		}
+	}
+
+	onMount(() => {
+		if (isValid) {
+			registerTrigger();
+		}
+
+		return () => {
+			trigger?.destroy();
+			trigger = null;
+		}
+	});
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
@@ -181,40 +180,40 @@
 		<button
 			class="activity"
 			class:valid={isValid}
-			class:enabled={trigger && trigger.enabled}
-			class:disabled={!trigger || !trigger.enabled}
-			on:click={toggleTrigger}
+			class:enabled={enabled}
+			class:disabled={!enabled}
+			onclick={toggleTrigger}
 		></button>
 		<Select
 			name="trigger-input"
 			value={inputType}
 			options={inputOptions}
-			on:change={onTypeChange}
+			onchange={onTypeChange}
 		/>
 		{#if inputType}
 			<Select
 				options={eventOptions}
-				bind:value={eventName}
+				value={eventName}
 				disabled={inputType === undefined}
-				on:change={onEventChange}
+				onchange={onEventChange}
 			/>
 		{/if}
 		{#if inputType === 'Keyboard'}
-			<TextInput bind:value={key} label="key" on:input={onTextChange} />
+			<TextInput value={key} label="key" oninput={onTextChange} />
 		{/if}
 		{#if inputType === 'MIDI'}
 			<TextInput
-				bind:value={key}
+				value={key}
 				label={['onNoteOn', 'onNoteOff'].includes(eventName)
 					? 'note'
 					: 'number'}
-				on:input={onTextChange}
+				oninput={onTextChange}
 			/>
 		{/if}
 		<ButtonInput
 			label="delete"
 			showLabel={false}
-			on:click={handleClickDelete}
+			onclick={handleClickDelete}
 			--color-text="white"
 			--background-color="var(--color-red)"
 			--box-shadow-color-active="var(--color-lightred)"

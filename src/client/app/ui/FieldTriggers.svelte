@@ -2,46 +2,48 @@
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 
-	export let context;
-	export let onTrigger;
-	export let triggers;
-	export let triggerable = false;
-	export let controllable = false;
+	let {
+		context,
+		onTrigger,
+		triggers = $bindable(),
+		triggerable = false,
+		controllable = false,
+	} = $props();
 
-	function onTriggerDelete(e) {
-		const triggerIndex = e.detail;
-
-		$triggers = $triggers.filter((t, i) => i !== triggerIndex);
+	function onTriggerDelete(triggerIndex) {
+		triggers.splice(triggerIndex, 1);
+		// triggers = triggers.filter((t, i) => i !== triggerIndex);
 	}
 
 	function handleClickAdd() {
-		triggers.update((current) => {
-			return [
-				...current,
-				{
-					inputType: undefined,
-					eventName: undefined,
-				},
-			];
-		});
+		triggers.push({
+			inputType: undefined,
+			eventName: undefined,
+			enabled: false,
+			params: {},
+		})
 	}
 </script>
 
 {#if onTrigger}
-	<ButtonInput label="add trigger" on:click={handleClickAdd} />
+	<ButtonInput label="add trigger" onclick={handleClickAdd} />
 	<div class="field-triggers">
-		{#each $triggers as trigger, index}
+		{#each triggers as trigger, index}
 			<FieldTrigger
 				{index}
-				bind:inputType={trigger.inputType}
-				bind:eventName={trigger.eventName}
-				bind:params={trigger.params}
-				bind:enabled={trigger.enabled}
+				inputType={trigger.inputType}
+				eventName={trigger.eventName}
+				params={trigger.params}
+				enabled={trigger.enabled}
 				{onTrigger}
 				{context}
 				{controllable}
 				{triggerable}
-				on:delete={onTriggerDelete}
+				onchange={(index, trigger) => {
+					console.log('trigger has changed', trigger.enabled);
+					triggers[index] = trigger;
+				}}
+				onDelete={onTriggerDelete}
 			/>
 		{/each}
 	</div>

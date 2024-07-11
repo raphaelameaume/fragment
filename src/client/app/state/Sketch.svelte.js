@@ -54,12 +54,13 @@ export default class Sketch {
 		const newProps = {};
 
 		Object.keys(instanceProps).forEach((key) => {
-			const { value, params = {} } = instanceProps[key];
+			const { value, params = {}, triggers = [] } = instanceProps[key];
 
 			newProps[key] = {
 				value,
 				__initialValue: duplicateInitialValue(value),
 				params,
+				triggers,
 			};
 		});
 
@@ -107,6 +108,9 @@ export default class Sketch {
 							newProp.value = savedProp.value;
 							instanceProp.value = savedProp.value;
 						}
+
+						// restore triggers
+						newProp.triggers = savedProp.triggers;
 
 						if (savedProp.params) {
 							// reconcile locked VectorInput from UI
