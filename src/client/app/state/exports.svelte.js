@@ -47,8 +47,6 @@ class Exports {
 		});
 
 		hydrate(this.key, this);
-
-		console.log(this.imageCollapsed);
 	}
 }
 
