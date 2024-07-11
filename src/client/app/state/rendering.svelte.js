@@ -11,7 +11,9 @@ export const SIZES = {
 
 class Rendering {
 	width = $state(1024);
+	fixedWidth = $state(1024);
 	height = $state(1024);
+	fixedHeight = $state(1024);
 	pixelRatio = $state(1);
 	resizing = $state(SIZES.FIXED);
 	aspectRatio = $state(1);
@@ -27,6 +29,8 @@ class Rendering {
 				persist(this.key, {
 					width: this.width,
 					height: this.height,
+					fixedWidth: this.fixedWidth,
+					fixedHeight: this.fixedHeight,
 					pixelRatio: this.pixelRatio,
 					resizing: this.resizing,
 					aspectRatio: this.aspectRatio,

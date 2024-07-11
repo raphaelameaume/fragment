@@ -24,6 +24,11 @@
 
 			rendering.width = width;
 			rendering.height = height;
+
+			if (rendering.resizing === SIZES.FIXED) {
+				rendering.fixedWidth = width;
+				rendering.fixedHeight = height;
+			}
 		}
 	}
 
@@ -43,6 +48,11 @@
 
 			rendering.width = width;
 			rendering.height = height;
+		}
+
+		if (rendering.resizing === SIZES.FIXED) {
+			rendering.width = rendering.fixedWidth;
+			rendering.height = rendering.fixedHeight;
 		}
 	})
 </script>
