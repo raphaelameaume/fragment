@@ -9,6 +9,7 @@
 	import { errors, displayError, clearError } from '../state/errors.svelte.js';
 	import { findRenderer } from '../stores/renderers';
 	import { map } from '../utils/math.utils';
+	import Sketch from '../state/Sketch.svelte.js';
 	import {
 		exports,
 		// beforeCapture,
@@ -43,6 +44,7 @@
 	let _raf;
 	let _cacheKey;
 
+	/** @type {Sketch} */
 	let sketch = $derived(sketchesManager.sketches[key]);
 	let sketchProps = $derived(sketch?.props);
 	let framerate = $derived(sketch.fps);
@@ -196,8 +198,14 @@
 
 			if (mountParams.canvas && mountParams.canvas !== canvas) {
 				sketch.destroyCanvas();
+
+				if (canvas.parentNode) {
+					canvas.parentNode.removeChild(canvas);
+				}
+				
 				sketch.createCanvas(mountParams.canvas);
 				canvas = mountParams.canvas;
+				container.appendChild(canvas);
 			}
 		}
 
@@ -321,69 +329,56 @@
 		_raf = null;
 	}
 
+	let record;
 
-	// $: {
-	// 	const recordArgs = {
-	// 		encoding: $exports.videoFormat,
-	// 		quality: $exports.videoQuality,
-	// 		framerate: $exports.framerate,
-	// 	};
+	$effect(() => {
+		if (exports.recording && !record) {
+			function onRecordEnd() {
+				record = null;
+				paused = false;
 
-	// 	function onRecordEnd() {
-	// 		record = null;
-	// 		paused = false;
+				// afterRecordCallbacks.forEach((callback) => {
+				// 	callback(recordArgs);
+				// });
 
-	// 		afterRecordCallbacks.forEach((callback) => {
-	// 			callback(recordArgs);
-	// 		});
+				_renderSketch();
+			}
 
-	// 		_renderSketch();
-	// 	}
+			let recordOptions = {
+				onTick: _renderSketch,
+				framerate: exports.framerate,
+				filename: key,
+				exportDir: sketch?.exportDir,
+				pattern: sketch?.filenamePattern,
+				format: exports.videoFormat,
+				imageEncoding: exports.imageEncoding,
+				quality: exports.videoQuality,
+				params: {
+					props: sketch?.props,
+				},
+				onStart: () => {
+					// beforeRecordCallbacks.forEach((callback) => {
+					// 	callback(recordArgs);
+					// });
 
-	// 	if ($recording && !record) {
-	// 		let recordOptions = {
-	// 			onTick: _renderSketch,
-	// 			framerate: $exports.framerate,
-	// 			filename: key,
-	// 			exportDir: sketch?.exportDir,
-	// 			pattern: sketch?.filenamePattern,
-	// 			format: $exports.videoFormat,
-	// 			imageEncoding: $exports.imageEncoding,
-	// 			quality: $exports.videoQuality,
-	// 			params: {
-	// 				props: sketch?.props,
-	// 			},
-	// 			onStart: () => {
-	// 				beforeRecordCallbacks.forEach((callback) => {
-	// 					callback(recordArgs);
-	// 				});
+					elapsedRenderingTime = 0;
+					paused = true;
+				},
+				onComplete: () => {
+					exports.recording = false;
+					onRecordEnd();
+				},
+			};
 
-	// 				elapsedRenderingTime = 0;
-	// 				paused = true;
-	// 			},
-	// 			onComplete: () => {
-	// 				$recording = false;
-	// 				onRecordEnd();
-	// 			},
-	// 		};
+			if (exports.useDuration) {
+				recordOptions.duration = sketch?.duration * exports.loopCount;
+			}
 
-	// 		if ($exports.useDuration) {
-	// 			recordOptions.duration = sketch.duration * $exports.loopCount;
-	// 		}
-
-	// 		record = recordCanvas(canvas, recordOptions);
-	// 	}
-
-	// 	if (record && !$recording) {
-	// 		record.stop();
-	// 	}
-	// }
-
-	// $: {
-	// 	if (!capture && $capturing) {
-	// 		save();
-	// 	}
-	// }
+			record = recordCanvas(canvas, recordOptions);
+		} else if (!exports.recording && record) {
+			record.stop();
+		}
+	});
 
 	function createRenderLoop() {
 		const { width, height, pixelRatio } = rendering;
@@ -498,7 +493,7 @@
 			imageEncoding,
 			imageQuality,
 			pixelsPerInch,
-		} = $exports;
+		} = exports;
 
 		const captureArgs = {
 			encoding: imageEncoding,
@@ -699,7 +694,7 @@
 <!-- <KeyBinding type="down" key=" " onTrigger={checkForPause} /> -->
 <KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
 <!-- <KeyBinding type="down" key="s" onTrigger={checkForSave} /> -->
-<!-- <KeyBinding type="down" key="S" onTrigger={checkForRecord} /> -->
+<KeyBinding type="down" key="S" onTrigger={() => exports.recording = !exports.recording} />
 
 {#if error}
 	<ErrorOverlay {error} />
