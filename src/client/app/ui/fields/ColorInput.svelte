@@ -5,9 +5,9 @@
 
 	let { value, context = null, key = '', disabled = false, onchange } = $props();
 
-	let format = $state(color.getColorFormat(value));
-	let hexValue = $state(color.toHex(value, format));
-	let textValue = $state(color.toString(value, format));
+	let format = $derived(color.getColorFormat(value));
+	let hexValue = $derived(color.toHex(value, format));
+	let textValue = $derived(color.toString(value, format)?.toLowerCase());
 	let alpha = $state(1);
 	let hasAlpha = $derived([
 		color.FORMATS.RGBA_STRING,
@@ -26,118 +26,54 @@
 		}
 	})
 
-	function dispatchChange() {
-		const [r, g, b] = color.hexToComponents(hexValue);
+	function dispatchChange(newColor) {
+		const newFormat = color.getColorFormat(newColor);
 
-		// support THREE.Color
-		switch (format) {
-			case color.FORMATS.VEC3_ARRAY:
-				value[0] = r;
-				value[1] = g;
-				value[2] = b;
-				
-				onchange(value);
-				break;
-			case color.FORMATS.VEC4_ARRAY:
-				value[0] = r;
-				value[1] = g;
-				value[2] = b;
-				value[3] = alpha;
-				onchange(value);
-				break;
-			case color.FORMATS.THREE:
-			case color.FORMATS.RGB_OBJECT:
-				value.r = r;
-				value.g = g;
-				value.b = b;
+		if (format === newFormat) {
+			onchange(newColor);
+		} else {
+			const components = color.toComponents(newColor); 
+			const [r, g, b] = components;
 
-				onchange(value);
-				break;
-			case color.FORMATS.RGBA_OBJECT:
-				value.r = r;
-				value.g = g;
-				value.b = b;
-				value.a = alpha;
+			switch(format) {
+				case color.FORMATS.THREE:
+				case color.FORMATS.RGB_OBJECT:
+					value.r = r;
+					value.g = g;
+					value.b = b;
 
-				onchange(value);
-				break;
-			default:
-				onchange(textValue);
+					onchange(value);
+					break;
+				case color.FORMATS.RGBA_OBJECT:
+					value.r = r;
+					value.g = g;
+					value.b = b;
+					value.a = alpha;
+
+					onchange(value);
+					break;
+				default:
+					onchange(color.componentsToFormat([r, g, b, alpha], format));
+			}
 		}
 	}
 
-	function handleBlur() {
-		dispatchChange();
+	function handleBlur(event) {
+		dispatchChange(event.currentTarget.value);
 	}
 
 	function onChangeText(event) {
-		const newColor = event.detail;
-
-		if (color.isColor(newColor)) {
-			textValue = newColor;
-		} else {
-			// newColor is not a color, reset value
-			textValue = color.toString(value, format);
-		}
-
-		hexValue = color.toHex(textValue);
-		dispatchChange();
+		dispatchChange(event.currentTarget.value);
 	}
 
-	function onChangeAlpha(event) {
-		alpha = event.detail;
+	function onChangeAlpha(newAlpha) {
+		alpha = newAlpha;
 
-		const [r, g, b] = color.hexToComponents(hexValue);
-
-		switch (format) {
-			case color.FORMATS.RGBA_STRING:
-			case color.FORMATS.RGBA_OBJECT:
-				textValue = color.componentsToRGBAString([r, g, b, alpha]);
-				break;
-			case color.FORMATS.VEC4_STRING:
-				textValue = color.componentsToVec4String([r, g, b, alpha]);
-				break;
-			case color.FORMATS.HSLA_STRING:
-				const [h, s, l] = color.hslToHSLComponents(textValue);
-				textValue = color.hslaToHSLAString([h, s, l, alpha]);
-				break;
-		}
-
-		dispatchChange();
+		dispatchChange(color.toHex(value));
 	}
 
 	function onInput(event) {
-		hexValue = event.currentTarget.value;
-
-		const [r, g, b] = color.hexToComponents(hexValue);
-
-		switch (format) {
-			case color.FORMATS.RGBA_STRING:
-			case color.FORMATS.RGBA_OBJECT:
-				textValue = color.toRGBAString({ r, g, b, a: alpha });
-				break;
-			case color.FORMATS.VEC3_STRING:
-				textValue = color.componentsToVec3String([r, g, b]);
-				break;
-			case color.FORMATS.VEC4_STRING:
-				textValue = color.componentsToVec4String([r, g, b, alpha]);
-				break;
-			case color.FORMATS.RGB_STRING:
-			case color.FORMATS.RGB_OBJECT:
-				textValue = color.toRGBString(hexValue);
-				break;
-			case color.FORMATS.HSL_STRING:
-				textValue = color.componentsToHSLString([r, g, b]);
-				break;
-			case color.FORMATS.HSLA_STRING:
-				textValue = color.componentsToHSLAString([r, g, b, alpha]);
-				break;
-			default:
-				textValue = color.toString(hexValue);
-				break;
-		}
-
-		dispatchChange();
+		dispatchChange(event.currentTarget.value);
 	}
 </script>
 
@@ -200,31 +136,30 @@
 					/>
 				</svg>
 			{/if}
-			<!-- svelte-ignore -->
 			<input
 				class="input"
 				type="color"
 				disabled={disabled ? 'disabled' : null}
-				bind:value={hexValue}
-				on:blur={handleBlur}
-				on:input={onInput}
+				value={hexValue}
+				onblur={handleBlur}
+				oninput={onInput}
 			/>
 		</div>
 		<TextInput
 			{context}
 			{key}
 			{disabled}
-			bind:value={textValue}
-			on:change={onChangeText}
+			value={textValue}
+			onchange={onChangeText}
 		/>
 	</div>
 	{#if hasAlpha}
 		<Field
-			key={`${key}.alpha`}
+			key="alpha"
 			value={alpha}
-			params={{ label: 'alpha', min: 0, max: 1, step: 0.01 }}
+			params={{ min: 0, max: 1, step: 0.01 }}
 			{context}
-			on:change={onChangeAlpha}
+			onchange={onChangeAlpha}
 		/>
 	{/if}
 </div>
