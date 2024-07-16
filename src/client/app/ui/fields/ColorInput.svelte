@@ -7,7 +7,7 @@
 
 	let format = $derived(color.getColorFormat(value));
 	let hexValue = $derived(color.toHex(value, format));
-	let textValue = $derived(color.toString(value, format)?.toLowerCase());
+	let textValue = $state();
 	let alpha = $state(1);
 	let hasAlpha = $derived([
 		color.FORMATS.RGBA_STRING,
@@ -25,6 +25,10 @@
 			alpha = 1;
 		}
 	})
+
+	$effect(() => {
+		textValue = color.toString(value, format)?.toLowerCase();
+	});
 
 	function dispatchChange(newColor) {
 		const newFormat = color.getColorFormat(newColor);
@@ -54,6 +58,11 @@
 					break;
 				default:
 					onchange(color.componentsToFormat([r, g, b, alpha], format));
+			}
+
+			if (format === color.FORMATS.THREE) {
+				// force recompute of hex
+				textValue = color.toString(value, format)?.toLowerCase();
 			}
 		}
 	}
