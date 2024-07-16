@@ -6,19 +6,26 @@ export function persist(key, data) {
 	}
 }
 
-export function hydrate(key, target) {
+export function hydrate(key, target = {}, defaultValue = {}) {
 	try {
-		const data = JSON.parse(window.localStorage.getItem(`fragment.${key}`));
+		const storageKey = `fragment.${key}`;
+		const item = window.localStorage.getItem(storageKey);
 
-		if (target) {
-			Object.keys(data).forEach((key) => {
-				if (target[key] !== undefined) {
-					target[key] = data[key];
-				}
-			});
+		if (item) {
+			const data = JSON.parse(item);
+
+			if (target && typeof data === 'object') {
+				Object.keys(data).forEach((key) => {
+					if (target[key] !== undefined) {
+						target[key] = data[key];
+					}
+				});
+			}
+
+			return data;
 		}
 
-		return data;
+		return defaultValue;
 	} catch (err) {
 		console.error(err);
 	}
