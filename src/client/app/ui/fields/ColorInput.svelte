@@ -40,7 +40,6 @@
 			const [r, g, b] = components;
 
 			switch(format) {
-				case color.FORMATS.THREE:
 				case color.FORMATS.RGB_OBJECT:
 					value.r = r;
 					value.g = g;
@@ -58,11 +57,6 @@
 					break;
 				default:
 					onchange(color.componentsToFormat([r, g, b, alpha], format));
-			}
-
-			if (format === color.FORMATS.THREE) {
-				// force recompute of hex
-				textValue = color.toString(value, format)?.toLowerCase();
 			}
 		}
 	}
