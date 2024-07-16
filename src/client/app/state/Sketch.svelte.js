@@ -2,7 +2,7 @@ import { hydrate, persist } from './utils.svelte';
 
 const noop = () => {};
 
-export default class Sketch {
+class Sketch {
 	props = $state({});
 	canvas = $state(null);
 	fps = $state(60);
@@ -30,6 +30,8 @@ export default class Sketch {
 		return this.canvas;
 	}
 
+	destroyCanvas() {}
+
 	reset(params) {
 		Object.keys(this.props).forEach((key) => {
 			this.updateProp(key, this.props[key].__initialValue, params);
@@ -45,7 +47,7 @@ export default class Sketch {
 			if (Array.isArray(value)) {
 				return [...value];
 			} else if (typeof value === 'object') {
-				return structuredClone(newProp.value);
+				return structuredClone(value);
 			}
 
 			return value;
@@ -54,7 +56,11 @@ export default class Sketch {
 		const newProps = {};
 
 		Object.keys(instanceProps).forEach((key) => {
-			const { value, params = {}, triggers = [] } = instanceProps[key];
+			let { value, params = {}, triggers = [] } = instanceProps[key];
+
+			if (value.isColor) {
+				value = { r: value.r, g: value.g, b: value.b };
+			}
 
 			newProps[key] = {
 				value,
@@ -133,7 +139,12 @@ export default class Sketch {
 		}
 
 		if (instanceProp) {
-			instanceProp.value = newValue;
+			if (instanceProp.value.isColor) {
+				instanceProp.value.copy(newValue);
+			} else {
+				instanceProp.value = newValue;
+			}
+
 			instanceProp.onChange?.(instanceProp, params);
 		}
 	}
@@ -168,3 +179,5 @@ export default class Sketch {
 		return this.instance.backgroundColor;
 	}
 }
+
+export default Sketch;
