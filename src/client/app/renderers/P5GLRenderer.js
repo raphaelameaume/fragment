@@ -91,9 +91,13 @@ export let onAfterUpdatePreview = ({ id }) => {
 /**
  * @param {PreviewParamsP5GLRenderer} params
  */
-export let onResizePreview = ({ p, width, height, pixelRatio }) => {
-	p.pixelDensity(pixelRatio);
-	p.resizeCanvas(width, height, false);
+export let onResizePreview = ({ id, width, height, pixelRatio }) => {
+	const preview = previews.find((p) => p.id === id);
+
+	if (preview) {
+		preview.p.pixelDensity(pixelRatio);
+		preview.p.resizeCanvas(width, height, false);
+	}
 };
 
 /**
