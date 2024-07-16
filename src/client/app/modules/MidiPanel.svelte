@@ -81,7 +81,7 @@
 	<Field
 		key="inputs"
 		value={input}
-		on:change={(event) => (input = event.detail)}
+		onchange={(value) => (input = value)}
 		params={{
 			options: inputs,
 		}}
@@ -89,7 +89,7 @@
 	<Field
 		key="outputs"
 		value={output}
-		on:change={(event) => (output = event.detail)}
+		onchange={(value) => (output = value)}
 		params={{
 			options: outputs,
 		}}
