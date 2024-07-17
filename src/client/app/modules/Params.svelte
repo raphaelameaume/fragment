@@ -76,11 +76,7 @@
 							sketchProps[key].value._refresh = true;
 						}}
 						onchange={(value) => {
-							sketch.updateProp(key, value, {
-								width: $rendering.width,
-								height: $rendering.height,
-								pixelRatio: $rendering.pixelRatio,
-							});
+							sketch.updateProp(key, value);
 						}}
 					/>
 				{/if}

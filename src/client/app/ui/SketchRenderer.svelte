@@ -1,12 +1,12 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, untrack } from 'svelte';
 	import { derived } from 'svelte/store';
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { layout } from '../stores/layout.js';
 	import { sync, monitors } from '../stores/rendering.js';
 	import { rendering, SIZES } from '../state/rendering.svelte';
-	import { errors, displayError, clearError } from '../state/errors.svelte.js';
+	import { displayError, errors } from '../state/errors.svelte.js';
 	import { findRenderer } from '../stores/renderers';
 	import { map } from '../utils/math.utils';
 	import Sketch from '../state/Sketch.svelte.js';
@@ -27,10 +27,9 @@
 	} from '../triggers/Mouse.js';
 	import { client } from '../client';
 	import { recordCanvas, screenshotCanvas } from '../utils/canvas.utils.js';
-	import ErrorOverlay from './ErrorOverlay.svelte';
 	import RecordHint from '../components/RecordHint.svelte';
 
-	let { key, id, paused, visible = true } = $props();
+	let { key, id, visible = true } = $props();
 
 	let node;
 	/** @type {HTMLDivElement} */
@@ -48,9 +47,12 @@
 	let sketch = $derived(sketchesManager.sketches[key]);
 	let sketchProps = $derived(sketch?.props);
 	let framerate = $derived(sketch.fps);
+	let error = $derived(
+		errors.has(key)
+			? errors.get(key) : errors.values().next().value);
 	let canvas;
 	let created = false;
-	let errored = $state(false);
+	let errored = false;
 	let renderer = $state(null);
 	let noop = () => {};
 	let _renderSketch = noop;
@@ -110,35 +112,6 @@
 		checkForResize(rendering.resizing);
 	});
 
-
-	// sketchProps.subscribe(() => {
-	// 	if (framerate === 0) {
-	// 		// ensure we don't double render from createSketch
-	// 		requestAnimationFrame(() => {
-	// 			needsRender = true;
-	// 		});
-	// 	}
-	// });
-
-	// function createCanvas(canvas = document.createElement('canvas')) {
-	// 	canvas.onmousedown = (event) => checkForTriggersDown(event, key);
-	// 	canvas.onmousemove = (event) => checkForTriggersMove(event, key);
-	// 	canvas.onmouseup = (event) => checkForTriggersUp(event, key);
-	// 	canvas.onclick = (event) => checkForTriggersClick(event, key);
-
-	// 	container.appendChild(canvas);
-
-	// 	$monitors = $monitors.map((monitor) => {
-	// 		if (monitor.id === id) {
-	// 			return { ...monitor, canvas };
-	// 		}
-
-	// 		return monitor;
-	// 	});
-
-	// 	return canvas;
-	// }
-
 	let backgroundColor = $derived.by(() => {
 		if (sketch) {
 			if (
@@ -158,332 +131,13 @@
 	})
 
 	$effect(async () => {
-		if (!sketch) return;
+		if (sketch && container) {
+			console.log('effect run');
+			await rendering.mount(id, container, sketch);
 
-		clearError(key);
-		
-		if (canvas) {
-			if (renderer && typeof renderer.onDestroyPreview === 'function') {
-				renderer.onDestroyPreview({ id, container, canvas });
-			}
-
-			if (canvas.parentNode) {
-				canvas.parentNode.removeChild(canvas);
-			}
-
-			canvas.onmousedown = null;
-			canvas.onmousemove = null;
-			canvas.onmouseup = null;
-			canvas.onclick = null;
-			canvas = null;
-		}
-
-		renderer = await findRenderer({
-			rendering: sketch.rendering,
-			renderer: sketch.renderer,
-		});
-
-		canvas = sketch.createCanvas();
-		container.appendChild(canvas);
-
-		if (renderer && typeof renderer.onMountPreview === 'function') {
-			mountParams = renderer.onMountPreview({
-				id,
-				canvas,
-				container,
-				width: rendering.width,
-				height: rendering.height,
-				pixelRatio: rendering.pixelRatio,
-			});
-
-			if (mountParams.canvas && mountParams.canvas !== canvas) {
-				sketch.destroyCanvas();
-
-				if (canvas.parentNode) {
-					canvas.parentNode.removeChild(canvas);
-				}
-				
-				sketch.createCanvas(mountParams.canvas);
-				canvas = mountParams.canvas;
-				container.appendChild(canvas);
-			}
-		}
-
-		// trigger resize
-		params = {
-			...mountParams,
-			canvas,
-			publicPath: `@fs${__CWD__}`,
-		};
-
-		const { init, resize } = sketch;
-		const { width, height, pixelRatio } = rendering;
-
-		try {
-			elapsedRenderingTime = 0;
-
-			if (sketch.load) {
-				await sketch.load({
-					width,
-					height,
-					pixelRatio,
-					props: sketchProps,
-					...params,
-				});
-			}
-
-			await init({
-				width,
-				height,
-				pixelRatio,
-				props: sketchProps,
-				...params,
-			});
-
-			resize({
-				width,
-				height,
-				pixelRatio,
-				props: sketchProps,
-				...params,
-			});
-
-			created = true;
-			errored = false;
-
-			_renderSketch = createRenderLoop();
-
-			requestAnimationFrame(() => {
-				needsRender = true;
-
-				if (!_raf) {
-					render();
-				}
-			});
-		} catch (error) {
-			onError(error);
+			untrack(() => container);
 		}
 	});
-
-	// $effect(async () => {
-	// 	// console.log('create sketch');
-	// 	// // // sketch?.dispose?.(params);
-
-	// 	// // // sketch = sketches[key];
-
-	// 	// if (!sketch) {
-	// 	// 	console.log('errored', sketch);
-	// 	// 	errored = true;
-
-	// 	// 	if (_raf) {
-	// 	// 		cancelAnimationFrame(_raf);
-	// 	// 		_raf = null;
-	// 	// 	}
-
-	// 	// 	return;
-	// 	// }
-
-	// 	console.log('create sketch after', sketch.key);
-
-	// 	// clearError(key);
-
-	// 	if (canvas) {
-	// 		if (renderer && typeof renderer.onDestroyPreview === 'function') {
-	// 			renderer.onDestroyPreview({ id, container, canvas });
-	// 		}
-
-	// 		sketch.destroyCanvas();
-	// 	}
-
-	// 	renderer = await findRenderer({
-	// 		rendering: sketch.rendering,
-	// 		renderer: sketch.renderer,
-	// 	});
-
-	// 	console.log(renderer);
-
-	// 	if (!container) return;
-
-	// 	sketch.createCanvas();
-
-	// 	if (rendering.resizing === SIZES.SCALE) {
-	// 		canvas.style.transform = `scale(${rendering.scale})`;
-	// 	} else {
-	// 		canvas.style.transform = null;
-	// 	}
-
-	// 	removeHotListeners(sketch.key);
-	// 	removeHooksFrom(sketch.key);
-
-	/**
-	 *
-	 * @param {Error} error
-	 */
-	function onError(error) {
-		errored = true;
-		console.error(error);
-
-		displayError(error, key);
-
-		cancelAnimationFrame(_raf);
-		_raf = null;
-	}
-
-	let record;
-
-	$effect(() => {
-		if (exports.recording && !record) {
-			function onRecordEnd() {
-				record = null;
-				paused = false;
-
-				// afterRecordCallbacks.forEach((callback) => {
-				// 	callback(recordArgs);
-				// });
-
-				_renderSketch();
-			}
-
-			let recordOptions = {
-				onTick: _renderSketch,
-				framerate: exports.framerate,
-				filename: key,
-				exportDir: sketch?.exportDir,
-				pattern: sketch?.filenamePattern,
-				format: exports.videoFormat,
-				imageEncoding: exports.imageEncoding,
-				quality: exports.videoQuality,
-				params: {
-					props: sketch?.props,
-				},
-				onStart: () => {
-					// beforeRecordCallbacks.forEach((callback) => {
-					// 	callback(recordArgs);
-					// });
-
-					elapsedRenderingTime = 0;
-					paused = true;
-				},
-				onComplete: () => {
-					exports.recording = false;
-					onRecordEnd();
-				},
-			};
-
-			if (exports.useDuration) {
-				recordOptions.duration = sketch?.duration * exports.loopCount;
-			}
-
-			record = recordCanvas(canvas, recordOptions);
-		} else if (!exports.recording && record) {
-			record.stop();
-		}
-	});
-
-	function createRenderLoop() {
-		const { width, height, pixelRatio } = rendering;
-		const { duration, draw } = sketch;
-
-		let playhead = NaN;
-		let playcount = NaN;
-		let frame = NaN;
-		let hasDuration = isFinite(duration);
-
-		let onBeforeUpdatePreview =
-			(renderer && renderer.onBeforeUpdatePreview) || noop;
-		let onAfterUpdatePreview =
-			(renderer && renderer.onAfterUpdatePreview) || noop;
-
-		let frameLength = 1000 / framerate;
-		let frameCount = framerate * duration;
-		let interval = 1 / frameCount;
-
-		return ({
-			time = performance.now(),
-			deltaTime = time - lastTime,
-		} = {}) => {
-			needsRender = false;
-			lastTime = time;
-
-			try {
-				onBeforeUpdatePreview({ id, canvas, container });
-
-				let t = !$sync
-					? elapsedRenderingTime
-					: Math.floor(time / frameLength) * frameLength;
-
-				if (hasDuration && framerate > 0) {
-					playhead = t / 1000 / duration;
-					playhead %= 1;
-					playhead = Math.floor(playhead / interval) * interval;
-					playcount = Math.floor(
-						elapsedRenderingTime / 1000 / duration,
-					);
-
-					frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
-				}
-
-				draw({
-					...renderer,
-					...params,
-					props: sketchProps,
-					playhead,
-					playcount,
-					frame,
-					width,
-					height,
-					pixelRatio,
-					time: t,
-					deltaTime,
-				});
-				onAfterUpdatePreview({ id, canvas, container });
-
-				elapsedRenderingTime += deltaTime;
-			} catch (error) {
-				onError(error);
-			}
-		};
-	}
-
-	function render() {
-		_raf = requestAnimationFrame(render);
-
-		now = performance.now();
-		dt = now - then;
-		then = now;
-
-		if (!paused) {
-			elapsed += dt;
-
-			if (!$sync) {
-				if (elapsed >= (1 / framerate) * 1000 && created) {
-					elapsed = 0;
-					_renderSketch();
-				}
-			} else {
-				_renderSketch();
-			}
-		} else {
-			lastTime = now;
-		}
-
-		if (needsRender && created) {
-			_renderSketch();
-		}
-	}
-
-
-
-	// $: {
-	// 	if (canvas && _cacheKey !== key) {
-	// 		if (created) {
-	// 			clearError(_cacheKey);
-	// 		}
-
-	// 		_cacheKey = key;
-	// 		createSketch(key);
-	// 	}
-	// }
 
 	async function save() {
 		paused = true;
@@ -529,15 +183,7 @@
 		}
 	}
 
-	// sync.subscribe(() => {
-	// 	if (created) {
-	// 		_renderSketch = createRenderLoop();
-	// 	}
-	// });
-
 	onMount(() => {
-		console.log(`SketchRenderer :: onMount`);
-
 		client.on('shader-update', () => {
 			if (framerate === 0) {
 				needsRender = true;
@@ -584,11 +230,7 @@
 	function checkForRefresh(event) {
 		if (!event.metaKey && !event.ctrlKey) {
 			event.preventDefault();
-			sketch.reset({
-				width: rendering.width,
-				height: rendering.height,
-				pixelRatio: rendering.pixelRatio,
-			});
+			sketch.reset();
 		}
 	}
 
@@ -596,83 +238,18 @@
 		resizeObserver.unobserve(node);
 		cancelAnimationFrame(_raf);
 
+		rendering.unmount(id);
+
+		console.log('SketchRenderer :: onDestroy');
+
 		if (renderer && typeof renderer.onDestroyPreview === 'function') {
 			renderer.onDestroyPreview({ id, canvas, container });
 		}
 
-		renderer = null;
-
-		// if (sketch) {
-		// 	sketch.destroyCanvas();
-		// }
+		
 
 		created = false;
 	});
-
-	$effect(() => {
-		const { width, height, pixelRatio, resizing, scale } = rendering;
-		
-		console.log(rendering.width);
-
-		if (renderer && typeof renderer.onResizePreview === 'function') {
-			renderer.onResizePreview({
-				id,
-				container,
-				width,
-				height,
-				pixelRatio,
-				...params,
-			});
-		}
-
-		if (canvas) {
-			if (resizing === SIZES.SCALE) {
-				canvas.style.transform = `scale(${scale})`;
-			} else {
-				canvas.style.transform = null;
-			}
-		}
-
-		if (created) {
-			// sketch?.resize?.({
-			// 	width,
-			// 	height,
-			// 	pixelRatio,
-			// 	...params,
-			// });
-		}
-	})
-
-	// $: {
-	// 	checkForResize();
-
-	
-
-	// 	if (canvas) {
-	
-
-	// 		if (created) {
-	
-
-	// 			_renderSketch = createRenderLoop();
-	// 			_renderSketch();
-	// 		}
-	// 	}
-	// }
-
-	let error = $derived(
-		errors.has(sketch?.key)
-			? errors.get(sketch.key) // display error if error context match current key
-			: errors.size === 1 &&
-				  ![...errors.keys()].some((key) =>
-						sketchesManager.keys.includes(key),
-				  ) &&
-				  ($monitors.length === 1 || // if there's only one monitor
-						!$monitors.some(
-							(m) => m.selected === errors.keys().next().value,
-						)) // if none of current monitors match the key
-				? errors.get(errors.keys().next().value)
-				: null);
 </script>
 
 <div
@@ -688,17 +265,13 @@
 		bind:this={container}
 	/>
 	{#if exports.recording}
-		<RecordHint />		
+		<RecordHint />
 	{/if}
 </div>
 <!-- <KeyBinding type="down" key=" " onTrigger={checkForPause} /> -->
 <KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
 <!-- <KeyBinding type="down" key="s" onTrigger={checkForSave} /> -->
 <KeyBinding type="down" key="S" onTrigger={() => exports.recording = !exports.recording} />
-
-{#if error}
-	<ErrorOverlay {error} />
-{/if}
 
 <style>
 	.sketch-renderer {

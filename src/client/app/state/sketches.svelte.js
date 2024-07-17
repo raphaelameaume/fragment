@@ -1,4 +1,4 @@
-import { displayError } from '../state/errors.svelte.js';
+import { displayError, clearError } from '../state/errors.svelte.js';
 import { sketches as all } from '@fragment/sketches';
 import Sketch from './Sketch.svelte.js';
 
@@ -13,6 +13,7 @@ class SketchesManager {
 
 			return sketch;
 		} catch (error) {
+			console.error(error);
 			displayError(error, key);
 		}
 	}
@@ -34,12 +35,16 @@ class SketchesManager {
 		Object.keys(this.sketches).forEach((key) => {
 			if (!keys.includes(key)) {
 				delete this.sketches[key];
+				clearError(key);
 			}
 		});
 
 		const newInstancedSketches = Object.keys(newSketches).reduce(
 			(all, key, index) => {
 				const prevSketch = this.sketches[key];
+
+				clearError(key);
+
 				const instanced = new Sketch({
 					key,
 					instance: newSketches[key],

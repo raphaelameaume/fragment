@@ -1,4 +1,8 @@
+import { exports } from './exports.svelte';
+import { rendering } from './rendering.svelte';
+import { displayError, errors } from '../state/errors.svelte.js';
 import { deepAssign, hydrate, isObject, persist } from './utils.svelte';
+import { recordCanvas } from '../utils/canvas.utils.js';
 
 const noop = () => {};
 
@@ -9,35 +13,100 @@ class Sketch {
 	duration = $state(undefined);
 	reload = $state(0);
 	backgroundColor = $state('inherit');
+	paused = $state(false);
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
-
 		this.instance = instance;
-		this.fps = isFinite(this.instance.fps) ? this.instance.fps : 60;
+		this.framerate = isFinite(this.instance.fps) ? this.instance.fps : 60;
+		this.load = this.instance.load ?? noop;
+		this.setup = this.instance.setup ?? this.instance.init ?? noop;
+		this.draw = this.instance.draw ?? this.instance.update ?? noop;
+		this.resize = this.instance.resize ?? noop;
+
 		this.duration = this.instance.duration;
 		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
+
+		this.recording = null;
+		this.params = {};
+
 		this.reconcile(previous);
+
+		$effect.root(() => {
+			$effect(() => {
+				if (exports.recording && !this.recording) {
+					this.record();
+				} else if (this.recording && !exports.recording) {
+					this.recording.stop();
+					this.recording = null;
+				}
+			});
+		});
 	}
 
-	createCanvas(canvas = document.createElement('canvas')) {
-		// 	canvas.onmousedown = (event) => checkForTriggersDown(event, key);
-		// 	canvas.onmousemove = (event) => checkForTriggersMove(event, key);
-		// 	canvas.onmouseup = (event) => checkForTriggersUp(event, key);
-		// 	canvas.onclick = (event) => checkForTriggersClick(event, key);
-		this.canvas = canvas;
-
-		return this.canvas;
+	async init() {
+		console.log(`Sketch :: init`);
+		// this.renderer = await rendering.findRenderer({
+		// 	rendering: this.instance.rendering,
+		// 	renderer: this.instance.renderer,
+		// });
 	}
 
-	destroyCanvas() {}
+	render({ time, deltaTime }) {
+		const { id, canvas, renderer, framerate, duration } = this;
+		const draw = this.instance.draw ?? this.instance.update ?? noop;
 
-	reset(params) {
+		let playhead = NaN;
+		let playcount = NaN;
+		let frame = NaN;
+		let hasDuration = isFinite(duration);
+
+		let frameLength = 1000 / framerate;
+		let frameCount = framerate * duration;
+		let interval = 1 / frameCount;
+
+		let t = rendering.sync
+			? time
+			: Math.floor(time / frameLength) * frameLength;
+
+		if (hasDuration && framerate > 0) {
+			playhead = t / 1000 / duration;
+			playhead %= 1;
+			playhead = Math.floor(playhead / interval) * interval;
+			playcount = Math.floor(time / 1000 / duration);
+			frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
+		}
+
+		try {
+			renderer?.onBeforeUpdatePreview?.({
+				id,
+				canvas,
+				container: canvas.parentNode,
+			});
+
+			draw({
+				...renderer,
+				...this.params,
+				playhead,
+				playcount,
+				frame,
+				time: t,
+				deltaTime,
+			});
+
+			renderer?.onAfterUpdatePreview?.({ id, canvas, container });
+		} catch (error) {
+			console.error(error);
+			displayError(error, this.key);
+		}
+	}
+
+	reset() {
 		Object.keys(this.props).forEach((key) => {
-			this.updateProp(key, this.props[key].__initialValue, params);
+			this.updateProp(key, this.props[key].__initialValue);
 		});
 
-		this.reload += 1;
+		// this.mount();
 	}
 
 	reconcile(previous) {
@@ -130,7 +199,7 @@ class Sketch {
 		this.props = newProps;
 	}
 
-	updateProp(key, newValue, params) {
+	updateProp(key, newValue) {
 		const prop = this.props[key];
 		const instanceProp = this.instance.props[key];
 
@@ -144,7 +213,12 @@ class Sketch {
 				instanceProp.value = newValue;
 			}
 
-			instanceProp.onChange?.(instanceProp, params);
+			instanceProp.onChange?.(instanceProp, {
+				width: rendering.width,
+				height: rendering.height,
+				pixelRatio: rendering.pixelRatio,
+				canvas: this.canvas,
+			});
 		}
 	}
 
@@ -152,26 +226,67 @@ class Sketch {
 		persist(this.key, this);
 	}
 
+	record() {
+		function onRecordEnd() {
+			this.recording = null;
+			this.paused = false;
+
+			// afterRecordCallbacks.forEach((callback) => {
+			// 	callback(recordArgs);
+			// });
+
+			this.render();
+		}
+
+		let recordOptions = {
+			params: {
+				props: this.props,
+			},
+			filename: this.key,
+			exportDir: this.exportDir,
+			pattern: this.filenamePattern,
+			onTick: (params) => this.render(params),
+			framerate: exports.framerate,
+			format: exports.videoFormat,
+			imageEncoding: exports.imageEncoding,
+			quality: exports.videoQuality,
+			onStart: () => {
+				// beforeRecordCallbacks.forEach((callback) => {
+				// 	callback(recordArgs);
+				// });
+
+				elapsedRenderingTime = 0;
+				this.paused = true;
+			},
+			onComplete: () => {
+				exports.recording = false;
+				onRecordEnd();
+			},
+		};
+
+		if (exports.useDuration) {
+			recordOptions.duration = this.duration * exports.loopCount;
+		}
+
+		this.recording = recordCanvas(this.canvas, recordOptions);
+	}
+
+	dispose() {
+		// if (this.renderer && typeof renderer.onDestroyPreview === 'function') {
+		// 	this.renderer.onDestroyPreview({
+		// 		id: this.mountID,
+		// 		container,
+		// 		canvas,
+		// 	});
+		// }
+
+		this.destroyCanvas();
+	}
+
 	toJSON() {
 		return {
 			props: this.props,
 		};
-	}
-
-	get init() {
-		return this.instance.setup ?? this.instance.init ?? noop;
-	}
-
-	get draw() {
-		return this.instance.draw ?? this.instance.update ?? noop;
-	}
-
-	get resize() {
-		return this.instance.resize ?? noop;
-	}
-
-	get rendering() {
-		return this.instance.rendering;
 	}
 
 	get backgroundColor() {

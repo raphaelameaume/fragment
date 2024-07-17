@@ -66,6 +66,7 @@ export let onMountPreview = ({ id, canvas, width, height, pixelRatio }) => {
 	return {
 		scene,
 		renderer,
+		canvas,
 	};
 };
 
@@ -108,6 +109,7 @@ export let onAfterUpdatePreview = ({ id }) => {
 };
 
 export let resize = ({ width, height, pixelRatio }) => {
+	console.log('renderer :: resize', width, height, pixelRatio);
 	renderer.setPixelRatio(pixelRatio);
 	renderer.setSize(width, height);
 };
