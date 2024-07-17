@@ -19,22 +19,16 @@
 	let isArray = $derived(Array.isArray(value));
 	let isObject = $derived(!isArray && typeof value === 'object');
 	let components = $derived(isObject ? Object.values(value) : [...value]);
-	let keys = $derived(isObject ? Object.keys(value) : value.map(() => undefined));
+	let keys = $derived(isObject ? Object.keys(value) : value.map((v, i) => i));
 
 	function dispatchChange() {
-		let needsUpdate = false;
-		for (let i = 0; i < components.length; i++) {
-			const key = isArray ? i : keys[i];
+		let newValue = keys.reduce((all, key, index) => {
+			all[key] = components[index];
 
-			if (value[key] !== components[i]) {
-				value[key] = components[i];
-				needsUpdate = true;
-			}
-		}
+			return all;
+		}, isArray ? [] : {});
 
-		if (needsUpdate) {
-			onchange(value);
-		}
+		onchange(newValue);
 	}
 
 	function handleComponentChange(newValue, componentIndex) {

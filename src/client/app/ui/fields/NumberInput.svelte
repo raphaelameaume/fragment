@@ -5,19 +5,18 @@
 	import Keyboard from '../../inputs/Keyboard.js';
 	import { clamp, roundToStep } from '../../utils/math.utils.js';
 
-	
 	let {
-	value = null,
-	label = '',
-	step = 1,
-	suffix = '',
-	min = -Infinity,
-	max = Infinity,
-	disabled = false,
-	context = null,
-	key = '',
-	progress = true,
-	onchange,
+		value = null,
+		label = '',
+		step = 1,
+		suffix = '',
+		min = -Infinity,
+		max = Infinity,
+		disabled = false,
+		context = null,
+		key = '',
+		progress = true,
+		onchange,
 	} = $props();
 
 	let hasProgress = $derived(progress && isFinite(min) && isFinite(max));

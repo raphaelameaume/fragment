@@ -1,4 +1,4 @@
-import { hydrate, persist } from './utils.svelte';
+import { deepAssign, hydrate, persist } from './utils.svelte';
 
 const noop = () => {};
 
@@ -137,14 +137,8 @@ class Sketch {
 		if (prop) {
 			prop.value = newValue;
 		}
-
 		if (instanceProp) {
-			if (instanceProp.value.isColor) {
-				instanceProp.value.copy(newValue);
-			} else {
-				instanceProp.value = newValue;
-			}
-
+			deepAssign(instanceProp.value, newValue);
 			instanceProp.onChange?.(instanceProp, params);
 		}
 	}

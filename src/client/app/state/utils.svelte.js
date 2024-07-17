@@ -30,3 +30,21 @@ export function hydrate(key, target = {}, defaultValue = {}) {
 		console.error(err);
 	}
 }
+
+function isObject(item) {
+	return item && typeof item === 'object';
+}
+
+export function deepAssign(target, source) {
+	if (isObject(source)) {
+		for (const key in source) {
+			if (isObject(source[key]) && isObject(target[key])) {
+				deepAssign(target[key], source[key]);
+			} else {
+				Object.assign(target, { [key]: source[key] });
+			}
+		}
+	} else {
+		target = source;
+	}
+}
