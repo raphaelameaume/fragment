@@ -33,6 +33,8 @@
 	function dispatchChange(newColor) {
 		const newFormat = color.getColorFormat(newColor);
 
+		console.log('dispatchChange', newColor, newFormat, format);
+
 		if (format === newFormat) {
 			onchange(newColor);
 		} else {
@@ -41,19 +43,10 @@
 
 			switch(format) {
 				case color.FORMATS.RGB_OBJECT:
-					value.r = r;
-					value.g = g;
-					value.b = b;
-
-					onchange(value);
+					onchange({ r, g, b });
 					break;
 				case color.FORMATS.RGBA_OBJECT:
-					value.r = r;
-					value.g = g;
-					value.b = b;
-					value.a = alpha;
-
-					onchange(value);
+					onchange({ r, g, b, a: alpha });
 					break;
 				default:
 					onchange(color.componentsToFormat([r, g, b, alpha], format));
