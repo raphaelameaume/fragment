@@ -33,8 +33,6 @@
 	function dispatchChange(newColor) {
 		const newFormat = color.getColorFormat(newColor);
 
-		console.log('dispatchChange', newColor, newFormat, format);
-
 		if (format === newFormat) {
 			onchange(newColor);
 		} else {
