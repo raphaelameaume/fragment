@@ -1,4 +1,5 @@
 import { PRESET_ORIENTATIONS } from '../lib/presets';
+import { map } from '../utils/math.utils.js';
 import { persist, hydrate } from './utils.svelte';
 
 export const SIZES = {
@@ -21,8 +22,7 @@ class Rendering {
 	preset = $state('a4');
 	presetOrientation = $state(PRESET_ORIENTATIONS.PORTRAIT);
 	paused = $state(false);
-	sketches = $state([]);
-	renderers = $state({});
+	sketches = $state({});
 
 	constructor() {
 		this.key = 'rendering';
@@ -30,6 +30,7 @@ class Rendering {
 		this.then = this.now;
 		this.deltaTime = 0;
 		this.elapsed = 0;
+		this.renderers = {};
 
 		$effect.root(() => {
 			$effect(() => {
@@ -68,51 +69,22 @@ class Rendering {
 			});
 
 			$effect(() => {
-				$effect(() => {
-					// const { width, height, pixelRatio, resizing, scale } =
-					// 	rendering;
-					// if (this.sketches.length > 0) {
-					// 	console.log('Resize sketches', this.sketches.length);
-					// 	this.sketches.forEach(
-					// 		async ({
-					// 			id,
-					// 			canvas,
-					// 			container,
-					// 			sketch,
-					// 			params,
-					// 		}) => {
-					// 			const renderer = await this.getRenderer(sketch);
-					// 			params.width = width;
-					// 			params.height = height;
-					// 			params.pixelRatio = pixelRatio;
-					// 			if (
-					// 				renderer &&
-					// 				typeof renderer.onResizePreview ===
-					// 					'function'
-					// 			) {
-					// 				console.log(
-					// 					'Renderer :: onResizePreview',
-					// 					params,
-					// 				);
-					// 				renderer.onResizePreview(params);
-					// 			}
-					// 			if (canvas) {
-					// 				if (resizing === SIZES.SCALE) {
-					// 					canvas.style.transform = `scale(${scale})`;
-					// 				} else {
-					// 					canvas.style.transform = null;
-					// 				}
-					// 			}
-					// 			sketch.resize?.({
-					// 				...params,
-					// 				width,
-					// 				height,
-					// 				pixelRatio,
-					// 			});
-					// 		},
-					// 	);
-					// }
-				});
+				const { width, height, pixelRatio } = rendering;
+				const ids = Object.keys(this.sketches);
+
+				if (ids.length > 0) {
+					ids.forEach((id) => {
+						const { sketch, renderer, params } = this.sketches[id];
+
+						params.width = width;
+						params.height = height;
+						params.pixelRatio = pixelRatio;
+
+						renderer?.onResizePreview?.(params);
+
+						sketch.resize?.(params);
+					});
+				}
 			});
 		});
 
@@ -143,7 +115,7 @@ class Rendering {
 		}
 	}
 
-	async findRenderer({ rendering: renderingMode, renderer: customRenderer }) {
+	async findRenderer({ renderingMode, customRenderer }) {
 		if (this.renderers[renderingMode])
 			return this.renderers[renderingMode].instance;
 
@@ -154,14 +126,22 @@ class Rendering {
 				: customRenderer
 			: await this.loadRenderer(renderingMode);
 
-		const params = instance.init({
-			canvas: document.createElement('canvas'),
-			pixelRatio: rendering.pixelRatio,
-			width: rendering.width,
-			height: rendering.height,
+		const params =
+			instance.init?.({
+				canvas: document.createElement('canvas'),
+				pixelRatio: this.pixelRatio,
+				width: this.width,
+				height: this.height,
+			}) ?? {};
+
+		instance.resize?.({
+			pixelRatio: this.pixelRatio,
+			width: this.width,
+			height: this.height,
+			...params,
 		});
 
-		this.renderers[renderingMode] = {
+		this.renderers[`${renderingMode}`] = {
 			instance,
 			params,
 		};
@@ -175,21 +155,51 @@ class Rendering {
 		this.then = this.now;
 
 		if (!this.paused) {
-			this.elapsed += this.deltaTime;
-
 			const timeParams = {
 				time: this.elapsed,
 				deltaTime: this.deltaTime,
 			};
 
-			for (let i = 0; i < this.sketches.length; i++) {
-				const { params, sketch } = this.sketches[i];
+			const ids = Object.keys(this.sketches);
 
-				sketch.draw({
-					...timeParams,
-					...params,
-				});
+			for (let i = 0; i < ids.length; i++) {
+				const id = ids[i];
+				const ref = this.sketches[id];
+				const { params, sketch, renderer, elapsed } = ref;
+				const { duration, framerate } = sketch;
+
+				let frameLength = 1000 / framerate;
+				let frameCount = framerate * duration;
+				let interval = 1 / frameCount;
+				let playhead = this.elapsed / 1000 / duration;
+				playhead %= 1;
+				playhead = Math.floor(playhead / interval) * interval;
+				let playcount = Math.floor(this.elapsed / 1000 / duration);
+				let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
+
+				const renderParams = {
+					playhead,
+					playcount,
+					frame,
+				};
+
+				if (elapsed === 0 || elapsed >= (1 / framerate) * 1000) {
+					ref.elapsed = 0;
+					renderer?.onBeforeUpdatePreview?.({ id });
+
+					sketch.draw({
+						...timeParams,
+						...renderParams,
+						...params,
+					});
+
+					renderer?.onAfterUpdatePreview?.({ id });
+				}
+
+				ref.elapsed += this.deltaTime;
 			}
+
+			this.elapsed += this.deltaTime;
 		} else {
 			this.lastTime = this.now;
 		}
@@ -201,54 +211,60 @@ class Rendering {
 		let canvas = this.createCanvas({ container });
 
 		const renderer = await this.findRenderer({
-			rendering: sketch.instance.rendering,
-			renderer: sketch.instance.renderer,
+			renderingMode: sketch.instance.rendering,
 		});
 
-		// let mountParams = {};
+		const { width, height, pixelRatio } = this;
 
-		// const { width, height, pixelRatio } = this;
+		let mountParams = renderer?.onMountPreview?.({
+			id,
+			canvas,
+			container,
+			width,
+			height,
+			pixelRatio,
+		});
 
-		// if (renderer && typeof renderer.onMountPreview === 'function') {
-		// 	mountParams = renderer.onMountPreview({
-		// 		id,
-		// 		canvas,
-		// 		container,
-		// 		width,
-		// 		height,
-		// 		pixelRatio,
-		// 	});
+		if (mountParams?.canvas !== canvas) {
+			this.destroyCanvas();
+			canvas = this.createCanvas({
+				container,
+				canvas: mountParams.canvas,
+			});
+		}
 
-		// 	if (mountParams?.canvas !== canvas) {
-		// 		this.destroyCanvas();
-		// 		canvas = this.createCanvas({
-		// 			container,
-		// 			canvas: mountParams.canvas,
-		// 		});
-		// 	}
-		// }
+		let params = {
+			...mountParams,
+			id,
+			canvas,
+			container,
+			publicPath: `@fs${__CWD__}`,
+			width,
+			height,
+			pixelRatio,
+			props: sketch.instance.props,
+		};
 
-		// let params = {
-		// 	...mountParams,
-		// 	id,
-		// 	canvas,
-		// 	container,
-		// 	publicPath: `@fs${__CWD__}`,
-		// 	width,
-		// 	height,
-		// 	pixelRatio,
-		// 	props: sketch.instance.props,
-		// };
+		let elapsed = 0;
 
-		// try {
-		// 	await sketch.load(params);
-		// 	await sketch.setup(params);
+		try {
+			await sketch.load(params);
+			await sketch.setup(params);
 
-		// 	this.sketches.push({ id, container, canvas, params, sketch });
-		// } catch (error) {
-		// 	console.error(error);
-		// 	displayError(error, this.key);
-		// }
+			Object.assign(this.sketches, {
+				[id]: {
+					container,
+					params,
+					canvas,
+					sketch,
+					renderer,
+					elapsed,
+				},
+			});
+		} catch (error) {
+			console.error(error);
+			displayError(error, sketch.key);
+		}
 	}
 
 	createCanvas({ container, canvas = document.createElement('canvas') }) {
@@ -265,6 +281,8 @@ class Rendering {
 	}
 
 	destroyCanvas(canvas) {
+		console.log('destroyCanvas', canvas);
+
 		if (canvas) {
 			canvas.parentNode?.removeChild(canvas);
 			canvas.onmousedown = null;
@@ -276,11 +294,21 @@ class Rendering {
 	}
 
 	unmount(id) {
-		console.log('Rendering :: unmount', id);
-		this.sketches.splice(
-			sketches.findIndex((s) => s.id === id),
-			1,
-		);
+		console.log(`Rendering :: unmount`, id);
+
+		if (this.sketches[id]) {
+			console.log(`unmount sketch`, this.sketches[id]);
+
+			const { canvas, renderer, sketch } = this.sketches[id] ?? {};
+
+			renderer?.onDestroyPreview?.({ id });
+			this.destroyCanvas(canvas);
+
+			sketch?.instance?.dispose?.();
+			delete this.sketches[id];
+		} else {
+			console.log(`nothing to unmount`);
+		}
 	}
 }
 

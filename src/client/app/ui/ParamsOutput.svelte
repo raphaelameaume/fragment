@@ -34,13 +34,13 @@
 
 	let sizes = Object.values(SIZES);
 	let dimensions = $derived([rendering.width, rendering.height]);
-	let dimensionsEnabled = $derived([SIZES.FIXED, SIZES.SCALE].includes(
-		rendering.resizing,
-	));
+	let dimensionsEnabled = $derived(
+		[SIZES.FIXED, SIZES.SCALE].includes(rendering.resizing),
+	);
 
 	$effect(() => {
 		if (rendering.resizing === SIZES.PRESET) {
-			const { preset } = rendering;current.
+			const { preset } = rendering;
 			const [width, height] = getDimensionsForPreset(preset, {
 				pixelsPerInch: 300,
 				orientation: rendering.presetOrientation,
@@ -54,7 +54,7 @@
 			rendering.width = rendering.fixedWidth;
 			rendering.height = rendering.fixedHeight;
 		}
-	})
+	});
 </script>
 
 <Field

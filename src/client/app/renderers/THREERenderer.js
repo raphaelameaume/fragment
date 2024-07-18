@@ -36,7 +36,7 @@ export let init = ({ canvas }) => {
 	};
 };
 
-export let onMountPreview = ({ id, canvas, width, height, pixelRatio }) => {
+export let onMountPreview = ({ id, canvas }) => {
 	let { gl, render, resize, uniforms, destroy } = fragment({
 		canvas,
 		shader: fragmentShader,
@@ -74,6 +74,8 @@ export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);
 	const preview = previews[previewIndex];
 
+	console.log(`onDestroyPreview :: `, id, preview);
+
 	clearError(renderer.getContext().__uuid);
 
 	if (preview) {
@@ -109,13 +111,15 @@ export let onAfterUpdatePreview = ({ id }) => {
 };
 
 export let resize = ({ width, height, pixelRatio }) => {
-	console.log('renderer :: resize', width, height, pixelRatio);
+	console.log('THREERenderer :: resize', width, height, pixelRatio);
 	renderer.setPixelRatio(pixelRatio);
 	renderer.setSize(width, height);
 };
 
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
+
+	console.log(`onResizePreview`, preview);
 
 	if (preview) {
 		preview.resize({ width, height, pixelRatio });

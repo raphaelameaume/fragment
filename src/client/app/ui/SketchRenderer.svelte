@@ -4,10 +4,8 @@
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { layout } from '../stores/layout.js';
-	import { sync, monitors } from '../stores/rendering.js';
 	import { rendering, SIZES } from '../state/rendering.svelte';
-	import { displayError, errors } from '../state/errors.svelte.js';
-	import { findRenderer } from '../stores/renderers';
+	import { errors } from '../state/errors.svelte.js';
 	import { map } from '../utils/math.utils';
 	import Sketch from '../state/Sketch.svelte.js';
 	import {
@@ -34,32 +32,29 @@
 	let node;
 	/** @type {HTMLDivElement} */
 	let container;
-	let elapsed = 0;
-	let elapsedRenderingTime = 0;
-	let now = performance.now(),
-		then = performance.now(),
-		dt = 0,
-		lastTime = performance.now();
 	let _raf;
-	let _cacheKey;
 
 	/** @type {Sketch} */
 	let sketch = $derived(sketchesManager.sketches[key]);
-	let sketchProps = $derived(sketch?.props);
-	let framerate = $derived(sketch.fps);
-	let error = $derived(
-		errors.has(key)
-			? errors.get(key) : errors.values().next().value);
-	let canvas;
-	let created = false;
-	let errored = false;
-	let renderer = $state(null);
-	let noop = () => {};
-	let _renderSketch = noop;
-	let needsRender = false;
-	let params = $state({});
-	let mountParams = {};
-	
+	// let framerate = $derived(sketch.fps);
+	let resizeObserver = new ResizeObserver(() => {
+		checkForResize();
+	});
+
+	$effect(() => {
+		if (sketch) {
+			console.log('SketchRenderer :: mount');
+			rendering.mount(id, container, sketch);
+		}
+	});
+
+	// function createSketch(sketch) {
+	// 	sketch?.mount();
+	// }
+
+	// $effect(() => {
+	// 	createSketch(sketch);
+	// });
 
 	// $: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
 	// $: afterCaptureCallbacks = $afterCapture.get(key) || [];
@@ -94,8 +89,7 @@
 			}
 
 			let needsUpdate =
-				newWidth !== rendering.width ||
-				newHeight !== rendering.height;
+				newWidth !== rendering.width || newHeight !== rendering.height;
 
 			if (needsUpdate) {
 				rendering.width = newWidth;
@@ -104,39 +98,26 @@
 		}
 	}
 
-	let resizeObserver = new ResizeObserver(() => {
-		checkForResize();
-	});
-
 	$effect(() => {
 		checkForResize(rendering.resizing);
 	});
 
 	let backgroundColor = $derived.by(() => {
-		if (sketch) {
-			if (
-				(layout.previewing || __BUILD__) &&
-				sketch.buildConfig &&
-				sketch.buildConfig.backgroundColor
-			) {
-				return sketch.buildConfig.backgroundColor;
-			} else if (!$layout.previewing && sketch.backgroundColor) {
-				return sketch.backgroundColor;
-			} else {
-				return 'inherit';
-			}
-		} else {
-			return 'inherit';
-		}
-	})
-
-	$effect(async () => {
-		if (sketch && container) {
-			console.log('effect run');
-			await rendering.mount(id, container, sketch);
-
-			untrack(() => container);
-		}
+		// if (sketch) {
+		// 	if (
+		// 		(layout.previewing || __BUILD__) &&
+		// 		sketch.buildConfig &&
+		// 		sketch.buildConfig.backgroundColor
+		// 	) {
+		// 		return sketch.buildConfig.backgroundColor;
+		// 	} else if (!$layout.previewing && sketch.backgroundColor) {
+		// 		return sketch.backgroundColor;
+		// 	} else {
+		// 		return 'inherit';
+		// 	}
+		// } else {
+		return 'inherit';
+		// }
 	});
 
 	async function save() {
@@ -161,17 +142,17 @@
 				callback({ ...captureArgs, index: i });
 			});
 
-			_renderSketch();
+			// _renderSketch();
 
-			await screenshotCanvas(canvas, {
-				filename: key,
-				pattern: sketch?.filenamePattern,
-				exportDir: sketch?.exportDir,
-				index: imageCount > 1 ? i : undefined,
-				params: {
-					props: sketch?.props,
-				},
-			});
+			// await screenshotCanvas(canvas, {
+			// 	filename: key,
+			// 	pattern: sketch?.filenamePattern,
+			// 	exportDir: sketch?.exportDir,
+			// 	index: imageCount > 1 ? i : undefined,
+			// 	params: {
+			// 		props: sketch?.props,
+			// 	},
+			// });
 			paused = false;
 			// $capturing = false;
 
@@ -185,16 +166,16 @@
 
 	onMount(() => {
 		client.on('shader-update', () => {
-			if (framerate === 0) {
-				needsRender = true;
-			}
+			// if (framerate === 0) {
+			// 	needsRender = true;
+			// }
 		});
 
 		resizeObserver.observe(node);
 	});
 
 	// function checkForPause(event) {
-		
+
 	// 	const keyboardEvent = event.detail;
 
 	// 	if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
@@ -230,7 +211,7 @@
 	function checkForRefresh(event) {
 		if (!event.metaKey && !event.ctrlKey) {
 			event.preventDefault();
-			sketch.reset();
+			// sketch.reset();
 		}
 	}
 
@@ -240,15 +221,15 @@
 
 		rendering.unmount(id);
 
+		// rendering.unmount(id);
+
 		console.log('SketchRenderer :: onDestroy');
 
-		if (renderer && typeof renderer.onDestroyPreview === 'function') {
-			renderer.onDestroyPreview({ id, canvas, container });
-		}
+		// if (renderer && typeof renderer.onDestroyPreview === 'function') {
+		// 	renderer.onDestroyPreview({ id, canvas, container });
+		// }
 
-		
-
-		created = false;
+		// created = false;
 	});
 </script>
 
@@ -271,7 +252,11 @@
 <!-- <KeyBinding type="down" key=" " onTrigger={checkForPause} /> -->
 <KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
 <!-- <KeyBinding type="down" key="s" onTrigger={checkForSave} /> -->
-<KeyBinding type="down" key="S" onTrigger={() => exports.recording = !exports.recording} />
+<KeyBinding
+	type="down"
+	key="S"
+	onTrigger={() => (exports.recording = !exports.recording)}
+/>
 
 <style>
 	.sketch-renderer {

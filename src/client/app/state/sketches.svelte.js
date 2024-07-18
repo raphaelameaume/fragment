@@ -4,8 +4,8 @@ import Sketch from './Sketch.svelte.js';
 
 class SketchesManager {
 	sketches = $state({});
-	keys = $state([]);
-	count = $state(0);
+	keys = $derived(Object.keys(this.sketches));
+	count = $derived(this.keys.length);
 
 	async loadSketch(collection, key) {
 		try {
@@ -59,9 +59,6 @@ class SketchesManager {
 		);
 
 		this.sketches = newInstancedSketches;
-		this.keys.length = 0;
-		this.keys.push(...Object.keys(this.sketches));
-		this.count = this.keys.length;
 	}
 }
 

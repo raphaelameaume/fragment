@@ -10,7 +10,7 @@
 
 	let sketchKey = $derived(sketchesManager.keys[0]);
 	let sketch = $derived(sketchesManager.sketches[sketchKey]);
-	let framerate = $derived(sketch.fps);
+	let framerate = $derived(sketch.framerate);
 	let sketchProps = $derived(sketch.props);
 	let showOutputParams = true;
 </script>
@@ -34,11 +34,7 @@
 	{#if sketch}
 		{#if typeof sketchProps === 'object'}
 			{#if output}
-				<Field
-					key="framerate"
-					value={framerate}
-					disabled
-				/>
+				<Field key="framerate" value={framerate} disabled />
 			{/if}
 			{#if sketch.duration && sketch.duration > 0 && output}
 				<Field

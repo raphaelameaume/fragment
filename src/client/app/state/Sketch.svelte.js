@@ -9,9 +9,6 @@ const noop = () => {};
 class Sketch {
 	props = $state({});
 	canvas = $state(null);
-	fps = $state(60);
-	duration = $state(undefined);
-	reload = $state(0);
 	backgroundColor = $state('inherit');
 	paused = $state(false);
 
@@ -23,7 +20,6 @@ class Sketch {
 		this.setup = this.instance.setup ?? this.instance.init ?? noop;
 		this.draw = this.instance.draw ?? this.instance.update ?? noop;
 		this.resize = this.instance.resize ?? noop;
-
 		this.duration = this.instance.duration;
 		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
 
@@ -40,6 +36,12 @@ class Sketch {
 					this.recording.stop();
 					this.recording = null;
 				}
+			});
+
+			$effect(() => {
+				const { width, height, pixelRatio } = rendering;
+
+				console.log('resize sketch');
 			});
 		});
 	}
