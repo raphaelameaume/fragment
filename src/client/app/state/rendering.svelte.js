@@ -364,10 +364,10 @@ class Rendering {
 
 			await exports.screenshot(render.canvas, {
 				filename: sketch.key,
-				pattern: sketch?.filenamePattern,
-				exportDir: sketch?.exportDir,
+				pattern: sketch.filenamePattern,
+				exportDir: sketch.exportDir,
 				params: {
-					props: sketch?.props,
+					props: sketch.props,
 				},
 				onBeforeCapture: (params) => {
 					sketch.beforeCapture.forEach((fn) => fn(params));

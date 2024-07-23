@@ -20,6 +20,8 @@ class Sketch {
 		this.draw = this.instance.draw ?? this.instance.update ?? noop;
 		this.resize = this.instance.resize ?? noop;
 		this.duration = this.instance.duration;
+		this.exportDir = this.instance.exportDir;
+		this.filenamePattern = this.instance.filenamePattern;
 		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
 
 		this.recording = null;
