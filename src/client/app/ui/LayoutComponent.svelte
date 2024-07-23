@@ -1,13 +1,17 @@
 <script context="module">
-	
 </script>
 
 <script>
-	import { tick, getContext, hasContext, onDestroy, onMount, setContext } from 'svelte';
-	import { writable } from 'svelte/store';
 	import {
-		layout,
-	} from '../state/layout.svelte';
+		tick,
+		getContext,
+		hasContext,
+		onDestroy,
+		onMount,
+		setContext,
+	} from 'svelte';
+	import { writable } from 'svelte/store';
+	import { layout } from '../state/layout.svelte';
 	import Toolbar from './LayoutToolbar.svelte';
 	import Resizer from './LayoutResizer.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
@@ -37,19 +41,28 @@
 			name: current.children[0]?.name,
 			minimized: current.minimized,
 		});
-	})
+		// }
+	});
 
 	let isRoot = $derived(current.root);
-	
-	let property = $derived(isColumn ? `grid-template-rows` : `grid-template-columns`);
+
+	let property = $derived(
+		isColumn ? `grid-template-rows` : `grid-template-columns`,
+	);
 	let nodes = $derived(tree ?? current.children);
 	let value = $derived.by(() => {
 		const totalSize = nodes.reduce((t, n) => t + n.size, 0);
 		return nodes
-		.map(({ size, minimized }) => minimized && isColumn && !layout.editing ? '25px 0px' : `minmax(25px, ${size/totalSize * 100}%) 0px`)
-		.join(' ')
+			.map(({ size, minimized }) =>
+				minimized && isColumn && !layout.editing
+					? '25px 0px'
+					: `minmax(25px, ${(size / totalSize) * 100}%) 0px`,
+			)
+			.join(' ');
 	});
-	let style = $derived(Array.isArray(nodes) && nodes.length > 0 ? `${property}:${value}` : '');
+	let style = $derived(
+		Array.isArray(nodes) && nodes.length > 0 ? `${property}:${value}` : '',
+	);
 
 	setContext('parent', current);
 	setContext('depth', depth);
