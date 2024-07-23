@@ -38,8 +38,8 @@
 
 	$effect(() => {
 		MIDI.selectedInputID = input;
-		MIDI.selectedInputID = output;
-	})
+		MIDI.selectedOutputID = output;
+	});
 
 	onMount(async () => {
 		await MIDI.request();
@@ -70,7 +70,7 @@
 				? ` note:${note.name}`
 				: ``;
 
-			messages.push(`${time} ${type} number:${note.number}${noteLog}`)
+			messages.push(`${time} ${type} number:${note.number}${noteLog}`);
 		});
 
 		refresh();

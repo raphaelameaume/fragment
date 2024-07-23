@@ -54,22 +54,24 @@
 		params = { key: [] },
 	} = $props();
 
-	let validInputs = $derived.by(() => [...Object.keys(inputs)].reduce((all, inputName) => {
-		const input = inputs[inputName];
-		const { disabled, events } = input;
-		const filteredEvents = events.filter((event) => {
-			return (
-				event.triggerable === triggerable &&
-				event.controllable === controllable
-			);
-		});
+	let validInputs = $derived.by(() =>
+		[...Object.keys(inputs)].reduce((all, inputName) => {
+			const input = inputs[inputName];
+			const { disabled, events } = input;
+			const filteredEvents = events.filter((event) => {
+				return (
+					event.triggerable === triggerable &&
+					event.controllable === controllable
+				);
+			});
 
-		if (filteredEvents.length > 0) {
-			all[inputName] = { events: filteredEvents, disabled };
-		}
+			if (filteredEvents.length > 0) {
+				all[inputName] = { events: filteredEvents, disabled };
+			}
 
-		return all;
-	}, {}));
+			return all;
+		}, {}),
+	);
 
 	let inputOptions = $derived([
 		{ label: 'Select input', value: undefined, disabled: true },
@@ -79,14 +81,16 @@
 		})),
 	]);
 
-	let eventOptions = $derived(inputType
-		? [
-				{ label: '-', value: undefined, disabled: true },
-				...validInputs[inputType].events.map((event) => ({
-					value: event.name,
-				})),
-			]
-		: []);
+	let eventOptions = $derived(
+		inputType
+			? [
+					{ label: '-', value: undefined, disabled: true },
+					...validInputs[inputType].events.map((event) => ({
+						value: event.name,
+					})),
+				]
+			: [],
+	);
 
 	let isValid = $derived(inputType && eventName);
 	let key = $derived(params.key);
@@ -102,7 +106,7 @@
 		const createTrigger = triggersMap[eventName];
 
 		trigger = createTrigger(onTrigger, {
-			...params,
+			...$state.snapshot(params),
 			context,
 			hot: false,
 			enabled: wasEnabled,
@@ -130,8 +134,7 @@
 			inputType === 'MIDI' &&
 			eventName !== undefined &&
 			((eventName.includes('Number') && value.includes('Note')) ||
-				(eventName.includes('Note') &&
-					value.includes('Number')));
+				(eventName.includes('Note') && value.includes('Number')));
 
 		eventName = value;
 
@@ -169,7 +172,7 @@
 		return () => {
 			trigger?.destroy();
 			trigger = null;
-		}
+		};
 	});
 </script>
 
@@ -180,7 +183,7 @@
 		<button
 			class="activity"
 			class:valid={isValid}
-			class:enabled={enabled}
+			class:enabled
 			class:disabled={!enabled}
 			onclick={toggleTrigger}
 		></button>
