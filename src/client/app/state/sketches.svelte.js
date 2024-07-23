@@ -1,6 +1,7 @@
-import { displayError, clearError } from '../state/errors.svelte.js';
+import { displayError } from '../state/errors.svelte.js';
 import { sketches as all } from '@fragment/sketches';
 import Sketch from './Sketch.svelte.js';
+import { rendering } from './rendering.svelte.js';
 
 class SketchesManager {
 	sketches = $state({});
@@ -20,6 +21,15 @@ class SketchesManager {
 
 	async loadAll(collection) {
 		const keys = [...Object.keys(collection)];
+
+		Object.keys(this.sketches).forEach((key) => {
+			rendering.unmountFromKey(key);
+
+			if (!keys.includes(key)) {
+				delete this.sketches[key];
+			}
+		});
+
 		const loadedSketches = await Promise.all(
 			keys.map((key) => this.loadSketch(collection, key)),
 		);
@@ -32,18 +42,9 @@ class SketchesManager {
 			return all;
 		}, {});
 
-		Object.keys(this.sketches).forEach((key) => {
-			if (!keys.includes(key)) {
-				delete this.sketches[key];
-				clearError(key);
-			}
-		});
-
 		const newInstancedSketches = Object.keys(newSketches).reduce(
 			(all, key, index) => {
 				const prevSketch = this.sketches[key];
-
-				clearError(key);
 
 				const instanced = new Sketch({
 					key,

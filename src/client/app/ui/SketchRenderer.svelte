@@ -208,28 +208,11 @@
 	// 	$recording = !$recording;
 	// }
 
-	function checkForRefresh(event) {
-		if (!event.metaKey && !event.ctrlKey) {
-			event.preventDefault();
-			// sketch.reset();
-		}
-	}
-
 	onDestroy(() => {
 		resizeObserver.unobserve(node);
 		cancelAnimationFrame(_raf);
 
 		rendering.unmount(id);
-
-		// rendering.unmount(id);
-
-		console.log('SketchRenderer :: onDestroy');
-
-		// if (renderer && typeof renderer.onDestroyPreview === 'function') {
-		// 	renderer.onDestroyPreview({ id, canvas, container });
-		// }
-
-		// created = false;
 	});
 </script>
 
@@ -250,7 +233,6 @@
 	{/if}
 </div>
 <!-- <KeyBinding type="down" key=" " onTrigger={checkForPause} /> -->
-<KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
 <!-- <KeyBinding type="down" key="s" onTrigger={checkForSave} /> -->
 <KeyBinding
 	type="down"

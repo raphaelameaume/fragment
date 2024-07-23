@@ -1,5 +1,6 @@
 import { PRESET_ORIENTATIONS } from '../lib/presets';
 import { map } from '../utils/math.utils.js';
+import { clearError, displayError } from './errors.svelte.js';
 import { persist, hydrate } from './utils.svelte';
 
 export const SIZES = {
@@ -155,48 +156,26 @@ class Rendering {
 		this.then = this.now;
 
 		if (!this.paused) {
-			const timeParams = {
-				time: this.elapsed,
-				deltaTime: this.deltaTime,
-			};
-
 			const ids = Object.keys(this.sketches);
 
 			for (let i = 0; i < ids.length; i++) {
 				const id = ids[i];
-				const ref = this.sketches[id];
-				const { params, sketch, renderer, elapsed } = ref;
-				const { duration, framerate } = sketch;
 
-				let frameLength = 1000 / framerate;
-				let frameCount = framerate * duration;
-				let interval = 1 / frameCount;
-				let playhead = this.elapsed / 1000 / duration;
-				playhead %= 1;
-				playhead = Math.floor(playhead / interval) * interval;
-				let playcount = Math.floor(this.elapsed / 1000 / duration);
-				let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
+				this.sketches[id].render({ deltaTime: this.deltaTime });
+				// const ref = this.sketches[id];
+				// const { params, sketch, renderer, elapsed } = ref;
+				// const { duration, framerate } = sketch;
 
-				const renderParams = {
-					playhead,
-					playcount,
-					frame,
-				};
+				// let frameLength = 1000 / framerate;
+				// let frameCount = framerate * duration;
+				// let interval = 1 / frameCount;
+				// let playhead = this.elapsed / 1000 / duration;
+				// playhead %= 1;
+				// playhead = Math.floor(playhead / interval) * interval;
+				// let playcount = Math.floor(this.elapsed / 1000 / duration);
+				// let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 
-				if (elapsed === 0 || elapsed >= (1 / framerate) * 1000) {
-					ref.elapsed = 0;
-					renderer?.onBeforeUpdatePreview?.({ id });
-
-					sketch.draw({
-						...timeParams,
-						...renderParams,
-						...params,
-					});
-
-					renderer?.onAfterUpdatePreview?.({ id });
-				}
-
-				ref.elapsed += this.deltaTime;
+				// // ref.elapsed += this.deltaTime;
 			}
 
 			this.elapsed += this.deltaTime;
@@ -251,6 +230,45 @@ class Rendering {
 			await sketch.load(params);
 			await sketch.setup(params);
 
+			const { duration, framerate } = sketch;
+
+			let frameLength = (1 / framerate) * 1000;
+			let frameCount = framerate * duration;
+			let interval = 1 / frameCount;
+			let time = 0;
+			let elapsed = 0;
+
+			let render = ({ deltaTime }) => {
+				let playhead = time / 1000 / duration;
+				playhead %= 1;
+				playhead = Math.floor(playhead / interval) * interval;
+				let playcount = Math.floor(time / 1000 / duration);
+				let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
+
+				if (elapsed === 0 || elapsed >= frameLength) {
+					elapsed = 0;
+					try {
+						renderer?.onBeforeUpdatePreview?.({ id });
+
+						sketch.draw({
+							...params,
+							time: elapsed,
+							deltaTime,
+							playhead,
+							playcount,
+							frame,
+						});
+
+						renderer?.onAfterUpdatePreview?.({ id });
+					} catch (error) {
+						displayError(error, sketch.key);
+					}
+				}
+
+				time += deltaTime;
+				elapsed += deltaTime;
+			};
+
 			Object.assign(this.sketches, {
 				[id]: {
 					container,
@@ -259,6 +277,7 @@ class Rendering {
 					sketch,
 					renderer,
 					elapsed,
+					render,
 				},
 			});
 		} catch (error) {
@@ -280,9 +299,16 @@ class Rendering {
 		return canvas;
 	}
 
-	destroyCanvas(canvas) {
-		console.log('destroyCanvas', canvas);
+	reset() {
+		Object.keys(this.sketches).forEach((id) => {
+			const { sketch, container } = this.sketches[id];
+			this.unmount(id);
+			sketch.reset();
+			this.mount(id, container, sketch);
+		});
+	}
 
+	destroyCanvas(canvas) {
 		if (canvas) {
 			canvas.parentNode?.removeChild(canvas);
 			canvas.onmousedown = null;
@@ -294,21 +320,29 @@ class Rendering {
 	}
 
 	unmount(id) {
-		console.log(`Rendering :: unmount`, id);
-
 		if (this.sketches[id]) {
-			console.log(`unmount sketch`, this.sketches[id]);
-
 			const { canvas, renderer, sketch } = this.sketches[id] ?? {};
-
 			renderer?.onDestroyPreview?.({ id });
+
 			this.destroyCanvas(canvas);
+
+			clearError(sketch.key);
 
 			sketch?.instance?.dispose?.();
 			delete this.sketches[id];
-		} else {
-			console.log(`nothing to unmount`);
 		}
+	}
+
+	unmountFromKey(key) {
+		clearError(key);
+
+		Object.keys(this.sketches).forEach((id) => {
+			const { sketch } = this.sketches[id];
+
+			if (sketch.key === key) {
+				this.unmount(id);
+			}
+		});
 	}
 }
 
