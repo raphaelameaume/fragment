@@ -2,9 +2,7 @@
 https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad843fb7688/lib/save.js
 */
 
-import { get } from 'svelte/store';
-import { exports } from '../stores';
-import { VIDEO_FORMATS } from '../stores/exports';
+import { VIDEO_FORMATS } from '../state/exports.svelte';
 import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
 import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';

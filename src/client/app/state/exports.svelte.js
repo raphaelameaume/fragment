@@ -1,4 +1,4 @@
-import { screenshotCanvas } from '../utils/canvas.utils';
+import { screenshotCanvas, recordCanvas } from '../utils/canvas.utils';
 import { hydrate, persist } from './utils.svelte';
 
 export const IMAGE_ENCODINGS = ['png', 'jpeg', 'webp'];
@@ -94,6 +94,56 @@ class Exports {
 		}
 
 		onComplete(captureParams);
+	}
+
+	async record(
+		canvas,
+		{
+			framerate = this.framerate,
+			format = this.videoFormat,
+			imageEncoding = this.imageEncoding,
+			quality = this.videoQuality,
+			duration,
+			filename,
+			pattern,
+			exportDir,
+			params = {},
+			onStart = () => {},
+			onTick = () => {},
+			onComplete = () => {},
+			onBeforeRecord = () => {},
+			onAfterRecord = () => {},
+		},
+	) {
+		const recordParams = {
+			framerate,
+			format,
+			imageEncoding,
+			quality,
+			duration,
+		};
+
+		return recordCanvas(canvas, {
+			params,
+			filename,
+			exportDir,
+			pattern,
+			onTick,
+			framerate,
+			format,
+			imageEncoding,
+			quality,
+			duration: duration * this.loopCount,
+			onStart: () => {
+				onStart(recordParams);
+				onBeforeRecord(recordParams);
+			},
+			onComplete: () => {
+				this.recording = false;
+				onAfterRecord(recordParams);
+				onComplete(recordParams);
+			},
+		});
 	}
 }
 

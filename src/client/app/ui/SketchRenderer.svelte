@@ -8,13 +8,7 @@
 	import { errors } from '../state/errors.svelte.js';
 	import { map } from '../utils/math.utils';
 	import Sketch from '../state/Sketch.svelte.js';
-	import {
-		exports,
-		// beforeCapture,
-		// afterCapture,
-		// beforeRecord,
-		// afterRecord,
-	} from '../state/exports.svelte.js';
+	import { exports } from '../state/exports.svelte.js';
 	import { removeHotListeners } from '../triggers/index.js';
 	import {
 		checkForTriggersDown,
@@ -46,19 +40,6 @@
 			rendering.mount(id, container, sketch);
 		}
 	});
-
-	// function createSketch(sketch) {
-	// 	sketch?.mount();
-	// }
-
-	// $effect(() => {
-	// 	createSketch(sketch);
-	// });
-
-	// $: beforeCaptureCallbacks = $beforeCapture.get(key) || [];
-	// $: afterCaptureCallbacks = $afterCapture.get(key) || [];
-	// $: beforeRecordCallbacks = $beforeRecord.get(key) || [];
-	// $: afterRecordCallbacks = $afterRecord.get(key) || [];
 
 	function checkForResize(resizing = rendering.resizing) {
 		if (!node) return;
@@ -119,50 +100,6 @@
 		// }
 	});
 
-	async function save() {
-		paused = true;
-
-		const {
-			imageCount = 1,
-			imageEncoding,
-			imageQuality,
-			pixelsPerInch,
-		} = exports;
-
-		const captureArgs = {
-			encoding: imageEncoding,
-			quality: imageQuality,
-			pixelsPerInch,
-			count: imageCount,
-		};
-
-		for (let i = 0; i < imageCount; i++) {
-			beforeCaptureCallbacks.forEach((callback) => {
-				callback({ ...captureArgs, index: i });
-			});
-
-			// _renderSketch();
-
-			// await screenshotCanvas(canvas, {
-			// 	filename: key,
-			// 	pattern: sketch?.filenamePattern,
-			// 	exportDir: sketch?.exportDir,
-			// 	index: imageCount > 1 ? i : undefined,
-			// 	params: {
-			// 		props: sketch?.props,
-			// 	},
-			// });
-			paused = false;
-			// $capturing = false;
-
-			afterCaptureCallbacks.forEach((callback) => {
-				callback({ ...captureArgs, index: i });
-			});
-
-			_renderSketch();
-		}
-	}
-
 	onMount(() => {
 		client.on('shader-update', () => {
 			// if (framerate === 0) {
@@ -172,24 +109,6 @@
 
 		resizeObserver.observe(node);
 	});
-
-	// function checkForSave(event) {
-	// 	if (event.metaKey || event.ctrlKey) {
-	// 		event.preventDefault();
-
-	// 		if (!$recording) {
-	// 			save();
-	// 		} else {
-	// 			console.warn(`Cannot save while recording.`);
-	// 		}
-	// 	}
-	// }
-
-	// function checkForRecord(event) {
-	// 	event.preventDefault();
-
-	// 	$recording = !$recording;
-	// }
 
 	onDestroy(() => {
 		resizeObserver.unobserve(node);

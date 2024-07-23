@@ -1,4 +1,5 @@
 import { PRESET_ORIENTATIONS } from '../lib/presets';
+import { recordCanvas } from '../utils/canvas.utils.js';
 import { map } from '../utils/math.utils.js';
 import { clearError, displayError } from './errors.svelte.js';
 import { exports } from './exports.svelte.js';
@@ -28,11 +29,11 @@ class Rendering {
 
 	constructor() {
 		this.key = 'rendering';
-		this.now = performance.now();
-		this.then = this.now;
-		this.deltaTime = 0;
+		this.time = performance.now();
+		this.then = this.time;
 		this.elapsed = 0;
 		this.renderers = {};
+		this.recording = false;
 
 		$effect.root(() => {
 			$effect(() => {
@@ -89,23 +90,21 @@ class Rendering {
 			});
 
 			$effect(() => {
-				const ids = Object.keys(this.renders);
-
-				if (ids.length > 0) {
-					ids.forEach((id) => {
-						const { sketch, renderer, params } = this.renders[id];
-
-						if (sketch.framerate === 0 && sketch.props) {
-							console.log('rerender ??');
-						}
-					});
+				if (exports.recording && !this.recording) {
+					this.startRecording();
+				} else if (this.recording && !exports.recording) {
+					this.stopRecording();
 				}
 			});
 		});
 
 		hydrate(this.key, this);
 
-		this.update();
+		this.raf = requestAnimationFrame((t) => {
+			this.time = t;
+			this.then = t;
+			this.update(t);
+		});
 	}
 
 	loadRenderer(renderingMode) {
@@ -164,10 +163,9 @@ class Rendering {
 		return instance;
 	}
 
-	update() {
-		this.now = performance.now();
-		this.deltaTime = this.now - this.then;
-		this.then = this.now;
+	update(now) {
+		const deltaTime = now - this.then;
+		this.then = now;
 
 		if (!this.paused) {
 			const ids = Object.keys(this.renders);
@@ -175,15 +173,13 @@ class Rendering {
 			for (let i = 0; i < ids.length; i++) {
 				const id = ids[i];
 
-				this.renders[id].loop({ deltaTime: this.deltaTime });
+				this.renders[id].loop({ time: this.time, deltaTime });
 			}
 
-			this.elapsed += this.deltaTime;
-		} else {
-			this.lastTime = this.now;
+			this.time += deltaTime;
 		}
 
-		this.raf = requestAnimationFrame(() => this.update());
+		this.raf = requestAnimationFrame((t) => this.update(t));
 	}
 
 	async mount(id, container, sketch) {
@@ -224,8 +220,6 @@ class Rendering {
 			props: sketch.instance.props,
 		};
 
-		let elapsed = 0;
-
 		try {
 			await sketch.load(params);
 			await sketch.setup(params);
@@ -235,8 +229,6 @@ class Rendering {
 			let frameLength = (1 / framerate) * 1000;
 			let frameCount = framerate * duration;
 			let interval = 1 / frameCount;
-			let time = 0;
-			let elapsed = 0;
 
 			const render = {
 				container,
@@ -244,27 +236,27 @@ class Rendering {
 				canvas,
 				sketch,
 				renderer,
-				elapsed,
-				time,
-				elapsed,
+				time: rendering.time,
+				elapsed: 0,
+				lastTime: 0,
 			};
 
-			render.loop = ({ deltaTime = 0 } = {}) => {
+			render.loop = ({ deltaTime } = {}) => {
 				let { elapsed, time } = render;
-				let playhead = time / 1000 / duration;
+				let playhead = elapsed / 1000 / duration;
 				playhead %= 1;
 				playhead = Math.floor(playhead / interval) * interval;
-				let playcount = Math.floor(time / 1000 / duration);
+				let playcount = Math.floor(elapsed / 1000 / duration);
 				let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 
-				if (elapsed === 0 || elapsed >= frameLength) {
-					render.elapsed = 0;
+				if (render.time === 0 || render.time >= frameLength) {
+					render.time = 0;
 					try {
 						renderer?.onBeforeUpdatePreview?.({ id });
 
 						sketch.draw({
 							...params,
-							time: elapsed,
+							time: render.elapsed,
 							deltaTime,
 							playhead,
 							playcount,
@@ -388,6 +380,53 @@ class Rendering {
 			});
 		}
 
+		this.paused = false;
+	}
+
+	async startRecording() {
+		this.paused = true;
+		this.recording = true;
+
+		const ids = Object.keys(this.renders);
+
+		for (let i = 0; i < ids.length; i++) {
+			const render = this.renders[ids[i]];
+			const { sketch } = render;
+
+			render.record = await exports.record(render.canvas, {
+				filename: sketch.key,
+				pattern: sketch.filenamePattern,
+				exportDir: sketch.exportDir,
+				duration: sketch.duration,
+				params: {
+					props: sketch.props,
+				},
+				onStart: (params) => {
+					render.time = 0;
+					render.elapsed = 0;
+					sketch.beforeRecord.forEach((fn) => fn(params));
+				},
+				onTick: ({ time, deltaTime }) => {
+					render.loop({ time, deltaTime });
+				},
+				onComplete: (params) => {
+					sketch.afterRecord.forEach((fn) => fn(params));
+					render.record = null;
+				},
+			});
+		}
+	}
+
+	stopRecording() {
+		const ids = Object.keys(this.renders);
+
+		for (let i = 0; i < ids.length; i++) {
+			const render = this.renders[ids[i]];
+
+			render.record?.stop();
+		}
+
+		this.recording = false;
 		this.paused = false;
 	}
 }

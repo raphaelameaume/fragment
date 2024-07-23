@@ -30,25 +30,6 @@ class Sketch {
 		this.afterRecord = [];
 
 		this.reconcile(previous);
-
-		$effect.root(() => {
-			$effect(() => {
-				if (exports.recording && !this.recording) {
-					this.record();
-				} else if (this.recording && !exports.recording) {
-					this.recording.stop();
-					this.recording = null;
-				}
-			});
-		});
-	}
-
-	async init() {
-		console.log(`Sketch :: init`);
-		// this.renderer = await rendering.findRenderer({
-		// 	rendering: this.instance.rendering,
-		// 	renderer: this.instance.renderer,
-		// });
 	}
 
 	reset() {
@@ -212,22 +193,18 @@ class Sketch {
 	}
 
 	onBeforeCapture(fn) {
-		console.log('Sketch:: register onBeforeCapture');
 		this.beforeCapture.push(fn);
 	}
 
 	onBeforeRecord(fn) {
-		console.log('Sketch:: register onBeforeRecord');
 		this.beforeRecord.push(fn);
 	}
 
 	onAfterCapture(fn) {
-		console.log('onAfterCapture');
 		this.afterCapture.push(fn);
 	}
 
 	onAfterRecord(fn) {
-		console.log('onAfterRecord');
 		this.afterRecord.push(fn);
 	}
 
