@@ -87,6 +87,20 @@ class Rendering {
 					});
 				}
 			});
+
+			$effect(() => {
+				const ids = Object.keys(this.sketches);
+
+				if (ids.length > 0) {
+					ids.forEach((id) => {
+						const { sketch, renderer, params } = this.sketches[id];
+
+						if (sketch.framerate === 0 && sketch.props) {
+							console.log('rerender ??');
+						}
+					});
+				}
+			});
 		});
 
 		hydrate(this.key, this);
@@ -161,7 +175,7 @@ class Rendering {
 			for (let i = 0; i < ids.length; i++) {
 				const id = ids[i];
 
-				this.sketches[id].render({ deltaTime: this.deltaTime });
+				this.sketches[id].loop({ deltaTime: this.deltaTime });
 				// const ref = this.sketches[id];
 				// const { params, sketch, renderer, elapsed } = ref;
 				// const { duration, framerate } = sketch;
@@ -238,7 +252,19 @@ class Rendering {
 			let time = 0;
 			let elapsed = 0;
 
-			let render = ({ deltaTime }) => {
+			const render = {
+				container,
+				params,
+				canvas,
+				sketch,
+				renderer,
+				elapsed,
+				time,
+				elapsed,
+			};
+
+			render.loop = ({ deltaTime = 0 } = {}) => {
+				let { elapsed, time } = render;
 				let playhead = time / 1000 / duration;
 				playhead %= 1;
 				playhead = Math.floor(playhead / interval) * interval;
@@ -265,20 +291,12 @@ class Rendering {
 					}
 				}
 
-				time += deltaTime;
-				elapsed += deltaTime;
+				render.time += deltaTime;
+				render.elapsed += deltaTime;
 			};
 
 			Object.assign(this.sketches, {
-				[id]: {
-					container,
-					params,
-					canvas,
-					sketch,
-					renderer,
-					elapsed,
-					render,
-				},
+				[id]: render,
 			});
 		} catch (error) {
 			console.error(error);
@@ -341,6 +359,18 @@ class Rendering {
 
 			if (sketch.key === key) {
 				this.unmount(id);
+			}
+		});
+	}
+
+	invalidate(key) {
+		Object.keys(this.sketches).forEach((id) => {
+			const render = this.sketches[id];
+			const { sketch } = render;
+
+			if (sketch.key === key && sketch.framerate === 0) {
+				render.time = 0;
+				render.elapsed = 0;
 			}
 		});
 	}

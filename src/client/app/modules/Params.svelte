@@ -1,10 +1,11 @@
 <script>
 	import { sketchesManager } from '../state/sketches.svelte.js';
-	import { monitors, rendering } from '../stores/rendering';
+
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import OutputParams from '../ui/ParamsOutput.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
+	import { rendering } from '../state/rendering.svelte.js';
 
 	let { id, hasHeader = true, output = true } = $props();
 
@@ -69,10 +70,11 @@
 						bind:params={sketchProps[key].params}
 						triggers={sketchProp.triggers}
 						onclick={() => {
-							sketchProps[key].value._refresh = true;
+							rendering.invalidate(sketchKey);
 						}}
 						onchange={(value) => {
 							sketch.updateProp(key, value);
+							rendering.invalidate(sketchKey);
 						}}
 					/>
 				{/if}

@@ -54,61 +54,10 @@ class Sketch {
 		// });
 	}
 
-	render({ time, deltaTime }) {
-		const { id, canvas, renderer, framerate, duration } = this;
-		const draw = this.instance.draw ?? this.instance.update ?? noop;
-
-		let playhead = NaN;
-		let playcount = NaN;
-		let frame = NaN;
-		let hasDuration = isFinite(duration);
-
-		let frameLength = 1000 / framerate;
-		let frameCount = framerate * duration;
-		let interval = 1 / frameCount;
-
-		let t = rendering.sync
-			? time
-			: Math.floor(time / frameLength) * frameLength;
-
-		if (hasDuration && framerate > 0) {
-			playhead = t / 1000 / duration;
-			playhead %= 1;
-			playhead = Math.floor(playhead / interval) * interval;
-			playcount = Math.floor(time / 1000 / duration);
-			frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
-		}
-
-		try {
-			renderer?.onBeforeUpdatePreview?.({
-				id,
-				canvas,
-				container: canvas.parentNode,
-			});
-
-			draw({
-				...renderer,
-				...this.params,
-				playhead,
-				playcount,
-				frame,
-				time: t,
-				deltaTime,
-			});
-
-			renderer?.onAfterUpdatePreview?.({ id, canvas, container });
-		} catch (error) {
-			console.error(error);
-			displayError(error, this.key);
-		}
-	}
-
 	reset() {
 		Object.keys(this.props).forEach((key) => {
 			this.updateProp(key, this.props[key].__initialValue);
 		});
-
-		// this.mount();
 	}
 
 	reconcile(previous) {

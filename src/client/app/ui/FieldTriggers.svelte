@@ -21,7 +21,7 @@
 			eventName: undefined,
 			enabled: false,
 			params: {},
-		})
+		});
 	}
 </script>
 
@@ -40,7 +40,6 @@
 				{controllable}
 				{triggerable}
 				onchange={(index, trigger) => {
-					console.log('trigger has changed', trigger.enabled);
 					triggers[index] = trigger;
 				}}
 				onDelete={onTriggerDelete}
