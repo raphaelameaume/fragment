@@ -2,13 +2,15 @@
 	import KeyBinding from '../components/KeyBinding.svelte';
 	import Params from '../modules/Params.svelte';
 
-	export let size = 0.3;
-	export let align = 'right';
-	export let output = false;
-	export let hidden = false;
+	let {
+		size = '240px',
+		align = 'right',
+		output = false,
+		hidden = false,
+	} = $props();
 
-	$: visible = !hidden;
-	$: width = typeof size === 'number' ? `${size * 100}%` : size;
+	let visible = $state(!hidden);
+	let width = $derived(typeof size === 'number' ? `${size * 100}%` : size);
 </script>
 
 <div
