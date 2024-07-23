@@ -141,21 +141,24 @@ class Sketch {
 			};
 		});
 
-		if (previous) {
-			const prevProps = previous.props;
+		const restoreProps = (prevProps) => {
 			const prevPropKeys = Object.keys(prevProps);
 
 			if (prevPropKeys.length > 0) {
 				prevPropKeys.forEach((propKey) => {
 					let prevProp = prevProps[propKey];
 					let newProp = newProps[propKey];
+					let instanceProp = instanceProps[propKey];
 
 					if (newProp) {
 						if (
 							newProp.__initialValue === prevProp.__initialValue
 						) {
 							newProp.value = prevProp.value;
+							instanceProp.value = prevProp.value;
 						}
+
+						newProp.triggers = prevProp.triggers;
 
 						if (prevProp.params) {
 							// reconcile locked VectorInput from UI
@@ -166,36 +169,13 @@ class Sketch {
 					}
 				});
 			}
+		};
+
+		if (previous) {
+			restoreProps(previous.props);
 		} else {
 			const { props: savedProps = {} } = hydrate(this.key);
-			const savedPropsKeys = Object.keys(savedProps);
-
-			if (savedPropsKeys.length > 0) {
-				savedPropsKeys.forEach((propKey) => {
-					let savedProp = savedProps[propKey];
-					let newProp = newProps[propKey];
-					let instanceProp = instanceProps[propKey];
-
-					if (newProp) {
-						if (
-							newProp.__initialValue === savedProp.__initialValue
-						) {
-							newProp.value = savedProp.value;
-							instanceProp.value = savedProp.value;
-						}
-
-						// restore triggers
-						newProp.triggers = savedProp.triggers;
-
-						if (savedProp.params) {
-							// reconcile locked VectorInput from UI
-							if (savedProp.params.locked !== undefined) {
-								newProp.params.locked = savedProp.params.locked;
-							}
-						}
-					}
-				});
-			}
+			restoreProps(savedProps);
 		}
 
 		this.props = newProps;
