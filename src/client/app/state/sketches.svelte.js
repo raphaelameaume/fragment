@@ -2,6 +2,7 @@ import { displayError } from '../state/errors.svelte.js';
 import { sketches as all } from '@fragment/sketches';
 import Sketch from './Sketch.svelte.js';
 import { rendering } from './rendering.svelte.js';
+import { removeHotListeners } from '../triggers/index.js';
 
 class SketchesManager {
 	sketches = $state({});
@@ -23,6 +24,7 @@ class SketchesManager {
 		const keys = [...Object.keys(collection)];
 
 		Object.keys(this.sketches).forEach((key) => {
+			removeHotListeners(key);
 			rendering.unmountFromKey(key);
 
 			if (!keys.includes(key)) {

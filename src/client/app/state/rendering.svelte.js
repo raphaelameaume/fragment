@@ -1,4 +1,10 @@
 import { PRESET_ORIENTATIONS } from '../lib/presets';
+import {
+	checkForTriggersClick,
+	checkForTriggersDown,
+	checkForTriggersMove,
+	checkForTriggersUp,
+} from '../triggers/Mouse.js';
 import { recordCanvas } from '../utils/canvas.utils.js';
 import { map } from '../utils/math.utils.js';
 import { clearError, displayError } from './errors.svelte.js';
@@ -183,7 +189,7 @@ class Rendering {
 	}
 
 	async mount(id, container, sketch) {
-		let canvas = this.createCanvas({ container });
+		let canvas = this.createCanvas({ container, context: sketch.key });
 
 		const renderer = await this.findRenderer({
 			renderingMode: sketch.instance.rendering,
@@ -205,6 +211,7 @@ class Rendering {
 			canvas = this.createCanvas({
 				container,
 				canvas: mountParams.canvas,
+				context: sketch.key,
 			});
 		}
 
@@ -282,11 +289,15 @@ class Rendering {
 		}
 	}
 
-	createCanvas({ container, canvas = document.createElement('canvas') }) {
-		// canvas.onmousedown = (event) => checkForTriggersDown(event, key);
-		// canvas.onmousemove = (event) => checkForTriggersMove(event, key);
-		// canvas.onmouseup = (event) => checkForTriggersUp(event, key);
-		// canvas.onclick = (event) => checkForTriggersClick(event, key);
+	createCanvas({
+		container,
+		canvas = document.createElement('canvas'),
+		context,
+	}) {
+		canvas.onmousedown = (event) => checkForTriggersDown(event, context);
+		canvas.onmousemove = (event) => checkForTriggersMove(event, context);
+		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
+		canvas.onclick = (event) => checkForTriggersClick(event, context);
 
 		if (container) {
 			container.appendChild(canvas);
