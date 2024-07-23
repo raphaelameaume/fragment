@@ -16,7 +16,6 @@
 		// afterRecord,
 	} from '../state/exports.svelte.js';
 	import { removeHotListeners } from '../triggers/index.js';
-	import { removeHooksFrom } from '../hooks';
 	import {
 		checkForTriggersDown,
 		checkForTriggersMove,
@@ -174,22 +173,6 @@
 		resizeObserver.observe(node);
 	});
 
-	// function checkForPause(event) {
-
-	// 	const keyboardEvent = event.detail;
-
-	// 	if (!keyboardEvent.metaKey || !keyboardEvent.ctrlKey) {
-	// 		keyboardEvent.preventDefault();
-
-	// 		if (!$recording) {
-	// 			then = performance.now();
-	// 			paused = !paused;
-	// 		} else {
-	// 			console.warn(`Cannot pause while recording.`);
-	// 		}
-	// 	}
-	// }
-
 	// function checkForSave(event) {
 	// 	if (event.metaKey || event.ctrlKey) {
 	// 		event.preventDefault();
@@ -232,13 +215,6 @@
 		<RecordHint />
 	{/if}
 </div>
-<!-- <KeyBinding type="down" key=" " onTrigger={checkForPause} /> -->
-<!-- <KeyBinding type="down" key="s" onTrigger={checkForSave} /> -->
-<KeyBinding
-	type="down"
-	key="S"
-	onTrigger={() => (exports.recording = !exports.recording)}
-/>
 
 <style>
 	.sketch-renderer {

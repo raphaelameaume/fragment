@@ -37,7 +37,19 @@
 			if (!exports.recording) {
 				rendering.paused = !rendering.paused;
 			} else {
-				console.warn(`Cannot pause while recording.`);
+				console.warn(`Fragment can't be paused while recording.`);
+			}
+		}
+	}
+
+	function checkForScreenshot(event) {
+		if (event.metaKey || event.ctrlKey) {
+			event.preventDefault();
+
+			if (!exports.recording) {
+				rendering.screenshot();
+			} else {
+				console.warn(`Fragment can't screenshot while recording.`);
 			}
 		}
 	}
@@ -56,3 +68,9 @@
 
 <KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
 <KeyBinding type="down" key=" " onTrigger={checkForPause} />
+<KeyBinding type="down" key="s" onTrigger={checkForScreenshot} />
+<KeyBinding
+	type="down"
+	key="S"
+	onTrigger={() => (exports.recording = !exports.recording)}
+/>

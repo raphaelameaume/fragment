@@ -5,7 +5,6 @@ export let renderers = $state({});
 $effect.root(() => {
 	$effect(() => {
 		const { width, height, pixelRatio } = rendering;
-		console.log('resize renderers', Object.keys(renderers));
 
 		Object.keys(renderers).forEach((key) => {
 			const { instance, params } = renderers[key];

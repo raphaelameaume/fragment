@@ -1,3 +1,4 @@
+import { screenshotCanvas } from '../utils/canvas.utils';
 import { hydrate, persist } from './utils.svelte';
 
 export const IMAGE_ENCODINGS = ['png', 'jpeg', 'webp'];
@@ -47,6 +48,52 @@ class Exports {
 		});
 
 		hydrate(this.key, this);
+	}
+
+	async screenshot(
+		canvas,
+		{
+			count = this.imageCount,
+			encoding = this.imageEncoding,
+			quality = this.imageQuality,
+			pixelsPerInch = this.pixelsPerInch,
+			filename,
+			pattern,
+			exportDir,
+			params = {},
+			onStart = () => {},
+			onComplete = () => {},
+			onBeforeCapture = () => {},
+			onAfterCapture = () => {},
+		} = {},
+	) {
+		const captureParams = {
+			encoding,
+			quality,
+			pixelsPerInch,
+			count,
+		};
+
+		onStart(captureParams);
+
+		for (let i = 0; i < count; i++) {
+			onBeforeCapture(captureParams);
+
+			await screenshotCanvas(canvas, {
+				filename,
+				pattern,
+				exportDir,
+				index: count > 1 ? i : undefined,
+				params,
+				encoding,
+				quality,
+				pixelsPerInch,
+			});
+
+			onAfterCapture(captureParams);
+		}
+
+		onComplete(captureParams);
 	}
 }
 

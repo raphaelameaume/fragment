@@ -1,6 +1,5 @@
 import { exports } from './exports.svelte';
 import { rendering } from './rendering.svelte';
-import { displayError, errors } from '../state/errors.svelte.js';
 import { deepAssign, hydrate, isObject, persist } from './utils.svelte';
 import { recordCanvas } from '../utils/canvas.utils.js';
 
@@ -25,6 +24,10 @@ class Sketch {
 
 		this.recording = null;
 		this.params = {};
+		this.beforeCapture = [];
+		this.beforeRecord = [];
+		this.afterCapture = [];
+		this.afterRecord = [];
 
 		this.reconcile(previous);
 
@@ -36,12 +39,6 @@ class Sketch {
 					this.recording.stop();
 					this.recording = null;
 				}
-			});
-
-			$effect(() => {
-				const { width, height, pixelRatio } = rendering;
-
-				console.log('resize sketch');
 			});
 		});
 	}
@@ -212,6 +209,26 @@ class Sketch {
 		// }
 
 		this.destroyCanvas();
+	}
+
+	onBeforeCapture(fn) {
+		console.log('Sketch:: register onBeforeCapture');
+		this.beforeCapture.push(fn);
+	}
+
+	onBeforeRecord(fn) {
+		console.log('Sketch:: register onBeforeRecord');
+		this.beforeRecord.push(fn);
+	}
+
+	onAfterCapture(fn) {
+		console.log('onAfterCapture');
+		this.afterCapture.push(fn);
+	}
+
+	onAfterRecord(fn) {
+		console.log('onAfterRecord');
+		this.afterRecord.push(fn);
 	}
 
 	toJSON() {

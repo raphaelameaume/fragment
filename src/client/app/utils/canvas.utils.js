@@ -72,12 +72,14 @@ export async function screenshotCanvas(
 		pattern = defaultFilenamePattern,
 		exportDir,
 		params = {},
+		encoding = 'png',
+		quality = 100,
+		pixelsPerInch = 72,
 	},
 ) {
-	const { imageEncoding, imageQuality, pixelsPerInch } = get(exports);
 	let { extension, dataURL } = exportCanvas(canvas, {
-		encoding: `image/${imageEncoding}`,
-		encodingQuality: map(imageQuality, 1, 100, 0, 1),
+		encoding: `image/${encoding}`,
+		encodingQuality: map(quality, 1, 100, 0, 1),
 		pixelsPerInch,
 	});
 

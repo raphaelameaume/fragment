@@ -1,6 +1,7 @@
 import { PRESET_ORIENTATIONS } from '../lib/presets';
 import { map } from '../utils/math.utils.js';
 import { clearError, displayError } from './errors.svelte.js';
+import { exports } from './exports.svelte.js';
 import { persist, hydrate } from './utils.svelte';
 
 export const SIZES = {
@@ -23,7 +24,7 @@ class Rendering {
 	preset = $state('a4');
 	presetOrientation = $state(PRESET_ORIENTATIONS.PORTRAIT);
 	paused = $state(false);
-	sketches = $state({});
+	renders = $state({});
 
 	constructor() {
 		this.key = 'rendering';
@@ -46,7 +47,6 @@ class Rendering {
 					scale: this.scale,
 					preset: this.preset,
 					presetOrientation: this.presetOrientation,
-					paused: this.paused,
 				});
 			});
 
@@ -71,11 +71,11 @@ class Rendering {
 
 			$effect(() => {
 				const { width, height, pixelRatio } = rendering;
-				const ids = Object.keys(this.sketches);
+				const ids = Object.keys(this.renders);
 
 				if (ids.length > 0) {
 					ids.forEach((id) => {
-						const { sketch, renderer, params } = this.sketches[id];
+						const { sketch, renderer, params } = this.renders[id];
 
 						params.width = width;
 						params.height = height;
@@ -89,11 +89,11 @@ class Rendering {
 			});
 
 			$effect(() => {
-				const ids = Object.keys(this.sketches);
+				const ids = Object.keys(this.renders);
 
 				if (ids.length > 0) {
 					ids.forEach((id) => {
-						const { sketch, renderer, params } = this.sketches[id];
+						const { sketch, renderer, params } = this.renders[id];
 
 						if (sketch.framerate === 0 && sketch.props) {
 							console.log('rerender ??');
@@ -170,12 +170,12 @@ class Rendering {
 		this.then = this.now;
 
 		if (!this.paused) {
-			const ids = Object.keys(this.sketches);
+			const ids = Object.keys(this.renders);
 
 			for (let i = 0; i < ids.length; i++) {
 				const id = ids[i];
 
-				this.sketches[id].loop({ deltaTime: this.deltaTime });
+				this.renders[id].loop({ deltaTime: this.deltaTime });
 			}
 
 			this.elapsed += this.deltaTime;
@@ -281,7 +281,7 @@ class Rendering {
 				render.elapsed += deltaTime;
 			};
 
-			Object.assign(this.sketches, {
+			Object.assign(this.renders, {
 				[id]: render,
 			});
 		} catch (error) {
@@ -304,8 +304,8 @@ class Rendering {
 	}
 
 	reset() {
-		Object.keys(this.sketches).forEach((id) => {
-			const { sketch, container } = this.sketches[id];
+		Object.keys(this.renders).forEach((id) => {
+			const { sketch, container } = this.renders[id];
 			this.unmount(id);
 			sketch.reset();
 			this.mount(id, container, sketch);
@@ -324,8 +324,8 @@ class Rendering {
 	}
 
 	unmount(id) {
-		if (this.sketches[id]) {
-			const { canvas, renderer, sketch } = this.sketches[id] ?? {};
+		if (this.renders[id]) {
+			const { canvas, renderer, sketch } = this.renders[id] ?? {};
 			renderer?.onDestroyPreview?.({ id });
 
 			this.destroyCanvas(canvas);
@@ -333,15 +333,15 @@ class Rendering {
 			clearError(sketch.key);
 
 			sketch?.instance?.dispose?.();
-			delete this.sketches[id];
+			delete this.renders[id];
 		}
 	}
 
 	unmountFromKey(key) {
 		clearError(key);
 
-		Object.keys(this.sketches).forEach((id) => {
-			const { sketch } = this.sketches[id];
+		Object.keys(this.renders).forEach((id) => {
+			const { sketch } = this.renders[id];
 
 			if (sketch.key === key) {
 				this.unmount(id);
@@ -350,8 +350,8 @@ class Rendering {
 	}
 
 	invalidate(key) {
-		Object.keys(this.sketches).forEach((id) => {
-			const render = this.sketches[id];
+		Object.keys(this.renders).forEach((id) => {
+			const render = this.renders[id];
 			const { sketch } = render;
 
 			if (sketch.key === key && sketch.framerate === 0) {
@@ -359,6 +359,36 @@ class Rendering {
 				render.elapsed = 0;
 			}
 		});
+	}
+
+	async screenshot() {
+		this.paused = true;
+
+		const ids = Object.keys(this.renders);
+
+		for (let i = 0; i < ids.length; i++) {
+			const render = this.renders[ids[i]];
+			const { sketch } = render;
+
+			await exports.screenshot(render.canvas, {
+				filename: sketch.key,
+				pattern: sketch?.filenamePattern,
+				exportDir: sketch?.exportDir,
+				params: {
+					props: sketch?.props,
+				},
+				onBeforeCapture: (params) => {
+					sketch.beforeCapture.forEach((fn) => fn(params));
+					render.loop();
+				},
+				onAfterCapture: (params) => {
+					sketch.afterCapture.forEach((fn) => fn(params));
+					render.loop();
+				},
+			});
+		}
+
+		this.paused = false;
 	}
 }
 

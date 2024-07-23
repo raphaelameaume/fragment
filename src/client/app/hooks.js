@@ -1,20 +1,26 @@
-import {
-	removeBeforeCaptureFrom,
-	removeAfterCaptureFrom,
-	removeBeforeRecordFrom,
-	removeAfterRecordFrom,
-} from './stores/exports';
+import { sketchesManager } from './state/sketches.svelte';
 
-export {
-	onBeforeCapture,
-	onAfterCapture,
-	onBeforeRecord,
-	onAfterRecord,
-} from './stores/exports';
+import { getContext } from './triggers/shared';
 
-export function removeHooksFrom(context) {
-	removeBeforeCaptureFrom(context);
-	removeAfterCaptureFrom(context);
-	removeBeforeRecordFrom(context);
-	removeAfterRecordFrom(context);
-}
+// export {
+// 	onBeforeCapture,
+// 	onAfterCapture,
+// 	onBeforeRecord,
+// 	onAfterRecord,
+// } from './stores/exports';
+
+export let onBeforeCapture = (listener, context = getContext()) => {
+	sketchesManager.sketches[context]?.onBeforeCapture(listener);
+};
+
+export let onAfterCapture = (listener, context = getContext()) => {
+	sketchesManager.sketches[context]?.onAfterCapture(listener);
+};
+
+export let onBeforeRecord = (listener, context = getContext()) => {
+	sketchesManager.sketches[context]?.onBeforeRecord(listener);
+};
+
+export let onAfterRecord = (listener, context = getContext()) => {
+	sketchesManager.sketches[context]?.onAfterRecord(listener);
+};
