@@ -176,20 +176,6 @@ class Rendering {
 				const id = ids[i];
 
 				this.sketches[id].loop({ deltaTime: this.deltaTime });
-				// const ref = this.sketches[id];
-				// const { params, sketch, renderer, elapsed } = ref;
-				// const { duration, framerate } = sketch;
-
-				// let frameLength = 1000 / framerate;
-				// let frameCount = framerate * duration;
-				// let interval = 1 / frameCount;
-				// let playhead = this.elapsed / 1000 / duration;
-				// playhead %= 1;
-				// playhead = Math.floor(playhead / interval) * interval;
-				// let playcount = Math.floor(this.elapsed / 1000 / duration);
-				// let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
-
-				// // ref.elapsed += this.deltaTime;
 			}
 
 			this.elapsed += this.deltaTime;
@@ -272,7 +258,7 @@ class Rendering {
 				let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 
 				if (elapsed === 0 || elapsed >= frameLength) {
-					elapsed = 0;
+					render.elapsed = 0;
 					try {
 						renderer?.onBeforeUpdatePreview?.({ id });
 

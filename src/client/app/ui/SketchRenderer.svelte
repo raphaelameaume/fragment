@@ -227,7 +227,7 @@
 		class="canvas-container"
 		style="--aspect-ratio: {rendering.width} / {rendering.height}; --aspect-ratio-inverse: {rendering.height} / {rendering.width}; --width: {rendering.width}px; --height: {rendering.height}px;"
 		bind:this={container}
-	/>
+	></div>
 	{#if exports.recording}
 		<RecordHint />
 	{/if}

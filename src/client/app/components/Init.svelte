@@ -7,6 +7,7 @@
 	import '../utils/glslErrors.js';
 	import KeyBinding from './KeyBinding.svelte';
 	import { rendering } from '../state/rendering.svelte.js';
+	import { exports } from '../state/exports.svelte.js';
 
 	$effect(() => {
 		assignSketchFiles(sketchesManager.keys);
@@ -29,6 +30,18 @@
 		}
 	}
 
+	function checkForPause(event) {
+		if (!event.metaKey || !event.ctrlKey) {
+			event.preventDefault();
+
+			if (!exports.recording) {
+				rendering.paused = !rendering.paused;
+			} else {
+				console.warn(`Cannot pause while recording.`);
+			}
+		}
+	}
+
 	let prefix = $derived(
 		sketchesManager.keys.length === 1
 			? `${getFilename(sketchesManager.keys[0])} | `
@@ -41,4 +54,5 @@
 	<title>{title}</title>
 </svelte:head>
 
-<KeyBinding type="down" key="r" onTrigger={checkForRefresh} />'
+<KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
+<KeyBinding type="down" key=" " onTrigger={checkForPause} />
