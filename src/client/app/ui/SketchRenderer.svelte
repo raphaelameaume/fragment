@@ -1,23 +1,12 @@
 <script>
 	import { onMount, onDestroy, untrack } from 'svelte';
 	import { derived } from 'svelte/store';
-	import KeyBinding from '../components/KeyBinding.svelte';
 	import { sketchesManager } from '../state/sketches.svelte.js';
-	import { layout } from '../stores/layout.js';
+	import { layout } from '../state/layout.svelte.js';
 	import { rendering, SIZES } from '../state/rendering.svelte';
-	import { errors } from '../state/errors.svelte.js';
-	import { map } from '../utils/math.utils';
 	import Sketch from '../state/Sketch.svelte.js';
 	import { exports } from '../state/exports.svelte.js';
-	import { removeHotListeners } from '../triggers/index.js';
-	import {
-		checkForTriggersDown,
-		checkForTriggersMove,
-		checkForTriggersUp,
-		checkForTriggersClick,
-	} from '../triggers/Mouse.js';
 	import { client } from '../client';
-	import { recordCanvas, screenshotCanvas } from '../utils/canvas.utils.js';
 	import RecordHint from '../components/RecordHint.svelte';
 
 	let { key, id, visible = true } = $props();
@@ -83,21 +72,11 @@
 	});
 
 	let backgroundColor = $derived.by(() => {
-		// if (sketch) {
-		// 	if (
-		// 		(layout.previewing || __BUILD__) &&
-		// 		sketch.buildConfig &&
-		// 		sketch.buildConfig.backgroundColor
-		// 	) {
-		// 		return sketch.buildConfig.backgroundColor;
-		// 	} else if (!$layout.previewing && sketch.backgroundColor) {
-		// 		return sketch.backgroundColor;
-		// 	} else {
-		// 		return 'inherit';
-		// 	}
-		// } else {
-		return 'inherit';
-		// }
+		if (layout.previewing) {
+			return sketch?.buildConfig?.backgroundColor ?? 'inherit';
+		}
+
+		return sketch?.backgroundColor ?? 'inherit';
 	});
 
 	onMount(() => {

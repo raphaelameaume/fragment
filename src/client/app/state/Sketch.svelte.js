@@ -23,6 +23,7 @@ class Sketch {
 		this.exportDir = this.instance.exportDir;
 		this.filenamePattern = this.instance.filenamePattern;
 		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
+		this.buildConfig = this.instance.buildConfig ?? {};
 
 		this.recording = null;
 		this.params = {};
