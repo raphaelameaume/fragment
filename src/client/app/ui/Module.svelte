@@ -2,7 +2,16 @@
 	import { onMount, getContext, onDestroy } from 'svelte';
 	import { layout } from '../state/layout.svelte.js';
 
-	let { id, name, key, slug = name, scrollable = true, hasHeader = true, children, headerLeft } = $props();
+	let {
+		id,
+		name,
+		key,
+		slug = name,
+		scrollable = true,
+		hasHeader = true,
+		children,
+		headerLeft,
+	} = $props();
 
 	const parent = getContext('parent');
 	const depth = getContext('depth');
@@ -35,7 +44,7 @@
 		<header class="module__header" onclick={toggleMinimized}>
 			<div class="header__col">
 				<div class="slot slot--left">
-					{@render headerLeft() }
+					{@render headerLeft()}
 				</div>
 			</div>
 			<div class="header__col">
