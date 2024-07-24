@@ -6,7 +6,6 @@
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import { layout } from '../state/layout.svelte.js';
 	import KeyBinding from '../components/KeyBinding.svelte';
-	import { monitors, preview } from '../stores/rendering';
 
 	function toggleEdition() {
 		layout.editing = !layout.editing;
