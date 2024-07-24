@@ -11,6 +11,7 @@ import { exports } from './exports.svelte.js';
 import { layout } from './layout.svelte.js';
 import { persist, hydrate } from './utils.svelte';
 import presets from '../lib/presets';
+import { client } from '../client.js';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -177,6 +178,15 @@ class Rendering {
 			this.then = t;
 			this.update(t);
 		});
+
+		client.on('shader-update', () => {
+			this.renders.forEach((render) => {
+				const { sketch } = render;
+				if (sketch.framerate === 0) {
+					render.renderSketch();
+				}
+			});
+		});
 	}
 
 	loadRenderer(renderingMode) {
@@ -269,8 +279,6 @@ class Rendering {
 		});
 
 		if (mountParams?.canvas !== canvas) {
-			console.log('canvas has changeeed', mountParams.canvas, canvas);
-			this.destroyCanvas();
 			canvas = this.createCanvas({
 				container,
 				canvas: mountParams.canvas,
@@ -414,7 +422,6 @@ class Rendering {
 					render.renderSketch();
 				},
 				onAfterCapture: (params) => {
-					// console.log('onAfterCapture');
 					sketch.afterCapture.forEach((fn) => fn(params));
 					render.renderSketch();
 				},
