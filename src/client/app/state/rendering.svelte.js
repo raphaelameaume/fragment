@@ -29,8 +29,7 @@ class Render {
 		this.sketch = sketch;
 		this.renderer = renderer;
 
-		this.time = rendering.time;
-
+		this.time = 0;
 		this.elapsed = 0;
 		this.lastTime = 0;
 		this.playhead = 0;
@@ -49,7 +48,7 @@ class Render {
 
 				sketch.draw({
 					...params,
-					time: this.elapsed,
+					time: this.time,
 					deltaTime,
 					playhead: this.playhead,
 					playcount: this.playcount,
@@ -65,16 +64,16 @@ class Render {
 		this.loop = ({ deltaTime = 0 } = {}) => {
 			let { elapsed, time } = this;
 
-			let playhead = elapsed / 1000 / duration;
+			let playhead = time / 1000 / duration;
 			playhead %= 1;
 			playhead = Math.floor(playhead / interval) * interval;
 
 			this.playhead = playhead;
-			this.playcount = Math.floor(elapsed / 1000 / duration);
+			this.playcount = Math.floor(time / 1000 / duration);
 			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 
-			if (this.time === 0 || this.time >= frameLength) {
-				this.time = 0;
+			if (this.elapsed === 0 || this.elapsed >= frameLength) {
+				this.elapsed = 0;
 				this.renderSketch(deltaTime);
 			}
 
