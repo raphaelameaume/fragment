@@ -22,7 +22,7 @@
   "homepage": "https://github.com/raphaelameaume/fragment#readme",
   "dependencies": {
     "@clack/core": "^0.3.3",
-    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@sveltejs/vite-plugin-svelte": "^4.0.0-next.4",
     "body-parser": "^1.20.0",
     "changedpi": "^1.0.4",
     "chokidar": "^3.5.2",
@@ -33,13 +33,13 @@
     "is-unicode-supported": "^2.0.0",
     "kleur": "^4.1.4",
     "sade": "^1.7.4",
-    "svelte": "^5.0.0-next.175",
+    "svelte": "^5.0.0-next.190",
     "vite": "^5.3.3",
     "webm-writer": "^1.0.0",
     "ws": "^8.2.3"
   },
   "devDependencies": {
     "prettier": "^3.2.5",
-    "prettier-plugin-svelte": "^3.1.2"
+    "prettier-plugin-svelte": "^3.2.6"
   }
 }
