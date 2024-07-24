@@ -222,27 +222,29 @@ class Rendering {
 				: customRenderer
 			: await this.loadRenderer(renderingMode);
 
-		const params =
-			instance.init?.({
-				canvas: document.createElement('canvas'),
+		if (instance) {
+			const params =
+				instance.init?.({
+					canvas: document.createElement('canvas'),
+					pixelRatio: this.pixelRatio,
+					width: this.width,
+					height: this.height,
+				}) ?? {};
+
+			instance.resize?.({
 				pixelRatio: this.pixelRatio,
 				width: this.width,
 				height: this.height,
-			}) ?? {};
+				...params,
+			});
 
-		instance.resize?.({
-			pixelRatio: this.pixelRatio,
-			width: this.width,
-			height: this.height,
-			...params,
-		});
+			this.renderers[`${renderingMode}`] = {
+				instance,
+				params,
+			};
 
-		this.renderers[`${renderingMode}`] = {
-			instance,
-			params,
-		};
-
-		return instance;
+			return instance;
+		}
 	}
 
 	update(now) {
@@ -269,16 +271,20 @@ class Rendering {
 
 		const { width, height, pixelRatio } = this;
 
-		let mountParams = renderer?.onMountPreview?.({
-			id,
-			canvas,
-			container,
-			width,
-			height,
-			pixelRatio,
-		});
+		let mountParams = {};
 
-		if (mountParams?.canvas !== canvas) {
+		if (renderer) {
+			mountParams = renderer?.onMountPreview?.({
+				id,
+				canvas,
+				container,
+				width,
+				height,
+				pixelRatio,
+			});
+		}
+
+		if (mountParams.canvas !== canvas) {
 			canvas = this.createCanvas({
 				container,
 				canvas: mountParams.canvas,
