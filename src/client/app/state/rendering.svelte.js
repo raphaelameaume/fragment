@@ -20,6 +20,70 @@ export const SIZES = {
 	SCALE: 'scale',
 };
 
+class Render {
+	constructor({ id, container, params, canvas, sketch, renderer }) {
+		this.id = id;
+		this.container = container;
+		this.params = params;
+		this.canvas = canvas;
+		this.sketch = sketch;
+		this.renderer = renderer;
+
+		this.time = rendering.time;
+
+		this.elapsed = 0;
+		this.lastTime = 0;
+		this.playhead = 0;
+		this.playcount = 0;
+		this.frame = 0;
+
+		const { duration, framerate } = sketch;
+
+		let frameLength = (1 / framerate) * 1000;
+		let frameCount = framerate * duration;
+		let interval = 1 / frameCount;
+
+		this.renderSketch = (deltaTime = 0) => {
+			try {
+				renderer?.onBeforeUpdatePreview?.({ id });
+
+				sketch.draw({
+					...params,
+					time: this.elapsed,
+					deltaTime,
+					playhead: this.playhead,
+					playcount: this.playcount,
+					frame: this.frame,
+				});
+
+				renderer?.onAfterUpdatePreview?.({ id });
+			} catch (error) {
+				displayError(error, sketch.key);
+			}
+		};
+
+		this.loop = ({ deltaTime = 0 } = {}) => {
+			let { elapsed, time } = this;
+
+			let playhead = elapsed / 1000 / duration;
+			playhead %= 1;
+			playhead = Math.floor(playhead / interval) * interval;
+
+			this.playhead = playhead;
+			this.playcount = Math.floor(elapsed / 1000 / duration);
+			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
+
+			if (this.time === 0 || this.time >= frameLength) {
+				this.time = 0;
+				this.renderSketch(deltaTime);
+			}
+
+			this.time += deltaTime;
+			this.elapsed += deltaTime;
+		};
+	}
+}
+
 class Rendering {
 	width = $state(1024);
 	fixedWidth = $state(1024);
@@ -32,7 +96,8 @@ class Rendering {
 	preset = $state('a4');
 	presetOrientation = $state(PRESET_ORIENTATIONS.PORTRAIT);
 	paused = $state(false);
-	renders = $state({});
+	/** @type {Render[]} */
+	renders = $state([]);
 
 	constructor() {
 		this.key = 'rendering';
@@ -81,11 +146,10 @@ class Rendering {
 
 			$effect(() => {
 				const { width, height, pixelRatio } = rendering;
-				const ids = Object.keys(this.renders);
 
-				if (ids.length > 0) {
-					ids.forEach((id) => {
-						const { sketch, renderer, params } = this.renders[id];
+				if (this.renders.length > 0) {
+					this.renders.forEach((render) => {
+						const { sketch, renderer, params } = render;
 
 						params.width = width;
 						params.height = height;
@@ -177,12 +241,8 @@ class Rendering {
 		this.then = now;
 
 		if (!this.paused) {
-			const ids = Object.keys(this.renders);
-
-			for (let i = 0; i < ids.length; i++) {
-				const id = ids[i];
-
-				this.renders[id].loop({ time: this.time, deltaTime });
+			for (let i = 0; i < this.renders.length; i++) {
+				this.renders[i].loop({ time: this.time, deltaTime });
 			}
 
 			this.time += deltaTime;
@@ -210,6 +270,7 @@ class Rendering {
 		});
 
 		if (mountParams?.canvas !== canvas) {
+			console.log('canvas has changeeed', mountParams.canvas, canvas);
 			this.destroyCanvas();
 			canvas = this.createCanvas({
 				container,
@@ -234,58 +295,16 @@ class Rendering {
 			await sketch.load(params);
 			await sketch.setup(params);
 
-			const { duration, framerate } = sketch;
-
-			let frameLength = (1 / framerate) * 1000;
-			let frameCount = framerate * duration;
-			let interval = 1 / frameCount;
-
-			const render = {
+			const render = new Render({
+				id,
 				container,
 				params,
 				canvas,
 				sketch,
 				renderer,
-				time: rendering.time,
-				elapsed: 0,
-				lastTime: 0,
-			};
-
-			render.loop = ({ deltaTime } = {}) => {
-				let { elapsed, time } = render;
-				let playhead = elapsed / 1000 / duration;
-				playhead %= 1;
-				playhead = Math.floor(playhead / interval) * interval;
-				let playcount = Math.floor(elapsed / 1000 / duration);
-				let frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
-
-				if (render.time === 0 || render.time >= frameLength) {
-					render.time = 0;
-					try {
-						renderer?.onBeforeUpdatePreview?.({ id });
-
-						sketch.draw({
-							...params,
-							time: render.elapsed,
-							deltaTime,
-							playhead,
-							playcount,
-							frame,
-						});
-
-						renderer?.onAfterUpdatePreview?.({ id });
-					} catch (error) {
-						displayError(error, sketch.key);
-					}
-				}
-
-				render.time += deltaTime;
-				render.elapsed += deltaTime;
-			};
-
-			Object.assign(this.renders, {
-				[id]: render,
 			});
+
+			this.renders.push(render);
 		} catch (error) {
 			console.error(error);
 			displayError(error, sketch.key);
@@ -316,8 +335,8 @@ class Rendering {
 	}
 
 	reset() {
-		Object.keys(this.renders).forEach((id) => {
-			const { sketch, container } = this.renders[id];
+		this.renders.forEach((render) => {
+			const { id, sketch, container } = render;
 			this.unmount(id);
 			sketch.reset();
 			this.mount(id, container, sketch);
@@ -335,9 +354,13 @@ class Rendering {
 		}
 	}
 
-	unmount(id) {
-		if (this.renders[id]) {
-			const { canvas, renderer, sketch } = this.renders[id] ?? {};
+	unmount(renderId) {
+		const index = this.renders.findIndex(
+			(render) => render.id === renderId,
+		);
+		const render = this.renders[index];
+		if (render) {
+			const { id, canvas, renderer, sketch } = render;
 			renderer?.onDestroyPreview?.({ id });
 
 			this.destroyCanvas(canvas);
@@ -345,15 +368,16 @@ class Rendering {
 			clearError(sketch.key);
 
 			sketch?.instance?.dispose?.();
-			delete this.renders[id];
+
+			this.renders.splice(index, 1);
 		}
 	}
 
 	unmountFromKey(key) {
 		clearError(key);
 
-		Object.keys(this.renders).forEach((id) => {
-			const { sketch } = this.renders[id];
+		this.renders.forEach((render) => {
+			const { id, sketch } = render;
 
 			if (sketch.key === key) {
 				this.unmount(id);
@@ -362,8 +386,7 @@ class Rendering {
 	}
 
 	invalidate(key) {
-		Object.keys(this.renders).forEach((id) => {
-			const render = this.renders[id];
+		this.renders.forEach((render) => {
 			const { sketch } = render;
 
 			if (sketch.key === key && sketch.framerate === 0) {
@@ -376,10 +399,8 @@ class Rendering {
 	async screenshot() {
 		this.paused = true;
 
-		const ids = Object.keys(this.renders);
-
-		for (let i = 0; i < ids.length; i++) {
-			const render = this.renders[ids[i]];
+		for (let i = 0; i < this.renders.length; i++) {
+			const render = this.renders[i];
 			const { sketch } = render;
 
 			await exports.screenshot(render.canvas, {
@@ -391,11 +412,12 @@ class Rendering {
 				},
 				onBeforeCapture: (params) => {
 					sketch.beforeCapture.forEach((fn) => fn(params));
-					render.loop();
+					render.renderSketch();
 				},
 				onAfterCapture: (params) => {
+					// console.log('onAfterCapture');
 					sketch.afterCapture.forEach((fn) => fn(params));
-					render.loop();
+					render.renderSketch();
 				},
 			});
 		}
@@ -407,10 +429,8 @@ class Rendering {
 		this.paused = true;
 		this.recording = true;
 
-		const ids = Object.keys(this.renders);
-
-		for (let i = 0; i < ids.length; i++) {
-			const render = this.renders[ids[i]];
+		for (let i = 0; i < this.renders.length; i++) {
+			const render = this.renders[i];
 			const { sketch } = render;
 
 			render.record = await exports.record(render.canvas, {
@@ -438,10 +458,8 @@ class Rendering {
 	}
 
 	stopRecording() {
-		const ids = Object.keys(this.renders);
-
-		for (let i = 0; i < ids.length; i++) {
-			const render = this.renders[ids[i]];
+		for (let i = 0; i < this.renders.length; i++) {
+			const render = this.renders[i];
 
 			render.record?.stop();
 		}
