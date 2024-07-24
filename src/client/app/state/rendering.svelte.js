@@ -528,18 +528,6 @@ class Rendering {
 		) {
 			this.width = dimensions[0];
 			this.height = dimensions[1];
-
-			if (
-				![SIZES.FIXED, SIZES.SCALE, SIZES.ASPECT_RATIO].includes(
-					this.resizing,
-				)
-			) {
-				console.warn(
-					`config.resizing has been overridden by config.dimensions.`,
-				);
-
-				this.resizing = SIZES.FIXED;
-			}
 		}
 
 		if (pixelRatio) {
