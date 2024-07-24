@@ -138,7 +138,7 @@
 				{min}
 				{max}
 				progress={false}
-				bind:value={value[0]}
+				value={value[0]}
 				on:change={(event) => handleValueChange(0, event.detail)}
 			/>
 			<NumberInput
@@ -151,7 +151,7 @@
 				{min}
 				{max}
 				progress={false}
-				bind:value={value[1]}
+				value={value[1]}
 				on:change={(event) => handleValueChange(1, event.detail)}
 			/>
 		</div>
