@@ -1,15 +1,16 @@
-import { PRESET_ORIENTATIONS } from '../lib/presets';
+import { PRESET_ORIENTATIONS, getDimensionsForPreset } from '../lib/presets';
 import {
 	checkForTriggersClick,
 	checkForTriggersDown,
 	checkForTriggersMove,
 	checkForTriggersUp,
 } from '../triggers/Mouse.js';
-import { recordCanvas } from '../utils/canvas.utils.js';
 import { map } from '../utils/math.utils.js';
 import { clearError, displayError } from './errors.svelte.js';
 import { exports } from './exports.svelte.js';
+import { layout } from './layout.svelte.js';
 import { persist, hydrate } from './utils.svelte';
+import presets from '../lib/presets';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -43,18 +44,20 @@ class Rendering {
 
 		$effect.root(() => {
 			$effect(() => {
-				persist(this.key, {
-					width: this.width,
-					height: this.height,
-					fixedWidth: this.fixedWidth,
-					fixedHeight: this.fixedHeight,
-					pixelRatio: this.pixelRatio,
-					resizing: this.resizing,
-					aspectRatio: this.aspectRatio,
-					scale: this.scale,
-					preset: this.preset,
-					presetOrientation: this.presetOrientation,
-				});
+				if (!layout.previewing) {
+					persist(this.key, {
+						width: this.width,
+						height: this.height,
+						fixedWidth: this.fixedWidth,
+						fixedHeight: this.fixedHeight,
+						pixelRatio: this.pixelRatio,
+						resizing: this.resizing,
+						aspectRatio: this.aspectRatio,
+						scale: this.scale,
+						preset: this.preset,
+						presetOrientation: this.presetOrientation,
+					});
+				}
 			});
 
 			$effect(() => {
@@ -299,6 +302,12 @@ class Rendering {
 		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
 		canvas.onclick = (event) => checkForTriggersClick(event, context);
 
+		if (this.resizing === SIZES.SCALE) {
+			canvas.style.transform = `scale(${this.scale})`;
+		} else {
+			canvas.style.transform = null;
+		}
+
 		if (container) {
 			container.appendChild(canvas);
 		}
@@ -439,6 +448,104 @@ class Rendering {
 
 		this.recording = false;
 		this.paused = false;
+	}
+
+	override(config) {
+		if (config.canvasSize) {
+			console.warn(
+				`buildConfig.canvasSize has been deprecated. Use buildConfig.resizing instead.`,
+			);
+
+			config.resizing = config.canvasSize;
+		}
+
+		const {
+			width,
+			height,
+			dimensions = [width, height],
+			resizing,
+			pixelRatio,
+		} = config;
+
+		if (resizing && Object.values(SIZES).includes(resizing)) {
+			this.resizing = resizing;
+
+			if (resizing === SIZES.PRESET) {
+				if (config.preset && presets.includes(config.preset)) {
+					const [width, height] = getDimensionsForPreset(
+						config.preset,
+						{
+							pixelsPerInch: 300,
+							orientation: config.presetOrientation,
+						},
+					);
+
+					this.width = width;
+					this.height = height;
+				} else {
+					this.resizing = SIZES.WINDOW;
+					console.warn(
+						`Cannot compute dimensions for config.preset: ${config.preset}.`,
+					);
+				}
+			} else if (resizing === SIZES.ASPECT_RATIO) {
+				const { aspectRatio } = config;
+
+				if (!isNaN(aspectRatio)) {
+					this.aspectRatio = config.aspectRatio;
+				} else {
+					this.resizing = SIZES.WINDOW;
+
+					console.warn(
+						`Cannot compute canvas size for config.aspectRatio: ${aspectRatio}.`,
+					);
+				}
+			} else if (resizing === SIZES.SCALE) {
+				const { scale } = config;
+
+				if (!dimensions) {
+					console.warn(
+						`Cannot apply resizing:"scale" if no dimensions are specified.`,
+					);
+					this.resizing = SIZES.WINDOW;
+				}
+
+				if (isNaN(scale)) {
+					console.warn(
+						`Cannot compute canvas size for config.scale: ${scale}`,
+					);
+					this.resizing = SIZES.WINDOW;
+				} else {
+					this.scale = scale;
+				}
+			}
+		}
+
+		if (
+			dimensions &&
+			dimensions.length === 2 &&
+			dimensions.every((d) => !isNaN(Number(d)))
+		) {
+			this.width = dimensions[0];
+			this.height = dimensions[1];
+
+			if (
+				![SIZES.FIXED, SIZES.SCALE, SIZES.ASPECT_RATIO].includes(
+					this.resizing,
+				)
+			) {
+				console.warn(
+					`config.resizing has been overridden by config.dimensions.`,
+				);
+
+				this.resizing = SIZES.FIXED;
+			}
+		}
+
+		if (pixelRatio) {
+			this.pixelRatio =
+				typeof pixelRatio === 'function' ? pixelRatio() : pixelRatio;
+		}
 	}
 }
 

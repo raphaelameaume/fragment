@@ -3,60 +3,49 @@
 
 	import Monitor from '../modules/Monitor.svelte';
 	import Params from '../modules/Params.svelte';
-	import { layout } from '../stores/layout';
-	import { override, preview } from '../stores/rendering';
-	import { sketches, sketchesKeys } from '../stores/sketches';
 	import FloatingParams from './FloatingParams.svelte';
 	import Column from './LayoutColumn.svelte';
 	import Row from './LayoutRow.svelte';
+	import { sketchesManager } from '../state/sketches.svelte';
+	import { rendering } from '../state/rendering.svelte';
 
 	console.log(`Made with Fragment. https://fragment.tools`);
 
-	let gui, style, head;
-	let defaultGUIConfig = {
-		position: 'float',
-		align: 'right',
-		size: 0.3,
-		output: false,
-		hidden: false,
-	};
+	let sketchKey = $derived(Object.keys(sketchesManager.sketches)[0]);
+	let sketch = $derived(sketchesManager.sketches[sketchKey]);
 
-	let guiConfig = defaultGUIConfig;
-	$: sketchKey = $layout.previewing && $preview ? $preview : $sketchesKeys[0];
-	$: sketch = $sketches[sketchKey];
+	let gui = $derived(sketch?.buildConfig?.gui);
+	let guiOutput = $derived(gui?.output);
+	let guiAlign = $derived(gui?.align);
+	let guiHidden = $derived(gui?.hidden);
+	let guiSize = $derived(gui?.size);
+	let guiMinimize = $derived(gui?.minimize);
+	let guiPosition = $derived(gui?.position);
+	let styles = $derived(sketch?.buildConfig?.styles ?? '');
 
-	$: {
-		if (sketch) {
-			if (sketch.buildConfig) {
-				override(sketch.buildConfig);
+	/** @type {HTMLHeadElement} */
+	let head;
+	/** @type {HTMLStyleElement} */
+	let style;
+
+	$effect(() => {
+		rendering.override(sketch?.buildConfig);
+	});
+
+	$effect(() => {
+		if (styles !== '') {
+			head = document.getElementsByTagName('head')[0];
+
+			if (style) {
+				head.removeChild(style);
 			}
 
-			const config = sketch.buildConfig ? sketch.buildConfig : {};
-			gui = config.gui;
-
-			if (gui && typeof gui === 'object') {
-				guiConfig = {
-					...defaultGUIConfig,
-					...gui,
-				};
-			}
-
-			const { styles = '' } = config;
-
-			if (styles !== '') {
-				head = document.getElementsByTagName('head')[0];
-
-				if (style) {
-					head.removeChild(style);
-				}
-
-				style = document.createElement('style');
-				style.setAttribute('type', 'text/css');
-				style.appendChild(document.createTextNode(styles));
-				head.appendChild(style);
-			}
+			style = document.createElement('style');
+			style.setAttribute('type', 'text/css');
+			style.appendChild(document.createTextNode(styles));
+			head.appendChild(style);
 		}
-	}
+	});
 
 	onDestroy(() => {
 		if (style && head) {
@@ -66,20 +55,20 @@
 </script>
 
 {#if gui}
-	{#if guiConfig.position === 'fixed'}
+	{#if guiPosition === 'fixed'}
 		<Row>
-			{#if guiConfig.align === 'right'}
-				<Column size={1 - guiConfig.size}>
+			{#if guiAlign === 'right'}
+				<Column size={1 - guiSize}>
 					<Monitor hasHeader={false} {sketchKey} />
 				</Column>
-				<Column size={guiConfig.size}>
+				<Column size={guiSize}>
 					<Params hasHeader={false} />
 				</Column>
 			{:else}
-				<Column size={guiConfig.size}>
+				<Column size={guiSize}>
 					<Params hasHeader={false} />
 				</Column>
-				<Column size={1 - guiConfig.size}>
+				<Column size={1 - guiSize}>
 					<Monitor hasHeader={false} {sketchKey} />
 				</Column>
 			{/if}
@@ -87,10 +76,11 @@
 	{:else}
 		<Monitor hasHeader={false} {sketchKey} />
 		<FloatingParams
-			output={guiConfig.output}
-			align={guiConfig.align}
-			size={guiConfig.size}
-			hidden={guiConfig.hidden}
+			output={guiOutput}
+			align={guiAlign}
+			size={guiSize}
+			hidden={guiHidden}
+			minimize={guiMinimize}
 		/>
 	{/if}
 {:else}
