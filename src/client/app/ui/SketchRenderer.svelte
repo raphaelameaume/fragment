@@ -8,6 +8,7 @@
 	import { exports } from '../state/exports.svelte.js';
 	import { client } from '../client';
 	import RecordHint from '../components/RecordHint.svelte';
+	import PausedHint from '../components/PausedHint.svelte';
 
 	let { key, id, visible = true } = $props();
 
@@ -101,7 +102,6 @@
 	bind:this={node}
 	class="sketch-renderer"
 	class:visible
-	class:recording={exports.recording}
 	style={`--background-color: ${backgroundColor}`}
 >
 	<div
@@ -111,6 +111,9 @@
 	></div>
 	{#if exports.recording}
 		<RecordHint />
+	{/if}
+	{#if rendering.paused && !exports.recording && !__BUILD__ && !layout.previewing}
+		<PausedHint />
 	{/if}
 </div>
 
@@ -153,9 +156,5 @@
 		height: 100% !important;
 
 		background-color: var(--background-color, #000000);
-	}
-
-	.sketch-renderer.recording .canvas-container {
-		opacity: 0.5;
 	}
 </style>
