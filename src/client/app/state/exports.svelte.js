@@ -30,20 +30,22 @@ class Exports {
 		this.key = `exports`;
 		$effect.root(() => {
 			$effect(() => {
-				persist(this.key, {
-					imageEncoding: this.imageEncoding,
-					videoFormat: this.videoFormat,
-					pixelsPerInch: this.pixelsPerInch,
-					framerate: this.framerate,
-					useDuration: this.useDuration,
-					duration: this.duration,
-					loopCount: this.loopCount,
-					imageQuality: this.imageQuality,
-					videoQuality: this.videoQuality,
-					imageCount: this.imageCount,
-					videoCollapsed: this.videoCollapsed,
-					imageCollapsed: this.imageCollapsed,
-				});
+				if (!__BUILD__) {
+					persist(this.key, {
+						imageEncoding: this.imageEncoding,
+						videoFormat: this.videoFormat,
+						pixelsPerInch: this.pixelsPerInch,
+						framerate: this.framerate,
+						useDuration: this.useDuration,
+						duration: this.duration,
+						loopCount: this.loopCount,
+						imageQuality: this.imageQuality,
+						videoQuality: this.videoQuality,
+						imageCount: this.imageCount,
+						videoCollapsed: this.videoCollapsed,
+						imageCollapsed: this.imageCollapsed,
+					});
+				}
 			});
 		});
 

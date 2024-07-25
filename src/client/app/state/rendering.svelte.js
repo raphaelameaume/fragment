@@ -125,7 +125,7 @@ class Rendering {
 
 		$effect.root(() => {
 			$effect(() => {
-				if (!layout.previewing) {
+				if (!layout.previewing && !__BUILD__) {
 					persist(this.key, {
 						width: this.width,
 						height: this.height,
@@ -491,6 +491,8 @@ class Rendering {
 	}
 
 	override(config) {
+		if (!config) return;
+
 		if (config.canvasSize) {
 			console.warn(
 				`buildConfig.canvasSize has been deprecated. Use buildConfig.resizing instead.`,
