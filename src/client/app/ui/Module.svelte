@@ -11,6 +11,7 @@
 		hasHeader = true,
 		children,
 		headerLeft,
+		headerRight,
 	} = $props();
 
 	const parent = getContext('parent');
@@ -52,6 +53,7 @@
 			</div>
 			<div class="header__col">
 				<div class="slot slot--right">
+					{@render headerRight()}
 					<!-- <slot name="header-right" /> -->
 				</div>
 			</div>
