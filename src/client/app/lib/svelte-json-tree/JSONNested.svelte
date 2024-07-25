@@ -1,9 +1,8 @@
 <script>
 	/* eslint-disable @typescript-eslint/no-empty-function */
-	import { onMount } from 'svelte';
+	import { getContext, onMount, setContext } from 'svelte';
 	import JSONArrow from './JSONArrow.svelte';
 	import { useState } from './utils.js';
-	import { writable } from 'svelte/store';
 	import Summary from './Summary.svelte';
 	import Expandable from './Expandable.svelte';
 
@@ -18,39 +17,23 @@
 		itemValue,
 	} = $props();
 
-	const {
-		isParentExpanded,
-		displayMode,
-		root,
-		expanded,
-		expandable,
-		keyPath,
-		level,
-		shouldExpandNode,
-	} = useState({ root: false }, { expandable: true });
-	$expandable = true;
+	let expanded = $state(defaultExpanded);
+	let expandable = $state(true);
+	let displayMode = getContext('displayMode');
+	let root = getContext('root');
+	let toggleExpand = (e) => {
+		e?.preventDefault();
 
-	if (displayMode !== 'summary') {
-		// if not internally control to open
-		if (!defaultExpanded) {
-			const controlled = shouldExpandNode({ keyPath, level });
-			if (controlled !== undefined) {
-				defaultExpanded = controlled;
-			}
-		}
+		expanded = !expanded;
+	};
 
-		onMount(() => {
-			return isParentExpanded.subscribe((value) => {
-				if (!value) expanded.set(false);
-				else expanded.set(defaultExpanded);
-			});
-		});
-	}
-	function toggleExpand() {
-		$expanded = !$expanded;
-	}
+	$effect(() => {
+		setContext('expandable', expandable);
+		setContext('expanded', expanded);
+		setContext('toggleExpand', toggleExpand);
+	});
 
-	let child_expanded = $derived(keys.map(() => writable(false)));
+	setContext('root', false);
 </script>
 
 {#if displayMode === 'summary'}
@@ -59,14 +42,14 @@
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 	<span class="root" onclick={(e) => toggleExpand(e)}>
 		{#if root}
-			<JSONArrow {expanded} />
+			<JSONArrow {expanded} {expandable} />
 		{/if}
 		<Summary>
 			{@render preview(root)}
 		</Summary>
 	</span>
 
-	{#if $expanded}
+	{#if expanded}
 		<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 		<ul
 			onclick={(e) => {
@@ -76,28 +59,18 @@
 		>
 			{#each keys as key, index}
 				<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-				<li
-					class:indent={$expanded}
-					onclick={(e) => {
-						e.stopPropagation();
-					}}
-				>
-					<Expandable
-						key={expandKey(key)}
-						expanded={child_expanded[index]}
-					>
+				<li class:indent={expanded}>
+					<Expandable key={expandKey(key)}>
 						<!-- svelte-ignore a11y-no-static-element-interactions -->
-						<span
-							class="label"
-							onclick={() =>
-								child_expanded[index].update((value) => !value)}
-						>
+						<!-- child_expanded[index].update((value) => !value) -->
+						<span class="label">
 							<JSONArrow />
 							{@render itemKey(key)}
-							{#if !shouldShowColon || shouldShowColon(key)}<span
-									class="operator">{': '}</span
-								>{/if}
-						</span>{@render itemValue(key)}
+							{#if !shouldShowColon || shouldShowColon(key)}
+								<span class="operator">{': '}</span>
+							{/if}
+						</span>
+						{@render itemValue(key)}
 					</Expandable>
 				</li>
 			{/each}
@@ -107,13 +80,16 @@
 
 <style>
 	.root {
-		display: inline-block;
+		display: inline-flex;
 		position: relative;
+		flex-wrap: wrap;
+		white-space: pre-wrap;
 	}
 	.indent {
 		padding-left: var(--li-identation);
 	}
 	.label {
 		position: relative;
+		display: inline-flex;
 	}
 </style>

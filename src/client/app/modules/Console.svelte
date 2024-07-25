@@ -17,6 +17,7 @@
 		mirrored.forEach((key) => {
 			const ref = console[`${key}`];
 			refs[`${key}`] = ref;
+			// window[`${key}`] = ref;
 
 			console[`${key}`] = (...args) => {
 				let isFromVite = args.some(
@@ -86,7 +87,7 @@
 		<div class="list">
 			<div class="scroll" bind:this={scrollableContainer}>
 				{#each logs as log}
-					<ConsoleLine {log} />
+					<ConsoleLine log={$state.snapshot(log)} />
 				{/each}
 			</div>
 		</div>

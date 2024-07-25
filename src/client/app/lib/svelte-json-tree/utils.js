@@ -40,15 +40,18 @@ export function objType(obj, shouldTreatIterableAsObject) {
 	return type;
 }
 
-const STATE = {};
+export function useState() {
+	const root = getContext('root');
+	const displayMode = getContext('displayMode');
+	const expandable = getContext('expandable');
+	const expanded = getContext('expanded');
+	const toggleExpand = getContext('toggleExpand');
 
-export function useState(newState, opts = {}) {
-	const currentState = getContext(STATE);
-	const _newState =
-		typeof newState === 'function' ? newState(currentState) : newState;
-	const nextState = { ...currentState, ..._newState };
-	if (opts?.expandable) nextState.isParentExpanded = nextState.expanded;
-
-	setContext(STATE, nextState);
-	return currentState;
+	return {
+		root,
+		displayMode,
+		expandable,
+		expanded,
+		toggleExpand,
+	};
 }

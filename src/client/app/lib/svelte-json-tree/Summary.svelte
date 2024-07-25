@@ -1,9 +1,9 @@
 <script>
-	import { useState } from './utils.js';
+	import { setContext } from 'svelte';
 
 	let { children } = $props();
 
-	useState({ displayMode: 'summary' });
+	setContext('displayMode', 'summary');
 </script>
 
 {@render children()}

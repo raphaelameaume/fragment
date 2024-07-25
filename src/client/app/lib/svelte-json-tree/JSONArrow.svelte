@@ -1,20 +1,18 @@
 <script>
-	import { useState } from './utils.js';
-	const { expanded: _expanded, expandable } = useState();
+	import { useState } from './utils';
 
-	let { expanded = _expanded } = $props();
+	let {
+		expandable: _expandable,
+		expanded: _expanded,
+		toggleExpand,
+	} = useState();
+	let { expanded = _expanded, expandable = _expandable } = $props();
 </script>
 
-{#if $expandable}
+{#if expandable}
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<span
-		class="container"
-		onclick={(event) => {
-			event.stopPropagation();
-			$expanded = !$expanded;
-		}}
-	>
-		<span class="arrow" class:expanded={$expanded}>{'\u25B6'}</span>
+	<span class="container">
+		<span class="arrow" class:expanded>{'\u25B6'}</span>
 	</span>
 {/if}
 

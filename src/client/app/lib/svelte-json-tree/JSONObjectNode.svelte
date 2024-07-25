@@ -3,7 +3,7 @@
 	import JSONNode from './JSONNode.svelte';
 	import PreviewList from './PreviewList.svelte';
 
-	let { value, summary } = $props();
+	let { value, summary: summaryText } = $props();
 
 	let keys = $derived(Object.getOwnPropertyNames(value));
 	let previewKeys = $derived(keys.slice(0, 5));
@@ -11,15 +11,15 @@
 
 <JSONNested {keys}>
 	{#snippet summary()}
-		<span class="label">{summary ?? '{…}'}</span>
+		<span class="label">{summaryText ?? '{…}'}</span>
 	{/snippet}
 
 	{#snippet preview(root)}
 		<PreviewList
 			list={previewKeys}
 			hasMore={previewKeys.length < keys.length}
-			prefix={summary ? `${summary} {` : '{'}
-			postfix={'}'}
+			prefix={summaryText ? `${summaryText} {` : '{ '}
+			postfix={' }'}
 			{root}
 		>
 			{#snippet item(key)}

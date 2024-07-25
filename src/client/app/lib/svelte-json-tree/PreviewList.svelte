@@ -1,22 +1,22 @@
 <script>
-	import { useState } from './utils.js';
-
 	let {
 		list,
 		label = undefined,
 		prefix = undefined,
 		postfix = undefined,
 		root = false,
+		hasMore,
 		item,
 	} = $props();
-
-	const { showPreview } = useState();
 </script>
 
-{#if root || showPreview}
-	{#if prefix}{#if label}<span class="label">{label}</span>{/if}<span
-			class="operator">{prefix}</span
-		>{/if}
+{#if root}
+	{#if prefix}
+		{#if label}
+			<span class="label">{label}</span>
+		{/if}
+		<span class="operator">{prefix} </span>
+	{/if}
 	{#each list as node, index}
 		{@render item(node)}
 		{#if index < list.length - 1}
@@ -32,7 +32,6 @@
 
 <style>
 	.comma {
-		margin-left: -0.5em;
 		margin-right: 0.5em;
 	}
 </style>

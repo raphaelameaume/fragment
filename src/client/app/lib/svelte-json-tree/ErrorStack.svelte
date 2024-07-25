@@ -4,12 +4,12 @@
 
 	let { stack } = $props();
 
-	const { expanded, expandable } = useState();
+	const { expanded, expandable, toggleExpand } = useState();
 	//expandable = true;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events a11y-no-static-element-interactions -->
-<span onclick={() => ($expanded = !$expanded)} role="button">
+<span onclick={(e) => toggleExpand(e)} role="button">
 	{#if expanded}
 		{#each stack as line, index}
 			{@const appendNewLine = index < stack.length - 1}
