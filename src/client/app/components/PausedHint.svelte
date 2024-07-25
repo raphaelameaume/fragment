@@ -34,12 +34,14 @@
 		bottom: 0;
 		right: 0;
 
+		width: 100%;
+
 		background: rgba(0, 0, 0, 0.5);
 	}
 	.label {
 		position: absolute;
 		top: 4px;
-		left: 4px;
+		right: 4px;
 		z-index: 2;
 
 		display: flex;
