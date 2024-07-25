@@ -1,35 +1,31 @@
-<script>
-	import { onMount } from 'svelte';
-
-	let showLabel = $state(false);
-
-	onMount(() => {
-		let timeout = setTimeout(() => {
-			showLabel = true;
-		}, 250);
-
-		return () => {
-			clearTimeout(timeout);
-			timeout = null;
-		};
-	});
-</script>
-
-<div class="hint-loading">
-	{#if showLabel}
-		<div class="label">
-			<span>loading</span>
-			<svg width="10" height="6">
-				<circle cx="2" cy="5" r="1" fill="var(--color)" />
-				<circle cx="5" cy="5" r="1" fill="var(--color)" />
-				<circle cx="8" cy="5" r="1" fill="var(--color)" />
-			</svg>
-		</div>
-	{/if}
+<div class="paused-hint">
+	<div class="label">
+		<svg width="10" height="6">
+			<rect
+				x="2"
+				y="0"
+				width="2"
+				height="8"
+				fill="var(--color)"
+				rx="1"
+				ry="1"
+			/>
+			<rect
+				x="5"
+				y="0"
+				width="2"
+				height="8"
+				fill="var(--color)"
+				rx="1"
+				ry="1"
+			/>
+		</svg>
+		<span>paused</span>
+	</div>
 </div>
 
 <style>
-	.hint-loading {
+	.paused-hint {
 		--color: #ffffff;
 
 		position: absolute;
@@ -60,8 +56,6 @@
 		border: 1px solid var(--color);
 		border-radius: 2px;
 		text-transform: uppercase;
-
-		/* animation: fade 1s ease-in-out infinite; */
 	}
 
 	/* .label:before {

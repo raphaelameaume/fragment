@@ -22,6 +22,8 @@ export const SIZES = {
 };
 
 class Render {
+	loading = $state(true);
+
 	constructor({ id, container, params, canvas, sketch, renderer }) {
 		this.id = id;
 		this.container = container;
@@ -63,6 +65,8 @@ class Render {
 		};
 
 		this.loop = ({ deltaTime = 0 } = {}) => {
+			if (this.loading) return;
+
 			let { elapsed, time } = this;
 
 			let playhead = time / 1000 / duration;
@@ -80,6 +84,18 @@ class Render {
 
 			this.time += deltaTime;
 			this.elapsed += deltaTime;
+		};
+
+		this.init = async () => {
+			try {
+				await sketch.load(params);
+				await sketch.setup(params);
+
+				this.loading = false;
+			} catch (error) {
+				console.error(error);
+				displayError(error, sketch.key);
+			}
 		};
 	}
 }
@@ -304,24 +320,18 @@ class Rendering {
 			props: sketch.instance.props,
 		};
 
-		try {
-			await sketch.load(params);
-			await sketch.setup(params);
+		const render = new Render({
+			id,
+			container,
+			params,
+			canvas,
+			sketch,
+			renderer,
+		});
 
-			const render = new Render({
-				id,
-				container,
-				params,
-				canvas,
-				sketch,
-				renderer,
-			});
+		this.renders.push(render);
 
-			this.renders.push(render);
-		} catch (error) {
-			console.error(error);
-			displayError(error, sketch.key);
-		}
+		await render.init();
 	}
 
 	createCanvas({

@@ -9,6 +9,7 @@
 	import { client } from '../client';
 	import HintRecord from '../components/HintRecord.svelte';
 	import HintPaused from '../components/HintPaused.svelte';
+	import HintLoading from '../components/HintLoading.svelte';
 
 	let { key, id, visible = true } = $props();
 
@@ -23,6 +24,11 @@
 	let resizeObserver = new ResizeObserver(() => {
 		checkForResize();
 	});
+	let loading = $derived(
+		rendering.renders.find((r) => r.id === id)?.loading ?? true,
+	);
+
+	$inspect(loading);
 
 	$effect(() => {
 		if (sketch) {
@@ -115,6 +121,9 @@
 	{#if rendering.paused && !exports.recording && !__BUILD__ && !layout.previewing}
 		<HintPaused />
 	{/if}
+	{#if loading}
+		<HintLoading />
+	{/if}
 </div>
 
 <style>
@@ -144,8 +153,6 @@
 
 		width: var(--w);
 		height: calc(var(--w) * var(--aspect-ratio-inverse));
-
-		background-color: red;
 	}
 
 	:global(.canvas-container canvas) {
