@@ -1,31 +1,16 @@
-<div class="paused-hint">
+<div class="hint-loading">
 	<div class="label">
+		<span>loading</span>
 		<svg width="10" height="6">
-			<rect
-				x="2"
-				y="0"
-				width="2"
-				height="8"
-				fill="var(--color)"
-				rx="1"
-				ry="1"
-			/>
-			<rect
-				x="5"
-				y="0"
-				width="2"
-				height="8"
-				fill="var(--color)"
-				rx="1"
-				ry="1"
-			/>
+			<circle cx="2" cy="5" r="1" fill="var(--color)" />
+			<circle cx="5" cy="5" r="1" fill="var(--color)" />
+			<circle cx="8" cy="5" r="1" fill="var(--color)" />
 		</svg>
-		<span>paused</span>
 	</div>
 </div>
 
 <style>
-	.paused-hint {
+	.hint-loading {
 		--color: #ffffff;
 
 		position: absolute;
@@ -56,6 +41,8 @@
 		border: 1px solid var(--color);
 		border-radius: 2px;
 		text-transform: uppercase;
+
+		/* animation: fade 1s ease-in-out infinite; */
 	}
 
 	/* .label:before {

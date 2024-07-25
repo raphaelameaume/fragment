@@ -7,8 +7,8 @@
 	import Sketch from '../state/Sketch.svelte.js';
 	import { exports } from '../state/exports.svelte.js';
 	import { client } from '../client';
-	import RecordHint from '../components/RecordHint.svelte';
-	import PausedHint from '../components/PausedHint.svelte';
+	import HintRecord from '../components/HintRecord.svelte';
+	import HintPaused from '../components/HintPaused.svelte';
 
 	let { key, id, visible = true } = $props();
 
@@ -110,10 +110,10 @@
 		bind:this={container}
 	></div>
 	{#if exports.recording}
-		<RecordHint />
+		<HintRecord />
 	{/if}
 	{#if rendering.paused && !exports.recording && !__BUILD__ && !layout.previewing}
-		<PausedHint />
+		<HintPaused />
 	{/if}
 </div>
 
