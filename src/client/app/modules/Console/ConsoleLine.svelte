@@ -1,5 +1,5 @@
 <script>
-	import JSONTree from 'svelte-json-tree';
+	import JSONTree from '../../lib/svelte-json-tree';
 	// import ConsoleTable from './ConsoleTable.svelte';
 
 	export let log;
@@ -17,7 +17,7 @@
 <div
 	class="log console-{log.level}"
 	style="padding-left: {level * 8}px"
-	on:click={log.level === 'group' ? toggleGroupCollapse : undefined}
+	onclick={log.level === 'group' ? toggleGroupCollapse : undefined}
 >
 	{#if log.count > 1}
 		<div class="count">
@@ -29,7 +29,7 @@
 		<div
 			class="arrow"
 			class:expand={!log.collapsed}
-			on:click={toggleGroupCollapse}
+			onclick={toggleGroupCollapse}
 		>
 			▶
 		</div>
@@ -68,7 +68,7 @@
 		</div>
 	{/if}
 	{#each new Array(level - 1) as _, idx}
-		<div class="outline" style="left: {idx * 15 + 15}px" />
+		<div class="outline" style="left: {idx * 15 + 15}px"></div>
 	{/each}
 </div>
 
