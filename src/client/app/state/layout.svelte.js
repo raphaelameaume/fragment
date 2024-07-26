@@ -18,12 +18,12 @@ class Layout {
 		$effect.root(() => {
 			$effect(() => {
 				if (!this.previewing && !__BUILD__) {
-					this.persist(this.tree);
+					this.persist($state.snapshot(this.components));
 				}
 			});
 		});
 
-		this.tree = hydrate(this.key);
+		this.components.push(...hydrate(this.key, null, []));
 	}
 
 	createComponent({
@@ -37,7 +37,9 @@ class Layout {
 		children = [],
 	}) {
 		let existingComponent = this.getComponent(id);
+
 		if (existingComponent) {
+			COMPONENT_ID = Math.max(existingComponent.id + 1, COMPONENT_ID);
 			return existingComponent;
 		}
 
@@ -82,7 +84,6 @@ class Layout {
 					});
 
 					originChildren.forEach((child) => {
-						child.depth += 2;
 						child.parent = col1.id;
 					});
 					col1.children.push(...originChildren.map((c) => c.id));
@@ -105,7 +106,6 @@ class Layout {
 					const { size } = sibling;
 					sibling.size = size * 0.5;
 					component.size = size * 0.5;
-					component.depth = sibling.depth;
 					component.parent = sibling.parent;
 					parent.children.splice(index + 1, 0, component.id);
 				}
@@ -115,7 +115,6 @@ class Layout {
 			) {
 				const child = this.getComponent(originComponent.children[0]);
 
-				child.depth += 1;
 				originComponent.children.length = 0;
 
 				const replacement = this.createComponent({
@@ -132,14 +131,12 @@ class Layout {
 					component.id,
 				);
 			} else {
-				component.depth = originComponent.depth + 1;
 				component.parent = originComponent.id;
 
 				originComponent.children.push(component.id);
 			}
 		} else {
 			component.root = true;
-			component.depth = 0;
 		}
 
 		if (component) {
@@ -153,37 +150,17 @@ class Layout {
 		return this.components.filter((c) => c.parent === id);
 	}
 
-	traverse(fn = () => {}, node = this.tree) {
-		const { children = [] } = node;
-
-		fn(node);
-
-		for (let i = 0; i < children.length; i++) {
-			const child = children[i];
-			this.traverse(fn, child);
-		}
-	}
-
-	persist(tree) {
-		const createTree = (source, target) => {
-			target.id = source.id;
-			target.depth = source.depth;
-			target.size = source.size;
-			target.root = source.root;
-			target.type = source.type;
-			target.name = source.name;
-			target.minimized = source.minimized;
-			target.children = [];
-
-			source.children?.forEach((child, index) => {
-				target.children[index] = {};
-				createTree(child, target.children[index]);
-			});
-
-			return target;
-		};
-
-		const mirrored = createTree(tree, {});
+	persist(components) {
+		const mirrored = components.map((source) => ({
+			id: source.id,
+			parent: source.parent,
+			size: source.size,
+			root: source.root,
+			type: source.type,
+			name: source.name,
+			minimized: source.minimized,
+			children: [...source.children],
+		}));
 
 		persist(this.key, mirrored);
 	}

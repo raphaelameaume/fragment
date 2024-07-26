@@ -69,13 +69,6 @@
 		// onMount of <LayoutRoot> is trigger the last, so by this time, every child component has registered himself into the layout tree
 		let timeout;
 
-		// if (current.root) {
-		// 	// avoid mount of module on boot
-		// 	// timeout = setTimeout(() => {
-		// 	// 	layout.tree = current;
-		// 	// }, 16);
-		// }
-
 		return () => {
 			if (timeout) {
 				clearTimeout(timeout);
@@ -86,8 +79,6 @@
 
 	function addComponent(newType) {
 		const childCount = childComponents.length;
-
-		console.log('addComponent', newType, current.type);
 
 		layout.createComponent({
 			origin: current.id,
