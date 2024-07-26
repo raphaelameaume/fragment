@@ -4,12 +4,17 @@
 	import Select from './fields/Select.svelte';
 	import { moduleNames } from './ModuleRenderer.svelte';
 
-	let { moduleName, isRoot, vertical = false, onAddColumn, onAddRow, onDelete, onchange } = $props();
+	let {
+		moduleName,
+		isRoot,
+		vertical = false,
+		onAddColumn,
+		onAddRow,
+		onDelete,
+		onchange,
+	} = $props();
 
 	const defaultValue = 'Select a module';
-
-	let splitColumns = false;
-	let splitRows = false;
 
 	const options = [
 		{ value: undefined, label: defaultValue, disabled: true },
@@ -17,12 +22,7 @@
 	];
 </script>
 
-<div
-	class="toolbar"
-	class:root={isRoot}
-	class:split-columns={splitColumns}
-	class:split-rows={splitRows}
->
+<div class="toolbar" class:root={isRoot}>
 	<div class="content" class:vertical>
 		{#if !isRoot}
 			<div class="module">
@@ -40,8 +40,6 @@
 				label="Split in columns"
 				showLabel={false}
 				title="Split in columns"
-				onmouseenter={() => (splitColumns = true)}
-				onmouseleave={() => (splitColumns = false)}
 				onclick={onAddColumn}
 			>
 				<div class="icon-layout">
@@ -53,8 +51,6 @@
 				label="Split in rows"
 				showLabel={false}
 				title="Split in rows"
-				onmouseenter={() => (splitRows = true)}
-				onmouseleave={() => (splitRows = false)}
 				onclick={onAddRow}
 			>
 				<div class="icon-layout row">
@@ -99,47 +95,9 @@
 		background: rgba(0, 0, 0, 0.8);
 	}
 
-	.toolbar:after {
-		content: '';
-
-		position: absolute;
-		right: 0;
-		z-index: 100;
-
-		width: 6px;
-		height: 100%;
-
-		background-color: rgba(255, 255, 255, 0.2);
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 100ms ease;
-	}
-
-	.toolbar.split-columns:after {
-		opacity: 1;
-	}
-
-	.toolbar:before {
-		content: '';
-
-		position: absolute;
-		left: 0;
-		bottom: 0;
-
-		width: 100%;
-		height: 6px;
-
-		background-color: rgba(255, 255, 255, 0.2);
-		opacity: 0;
-		transition: opacity 100ms ease;
-	}
-
-	.toolbar.split-rows:before {
-		opacity: 1;
-	}
-
 	.toolbar.root {
 		align-items: flex-start;
+		z-index: 200;
 
 		pointer-events: none;
 	}

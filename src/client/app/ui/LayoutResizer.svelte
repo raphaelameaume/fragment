@@ -11,7 +11,7 @@
 	import { layout } from '../state/layout.svelte.js';
 	import { clamp, map } from '../utils/math.utils.js';
 
-	let { direction = DIRECTIONS.HORIZONTAL, current, parent } = $props();
+	let { direction = DIRECTIONS.HORIZONTAL, current } = $props();
 
 	let visible = $state(false);
 	let isDragging = $state(false);
@@ -20,23 +20,18 @@
 	let currentSize, nextSize, totalSize;
 
 	function findNext() {
-		const parentNode = parent.node;
+		const { parent } = current;
+		const parentNode = layout.getComponent(parent).node;
+
 		const childNodes = [...parentNode.children];
+		const currentNodeIndex = childNodes.findIndex(
+			(c) => c === current.node,
+		);
+		const nextNode = childNodes[currentNodeIndex + 2];
 
-		const index = childNodes.findIndex((c) => c === current.node);
-		const nextNode = childNodes[index + 2];
-
-		next = parent.children.find((c) => c.node === nextNode);
-
-		layout.traverse((c) => {
-			if (c.id === next.id) {
-				nextSize = c.size;
-			}
-
-			if (c.id === current.id) {
-				currentSize = c.size;
-			}
-		});
+		next = layout.components.find((c) => c.node === nextNode);
+		nextSize = next.size;
+		currentSize = current.size;
 	}
 
 	function handleMouseDown() {
@@ -127,10 +122,13 @@
 			nextFlex = 0;
 		}
 
-		layout.resize([
-			{ id: current.id, size: prevFlex },
-			{ id: next.id, size: nextFlex },
-		]);
+		current.size = prevFlex;
+		next.size = nextFlex;
+
+		// layout.resize([
+		// 	{ id: current.id, size: prevFlex },
+		// 	{ id: next.id, size: nextFlex },
+		// ]);
 	}
 </script>
 

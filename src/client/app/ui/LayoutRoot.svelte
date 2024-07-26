@@ -3,12 +3,8 @@
 	import LayoutComponent from './LayoutComponent.svelte';
 
 	let { children } = $props();
-
-	let tree = $derived(layout.tree);
 </script>
 
-<LayoutComponent tree={tree.children}>
-	{#if !layout.tree.children}
-		{@render children()}
-	{/if}
+<LayoutComponent>
+	{@render children()}
 </LayoutComponent>

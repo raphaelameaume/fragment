@@ -4,19 +4,31 @@ let COMPONENT_ID = 0;
 
 class Layout {
 	tree = $state({});
+	components = $state([]);
 	editing = $state(false);
 	previewing = $state(false);
 
+	getID() {
+		return COMPONENT_ID++;
+	}
+
 	constructor() {
 		this.key = 'layout';
+
+		$effect.root(() => {
+			$effect(() => {
+				if (!this.previewing && !__BUILD__) {
+					this.persist(this.tree);
+				}
+			});
+		});
 
 		this.tree = hydrate(this.key);
 	}
 
 	createComponent({
-		id = COMPONENT_ID++,
-		origin = null,
-		root = origin === null,
+		id = this.getID(),
+		origin,
 		node = null,
 		size = 1,
 		minimized = false,
@@ -29,9 +41,8 @@ class Layout {
 			return existingComponent;
 		}
 
-		const component = {
+		let component = {
 			id,
-			root,
 			node,
 			size,
 			minimized,
@@ -40,79 +51,106 @@ class Layout {
 			children,
 		};
 
-		const isSibling = component.type === origin?.type;
+		const originComponent = this.getComponent(origin);
+		const isSibling = component.type === originComponent?.type;
 
-		if (component.root) {
-			component.depth = 0;
-		} else if (isSibling) {
-			if (origin.root) {
-				origin.children.length = 0;
-				// const intermediate = createComponent({
-				// 	type: 'row',
-				// 	size: 1,
-				// 	origin,
-				// });
-				const col1 = this.createComponent({
-					type: 'row',
-					size: 0.5,
+		if (originComponent) {
+			component.root = false;
+
+			if (isSibling) {
+				if (originComponent.root) {
+					const originChildren = originComponent.children.map(
+						(childID) =>
+							this.components.find((c) => c.id === childID),
+					);
+
+					originComponent.children.length = 0;
+
+					const intermediate = this.createComponent({
+						type:
+							originComponent.type === 'column'
+								? 'row'
+								: 'column',
+						size: 1,
+						origin,
+					});
+
+					const col1 = this.createComponent({
+						type: intermediate.type === 'column' ? 'row' : 'column',
+						size: 0.5,
+						origin: intermediate.id,
+					});
+
+					originChildren.forEach((child) => {
+						child.depth += 2;
+						child.parent = col1.id;
+					});
+					col1.children.push(...originChildren.map((c) => c.id));
+
+					this.createComponent({
+						type: intermediate.type === 'column' ? 'row' : 'column',
+						size: 0.5,
+						origin: intermediate.id,
+					});
+
+					component = null;
+				} else {
+					// add sibling
+					const sibling = originComponent;
+					const parent = this.getComponent(sibling.parent);
+					const index = parent.children.findIndex(
+						(id) => id === sibling.id,
+					);
+
+					const { size } = sibling;
+					sibling.size = size * 0.5;
+					component.size = size * 0.5;
+					component.depth = sibling.depth;
+					component.parent = sibling.parent;
+					parent.children.splice(index + 1, 0, component.id);
+				}
+			} else if (
+				originComponent.children.length === 1 &&
+				this.getComponent(originComponent.children[0]).type === 'module'
+			) {
+				const child = this.getComponent(originComponent.children[0]);
+
+				child.depth += 1;
+				originComponent.children.length = 0;
+
+				const replacement = this.createComponent({
+					type: originComponent.type === 'column' ? 'row' : 'column',
 					origin,
 				});
 
-				const col2 = this.createComponent({
-					type: 'row',
-					size: 0.5,
-					origin,
-				});
-
-				const col3 = this.createComponent({
-					type: 'column',
-					size: 0.5,
-					origin: col1,
-				});
-
-				const col4 = this.createComponent({
-					type: 'column',
-					size: 1,
-					origin: col1,
-				});
-			} else {
-				// add sibling
-				const { parent } = origin;
-
-				const index = parent.children.findIndex(
-					(k) => k.id === origin.id,
+				replacement.children.push(child.id);
+				component.parent = origin;
+				originComponent.children.splice(
+					0,
+					1,
+					replacement.id,
+					component.id,
 				);
+			} else {
+				component.depth = originComponent.depth + 1;
+				component.parent = originComponent.id;
 
-				const { size } = origin;
-				origin.size = size * 0.5;
-				component.size = size * 0.5;
-				component.depth = origin.depth;
-				component.parent = parent;
-				parent.children.splice(index + 1, 0, component);
+				originComponent.children.push(component.id);
 			}
-		} else if (
-			origin.children.length === 1 &&
-			origin.children[0].type === 'module'
-		) {
-			const childModule = origin.children[0];
-			childModule.depth += 1;
-			origin.children.length = 0;
-
-			const replacement = this.createComponent({
-				type: origin.type === 'column' ? 'row' : 'column',
-				origin,
-			});
-			replacement.children.push(childModule);
-			component.parent = origin;
-			origin.children.splice(0, 1, replacement, component);
 		} else {
-			component.depth = origin.depth + 1;
-			component.parent = origin;
+			component.root = true;
+			component.depth = 0;
+		}
 
-			origin.children.push(component);
+		if (component) {
+			this.components.push(component);
 		}
 
 		return component;
+	}
+
+	getChildrenOf(id) {
+		return this.components.filter((c) => c.parent === id);
 	}
 
 	traverse(fn = () => {}, node = this.tree) {
@@ -126,7 +164,7 @@ class Layout {
 		}
 	}
 
-	persist() {
+	persist(tree) {
 		const createTree = (source, target) => {
 			target.id = source.id;
 			target.depth = source.depth;
@@ -145,51 +183,38 @@ class Layout {
 			return target;
 		};
 
-		const mirrored = createTree(this.tree, {});
+		const mirrored = createTree(tree, {});
 
 		persist(this.key, mirrored);
 	}
 
 	remove(component) {
-		const { parent } = component;
+		const parent = this.getComponent(component.parent);
 
 		const componentIndex = parent.children.findIndex(
-			(c) => c.id === component.id,
+			(id) => id === component.id,
 		);
 
 		parent.children.splice(componentIndex, 1);
-		const newSize = 1 / (parent.children.length - 1);
-		parent.children.forEach((child) => {
+		const newSize = 1 / Math.max(1, parent.children.length - 1);
+		parent.children.forEach((childID) => {
+			const child = this.getComponent(childID);
 			child.size = newSize;
 		});
 
+		this.components.splice(
+			this.components.findIndex((c) => c.id === component.id),
+			1,
+		);
+
 		if (parent.children.length === 0) {
-			// remove(parent);
+			parent.size = 1;
+			this.remove(parent);
 		}
 	}
 
-	resize(nodes = []) {
-		this.traverse((c) => {
-			nodes.forEach((n) => {
-				if (n.id === c.id) {
-					c.size = n.size;
-				}
-			});
-		});
-
-		// this.tree.size = nodes[0].size;
-	}
-
 	getComponent(id) {
-		let component;
-
-		this.traverse((c) => {
-			if (c.id === id) {
-				component = c;
-			}
-		});
-
-		return component;
+		return this.components.find((c) => c.id === id);
 	}
 }
 

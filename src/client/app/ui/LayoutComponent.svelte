@@ -17,42 +17,40 @@
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import Preview from './Preview.svelte';
 
-	let { id, size = 1, type = 'column', tree, children } = $props();
+	let {
+		id = layout.getID(),
+		size = 1,
+		type = 'column',
+		tree,
+		children,
+	} = $props();
 
-	let parent = hasContext('parent') ? getContext('parent') : null;
-	let depth = hasContext('depth') ? getContext('depth') + 1 : 0;
+	let parent = getContext('parent');
 	let isColumn = $derived(type === 'column');
 	let isRow = $derived(!isColumn);
 
-	let current = layout.createComponent({
+	const component = layout.createComponent({
 		id,
-		depth,
 		size,
 		origin: parent,
 		type,
 	});
 
+	let current = $derived(layout.components.find((c) => c.id === id));
+	let childComponents = $derived(
+		current.children.map((c) => layout.getComponent(c)),
+	);
 	let minimized = $derived(current.minimized);
-
-	$effect(() => {
-		layout.persist({
-			id: current.id,
-			size: current.size,
-			name: current.children[0]?.name,
-			minimized: current.minimized,
-		});
-		// }
-	});
-
 	let isRoot = $derived(current.root);
+
+	setContext('parent', component.id);
 
 	let property = $derived(
 		isColumn ? `grid-template-rows` : `grid-template-columns`,
 	);
-	let nodes = $derived(tree ?? current.children);
 	let value = $derived.by(() => {
-		const totalSize = nodes.reduce((t, n) => t + n.size, 0);
-		return nodes
+		const totalSize = childComponents.reduce((t, n) => t + n.size, 0);
+		return childComponents
 			.map(({ size, minimized }) =>
 				minimized && isColumn && !layout.editing
 					? '25px 0px'
@@ -61,28 +59,38 @@
 			.join(' ');
 	});
 	let style = $derived(
-		Array.isArray(nodes) && nodes.length > 0 ? `${property}:${value}` : '',
+		Array.isArray(childComponents) && childComponents.length > 0
+			? `${property}:${value}`
+			: '',
 	);
-
-	setContext('parent', current);
-	setContext('depth', depth);
 
 	onMount(() => {
 		// this is what makes the whole layout rerender after setup
 		// onMount of <LayoutRoot> is trigger the last, so by this time, every child component has registered himself into the layout tree
-		if (current.root) {
-			// avoid mount of module on boot
-			setTimeout(() => {
-				layout.tree = current;
-			}, 16);
-		}
+		let timeout;
+
+		// if (current.root) {
+		// 	// avoid mount of module on boot
+		// 	// timeout = setTimeout(() => {
+		// 	// 	layout.tree = current;
+		// 	// }, 16);
+		// }
+
+		return () => {
+			if (timeout) {
+				clearTimeout(timeout);
+				timeout = null;
+			}
+		};
 	});
 
 	function addComponent(newType) {
-		const childCount = current.children.length;
+		const childCount = childComponents.length;
+
+		console.log('addComponent', newType, current.type);
 
 		layout.createComponent({
-			origin: current,
+			origin: current.id,
 			type: newType,
 		});
 
@@ -90,7 +98,7 @@
 		// instead of a single child component which wouldn't make any visual change
 		if (childCount === 0 && newType !== current.type) {
 			layout.createComponent({
-				origin: current,
+				origin: current.id,
 				type: newType,
 			});
 		}
@@ -104,12 +112,12 @@
 	}
 
 	function handleModuleChange(moduleName) {
-		if (current.children.length && current.children[0].type === 'module') {
-			current.children[0].name = moduleName; // keep state when replacingChildren
+		if (childComponents.length && childComponents[0].type === 'module') {
+			childComponents[0].name = moduleName; // keep state when replacingChildren
 		} else {
 			layout.createComponent({
 				type: 'module',
-				origin: current,
+				origin: current.id,
 				name: moduleName,
 			});
 		}
@@ -122,12 +130,13 @@
 	class:root={isRoot}
 	class:row={isRow}
 	class:minimized
-	bind:this={current.node}
+	bind:this={component.node}
+	data-component={component.id}
 >
-	{#if isRoot && layout.previewing}
-		<Preview />
-	{:else if tree && tree.length > 0}
-		{#each tree as child (child.id)}
+	<!-- {#if isRoot && layout.previewing}
+		<Preview /> -->
+	{#if childComponents.length > 0}
+		{#each childComponents as child (child.id)}
 			{#if child.type === 'column' || child.type === 'row'}
 				<svelte:self
 					id={child.id}
@@ -149,10 +158,10 @@
 	{:else}
 		{@render children()}
 	{/if}
-	{#if layout.editing && ((current.children.length === 1 && current.children[0].type === 'module') || isRoot || current.children.length === 0)}
+	{#if layout.editing && (isRoot || (childComponents.length === 1 && childComponents[0].type === 'module') || childComponents.length === 0)}
 		<Toolbar
 			{isRoot}
-			moduleName={current.children[0]?.name}
+			moduleName={childComponents[0]?.name}
 			onchange={handleModuleChange}
 			onAddRow={addRow}
 			onAddColumn={addColumn}
@@ -161,11 +170,7 @@
 	{/if}
 </div>
 {#if !isRoot}
-	<Resizer
-		direction={isColumn ? 'vertical' : 'horizontal'}
-		{current}
-		{parent}
-	/>
+	<Resizer direction={isColumn ? 'vertical' : 'horizontal'} {current} />
 {/if}
 
 <style>
