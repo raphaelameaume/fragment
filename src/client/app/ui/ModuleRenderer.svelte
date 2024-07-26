@@ -11,7 +11,7 @@
 <script>
 	import Module from './Module.svelte';
 
-	let { id, name, hasHeader = true, isDynamic = false } = $props();
+	let { id, name, hasHeader = true } = $props();
 
 	const moduleList = {
 		monitor: () => import('../modules/Monitor.svelte'),

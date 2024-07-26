@@ -5,7 +5,6 @@
 	let {
 		id,
 		name,
-		key,
 		slug = name,
 		scrollable = true,
 		hasHeader = true,
@@ -14,24 +13,19 @@
 		headerRight,
 	} = $props();
 
-	const parent = getContext('parent');
-	const depth = getContext('depth');
+	const parent = layout.getComponent(getContext('parent'));
 
 	const current = layout.createComponent({
 		id,
 		type: 'module',
 		name: slug,
 		hasHeader,
-		origin: parent,
+		origin: parent.id,
 	});
 
 	const toggleMinimized = () => {
 		parent.minimized = !parent.minimized;
 	};
-
-	// onDestroy(() => {
-	// 	// layout.remove(current);
-	// });
 </script>
 
 <div
@@ -60,11 +54,7 @@
 		</header>
 	{/if}
 	<div class="module__container">
-		{#if layout.tree.children}
-			{@render children()}
-		{:else}
-			<p>Do not render children on boot</p>
-		{/if}
+		{@render children()}
 	</div>
 </div>
 

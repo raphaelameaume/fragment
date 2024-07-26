@@ -168,6 +168,13 @@ class Layout {
 	remove(component) {
 		const parent = this.getComponent(component.parent);
 
+		component.children.forEach((child) => {
+			this.components.splice(
+				this.components.findIndex((c) => c.id === child),
+				1,
+			);
+		});
+
 		const componentIndex = parent.children.findIndex(
 			(id) => id === component.id,
 		);
@@ -184,7 +191,7 @@ class Layout {
 			1,
 		);
 
-		if (parent.children.length === 0) {
+		if (parent.children.length === 0 && !parent.root) {
 			parent.size = 1;
 			this.remove(parent);
 		}
