@@ -33,7 +33,7 @@
 </script>
 
 <div
-	class="container"
+	class="floating-params"
 	class:hidden={!visible}
 	class:align-left={align === 'left'}
 	class:align-right={align === 'right'}
@@ -45,7 +45,7 @@
 <KeyBinding key="h" onTrigger={() => (visible = !visible)} />
 
 <style>
-	.container {
+	.floating-params {
 		--padding: 16px;
 		position: absolute;
 		top: var(--padding);
@@ -56,23 +56,23 @@
 		overflow: hidden;
 	}
 
-	.container > :global(*) {
+	.floating-params > :global(*) {
 		height: calc(100vh - 2 * var(--padding));
 	}
 
-	.container.minimized {
+	.floating-params.minimized {
 		height: 25px;
 	}
 
-	.container.hidden {
+	.floating-params.hidden {
 		display: none;
 	}
 
-	.container.align-left {
+	.floating-params.align-left {
 		left: var(--padding);
 	}
 
-	.container.align-right {
+	.floating-params.align-right {
 		right: var(--padding);
 	}
 </style>
