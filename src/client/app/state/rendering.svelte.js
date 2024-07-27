@@ -165,15 +165,16 @@ class Rendering {
 
 				if (this.renders.length > 0) {
 					this.renders.forEach((render) => {
-						const { sketch, renderer, params } = render;
+						const { loading, sketch, renderer, params } = render;
 
-						params.width = width;
-						params.height = height;
-						params.pixelRatio = pixelRatio;
+						if (!loading) {
+							params.width = width;
+							params.height = height;
+							params.pixelRatio = pixelRatio;
 
-						renderer?.onResizePreview?.(params);
-
-						sketch.resize?.(params);
+							renderer?.onResizePreview?.(params);
+							sketch.resize?.(params);
+						}
 					});
 				}
 			});
