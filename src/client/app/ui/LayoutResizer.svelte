@@ -122,6 +122,8 @@
 			nextFlex = 0;
 		}
 
+		console.log(prevFlex);
+
 		current.size = prevFlex;
 		next.size = nextFlex;
 

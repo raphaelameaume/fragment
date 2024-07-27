@@ -64,19 +64,6 @@
 			: '',
 	);
 
-	onMount(() => {
-		// this is what makes the whole layout rerender after setup
-		// onMount of <LayoutRoot> is trigger the last, so by this time, every child component has registered himself into the layout tree
-		let timeout;
-
-		return () => {
-			if (timeout) {
-				clearTimeout(timeout);
-				timeout = null;
-			}
-		};
-	});
-
 	function addComponent(newType) {
 		const childCount = childComponents.length;
 
@@ -124,9 +111,9 @@
 	bind:this={component.node}
 	data-component={component.id}
 >
-	<!-- {#if isRoot && layout.previewing}
-		<Preview /> -->
-	{#if childComponents.length > 0}
+	{#if isRoot && layout.previewing}
+		<Preview />
+	{:else if childComponents.length > 0}
 		{#each childComponents as child (child.id)}
 			{#if child.type === 'column' || child.type === 'row'}
 				<svelte:self
@@ -160,7 +147,7 @@
 		/>
 	{/if}
 </div>
-{#if !isRoot}
+{#if !isRoot && !current.minimized}
 	<Resizer direction={isColumn ? 'vertical' : 'horizontal'} {current} />
 {/if}
 

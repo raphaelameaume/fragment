@@ -11,10 +11,22 @@
 		layout.editing = !layout.editing;
 	}
 
+	let components = [];
+
 	function togglePreview() {
-		// if ($monitors.length === 1 && !layout.previewing) {
-		// 	$preview = $monitors[0].selected;
-		// }
+		if (!layout.previewing) {
+			components = [...layout.components];
+			layout.components = layout.components
+				.filter((c) => c.root)
+				.map((root) => {
+					return {
+						...root,
+						children: [],
+					};
+				});
+		} else {
+			layout.components = components;
+		}
 
 		layout.previewing = !layout.previewing;
 	}

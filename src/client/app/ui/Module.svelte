@@ -20,7 +20,7 @@
 		type: 'module',
 		name: slug,
 		hasHeader,
-		origin: parent.id,
+		origin: parent?.id,
 	});
 
 	const toggleMinimized = () => {

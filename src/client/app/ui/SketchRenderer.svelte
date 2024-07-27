@@ -28,8 +28,6 @@
 		rendering.renders.find((r) => r.id === id)?.loading ?? true,
 	);
 
-	$inspect(loading);
-
 	$effect(() => {
 		if (sketch) {
 			console.log('SketchRenderer :: mount');
