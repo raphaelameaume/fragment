@@ -5,7 +5,7 @@
 	let {
 		label = '',
 		permanent = false,
-		value = null,
+		value,
 		border = false,
 		margin = true,
 		options = [],
@@ -26,12 +26,7 @@
 	class:disabled
 >
 	{#if options.length > 0}
-		<ModuleHeaderSelect 
-			{options} 
-			{value} 
-			{disabled} 
-			{onchange}
-		/>
+		<ModuleHeaderSelect {options} {value} {disabled} {onchange} />
 	{:else}
 		<ModuleHeaderButton {label} {onclick}>
 			{#snippet text()}
@@ -40,7 +35,7 @@
 				</div>
 			{/snippet}
 			{#if icon}
-				{@render icon()} 
+				{@render icon()}
 			{/if}
 		</ModuleHeaderButton>
 	{/if}

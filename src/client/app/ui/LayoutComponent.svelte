@@ -109,7 +109,7 @@
 					id={child.id}
 					name={child.name}
 					headless={child.headless}
-					isDynamic={true}
+					params={child.params}
 				/>
 			{:else}
 				<p>Cannot render child</p>

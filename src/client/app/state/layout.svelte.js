@@ -36,6 +36,7 @@ class Layout {
 		type,
 		name,
 		children = [],
+		params = {},
 	}) {
 		let existingComponent = this.getComponent(id);
 
@@ -53,6 +54,7 @@ class Layout {
 			type,
 			children,
 			headless,
+			params,
 		};
 
 		const originComponent = this.getComponent(origin);
@@ -161,6 +163,7 @@ class Layout {
 			type: source.type,
 			name: source.name,
 			minimized: source.minimized,
+			params: source.params,
 			children: [...source.children],
 		}));
 

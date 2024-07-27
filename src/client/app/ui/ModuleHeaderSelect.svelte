@@ -7,7 +7,9 @@
 <div class="module-header-select">
 	<select
 		class="select"
+		{value}
 		{onchange}
+		onclick={(e) => e.stopPropagation()}
 		class:single={options.length === 1}
 		{disabled}
 	>

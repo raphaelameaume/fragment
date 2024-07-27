@@ -10,6 +10,7 @@ class Sketch {
 	canvas = $state(null);
 	backgroundColor = $state('inherit');
 	paused = $state(false);
+	propsGroups = $state([]);
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -55,12 +56,22 @@ class Sketch {
 		};
 
 		const newProps = {};
+		const newPropsGroups = [];
 
 		Object.keys(instanceProps).forEach((key) => {
-			let { value, params = {}, triggers = [] } = instanceProps[key];
+			let {
+				value,
+				params = {},
+				triggers = [],
+				group,
+			} = instanceProps[key];
 
 			if (value.isColor) {
 				value = { r: value.r, g: value.g, b: value.b };
+			}
+
+			if (group && !newPropsGroups.includes(group)) {
+				newPropsGroups.push(group);
 			}
 
 			newProps[key] = {
@@ -68,6 +79,7 @@ class Sketch {
 				__initialValue: duplicateInitialValue(value),
 				params,
 				triggers,
+				group,
 			};
 		});
 
@@ -109,6 +121,7 @@ class Sketch {
 		}
 
 		this.props = newProps;
+		this.propsGroups = newPropsGroups;
 	}
 
 	updateProp(key, newValue) {
