@@ -56,6 +56,10 @@
 		overflow: hidden;
 	}
 
+	.container > :global(*) {
+		height: calc(100vh - 2 * var(--padding));
+	}
+
 	.container.minimized {
 		height: 25px;
 	}
