@@ -32,6 +32,7 @@ class Layout {
 		node = null,
 		size = 1,
 		minimized = false,
+		headless = false,
 		type,
 		name,
 		children = [],
@@ -51,6 +52,7 @@ class Layout {
 			name,
 			type,
 			children,
+			headless,
 		};
 
 		const originComponent = this.getComponent(origin);

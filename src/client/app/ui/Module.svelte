@@ -7,7 +7,7 @@
 		name,
 		slug = name,
 		scrollable = true,
-		hasHeader = true,
+		headless = false,
 		children,
 		headerLeft,
 		headerRight,
@@ -19,7 +19,7 @@
 		id,
 		type: 'module',
 		name: slug,
-		hasHeader,
+		headless,
 		origin: parent?.id,
 	});
 
@@ -31,11 +31,11 @@
 <div
 	class="module module--{slug}"
 	class:scrollable
-	class:no-header={!hasHeader}
+	class:headless
 	class:editing={layout.editing}
 	bind:this={current.node}
 >
-	{#if hasHeader && name}
+	{#if !headless && name}
 		<header class="module__header" onclick={toggleMinimized}>
 			<div class="header__col">
 				<div class="slot slot--left">
@@ -68,7 +68,7 @@
 		align-items: stretch;
 	}
 
-	.module.no-header {
+	.module.headless {
 		--header-height: 0px;
 		grid-template-rows: minmax(0px, auto);
 	}

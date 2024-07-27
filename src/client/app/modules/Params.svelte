@@ -7,7 +7,7 @@
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
 	import { rendering } from '../state/rendering.svelte.js';
 
-	let { id, hasHeader = true, output = true } = $props();
+	let { id, headless = false, output = true } = $props();
 
 	let sketchKey = $derived(sketchesManager.keys[0]);
 	let sketch = $derived(sketchesManager.sketches[sketchKey]);
@@ -16,7 +16,7 @@
 	let showOutputParams = true;
 </script>
 
-<Module {id} {hasHeader} name={`Parameters`} slug="params">
+<Module {id} {headless} name={`Parameters`} slug="params">
 	<!-- <div slot="header-right">
 		{#if options.length > 1}
 			<ModuleHeaderAction

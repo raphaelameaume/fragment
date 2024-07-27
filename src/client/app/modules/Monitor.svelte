@@ -9,7 +9,7 @@
 	import ErrorOverlay from '../ui/ErrorOverlay.svelte';
 	import { errors } from '../state/errors.svelte.js';
 
-	let { id, hasHeader = true, sketchKey = null } = $props();
+	let { id, headless = false, sketchKey = null } = $props();
 
 	let key = $derived(sketchesManager.keys[0]);
 	let index = $derived(monitors.findIndex((monitor) => monitor.id === id));
@@ -37,7 +37,7 @@
 	<SketchSelect monitorID={id} selected={key} />
 {/snippet}
 
-<Module {id} {hasHeader} slug="monitor" {name} scrollable={false} {headerLeft}>
+<Module {id} {headless} slug="monitor" {name} scrollable={false} {headerLeft}>
 	<!-- {#if selected && selected !== 'output'} -->
 	<SketchRenderer {key} {id} />
 	{#if error}

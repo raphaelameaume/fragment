@@ -4,7 +4,7 @@
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
 	import ConsoleLine from './Console/ConsoleLine.svelte';
 
-	let { mID, hasHeader = true } = $props();
+	let { mID, headless = false } = $props();
 
 	let logs = $state([]);
 	let mirrored = ['log', 'warn', 'error', 'dir'];
@@ -77,7 +77,7 @@
 	});
 </script>
 
-<Module {mID} {hasHeader} name="console" scrollable={false}>
+<Module {mID} {headless} name="console" scrollable={false}>
 	{#snippet headerRight()}
 		<ModuleHeaderAction border label="Clear" onclick={() => (logs = [])}
 			>clear</ModuleHeaderAction

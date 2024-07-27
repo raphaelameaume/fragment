@@ -2,22 +2,27 @@
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import FieldGroup from '../ui/FieldGroup.svelte';
-	import { IMAGE_ENCODINGS, VIDEO_FORMATS, exports } from '../state/exports.svelte';
+	import {
+		IMAGE_ENCODINGS,
+		VIDEO_FORMATS,
+		exports,
+	} from '../state/exports.svelte';
 
-	let { id, hasHeader = true } = $props();
+	let { id, headless = false } = $props();
 
 	const LABEL_RECORD = 'start';
 	const LABEL_RECORDING = 'stop';
 
-	let recordLabel = $derived(exports.recording ? LABEL_RECORDING : LABEL_RECORD);
-	
+	let recordLabel = $derived(
+		exports.recording ? LABEL_RECORDING : LABEL_RECORD,
+	);
 </script>
 
-<Module {id} {hasHeader} name="exports">
+<Module {id} {headless} name="exports">
 	<FieldGroup
-		name="image" 
+		name="image"
 		collapsed={exports.imageCollapsed}
-		onchange={(collapsed) => exports.imageCollapsed = collapsed}
+		onchange={(collapsed) => (exports.imageCollapsed = collapsed)}
 	>
 		<Field
 			key="encoding"
@@ -53,14 +58,14 @@
 		/>
 		<Field
 			key="screenshot"
-			value={() => exports.capturing = !exports.capturing}
+			value={() => (exports.capturing = !exports.capturing)}
 			params={{ label: 'capture', triggerable: false }}
 		/>
 	</FieldGroup>
 	<FieldGroup
 		name="video"
 		collapsed={exports.videoCollapsed}
-		onchange={(collapsed) => exports.videoCollapsed = collapsed}
+		onchange={(collapsed) => (exports.videoCollapsed = collapsed)}
 	>
 		<Field
 			key="framerate"
@@ -110,7 +115,7 @@
 		{/if}
 		<Field
 			key="record"
-			value={() => exports.recording = !exports.recording}
+			value={() => (exports.recording = !exports.recording)}
 			params={{ label: recordLabel, triggerable: false }}
 		/>
 	</FieldGroup>

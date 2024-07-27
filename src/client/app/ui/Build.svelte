@@ -14,11 +14,12 @@
 	let sketchKey = $derived(Object.keys(sketchesManager.sketches)[0]);
 	let sketch = $derived(sketchesManager.sketches[sketchKey]);
 
-	let gui = $derived(sketch?.buildConfig?.gui);
+	// let gui = $derived(sketch?.buildConfig?.gui);
+	let gui = $state({});
 	let guiOutput = $derived(gui?.output);
 	let guiAlign = $derived(gui?.align);
 	let guiHidden = $derived(gui?.hidden);
-	let guiSize = $derived(gui?.size);
+	let guiSize = $derived(gui?.size ?? 0.25);
 	let guiMinimize = $derived(gui?.minimize);
 	let guiPosition = $derived(gui?.position);
 	let styles = $derived(sketch?.buildConfig?.styles ?? '');
@@ -54,35 +55,35 @@
 	});
 </script>
 
-{#if gui}
-	{#if guiPosition === 'fixed'}
-		<Row>
-			{#if guiAlign === 'right'}
-				<Column size={1 - guiSize}>
-					<Monitor hasHeader={false} {sketchKey} />
-				</Column>
-				<Column size={guiSize}>
-					<Params hasHeader={false} />
-				</Column>
-			{:else}
-				<Column size={guiSize}>
-					<Params hasHeader={false} />
-				</Column>
-				<Column size={1 - guiSize}>
-					<Monitor hasHeader={false} {sketchKey} />
-				</Column>
-			{/if}
-		</Row>
-	{:else}
-		<Monitor hasHeader={false} {sketchKey} />
-		<FloatingParams
-			output={guiOutput}
-			align={guiAlign}
-			size={guiSize}
-			hidden={guiHidden}
-			minimize={guiMinimize}
-		/>
-	{/if}
+{#if guiPosition === 'fixed'}
+	<Row>
+		{#if guiAlign === 'left'}
+			<Column size={guiSize}>
+				<Params headless />
+			</Column>
+			<Column size={1 - guiSize}>
+				<Monitor headless {sketchKey} />
+			</Column>
+		{:else}
+			<Column size={1 - guiSize}>
+				<Monitor headless {sketchKey} />
+			</Column>
+			<Column size={guiSize}>
+				<Params headless />
+			</Column>
+		{/if}
+	</Row>
 {:else}
-	<Monitor hasHeader={false} />
+	<Row>
+		<Monitor headless {sketchKey} />
+		{#if gui}
+			<FloatingParams
+				output={guiOutput}
+				align={guiAlign}
+				size={guiSize}
+				hidden={guiHidden}
+				minimize={guiMinimize}
+			/>
+		{/if}
+	</Row>
 {/if}

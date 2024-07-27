@@ -1,29 +1,12 @@
-<script context="module">
-</script>
-
 <script>
-	import {
-		tick,
-		getContext,
-		hasContext,
-		onDestroy,
-		onMount,
-		setContext,
-	} from 'svelte';
-	import { writable } from 'svelte/store';
+	import { getContext, setContext } from 'svelte';
 	import { layout } from '../state/layout.svelte';
 	import Toolbar from './LayoutToolbar.svelte';
 	import Resizer from './LayoutResizer.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import Preview from './Preview.svelte';
 
-	let {
-		id = layout.getID(),
-		size = 1,
-		type = 'column',
-		tree,
-		children,
-	} = $props();
+	let { id = layout.getID(), size = 1, type = 'column', children } = $props();
 
 	let parent = getContext('parent');
 	let isColumn = $derived(type === 'column');
@@ -120,13 +103,12 @@
 					id={child.id}
 					type={child.type}
 					size={child.size}
-					tree={child.children}
 				/>
 			{:else if child.type === 'module'}
 				<ModuleRenderer
 					id={child.id}
 					name={child.name}
-					hasHeader={child.hasHeader}
+					headless={child.headless}
 					isDynamic={true}
 				/>
 			{:else}

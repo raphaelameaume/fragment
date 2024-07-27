@@ -11,7 +11,7 @@
 <script>
 	import Module from './Module.svelte';
 
-	let { id, name, hasHeader = true } = $props();
+	let { id, name, headless = false } = $props();
 
 	const moduleList = {
 		monitor: () => import('../modules/Monitor.svelte'),
@@ -33,7 +33,7 @@
 			<header class="module-renderer-header"></header>
 		</div>
 	{:then value}
-		<svelte:component this={value.default} {hasHeader} {id} />
+		<svelte:component this={value.default} {headless} {id} />
 	{:catch error}
 		<div class="module-renderer">
 			<header class="module-renderer-header">
@@ -51,7 +51,7 @@
 		</div>
 	{/await}
 {:else}
-	<Module {hasHeader} {name} {id} />
+	<Module {headless} {name} {id} />
 {/if}
 
 <style>

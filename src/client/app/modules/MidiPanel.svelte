@@ -4,7 +4,7 @@
 	import Field from '../ui/Field.svelte';
 	import MIDI from '../inputs/MIDI.js';
 
-	let { mID, hasHeader = true, ...restProps } = $props();
+	let { mID, headless = false, ...restProps } = $props();
 
 	let input = $state(null);
 	let output = $state(null);
@@ -77,7 +77,7 @@
 	});
 </script>
 
-<Module {hasHeader} name="MIDI" {...restProps} slug="midi">
+<Module {headless} name="MIDI" {...restProps} slug="midi">
 	<Field
 		key="inputs"
 		value={input}
