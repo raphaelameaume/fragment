@@ -15,6 +15,7 @@
 	let sketchProps = $derived(sketch?.props ?? {});
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
 	let showOutputParams = true;
+	let framerate = $derived(sketch?.fps ?? rendering.refreshRate);
 
 	let sketchGroupOptions = $derived([
 		{ value: '', label: 'all ' },
@@ -52,7 +53,14 @@
 
 	{#if sketch}
 		{#if !sketchPropGroup && output && sketch}
-			<Field key="framerate" value={sketch.framerate} disabled />
+			<Field
+				key="framerate"
+				value={framerate}
+				disabled
+				params={{
+					suffix: sketch.fps ? undefined : ' (native)',
+				}}
+			/>
 			{#if sketch.duration && sketch.duration > 0 && output}
 				<Field
 					key="duration"

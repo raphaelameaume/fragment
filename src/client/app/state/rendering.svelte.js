@@ -24,7 +24,7 @@ export const SIZES = {
 class Render {
 	loading = $state(true);
 
-	constructor({ id, container, params, canvas, sketch, renderer }) {
+	constructor({ id, container, params, canvas, sketch, renderer, time }) {
 		this.id = id;
 		this.container = container;
 		this.params = params;
@@ -32,18 +32,22 @@ class Render {
 		this.sketch = sketch;
 		this.renderer = renderer;
 
-		this.time = 0;
-		this.elapsed = 0;
-		this.lastTime = 0;
+		this.time = time;
+		this.then = performance.now();
+
 		this.playhead = 0;
 		this.playcount = 0;
 		this.frame = 0;
 
-		const { duration, framerate } = sketch;
+		const { duration, fps } = sketch;
 
-		let frameLength = (1 / framerate) * 1000;
-		let frameCount = framerate * duration;
+		let frameLength = isFinite(fps) ? (1 / fps) * 1000 : 0;
+		let frameCount = fps * duration;
 		let interval = 1 / frameCount;
+
+		this.elapsed = isFinite(fps)
+			? this.time - frameLength * Math.floor(this.time / frameLength)
+			: 0;
 
 		this.renderSketch = (deltaTime = 0) => {
 			try {
@@ -64,14 +68,18 @@ class Render {
 			}
 		};
 
-		this.loop = ({ deltaTime = 0 } = {}) => {
+		this.loop = ({ time } = {}) => {
 			if (this.loading) return;
-
-			let { elapsed, time } = this;
 
 			let playhead = time / 1000 / duration;
 			playhead %= 1;
-			playhead = Math.floor(playhead / interval) * interval;
+
+			if (isFinite(interval)) {
+				playhead = Math.floor(playhead / interval) * interval;
+			}
+
+			const now = performance.now();
+			const deltaTime = now - this.then;
 
 			this.playhead = playhead;
 			this.playcount = Math.floor(time / 1000 / duration);
@@ -80,9 +88,10 @@ class Render {
 			if (this.elapsed === 0 || this.elapsed >= frameLength) {
 				this.elapsed = 0;
 				this.renderSketch(deltaTime);
+				this.then = now;
 			}
 
-			this.time += deltaTime;
+			this.time = time;
 			this.elapsed += deltaTime;
 		};
 
@@ -114,12 +123,14 @@ class Rendering {
 	paused = $state(false);
 	/** @type {Render[]} */
 	renders = $state([]);
+	refreshRate = $state(0);
 
 	constructor() {
 		this.key = 'rendering';
-		this.time = performance.now();
+
+		this.today = new Date();
+		this.time = this.today;
 		this.then = this.time;
-		this.elapsed = 0;
 		this.renderers = {};
 		this.recording = false;
 
@@ -190,20 +201,29 @@ class Rendering {
 
 		hydrate(this.key, this);
 
-		this.raf = requestAnimationFrame((t) => {
-			this.time = t;
-			this.then = t;
-			this.update(t);
+		this.raf = requestAnimationFrame(() => {
+			// sync time between multiple windows
+			this.today = new Date();
+			this.today.setHours(0);
+			this.today.setMinutes(0);
+			this.today.setSeconds(0);
+			this.today.setMilliseconds(0);
+			this.today = this.today.getTime();
+			this.time = new Date().getTime() - this.today;
+			this.then = this.time;
+			this.update(this.time);
 		});
 
 		client.on('shader-update', () => {
 			this.renders.forEach((render) => {
 				const { sketch } = render;
-				if (sketch.framerate === 0) {
+				if (sketch.fps === 0) {
 					render.renderSketch();
 				}
 			});
 		});
+
+		this.estimateRefreshRate();
 	}
 
 	loadRenderer(renderingMode) {
@@ -264,9 +284,9 @@ class Rendering {
 		}
 	}
 
-	update(now) {
-		const deltaTime = now - this.then;
-		this.then = now;
+	update(time) {
+		const deltaTime = time - this.then;
+		this.then = time;
 
 		if (!this.paused) {
 			for (let i = 0; i < this.renders.length; i++) {
@@ -276,7 +296,11 @@ class Rendering {
 			this.time += deltaTime;
 		}
 
-		this.raf = requestAnimationFrame((t) => this.update(t));
+		this.raf = requestAnimationFrame(() => {
+			const t = new Date().getTime() - this.today;
+
+			this.update(t);
+		});
 	}
 
 	async mount(id, container, sketch) {
@@ -328,6 +352,7 @@ class Rendering {
 			canvas,
 			sketch,
 			renderer,
+			time: this.time,
 		});
 
 		this.renders.push(render);
@@ -413,7 +438,7 @@ class Rendering {
 		this.renders.forEach((render) => {
 			const { sketch } = render;
 
-			if (sketch.key === key && sketch.framerate === 0) {
+			if (sketch.key === key && sketch.fps === 0) {
 				render.time = 0;
 				render.elapsed = 0;
 			}
@@ -577,6 +602,62 @@ class Rendering {
 			this.pixelRatio =
 				typeof pixelRatio === 'function' ? pixelRatio() : pixelRatio;
 		}
+	}
+
+	estimateRefreshRate() {
+		return new Promise((resolve) => {
+			const deltas = [];
+			const frameCount = 50;
+			let count = 0;
+			let lastTime = performance.now();
+
+			const findClosestRefreshRate = (targetRate) => {
+				// List of common refresh rates
+				const refreshRates = [60, 75, 120, 144, 165, 240, 360];
+
+				// Initialize the closest rate and the minimum difference
+				let closestRate = refreshRates[0];
+				let minDifference = Math.abs(targetRate - closestRate);
+
+				// Iterate over the refresh rates to find the closest one
+				for (let i = 1; i < refreshRates.length; i++) {
+					let currentRate = refreshRates[i];
+					let currentDifference = Math.abs(targetRate - currentRate);
+
+					if (currentDifference < minDifference) {
+						minDifference = currentDifference;
+						closestRate = currentRate;
+					}
+				}
+
+				return closestRate;
+			};
+
+			const computeRefreshRate = (time) => {
+				const deltaTime = time - lastTime;
+				lastTime = time;
+
+				if (count < frameCount) {
+					deltas.push(deltaTime);
+					requestAnimationFrame(computeRefreshRate);
+					count++;
+				} else {
+					const mean =
+						deltas.reduce((total, delta) => {
+							return total + delta;
+						}, 0) / deltas.length;
+
+					const refreshRate = Math.round(
+						(60 / (mean / 1000)) * (1 / 60),
+					);
+
+					this.refreshRate = findClosestRefreshRate(refreshRate);
+					resolve(this.refreshRate);
+				}
+			};
+
+			requestAnimationFrame(computeRefreshRate);
+		});
 	}
 }
 

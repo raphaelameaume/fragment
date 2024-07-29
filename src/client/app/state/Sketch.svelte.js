@@ -15,7 +15,7 @@ class Sketch {
 	constructor({ key, instance, previous }) {
 		this.key = key;
 		this.instance = instance;
-		this.framerate = isFinite(this.instance.fps) ? this.instance.fps : 60;
+		this.fps = this.instance.fps;
 		this.load = this.instance.load ?? noop;
 		this.setup = this.instance.setup ?? this.instance.init ?? noop;
 		this.draw = this.instance.draw ?? this.instance.update ?? noop;
