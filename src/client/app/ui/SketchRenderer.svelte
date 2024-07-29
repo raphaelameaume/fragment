@@ -20,7 +20,6 @@
 
 	/** @type {Sketch} */
 	let sketch = $derived(sketchesManager.sketches[key]);
-	// let framerate = $derived(sketch.fps);
 	let resizeObserver = new ResizeObserver(() => {
 		checkForResize();
 	});
