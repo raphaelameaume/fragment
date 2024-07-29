@@ -1,6 +1,5 @@
 <script>
 	import { assignSketchFiles } from '../triggers/shared.js';
-	// import { loadAll, sketchesKeys, sketches } from '../stores/sketches.js';
 	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { onSketchReload } from '@fragment/sketches';
 	import { getFilename } from '../utils/file.utils.js';
