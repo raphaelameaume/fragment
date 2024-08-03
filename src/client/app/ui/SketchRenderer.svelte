@@ -6,7 +6,6 @@
 	import { rendering, SIZES } from '../state/rendering.svelte';
 	import Sketch from '../state/Sketch.svelte.js';
 	import { exports } from '../state/exports.svelte.js';
-	import { client } from '../client';
 	import HintRecord from '../components/HintRecord.svelte';
 	import HintPaused from '../components/HintPaused.svelte';
 	import HintLoading from '../components/HintLoading.svelte';
@@ -84,12 +83,6 @@
 	});
 
 	onMount(() => {
-		client.on('shader-update', () => {
-			// if (framerate === 0) {
-			// 	needsRender = true;
-			// }
-		});
-
 		resizeObserver.observe(node);
 	});
 
