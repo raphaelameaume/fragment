@@ -17,10 +17,18 @@
 	let showOutputParams = true;
 	let framerate = $derived(sketch?.fps ?? rendering.refreshRate);
 
-	let sketchGroupOptions = $derived([
-		{ value: '', label: 'all ' },
-		...sketchPropsGroups.map((group) => ({ value: group, label: group })),
-	]);
+	let sketchGroupOptions = $derived(
+		[
+			{ value: '', label: 'all ' },
+			sketchPropsGroups.length > 0 && showOutputParams
+				? { value: 'output', label: 'output' }
+				: undefined,
+			...sketchPropsGroups.map((group) => ({
+				value: group,
+				label: group,
+			})),
+		].filter((group) => group !== undefined),
+	);
 	let sketchPropGroup = $derived(
 		sketchGroupOptions
 			.map((opt) => opt.value)
@@ -47,7 +55,7 @@
 			/>
 		{/if}
 	{/snippet}
-	{#if !sketchPropGroup && showOutputParams && output}
+	{#if (!sketchPropGroup || sketchPropGroup === 'output') && showOutputParams && output}
 		<OutputParams />
 	{/if}
 
