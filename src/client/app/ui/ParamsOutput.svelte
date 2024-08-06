@@ -1,7 +1,6 @@
 <script>
 	import { SIZES, monitors } from '../stores/rendering.js';
 	import { rendering } from '../state/rendering.svelte';
-	// import { sketchesCosketchesCountunt } from '../stores/sketches.js';
 	import Field from './Field.svelte';
 	import presets, {
 		PRESET_ORIENTATIONS,
