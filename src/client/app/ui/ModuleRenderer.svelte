@@ -9,49 +9,52 @@
 </script>
 
 <script>
-	import Module from './Module.svelte';
-
+	import Monitor from '../modules/Monitor.svelte';
+	import Exports from '../modules/Exports.svelte';
+	import MidiPanel from '../modules/MidiPanel.svelte';
+	import Console from '../modules/Console.svelte';
+	import Params from '../modules/Params.svelte';
 	let { id, name, headless = false, params = {} } = $props();
 
-	const moduleList = {
-		monitor: () => import('../modules/Monitor.svelte'),
-		params: () => import('../modules/Params.svelte'),
-	};
+	// const moduleList = {
+	// 	monitor: () => import('../modules/Monitor.svelte'),
+	// 	params: () => import('../modules/Params.svelte'),
+	// };
 
-	if (!__BUILD__) {
-		Object.assign(moduleList, {
-			midi: () => import('../modules/MidiPanel.svelte'),
-			console: () => import('../modules/Console.svelte'),
-			exports: () => import('../modules/Exports.svelte'),
-		});
-	}
+	// if (!__BUILD__) {
+	// 	Object.assign(moduleList, {
+	// 		midi: () => import('../modules/MidiPanel.svelte'),
+	// 		console: () => import('../modules/Console.svelte'),
+	// 		exports: () => import('../modules/Exports.svelte'),
+	// 	});
+	// }
 </script>
 
-{#if moduleList[name]}
-	{#await moduleList[name]()}
-		<div class="module-renderer">
-			<header class="module-renderer-header"></header>
-		</div>
-	{:then value}
-		<svelte:component this={value.default} {headless} {id} {params} />
-	{:catch error}
-		<div class="module-renderer">
-			<header class="module-renderer-header">
-				<span>Error</span>
-			</header>
-			<div class="module-renderer-error">
-				<div>
-					<p class="message">
-						Something went wrong while loading module:
-						<span class="module-name">{name}</span>
-					</p>
-					<p class="error">{error.message}</p>
-				</div>
+{#if name === 'monitor'}
+	<Monitor {id} {headless} {params} />
+{:else if name === 'exports'}
+	<Exports {id} {headless} {params} />
+{:else if name === 'console'}
+	<Console {id} {headless} {params} />
+{:else if name === 'params'}
+	<Params {id} {headless} {params} />
+{:else if name === 'midi'}
+	<MidiPanel {id} {headless} {params} />
+{:else}
+	<div class="module-renderer">
+		<header class="module-renderer-header">
+			<span>Error</span>
+		</header>
+		<div class="module-renderer-error">
+			<div>
+				<p class="message">
+					Something went wrong while loading module:
+					<span class="module-name">{name}</span>
+				</p>
+				<p class="error">{error.message}</p>
 			</div>
 		</div>
-	{/await}
-{:else}
-	<Module {headless} {name} {id} />
+	</div>
 {/if}
 
 <style>
