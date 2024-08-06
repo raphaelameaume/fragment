@@ -183,7 +183,6 @@ if (import.meta.hot) {
 }
 
 client.on('shader-update', (shaderUpdates) => {
-	console.log(shaderUpdates);
 	previews.forEach(({ p }) => {
 		console.log('clear error', p._renderer.GL.__uuid);
 		clearError(p._renderer.GL.__uuid);
