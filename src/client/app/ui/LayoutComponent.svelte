@@ -91,7 +91,7 @@
 	class:root={isRoot}
 	class:row={isRow}
 	class:minimized
-	bind:this={component.node}
+	bind:this={current.node}
 	data-component={component.id}
 >
 	{#if isRoot && layout.previewing}
