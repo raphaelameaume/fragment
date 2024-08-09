@@ -3,7 +3,6 @@ import { hydrate, persist } from './utils.svelte';
 let COMPONENT_ID = 0;
 
 class Layout {
-	tree = $state({});
 	components = $state([]);
 	editing = $state(false);
 	previewing = $state(false);
@@ -171,8 +170,6 @@ class Layout {
 	}
 
 	remove(component) {
-		const parent = this.getComponent(component.parent);
-
 		component.children.forEach((child) => {
 			this.components.splice(
 				this.components.findIndex((c) => c.id === child),
@@ -180,25 +177,29 @@ class Layout {
 			);
 		});
 
-		const componentIndex = parent.children.findIndex(
-			(id) => id === component.id,
-		);
-
-		parent.children.splice(componentIndex, 1);
-		const newSize = 1 / Math.max(1, parent.children.length - 1);
-		parent.children.forEach((childID) => {
-			const child = this.getComponent(childID);
-			child.size = newSize;
-		});
-
 		this.components.splice(
 			this.components.findIndex((c) => c.id === component.id),
 			1,
 		);
 
-		if (parent.children.length === 0 && !parent.root) {
-			parent.size = 1;
-			this.remove(parent);
+		const parent = this.getComponent(component.parent);
+
+		if (parent) {
+			const componentIndex = parent.children.findIndex(
+				(id) => id === component.id,
+			);
+
+			parent.children.splice(componentIndex, 1);
+			const newSize = 1 / Math.max(1, parent.children.length - 1);
+			parent.children.forEach((childID) => {
+				const child = this.getComponent(childID);
+				child.size = newSize;
+			});
+
+			if (parent.children.length === 0 && !parent.root) {
+				parent.size = 1;
+				this.remove(parent);
+			}
 		}
 	}
 
