@@ -11,6 +11,7 @@
 		right: 0;
 
 		background: rgba(0, 0, 0, 0.5);
+		pointer-events: none;
 	}
 	.label {
 		position: absolute;
