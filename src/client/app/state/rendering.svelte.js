@@ -355,6 +355,14 @@ class Rendering {
 			time: this.time,
 		});
 
+		const previousIndex = this.renders.findIndex(
+			(render) => render.id === id,
+		);
+
+		if (previousIndex >= 0) {
+			this.unmount(id);
+		}
+
 		this.renders.push(render);
 
 		await render.init();
