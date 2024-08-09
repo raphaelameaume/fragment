@@ -30,6 +30,9 @@
 	});
 
 	setContext('parent', current);
+	setContext('minimize', () => {
+		current.minimized = !current.minimized;
+	});
 </script>
 
 <div

@@ -27,6 +27,9 @@
 	let isRoot = $derived(current.root);
 
 	setContext('parent', component.id);
+	setContext('minimize', () => {
+		component.minimized = !component.minimized;
+	});
 
 	let property = $derived(
 		isColumn ? `grid-template-rows` : `grid-template-columns`,

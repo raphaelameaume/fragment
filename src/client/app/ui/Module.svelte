@@ -13,19 +13,16 @@
 		headerRight,
 	} = $props();
 
-	const parent = layout.getComponent(getContext('parent'));
+	const parent = getContext('parent');
+	const minimize = getContext('minimize');
 
 	const current = layout.createComponent({
 		id,
 		type: 'module',
 		name: slug,
 		headless,
-		origin: parent?.id,
+		origin: parent,
 	});
-
-	const toggleMinimized = () => {
-		parent.minimized = !parent.minimized;
-	};
 </script>
 
 <div
@@ -36,7 +33,7 @@
 	bind:this={current.node}
 >
 	{#if !headless && name}
-		<header class="module__header" onclick={toggleMinimized}>
+		<header class="module__header" onclick={minimize}>
 			<div class="header__col">
 				<div class="slot slot--left">
 					{@render headerLeft()}
