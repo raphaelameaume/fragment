@@ -37,9 +37,9 @@
 	import IconLocked from '../components/IconLocked.svelte';
 
 	let {
-		key, 
-		value = null, 
-		initialValue = value, 
+		key,
+		value = null,
+		initialValue = value,
 		context = null,
 		params = $bindable({}),
 		type = null,
@@ -92,10 +92,11 @@
 	let input = $derived(fields[fieldType]);
 	let triggerable = $derived(
 		params.triggerable !== false &&
-		((fieldType === fieldTypes.NUMBER &&
-			isFinite(params.min) &&
-			isFinite(params.max)) ||
-			fieldType === fieldTypes.BUTTON));
+			((fieldType === fieldTypes.NUMBER &&
+				isFinite(params.min) &&
+				isFinite(params.max)) ||
+				fieldType === fieldTypes.BUTTON),
+	);
 	let triggersActive = $derived(triggers.length > 0);
 
 	$effect(() => {
@@ -104,7 +105,7 @@
 		if ((isDownload || isButton) && params.label == undefined) {
 			fieldProps.label = isDownload ? 'download' : 'run';
 		}
-	})
+	});
 
 	function toggleTriggers(event) {
 		event.preventDefault();
@@ -153,7 +154,7 @@
 						class="field__action field__action--lock"
 						onclick={() => (params.locked = !params.locked)}
 					>
-						<IconLocked locked={params.locked}/>
+						<IconLocked locked={params.locked} />
 					</button>
 				{/if}
 			</div>
@@ -170,7 +171,7 @@
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
-				triggers={triggers}
+				{triggers}
 				{onTrigger}
 				{context}
 				triggerable={fieldType === fieldTypes.BUTTON}
