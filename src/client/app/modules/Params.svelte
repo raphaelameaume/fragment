@@ -1,26 +1,27 @@
 <script>
-	import { sketchesManager } from '../state/sketches.svelte.js';
-
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import OutputParams from '../ui/ParamsOutput.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
 	import { rendering } from '../state/rendering.svelte.js';
-	import { layout } from '../state/layout.svelte.js';
 
-	let { id, headless = false, output = true, params = {} } = $props();
+	let {
+		id,
+		headless = false,
+		output = true,
+		params = $bindable({}),
+	} = $props();
 
 	let render = $derived(rendering.renders[0]);
 	let sketch = $derived(render?.sketch);
 	let sketchProps = $derived(sketch?.props ?? {});
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
-	let showOutputParams = true;
 	let framerate = $derived(sketch?.fps ?? rendering.refreshRate);
 
 	let sketchGroupOptions = $derived(
 		[
 			{ value: '', label: 'all ' },
-			sketchPropsGroups.length > 0 && showOutputParams
+			sketchPropsGroups.length > 0 && output
 				? { value: 'output', label: 'output' }
 				: undefined,
 			...sketchPropsGroups.map((group) => ({
@@ -36,8 +37,6 @@
 			? params.sketchPropGroup
 			: sketchGroupOptions[0].value,
 	);
-
-	let layoutComponent = $derived(layout.components.find((c) => c.id === id));
 </script>
 
 <Module {id} {headless} name={`Parameters`} slug="params">
@@ -48,14 +47,13 @@
 				permanent
 				border
 				onchange={(event) => {
-					layoutComponent.params.sketchPropGroup =
-						event.currentTarget.value;
+					params.sketchPropGroup = event.currentTarget.value;
 				}}
 				options={sketchGroupOptions}
 			/>
 		{/if}
 	{/snippet}
-	{#if (!sketchPropGroup || sketchPropGroup === 'output') && showOutputParams && output}
+	{#if (!sketchPropGroup || sketchPropGroup === 'output') && output}
 		<OutputParams />
 	{/if}
 
