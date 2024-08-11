@@ -153,7 +153,7 @@ class Rendering {
 			});
 
 			$effect(() => {
-				const { width, height, pixelRatio } = rendering;
+				const { width, height, pixelRatio } = this;
 
 				const keys = Object.keys(this.renderers);
 
@@ -172,20 +172,26 @@ class Rendering {
 			});
 
 			$effect(() => {
-				const { width, height, pixelRatio } = rendering;
+				const { width, height, pixelRatio } = this;
 
 				if (this.renders.length > 0) {
 					this.renders.forEach((render) => {
 						const { loading, sketch, renderer, params } = render;
 
-						if (!loading) {
-							params.width = width;
-							params.height = height;
-							params.pixelRatio = pixelRatio;
+						// sync resize to avoid flickering
+						let timeout = setTimeout(() => {
+							clearTimeout(timeout);
+							timeout = null;
 
-							renderer?.onResizePreview?.(params);
-							sketch.resize?.(params);
-						}
+							if (!loading) {
+								params.width = width;
+								params.height = height;
+								params.pixelRatio = pixelRatio;
+
+								renderer?.onResizePreview?.(params);
+								sketch.resize?.(params);
+							}
+						}, 0);
 					});
 				}
 			});
@@ -326,6 +332,7 @@ class Rendering {
 		}
 
 		if (mountParams.canvas !== canvas) {
+			this.destroyCanvas(canvas);
 			canvas = this.createCanvas({
 				container,
 				canvas: mountParams.canvas,
