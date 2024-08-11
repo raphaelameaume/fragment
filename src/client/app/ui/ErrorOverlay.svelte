@@ -1,5 +1,5 @@
 <script>
-	import { clearErrors } from '../stores/errors';
+	import { clearErrors } from '../state/errors.svelte';
 
 	export let error;
 
