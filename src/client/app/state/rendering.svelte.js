@@ -175,14 +175,14 @@ class Rendering {
 				const { width, height, pixelRatio } = this;
 
 				if (this.renders.length > 0) {
-					this.renders.forEach((render) => {
-						const { loading, sketch, renderer, params } = render;
+					let timeout = setTimeout(() => {
+						clearTimeout(timeout);
+						timeout = null;
+						this.renders.forEach((render) => {
+							const { loading, sketch, renderer, params } =
+								render;
 
-						// sync resize to avoid flickering
-						let timeout = setTimeout(() => {
-							clearTimeout(timeout);
-							timeout = null;
-
+							// sync resize to avoid flickering
 							if (!loading) {
 								params.width = width;
 								params.height = height;
@@ -191,8 +191,8 @@ class Rendering {
 								renderer?.onResizePreview?.(params);
 								sketch.resize?.(params);
 							}
-						}, 0);
-					});
+						});
+					}, 0);
 				}
 			});
 
