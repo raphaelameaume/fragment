@@ -41,7 +41,9 @@
 		return isFocused ? `${fixedValue}` : `${fixedValue}${suffix}`;
 	}
 
-	let composedValue = $derived.by(() => composeValue(value, isFocused, suffix, precision));
+	let composedValue = $derived.by(() =>
+		composeValue(value, isFocused, suffix, precision),
+	);
 
 	function onFocus() {
 		isFocused = true;
