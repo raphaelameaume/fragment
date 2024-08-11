@@ -85,12 +85,11 @@
 					value,
 					type,
 					disabled,
-					group,
 					__initialValue: initialValue,
 				} = sketchProp}
 				{@const isDisabled =
 					typeof disabled === 'function' ? disabled() : disabled}
-				{#if typeof hidden === 'function' ? !hidden() : !hidden}
+				{#if !hidden}
 					{#if !sketchPropGroup || sketchProp.group === sketchPropGroup}
 						<Field
 							context={sketch.key}
@@ -106,8 +105,8 @@
 							onclick={() => {
 								rendering.invalidate(sketch.key);
 							}}
-							onchange={(value) => {
-								sketch.updateProp(key, value);
+							onchange={(v) => {
+								sketch.updateProp(key, v);
 								rendering.invalidate(sketch.key);
 							}}
 						/>

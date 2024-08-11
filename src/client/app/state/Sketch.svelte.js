@@ -62,8 +62,10 @@ class Sketch {
 			let {
 				value,
 				params = {},
+				hidden,
 				triggers = [],
 				group,
+				displayName,
 			} = instanceProps[key];
 
 			if (value.isColor) {
@@ -74,12 +76,16 @@ class Sketch {
 				newPropsGroups.push(group);
 			}
 
+			let __hidden = typeof hidden === 'function' ? hidden : () => hidden;
+
 			newProps[key] = {
 				value,
 				__initialValue: duplicateInitialValue(value),
+				__hidden,
 				params,
 				triggers,
 				group,
+				displayName,
 			};
 		});
 
@@ -120,6 +126,10 @@ class Sketch {
 			restoreProps(savedProps);
 		}
 
+		Object.keys(newProps).forEach((key) => {
+			newProps[key].hidden = newProps[key].__hidden();
+		});
+
 		this.props = newProps;
 		this.propsGroups = newPropsGroups;
 	}
@@ -145,6 +155,10 @@ class Sketch {
 				canvas: this.canvas,
 			});
 		}
+
+		Object.keys(this.props).forEach((key) => {
+			this.props[key].hidden = this.props[key].__hidden();
+		});
 	}
 
 	save() {
