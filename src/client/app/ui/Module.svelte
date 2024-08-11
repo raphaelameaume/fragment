@@ -1,6 +1,7 @@
 <script>
-	import { onMount, getContext, onDestroy } from 'svelte';
+	import { getContext } from 'svelte';
 	import { layout } from '../state/layout.svelte.js';
+	import { resize } from '../actions/resize.js';
 
 	let {
 		id,
@@ -11,6 +12,7 @@
 		children,
 		headerLeft,
 		headerRight,
+		onresize,
 	} = $props();
 
 	const parent = getContext('parent');
@@ -50,7 +52,7 @@
 			</div>
 		</header>
 	{/if}
-	<div class="module__container">
+	<div class="module__container" use:resize={onresize}>
 		{@render children()}
 	</div>
 </div>

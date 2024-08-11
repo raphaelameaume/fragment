@@ -12,66 +12,21 @@
 
 	let { key, id, visible = true } = $props();
 
-	let node;
 	/** @type {HTMLDivElement} */
 	let container;
-	let _raf;
 
 	/** @type {Sketch} */
 	let sketch = $derived(sketchesManager.sketches[key]);
-	let resizeObserver = new ResizeObserver(() => {
-		checkForResize();
-	});
 	let loading = $derived(
 		rendering.renders.find((r) => r.id === id)?.loading ?? true,
 	);
 
 	$effect(() => {
 		if (sketch) {
-			console.log('SketchRenderer :: mount');
 			rendering.mount(id, container, sketch);
 		}
-	});
 
-	function checkForResize(resizing = rendering.resizing) {
-		if (!node) return;
-
-		let isWindowResize = resizing === SIZES.WINDOW;
-		let isAspectResize = resizing === SIZES.ASPECT_RATIO;
-		let canUpdate = isWindowResize || isAspectResize;
-
-		if (canUpdate) {
-			let newWidth, newHeight;
-
-			if (isWindowResize) {
-				newWidth = node.offsetWidth;
-				newHeight = node.offsetHeight;
-			} else if (isAspectResize) {
-				const { offsetWidth, offsetHeight } = node;
-				const aspectRatio = rendering.aspectRatio;
-				const monitorRatio = offsetWidth / offsetHeight;
-
-				if (aspectRatio < monitorRatio) {
-					newHeight = offsetHeight;
-					newWidth = newHeight * aspectRatio;
-				} else {
-					newWidth = offsetWidth;
-					newHeight = newWidth / aspectRatio;
-				}
-			}
-
-			let needsUpdate =
-				newWidth !== rendering.width || newHeight !== rendering.height;
-
-			if (needsUpdate) {
-				rendering.width = newWidth;
-				rendering.height = newHeight;
-			}
-		}
-	}
-
-	$effect(() => {
-		checkForResize(rendering.resizing);
+		untrack(() => id); // triggers the remount
 	});
 
 	let backgroundColor = $derived.by(() => {
@@ -82,20 +37,12 @@
 		return sketch?.backgroundColor ?? 'inherit';
 	});
 
-	onMount(() => {
-		resizeObserver.observe(node);
-	});
-
 	onDestroy(() => {
-		resizeObserver.unobserve(node);
-		cancelAnimationFrame(_raf);
-
 		rendering.unmount(id);
 	});
 </script>
 
 <div
-	bind:this={node}
 	class="sketch-renderer"
 	class:visible
 	style={`--background-color: ${backgroundColor}`}

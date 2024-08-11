@@ -149,10 +149,6 @@ class Layout {
 		return component;
 	}
 
-	getChildrenOf(id) {
-		return this.components.filter((c) => c.parent === id);
-	}
-
 	persist(components) {
 		const mirrored = components.map((source) => ({
 			id: source.id,
