@@ -11,6 +11,7 @@ class Sketch {
 	backgroundColor = $state('inherit');
 	paused = $state(false);
 	propsGroups = $state([]);
+	propsFolders = $state([]);
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -19,6 +20,7 @@ class Sketch {
 		this.load = this.instance.load ?? noop;
 		this.setup = this.instance.setup ?? this.instance.init ?? noop;
 		this.draw = this.instance.draw ?? this.instance.update ?? noop;
+		this.needsUpdate = this.instance.needsUpdate ?? noop;
 		this.resize = this.instance.resize ?? noop;
 		this.duration = this.instance.duration;
 		this.exportDir = this.instance.exportDir;
@@ -57,6 +59,7 @@ class Sketch {
 
 		const newProps = {};
 		const newPropsGroups = [];
+		const newPropsFolders = [];
 
 		Object.keys(instanceProps).forEach((key) => {
 			let {
@@ -65,6 +68,7 @@ class Sketch {
 				hidden,
 				triggers = [],
 				group,
+				folder,
 				displayName,
 			} = instanceProps[key];
 
@@ -76,6 +80,33 @@ class Sketch {
 				newPropsGroups.push(group);
 			}
 
+			if (folder) {
+				const folders = folder.split('.');
+
+				for (let i = 0; i < folders.length; i++) {
+					const folderName = folders[i];
+
+					if (
+						newPropsFolders.findIndex(
+							(f) => f.name === folderName,
+						) < 0
+					) {
+						let parent;
+						if (i > 0) {
+							parent = folders[i - 1];
+						}
+
+						folder = {
+							parent,
+							name: folderName,
+							collapsed: false,
+						};
+
+						newPropsFolders.push(folder);
+					}
+				}
+			}
+
 			let __hidden = typeof hidden === 'function' ? hidden : () => hidden;
 
 			newProps[key] = {
@@ -85,6 +116,7 @@ class Sketch {
 				params,
 				triggers,
 				group,
+				// folder,
 				displayName,
 			};
 		});
@@ -132,6 +164,7 @@ class Sketch {
 
 		this.props = newProps;
 		this.propsGroups = newPropsGroups;
+		this.propsFolders = newPropsFolders;
 	}
 
 	updateProp(key, newValue) {
@@ -141,6 +174,7 @@ class Sketch {
 		if (prop) {
 			prop.value = newValue;
 		}
+
 		if (instanceProp) {
 			if (isObject(instanceProp.value)) {
 				deepAssign(instanceProp.value, newValue);

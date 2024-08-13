@@ -9,6 +9,7 @@
 	import HintRecord from '../components/HintRecord.svelte';
 	import HintPaused from '../components/HintPaused.svelte';
 	import HintLoading from '../components/HintLoading.svelte';
+	import { scale } from 'svelte/transition';
 
 	let { key, id, visible = true } = $props();
 
@@ -17,16 +18,14 @@
 
 	/** @type {Sketch} */
 	let sketch = $derived(sketchesManager.sketches[key]);
-	let loading = $derived(
-		rendering.renders.find((r) => r.id === id)?.loading ?? true,
+	let loaded = $derived(
+		rendering.renders.find((r) => r.id === id)?.loaded ?? false,
 	);
 
 	$effect(() => {
 		if (sketch) {
 			rendering.mount(id, container, sketch);
 		}
-
-		untrack(() => id); // triggers the remount
 	});
 
 	let backgroundColor = $derived.by(() => {
@@ -49,7 +48,10 @@
 >
 	<div
 		class="canvas-container"
-		style="--aspect-ratio: {rendering.width} / {rendering.height}; --aspect-ratio-inverse: {rendering.height} / {rendering.width}; --width: {rendering.width}px; --height: {rendering.height}px;"
+		style="--aspect-ratio: {rendering.width} / {rendering.height}; --aspect-ratio-inverse: {rendering.height} / {rendering.width}; --width: {rendering.width}px; --height: {rendering.height}px; {rendering.resizing ===
+		SIZES.SCALE
+			? `--scale: ${rendering.scale}`
+			: ''}"
 		bind:this={container}
 	></div>
 	{#if exports.recording}
@@ -58,7 +60,7 @@
 	{#if rendering.paused && !exports.recording && !__BUILD__ && !layout.previewing}
 		<HintPaused />
 	{/if}
-	{#if loading}
+	{#if !loaded}
 		<HintLoading />
 	{/if}
 </div>
@@ -101,5 +103,6 @@
 		height: 100% !important;
 
 		background-color: var(--background-color, #000000);
+		transform: scale(var(--scale));
 	}
 </style>

@@ -11,16 +11,11 @@
 	import Select from './fields/Select.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
 
-	let canvasWidth = rendering.width;
-	let canvasHeight = rendering.height;
-
-	function handleChangeDimensions([width, height]) {
-		const needsUpdate = canvasWidth !== width || canvasHeight !== height;
+	function handleChangeDimensions({ width, height }) {
+		const needsUpdate =
+			rendering.width !== width || rendering.height !== height;
 
 		if (needsUpdate) {
-			canvasWidth = width;
-			canvasHeight = height;
-
 			rendering.width = width;
 			rendering.height = height;
 
@@ -32,7 +27,10 @@
 	}
 
 	let sizes = Object.values(SIZES);
-	let dimensions = $derived([rendering.width, rendering.height]);
+	let dimensions = $derived({
+		width: rendering.width,
+		height: rendering.height,
+	});
 	let dimensionsEnabled = $derived(
 		[SIZES.FIXED, SIZES.SCALE].includes(rendering.resizing),
 	);

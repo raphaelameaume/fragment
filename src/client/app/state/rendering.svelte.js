@@ -21,8 +21,12 @@ export const SIZES = {
 	SCALE: 'scale',
 };
 
+let MONITOR_ID = 0;
+
 class Render {
-	loading = $state(true);
+	loaded = $state(false);
+	deferred = $state(false);
+	resized = $state(false);
 
 	constructor({ id, container, params, canvas, sketch, renderer, time }) {
 		this.id = id;
@@ -45,8 +49,14 @@ class Render {
 		let frameCount = fps * duration;
 		let interval = 1 / frameCount;
 
-		this.elapsed = isFinite(fps)
-			? this.time - frameLength * Math.floor(this.time / frameLength)
+		this.elapsed =
+			isFinite(fps) && fps !== 0
+				? this.time - frameLength * Math.floor(this.time / frameLength)
+				: 0;
+
+		this.timeTotal = isFinite(duration)
+			? this.time -
+				duration * 1000 * Math.floor(this.time / (duration * 1000))
 			: 0;
 
 		this.renderSketch = (deltaTime = 0) => {
@@ -69,29 +79,45 @@ class Render {
 		};
 
 		this.loop = ({ time } = {}) => {
-			if (this.loading) return;
+			if (this.deferred || !this.loaded || !this.resized) return;
 
 			let playhead = time / 1000 / duration;
 			playhead %= 1;
 
+			let playcount = 0;
+
 			if (isFinite(interval)) {
+				// round values for low framerates
 				playhead = Math.floor(playhead / interval) * interval;
+			}
+
+			if (isFinite(duration)) {
+				playcount = Math.floor(this.timeTotal / 1000 / duration);
+			}
+
+			if (fps === 0) {
+				playhead = 0;
 			}
 
 			const now = performance.now();
 			const deltaTime = now - this.then;
 
 			this.playhead = playhead;
-			this.playcount = Math.floor(time / 1000 / duration);
+			this.playcount = playcount;
 			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 
-			if (this.elapsed === 0 || this.elapsed >= frameLength) {
+			if (
+				this.elapsed === 0 ||
+				this.elapsed >= frameLength ||
+				this.sketch.needsUpdate()
+			) {
 				this.elapsed = 0;
 				this.renderSketch(deltaTime);
 				this.then = now;
 			}
 
 			this.time = time;
+			this.timeTotal += deltaTime;
 			this.elapsed += deltaTime;
 		};
 
@@ -100,7 +126,14 @@ class Render {
 				await sketch.load(params);
 				await sketch.setup(params);
 
-				this.loading = false;
+				if (this.deferred) {
+					this.renderer?.onResizePreview(params);
+					sketch.resize(params);
+					this.deferred = false;
+					this.resized = true;
+				}
+
+				this.loaded = true;
 			} catch (error) {
 				console.error(error);
 				displayError(error, sketch.key);
@@ -124,6 +157,7 @@ class Rendering {
 	/** @type {Render[]} */
 	renders = $state([]);
 	refreshRate = $state(0);
+	monitors = $state([]);
 
 	constructor() {
 		this.key = 'rendering';
@@ -133,6 +167,45 @@ class Rendering {
 		this.then = this.time;
 		this.renderers = {};
 		this.recording = false;
+
+		this.observer = new MutationObserver((mutationsList) => {
+			if (
+				mutationsList.some(
+					(mutation) =>
+						mutation.attributeName === 'width' ||
+						mutation.attributeName === 'height',
+				)
+			) {
+				const { target } = mutationsList[0];
+
+				const { width, height } = target;
+				const widthHasChanged = width !== this.width;
+				const heightHasChanged = height !== this.height;
+				const needsUpdate = widthHasChanged || heightHasChanged;
+
+				if (needsUpdate) {
+					console.warn(
+						'Canvas size has been changed from sketch',
+						this.width,
+						this.height,
+						width,
+						height,
+					);
+
+					if (this.resizing !== SIZES.FIXED) {
+						this.resizing = SIZES.FIXED;
+					}
+
+					if (widthHasChanged) {
+						this.width = width;
+					}
+
+					if (heightHasChanged) {
+						this.height = height;
+					}
+				}
+			}
+		});
 
 		$effect.root(() => {
 			$effect(() => {
@@ -175,23 +248,28 @@ class Rendering {
 				const { width, height, pixelRatio } = this;
 
 				if (this.renders.length > 0) {
-					let timeout = setTimeout(() => {
-						clearTimeout(timeout);
-						timeout = null;
+					if (this.timeout) clearTimeout(this.timeout);
+					this.timeout = setTimeout(() => {
+						clearTimeout(this.timeout);
+						this.timeout = null;
 						this.renders.forEach((render) => {
-							const { loading, sketch, renderer, params } =
-								render;
+							const { loaded, sketch, renderer, params } = render;
 
 							// sync resize to avoid flickering
-							if (!loading) {
+							if (loaded) {
 								params.width = width;
 								params.height = height;
 								params.pixelRatio = pixelRatio;
 
 								renderer?.onResizePreview?.(params);
 								sketch.resize?.(params);
+								render.resized = true;
+							} else {
+								render.deferred = true;
 							}
 						});
+
+						this.observer.takeRecords();
 					}, 0);
 				}
 			});
@@ -311,15 +389,11 @@ class Rendering {
 
 	async mount(id, container, sketch) {
 		let canvas = this.createCanvas({ container, context: sketch.key });
-
 		const renderer = await this.findRenderer({
 			renderingMode: sketch.instance.rendering,
 		});
-
 		const { width, height, pixelRatio } = this;
-
 		let mountParams = {};
-
 		if (renderer) {
 			mountParams = renderer?.onMountPreview?.({
 				id,
@@ -330,7 +404,6 @@ class Rendering {
 				pixelRatio,
 			});
 		}
-
 		if (mountParams.canvas !== canvas) {
 			this.destroyCanvas(canvas);
 			canvas = this.createCanvas({
@@ -339,7 +412,6 @@ class Rendering {
 				context: sketch.key,
 			});
 		}
-
 		let params = {
 			...mountParams,
 			id,
@@ -351,7 +423,6 @@ class Rendering {
 			pixelRatio,
 			props: sketch.instance.props,
 		};
-
 		const render = new Render({
 			id,
 			container,
@@ -361,11 +432,9 @@ class Rendering {
 			renderer,
 			time: this.time,
 		});
-
 		const previousIndex = this.renders.findIndex(
 			(render) => render.id === id,
 		);
-
 		if (previousIndex >= 0) {
 			this.unmount(id);
 		}
@@ -385,11 +454,9 @@ class Rendering {
 		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
 		canvas.onclick = (event) => checkForTriggersClick(event, context);
 
-		if (this.resizing === SIZES.SCALE) {
-			canvas.style.transform = `scale(${this.scale})`;
-		} else {
-			canvas.style.transform = null;
-		}
+		this.observer.observe(canvas, {
+			attributes: true,
+		});
 
 		if (container) {
 			container.appendChild(canvas);
@@ -409,6 +476,8 @@ class Rendering {
 
 	destroyCanvas(canvas) {
 		if (canvas) {
+			this.observer.disconnect();
+
 			canvas.parentNode?.removeChild(canvas);
 			canvas.onmousedown = null;
 			canvas.onmousemove = null;
@@ -622,7 +691,7 @@ class Rendering {
 	estimateRefreshRate() {
 		return new Promise((resolve) => {
 			const deltas = [];
-			const frameCount = 50;
+			const frameCount = 100;
 			let count = 0;
 			let lastTime = performance.now();
 
@@ -673,6 +742,10 @@ class Rendering {
 
 			requestAnimationFrame(computeRefreshRate);
 		});
+	}
+
+	getMonitorID() {
+		return MONITOR_ID++;
 	}
 }
 
