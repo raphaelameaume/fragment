@@ -64,6 +64,10 @@
 		max-height: calc(100vh - 2 * var(--padding));
 	}
 
+	.floating-params :global(.module__container) {
+		max-height: calc(100vh - 2 * var(--padding) - var(--header-height));
+	}
+
 	.floating-params.minimized {
 		height: 25px;
 	}
