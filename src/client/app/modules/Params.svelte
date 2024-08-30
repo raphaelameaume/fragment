@@ -16,7 +16,9 @@
 	let sketch = $derived(render?.sketch);
 	let sketchProps = $derived(sketch?.props ?? {});
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
-	let framerate = $derived(sketch?.fps ?? rendering.refreshRate);
+	let framerate = $derived(
+		isFinite(sketch.fps) ? sketch.fps : rendering.refreshRate,
+	);
 
 	let sketchGroupOptions = $derived(
 		[
@@ -40,7 +42,7 @@
 </script>
 
 <Module {id} {headless} name={`Parameters`} slug="params">
-	{#snippet headerRight()}>
+	{#snippet headerRight()}
 		{#if sketchGroupOptions.length > 1}
 			<ModuleHeaderAction
 				value={sketchPropGroup}
@@ -64,7 +66,7 @@
 				value={framerate}
 				disabled
 				params={{
-					suffix: sketch.fps ? undefined : ' (native)',
+					suffix: isFinite(sketch.fps) ? undefined : ' (native)',
 				}}
 			/>
 			{#if sketch.duration && sketch.duration > 0 && output}
