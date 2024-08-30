@@ -2,19 +2,19 @@
 	import FieldInputRow from './FieldInputRow.svelte';
 	import NumberInput from './NumberInput.svelte';
 	import { map, clamp, roundToStep } from '../../utils/math.utils';
-	import { createEventDispatcher } from 'svelte';
 
-	export let value = null;
-	export let label = '';
-	export let step = 1;
-	export let suffix = '';
-	export let min = -Infinity;
-	export let max = Infinity;
-	export let disabled = false;
-	export let context = null;
-	export let key = '';
-
-	let dispatch = createEventDispatcher();
+	let {
+		value = null,
+		label,
+		step = 1,
+		suffix = '',
+		min = -Infinity,
+		max = Infinity,
+		disabled = false,
+		context,
+		key,
+		onchange,
+	} = $props();
 
 	/** @type {HTMLElement} */
 	let node;
@@ -40,8 +40,8 @@
 
 		let dragValue = computeDrag(event);
 
-		let abs0 = Math.abs(dragValue - min);
-		let abs1 = Math.abs(dragValue - max);
+		let abs0 = Math.abs(dragValue - value[0]);
+		let abs1 = Math.abs(dragValue - value[1]);
 
 		proximityIndex = abs0 < abs1 ? 0 : 1;
 
@@ -80,7 +80,7 @@
 			value[0] = newValues[0];
 			value[1] = newValues[1];
 
-			dispatch('change', value);
+			onchange(value);
 		}
 	}
 
@@ -95,10 +95,10 @@
 	function handleValueChange(index, newValue) {
 		value[index] = newValue;
 
-		dispatch('change', value);
+		onchange(value);
 	}
 
-	$: {
+	$effect(() => {
 		if (value[0] > value[1]) {
 			console.warn(`Values provided for ${key} are in the wrong order. `);
 		}
@@ -110,10 +110,10 @@
 				);
 			}
 		});
-	}
+	});
 
-	$: p1 = map(clamp(value[0], min, max), min, max, 0, 1);
-	$: p2 = map(clamp(value[1], min, max), min, max, 0, 1);
+	let p1 = $derived(map(clamp(value[0], min, max), min, max, 0, 1));
+	let p2 = $derived(map(clamp(value[1], min, max), min, max, 0, 1));
 </script>
 
 <div class="interval-input" class:disabled>
