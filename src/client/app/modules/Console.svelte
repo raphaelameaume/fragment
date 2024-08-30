@@ -62,12 +62,6 @@
 		console.clear = clear;
 	}
 
-	$effect.pre(() => {
-		if (scrollableContainer) {
-			scrollableContainer.scrollTop = scrollableContainer.scrollHeight;
-		}
-	});
-
 	onMount(() => {
 		enable();
 		return () => {
@@ -120,6 +114,14 @@
 		height: 100%;
 		overflow-x: hidden;
 		overflow-y: scroll;
+
+		scroll-snap-type: y proximity;
+	}
+
+	.scroll::after {
+		display: block;
+		content: '';
+		scroll-snap-align: end;
 	}
 
 	.scroll::-webkit-scrollbar {
