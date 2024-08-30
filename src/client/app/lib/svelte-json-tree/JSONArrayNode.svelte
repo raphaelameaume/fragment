@@ -1,4 +1,5 @@
 <script>
+	import JSONArrow from './JSONArrow.svelte';
 	import JSONNested from './JSONNested.svelte';
 	import JSONNode from './JSONNode.svelte';
 	import PreviewList from './PreviewList.svelte';

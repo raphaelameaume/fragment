@@ -19,6 +19,7 @@
 		getComponentAndProps(nodeType, value),
 	);
 
+	// console.log(value);
 	function getComponentAndProps(nodeType, value) {
 		switch (nodeType) {
 			case 'Object':

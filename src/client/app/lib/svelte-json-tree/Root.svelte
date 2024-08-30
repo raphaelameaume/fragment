@@ -36,6 +36,9 @@
 			Courier,
 			monospace
 		);
+
+		display: flex;
+		flex-direction: column;
 	}
 	div :global(li) {
 		line-height: var(--li-line-height);

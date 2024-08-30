@@ -18,11 +18,12 @@
 	} = $props();
 
 	let expanded = $state(defaultExpanded);
-	let expandable = $state(true);
+	let expandable = $state(false);
 	let displayMode = getContext('displayMode');
 	let root = getContext('root');
 	let toggleExpand = (e) => {
 		e?.preventDefault();
+		e.stopPropagation();
 
 		expanded = !expanded;
 	};
@@ -30,20 +31,20 @@
 	$effect(() => {
 		setContext('expandable', expandable);
 		setContext('expanded', expanded);
-		setContext('toggleExpand', toggleExpand);
 	});
 
 	setContext('root', false);
+	setContext('toggleExpand', toggleExpand);
 </script>
 
 {#if displayMode === 'summary'}
 	{@render summary()}
 {:else}
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
-	<span class="root" onclick={(e) => toggleExpand(e)}>
-		{#if root}
+	<span class="root jsonnested" onclick={(e) => toggleExpand(e)}>
+		<!-- {#if root}
 			<JSONArrow {expanded} {expandable} />
-		{/if}
+		{/if} -->
 		<Summary>
 			{@render preview(root)}
 		</Summary>
@@ -58,13 +59,11 @@
 			}}
 		>
 			{#each keys as key, index}
-				<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<li class:indent={expanded}>
 					<Expandable key={expandKey(key)}>
-						<!-- svelte-ignore a11y-no-static-element-interactions -->
-						<!-- child_expanded[index].update((value) => !value) -->
 						<span class="label">
-							<JSONArrow />
+							<!-- <JSONArrow /> -->
 							{@render itemKey(key)}
 							{#if !shouldShowColon || shouldShowColon(key)}
 								<span class="operator">{': '}</span>

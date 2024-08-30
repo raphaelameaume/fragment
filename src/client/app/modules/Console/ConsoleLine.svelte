@@ -88,27 +88,28 @@
 
 <style>
 	.log {
-		--json-tree-string-color: rgba(240, 240, 240, 0.6);
+		--json-tree-string-color: #17d08e;
 		--arrow-sign: rgba(255, 255, 255, 0.5);
 		--json-tree-font-size: var(--font-size-input);
 		--json-tree-font-family: var(--font-mono);
 		--json-tree-number-color: #9980ff;
-		--json-tree-symbol-color: #cb3f41;
+		--json-tree-symbol-color: #0a0606;
 		--json-tree-boolean-color: #9980ff;
 		--json-tree-function-color: var(--color-active);
 		/* --json-tree-number-color: #3029cf; */
 		--json-tree-property-color: #5db0d7;
-		--json-tree-label-color: #17d08e;
+		--json-tree-label-color: rgba(240, 240, 240, 0.6);
 		--json-tree-arrow-color: #727272;
 		--json-tree-null-color: #8d8d8d;
 		--json-tree-undefined-color: #8d8d8d;
 		--json-tree-date-color: #8d8d8d;
-		--json-tree-li-indentation: 12px;
+		--json-tree-li-indentation: 20px;
+		--json-tree-li-line-height: 1.5;
 
 		position: relative;
 
 		display: flex;
-		padding: 4px 0 3px;
+		padding: 4px 0;
 
 		color: rgba(255, 255, 255, 0.5);
 
@@ -118,7 +119,7 @@
 
 	.args {
 		display: flex;
-		flex-direction: column;
+		gap: 6px;
 	}
 
 	.string {
@@ -183,7 +184,7 @@
 	}
 
 	.log :global(.arrow) {
-		margin-right: 10px;
+		padding-right: 6px;
 	}
 
 	.log :global(.String) {

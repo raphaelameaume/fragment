@@ -4,6 +4,7 @@
 	let { key, children } = $props();
 
 	// const expandable = $state(false);
+	// setContext('expandable', false);
 	// useState(({ keyPath, level }) => {
 	// 	if (key !== '[[Entries]]') {
 	// 		keyPath = [...keyPath, key];
