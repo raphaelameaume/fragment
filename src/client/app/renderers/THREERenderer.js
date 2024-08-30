@@ -130,31 +130,28 @@ function handleHotShaderUpdate(scene) {
 			if (child.material) {
 				const { material } = child;
 
-				if (material.isShaderMaterial || material.isRawShaderMaterial) {
-					const { vertexShader, fragmentShader } = material;
+				// if (material.isShaderMaterial || material.isRawShaderMaterial) {
+				const { vertexShader = '', fragmentShader = '' } = material;
 
-					Object.keys({ vertexShader, fragmentShader }).forEach(
-						(key) => {
-							const shader = material[key];
-							const shaderPath = getShaderPath(shader);
-							const shaderUpdate = _shaderUpdates.find(
-								(shaderUpdate) =>
-									shaderUpdate.filepath === shaderPath,
-							);
-
-							if (shaderUpdate) {
-								console.log(
-									`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
-										__CWD__,
-										'',
-									)}`,
-								);
-								material[key] = shaderUpdate.source;
-								material.needsUpdate = true;
-							}
-						},
+				Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
+					const shader = material[key];
+					const shaderPath = getShaderPath(shader);
+					const shaderUpdate = _shaderUpdates.find(
+						(shaderUpdate) => shaderUpdate.filepath === shaderPath,
 					);
-				}
+
+					if (shaderUpdate) {
+						console.log(
+							`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
+								__CWD__,
+								'',
+							)}`,
+						);
+						material[key] = shaderUpdate.source;
+						material.needsUpdate = true;
+					}
+				});
+				// }
 			}
 		});
 	}
