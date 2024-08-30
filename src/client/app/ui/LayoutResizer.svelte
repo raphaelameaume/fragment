@@ -122,15 +122,8 @@
 			nextFlex = 0;
 		}
 
-		console.log(prevFlex);
-
 		current.size = prevFlex;
 		next.size = nextFlex;
-
-		// layout.resize([
-		// 	{ id: current.id, size: prevFlex },
-		// 	{ id: next.id, size: nextFlex },
-		// ]);
 	}
 </script>
 
