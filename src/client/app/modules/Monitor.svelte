@@ -20,7 +20,8 @@
 	} = $props();
 
 	let key = $derived(
-		sketchesManager.keys.includes(params.selected)
+		sketchesManager.keys.includes(params.selected) ||
+			(params.selected === 'output' && sketchesManager.keys.length > 1)
 			? params.selected
 			: sketchesManager.keys[0],
 	);
