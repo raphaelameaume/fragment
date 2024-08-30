@@ -3,18 +3,28 @@
 	import SketchRenderer from '../ui/SketchRenderer.svelte';
 	import OutputRenderer from '../ui/OutputRenderer.svelte';
 	import SketchSelect from '../ui/SketchSelect.svelte';
-	import { sketchesManager } from '../state/sketches.svelte';
+
 	import ErrorOverlay from '../ui/ErrorOverlay.svelte';
 	import { errors } from '../state/errors.svelte.js';
 	import { onMount } from 'svelte';
 	import { layout } from '../state/layout.svelte';
 	import { rendering, SIZES } from '../state/rendering.svelte.js';
-	import ModuleHeaderSelect from '../ui/ModuleHeaderSelect.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
+	import { sketchesManager } from '../state/sketches.svelte';
 
-	let { id = layout.getID(), headless = false, sketchKey = null } = $props();
+	let {
+		id = layout.getID(),
+		headless = false,
+		sketchKey = null,
+		params,
+	} = $props();
 
-	let key = $derived(sketchesManager.keys[0]);
+	let key = $derived(
+		sketchesManager.keys.includes(params.selected)
+			? params.selected
+			: sketchesManager.keys[0],
+	);
+
 	let monitors = $derived(rendering.monitors);
 	let monitorID = rendering.getMonitorID();
 	let index = $derived(monitors.findIndex((m) => m.id === monitorID));
@@ -125,7 +135,13 @@
 </script>
 
 {#snippet headerLeft()}
-	<SketchSelect monitorID={id} selected={key} />
+	<SketchSelect
+		monitorID={id}
+		sketchKey={key}
+		onchange={(event) => {
+			params.selected = event.target.value;
+		}}
+	/>
 {/snippet}
 
 {#snippet headerRight()}
