@@ -26,6 +26,7 @@ let MONITOR_ID = 0;
 class Render {
 	loaded = $state(false);
 	deferred = $state(false);
+	errored = $state(false);
 	resized = $state(false);
 
 	constructor({ id, container, params, canvas, sketch, renderer, time }) {
@@ -74,12 +75,15 @@ class Render {
 
 				renderer?.onAfterUpdatePreview?.({ id });
 			} catch (error) {
+				console.error(error);
 				displayError(error, sketch.key);
+				this.errored = true;
 			}
 		};
 
 		this.loop = ({ time } = {}) => {
-			if (this.deferred || !this.loaded || !this.resized) return;
+			if (this.deferred || !this.loaded || !this.resized || this.errored)
+				return;
 
 			let playhead = time / 1000 / duration;
 			playhead %= 1;
@@ -137,6 +141,7 @@ class Render {
 			} catch (error) {
 				console.error(error);
 				displayError(error, sketch.key);
+				this.errored = true;
 			}
 		};
 	}
@@ -183,27 +188,27 @@ class Rendering {
 				const heightHasChanged = height !== this.height;
 				const needsUpdate = widthHasChanged || heightHasChanged;
 
-				if (needsUpdate) {
-					console.warn(
-						'Canvas size has been changed from sketch',
-						this.width,
-						this.height,
-						width,
-						height,
-					);
+				// if (needsUpdate) {
+				// 	console.warn(
+				// 		'Canvas size has been changed from sketch',
+				// 		this.width,
+				// 		this.height,
+				// 		width,
+				// 		height,
+				// 	);
 
-					if (this.resizing !== SIZES.FIXED) {
-						this.resizing = SIZES.FIXED;
-					}
+				// 	if (this.resizing !== SIZES.FIXED) {
+				// 		this.resizing = SIZES.FIXED;
+				// 	}
 
-					if (widthHasChanged) {
-						this.width = width;
-					}
+				// 	if (widthHasChanged) {
+				// 		this.width = width;
+				// 	}
 
-					if (heightHasChanged) {
-						this.height = height;
-					}
-				}
+				// 	if (heightHasChanged) {
+				// 		this.height = height;
+				// 	}
+				// }
 			}
 		});
 
@@ -249,6 +254,7 @@ class Rendering {
 
 				if (this.renders.length > 0) {
 					if (this.timeout) clearTimeout(this.timeout);
+
 					this.timeout = setTimeout(() => {
 						clearTimeout(this.timeout);
 						this.timeout = null;
@@ -264,6 +270,11 @@ class Rendering {
 								renderer?.onResizePreview?.(params);
 								sketch.resize?.(params);
 								render.resized = true;
+
+								if (sketch.fps === 0) {
+									render.time = 0;
+									render.elapsed = 0;
+								}
 							} else {
 								render.deferred = true;
 							}
@@ -569,7 +580,7 @@ class Rendering {
 				filename: sketch.key,
 				pattern: sketch.filenamePattern,
 				exportDir: sketch.exportDir,
-				duration: sketch.duration,
+				duration: exports.useDuration ? sketch.duration : undefined,
 				params: {
 					props: sketch.props,
 				},
@@ -691,7 +702,7 @@ class Rendering {
 	estimateRefreshRate() {
 		return new Promise((resolve) => {
 			const deltas = [];
-			const frameCount = 100;
+			const frameCount = 10;
 			let count = 0;
 			let lastTime = performance.now();
 
@@ -723,16 +734,13 @@ class Rendering {
 
 				if (count < frameCount) {
 					deltas.push(deltaTime);
-					requestAnimationFrame(computeRefreshRate);
+					requestIdleCallback(() =>
+						requestAnimationFrame(computeRefreshRate),
+					);
 					count++;
 				} else {
-					const mean =
-						deltas.reduce((total, delta) => {
-							return total + delta;
-						}, 0) / deltas.length;
-
 					const refreshRate = Math.round(
-						(60 / (mean / 1000)) * (1 / 60),
+						(60 / (deltas[deltas.length - 1] / 1000)) * (1 / 60),
 					);
 
 					this.refreshRate = findClosestRefreshRate(refreshRate);
@@ -740,7 +748,9 @@ class Rendering {
 				}
 			};
 
-			requestAnimationFrame(computeRefreshRate);
+			requestIdleCallback(() =>
+				requestAnimationFrame(computeRefreshRate),
+			);
 		});
 	}
 
