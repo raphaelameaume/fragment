@@ -199,51 +199,6 @@ class Sketch {
 		persist(this.key, this);
 	}
 
-	record() {
-		function onRecordEnd() {
-			this.recording = null;
-			this.paused = false;
-
-			// afterRecordCallbacks.forEach((callback) => {
-			// 	callback(recordArgs);
-			// });
-
-			this.render();
-		}
-
-		let recordOptions = {
-			params: {
-				props: this.props,
-			},
-			filename: this.key,
-			exportDir: this.exportDir,
-			pattern: this.filenamePattern,
-			onTick: (params) => this.render(params),
-			framerate: exports.framerate,
-			format: exports.videoFormat,
-			imageEncoding: exports.imageEncoding,
-			quality: exports.videoQuality,
-			onStart: () => {
-				// beforeRecordCallbacks.forEach((callback) => {
-				// 	callback(recordArgs);
-				// });
-
-				elapsedRenderingTime = 0;
-				this.paused = true;
-			},
-			onComplete: () => {
-				exports.recording = false;
-				onRecordEnd();
-			},
-		};
-
-		if (exports.useDuration) {
-			recordOptions.duration = this.duration * exports.loopCount;
-		}
-
-		this.recording = recordCanvas(this.canvas, recordOptions);
-	}
-
 	dispose() {
 		// if (this.renderer && typeof renderer.onDestroyPreview === 'function') {
 		// 	this.renderer.onDestroyPreview({
