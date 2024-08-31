@@ -1,5 +1,14 @@
 <script>
-	let { label, disabled = false, showLabel = true, title = '', context = null, key = '', onclick, onmouseenter, onmouseleave} = $props();
+	let {
+		label,
+		disabled = false,
+		showLabel = true,
+		title = '',
+		onclick,
+		onmouseenter,
+		onmouseleave,
+		children,
+	} = $props();
 </script>
 
 <div class="button-container" class:disabled>
@@ -12,7 +21,7 @@
 		{title}
 	>
 		<span class="label" class:visually-hidden={!showLabel}>{label}</span>
-		<slot />
+		{@render children()}
 	</button>
 </div>
 
