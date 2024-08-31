@@ -11,7 +11,8 @@
 
 	console.log(`Made with Fragment. https://fragment.tools`);
 
-	let sketchKey = $derived(Object.keys(sketchesManager.sketches)[0]);
+	let sketchKey = $derived(sketchesManager.keys[0]);
+
 	let sketch = $derived(sketchesManager.sketches[sketchKey]);
 
 	// let gui = $derived(sketch?.buildConfig?.gui);
@@ -62,11 +63,11 @@
 				<Params headless />
 			</Column>
 			<Column size={1 - guiSize}>
-				<Monitor headless {sketchKey} />
+				<Monitor headless params={{ selected: sketchKey }} />
 			</Column>
 		{:else}
 			<Column size={1 - guiSize}>
-				<Monitor headless {sketchKey} />
+				<Monitor headless params={{ selected: sketchKey }} />
 			</Column>
 			<Column size={guiSize}>
 				<Params headless />
@@ -75,7 +76,7 @@
 	</Row>
 {:else}
 	<Row>
-		<Monitor headless {sketchKey} />
+		<Monitor headless {sketchKey} params={{ selected: sketchKey }} />
 		{#if gui}
 			<FloatingParams
 				output={guiOutput}
