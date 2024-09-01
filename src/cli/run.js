@@ -62,13 +62,14 @@ export async function run(entry, options = {}) {
 			cwd,
 		});
 
-		const config = createConfig(
+		const config = await createConfig(
 			entries,
 			fragmentFilepath,
 			{
 				dev: options.development,
 				build: false,
 			},
+			options.configFilepath,
 			cwd,
 		);
 

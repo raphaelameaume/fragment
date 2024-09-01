@@ -11,6 +11,7 @@
 - [Hot Shader Replacement](./guide/hot-shader-replacement.md)
 - [Custom renderers](./guide/custom-renderers.md)
 - [Reactive props](./guide/reactive-props.md)
+- [Configuring Fragment](./guide/configuring-fragment.md)
 - [Shortcuts](./guide/shortcuts.md)
 
 ## APIs
