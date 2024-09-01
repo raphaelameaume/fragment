@@ -132,7 +132,7 @@
 		/>
 	{/if}
 </div>
-{#if !isRoot && !current.minimized}
+{#if !isRoot}
 	<Resizer direction={isColumn ? 'vertical' : 'horizontal'} {current} />
 {/if}
 
