@@ -99,14 +99,6 @@
 	);
 	let triggersActive = $derived(triggers.length > 0);
 
-	$effect(() => {
-		const isDownload = fieldType === fieldTypes.DOWNLOAD;
-		const isButton = fieldType === fieldTypes.BUTTON;
-		if ((isDownload || isButton) && params.label == undefined) {
-			fieldProps.label = isDownload ? 'download' : 'run';
-		}
-	});
-
 	function toggleTriggers(event) {
 		event.preventDefault();
 

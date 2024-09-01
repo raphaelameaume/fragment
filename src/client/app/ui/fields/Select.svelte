@@ -1,7 +1,14 @@
 <script>
 	import SelectChevrons from '../SelectChevrons.svelte';
 
-	let { options, name = '', value = $bindable(), disabled = false, key, context, title = '', onchange = () => {} } = $props();
+	let {
+		options,
+		name = '',
+		value = $bindable(),
+		disabled = false,
+		title = '',
+		onchange = () => {},
+	} = $props();
 
 	function toStringifiedValue(option, optionType = typeof option) {
 		if (option === null) {
@@ -17,41 +24,39 @@
 		return option.toString();
 	}
 
-	let sanitizedOptions = $derived(options.map((option) => {
-		let optionType = typeof option;
-		let disabled =
-			optionType === 'object' && typeof option.disabled === 'boolean'
-				? option.disabled
-				: false;
-		let _value = optionType === 'object' ? option.value : option;
+	let sanitizedOptions = $derived(
+		options.map((option) => {
+			let optionType = typeof option;
+			let disabled =
+				optionType === 'object' && typeof option.disabled === 'boolean'
+					? option.disabled
+					: false;
+			let value = optionType === 'object' ? option.value : option;
 
-		let stringifiedValue = toStringifiedValue(option);
-		let label;
+			let stringValue = toStringifiedValue(option);
 
-		if (option.label) {
-			label = option.label;
-		} else {
-			label = stringifiedValue;
-		}
+			let label = option.label ?? stringValue;
 
-		return {
-			label,
-			_value,
-			value: stringifiedValue,
-			disabled,
-		}
-	}));
+			return {
+				label,
+				value,
+				stringValue,
+				disabled,
+			};
+		}),
+	);
 
-	let sanitizedValue = $state(sanitizedOptions.find((opt) => opt._value === value)?.[0]);
+	let sanitizedValue = $derived(
+		sanitizedOptions.find((opt) => opt.value === value),
+	);
 
 	function handleChange(event) {
 		const index = sanitizedOptions.findIndex(
-			(opt) => opt.value === event.currentTarget.value,
+			(opt) => opt.stringValue === event.currentTarget.value,
 		);
+
 		const option = options[index];
 		const newValue = typeof option === 'object' ? option.value : option;
-
-		value = newValue;
 
 		onchange(newValue);
 	}
@@ -69,11 +74,11 @@
 			{name}
 			{disabled}
 			{title}
-			value={value}
+			value={sanitizedValue.stringValue}
 		>
 			{#each sanitizedOptions as option}
 				<option
-					value={option.value}
+					value={option.stringValue}
 					selected={sanitizedValue === option.value}
 					disabled={option.disabled}>{option.label}</option
 				>

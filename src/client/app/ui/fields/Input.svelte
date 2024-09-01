@@ -1,5 +1,14 @@
 <script>
-	let { label, value = $bindable(), disabled = false, oninput, onchange, onkeydown, onfocus, onblur, context = null, key = ''} = $props();
+	let {
+		label,
+		value = $bindable(),
+		disabled = false,
+		oninput,
+		onchange,
+		onkeydown,
+		onfocus,
+		onblur,
+	} = $props();
 
 	/** @type {HTMLInputElement} */
 	let node;
@@ -12,7 +21,7 @@
 </script>
 
 <div class="input-container" class:disabled>
-	{#if label}
+	{#if label !== undefined}
 		<span class="label">{label}</span>
 	{/if}
 	<input

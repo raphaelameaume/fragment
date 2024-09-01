@@ -1,6 +1,6 @@
 <script>
 	let {
-		label,
+		label = 'run',
 		disabled = false,
 		showLabel = true,
 		title = '',
