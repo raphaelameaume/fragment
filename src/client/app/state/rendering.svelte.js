@@ -74,6 +74,8 @@ class Render {
 				});
 
 				renderer?.onAfterUpdatePreview?.({ id });
+
+				sketch.sync();
 			} catch (error) {
 				console.error(error);
 				displayError(error, sketch.key);
@@ -117,6 +119,7 @@ class Render {
 			) {
 				this.elapsed = 0;
 				this.renderSketch(deltaTime);
+
 				this.then = now;
 			}
 

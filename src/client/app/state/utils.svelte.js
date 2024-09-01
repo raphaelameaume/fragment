@@ -44,3 +44,18 @@ export function deepAssign(target, source) {
 		}
 	}
 }
+
+export function deepEqual(target, source) {
+	if (isObject(target) && isObject(target)) {
+		let isEqual = true;
+		for (const key in source) {
+			if (isEqual) {
+				isEqual = deepEqual(target[key], source[key]);
+			}
+		}
+
+		return isEqual;
+	}
+
+	return target === source;
+}

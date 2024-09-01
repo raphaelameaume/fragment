@@ -1,7 +1,11 @@
-import { exports } from './exports.svelte';
 import { rendering } from './rendering.svelte';
-import { deepAssign, hydrate, isObject, persist } from './utils.svelte';
-import { recordCanvas } from '../utils/canvas.utils.js';
+import {
+	deepAssign,
+	deepEqual,
+	hydrate,
+	isObject,
+	persist,
+} from './utils.svelte';
 
 const noop = () => {};
 
@@ -46,79 +50,12 @@ class Sketch {
 
 	reconcile(previous) {
 		const instanceProps = this.instance.props ?? {};
-
-		const duplicateInitialValue = (value) => {
-			if (Array.isArray(value)) {
-				return [...value];
-			} else if (typeof value === 'object') {
-				return structuredClone(value);
-			}
-
-			return value;
-		};
-
 		const newProps = {};
 		const newPropsGroups = [];
 		const newPropsFolders = [];
 
 		Object.keys(instanceProps).forEach((key) => {
-			let {
-				value,
-				params = {},
-				hidden,
-				triggers = [],
-				group,
-				folder,
-				displayName,
-			} = instanceProps[key];
-
-			if (value.isColor) {
-				value = { r: value.r, g: value.g, b: value.b };
-			}
-
-			if (group && !newPropsGroups.includes(group)) {
-				newPropsGroups.push(group);
-			}
-
-			if (folder) {
-				const folders = folder.split('.');
-
-				for (let i = 0; i < folders.length; i++) {
-					const folderName = folders[i];
-
-					if (
-						newPropsFolders.findIndex(
-							(f) => f.name === folderName,
-						) < 0
-					) {
-						let parent;
-						if (i > 0) {
-							parent = folders[i - 1];
-						}
-
-						folder = {
-							parent,
-							name: folderName,
-							collapsed: false,
-						};
-
-						newPropsFolders.push(folder);
-					}
-				}
-			}
-
-			let __hidden = typeof hidden === 'function' ? hidden : () => hidden;
-
-			newProps[key] = {
-				value,
-				__initialValue: duplicateInitialValue(value),
-				__hidden,
-				params,
-				triggers,
-				group,
-				// folder,
-				displayName,
-			};
+			newProps[key] = this.createProp(instanceProps[key]);
 		});
 
 		const restoreProps = (prevProps) => {
@@ -132,9 +69,20 @@ class Sketch {
 
 					if (newProp) {
 						if (
+							isObject(newProp.__initialValue) &&
+							deepEqual(
+								newProp.__initialValue,
+								prevProp.__initialValue,
+							)
+						) {
+							deepAssign(newProp.value, prevProp.value);
+							deepAssign(instanceProp.value, prevProp.value);
+							newProp.__currentValue = newProp.value;
+						} else if (
 							newProp.__initialValue === prevProp.__initialValue
 						) {
 							newProp.value = prevProp.value;
+							newProp.__currentValue = newProp.value;
 							instanceProp.value = prevProp.value;
 						}
 
@@ -167,12 +115,89 @@ class Sketch {
 		this.propsFolders = newPropsFolders;
 	}
 
+	createProp(instanceProp) {
+		const duplicateInitialValue = (value) => {
+			if (typeof value === 'function') {
+				return value;
+			}
+
+			if (isObject(value)) {
+				return structuredClone(value);
+			}
+
+			return value;
+		};
+
+		let {
+			value,
+			params = {},
+			triggers = [],
+			group,
+			displayName,
+		} = instanceProp;
+
+		if (value.isColor) {
+			value = { r: value.r, g: value.g, b: value.b };
+		}
+
+		// if (group && !newPropsGroups.includes(group)) {
+		// 	newPropsGroups.push(group);
+		// }
+
+		// if (folder) {
+		// 	const folders = folder.split('.');
+
+		// 	for (let i = 0; i < folders.length; i++) {
+		// 		const folderName = folders[i];
+
+		// 		if (
+		// 			newPropsFolders.findIndex(
+		// 				(f) => f.name === folderName,
+		// 			) < 0
+		// 		) {
+		// 			let parent;
+		// 			if (i > 0) {
+		// 				parent = folders[i - 1];
+		// 			}
+
+		// 			folder = {
+		// 				parent,
+		// 				name: folderName,
+		// 				collapsed: false,
+		// 			};
+
+		// 			newPropsFolders.push(folder);
+		// 		}
+		// 	}
+		// }
+
+		let __hidden =
+			typeof instanceProp.hidden === 'function'
+				? instanceProp.hidden
+				: () => instanceProp.hidden;
+
+		let initialValue = duplicateInitialValue(value);
+
+		return {
+			value,
+			__initialValue: initialValue,
+			__currentValue: value,
+			__hidden,
+			params: structuredClone(params),
+			triggers,
+			group,
+			// folder,
+			displayName,
+		};
+	}
+
 	updateProp(key, newValue) {
 		const prop = this.props[key];
 		const instanceProp = this.instance.props[key];
 
 		if (prop) {
 			prop.value = newValue;
+			prop.__currentValue = newValue;
 		}
 
 		if (instanceProp) {
@@ -209,6 +234,80 @@ class Sketch {
 		// }
 
 		this.destroyCanvas();
+	}
+
+	sync() {
+		Object.keys(this.instance.props).forEach((key) => {
+			const instanceProp = this.instance.props[key];
+			const prop = this.props[key];
+
+			if (!prop) {
+				this.props[key] = this.createProp(instanceProp);
+			} else {
+				// sync value
+				if (!deepEqual(instanceProp.value, prop.__currentValue)) {
+					prop.value = structuredClone(instanceProp.value);
+					prop.__currentValue = prop.value;
+				}
+
+				// sync displayName
+				if (instanceProp.displayName !== prop.displayName) {
+					prop.displayName = instanceProp.displayName;
+				}
+
+				// sync hidden
+				prop.hidden = prop.__hidden();
+
+				// sync params
+				if (instanceProp.params) {
+					for (const paramKey in instanceProp.params) {
+						const instanceParam = instanceProp.params[paramKey];
+						const param = prop.params[paramKey];
+						let needsUpdate = false;
+
+						if (isObject(instanceParam)) {
+							Object.keys(instanceParam).forEach((key) => {
+								if (isObject(instanceParam[key])) {
+									Object.keys(instanceParam[key]).forEach(
+										(k) => {
+											if (
+												instanceParam[key][k] !==
+												param[key][k]
+											) {
+												needsUpdate = true;
+											}
+										},
+									);
+								} else if (instanceParam[key] !== param[key]) {
+									needsUpdate = true;
+								}
+							});
+						} else if (instanceParam !== param) {
+							needsUpdate = true;
+						}
+
+						if (needsUpdate) {
+							if (needsUpdate) {
+								prop.params[paramKey] =
+									structuredClone(instanceParam);
+							}
+						}
+					}
+				}
+
+				Object.keys(prop.params).forEach((paramKey) => {
+					if (!(paramKey in (instanceProp.params ?? {}))) {
+						delete prop.params[paramKey];
+					}
+				});
+			}
+		});
+
+		Object.keys(this.props).forEach((key) => {
+			if (!(key in (this.instance.props ?? {}))) {
+				delete this.props[key];
+			}
+		});
 	}
 
 	onBeforeCapture(fn) {
