@@ -95,13 +95,14 @@ export async function build(entry, options) {
 			);
 
 			const fragmentFilepath = await createFragmentFile(entries, cwd);
-			const config = createConfig(
+			const config = await createConfig(
 				entries,
 				fragmentFilepath,
 				{
 					dev: options.development,
 					build: true,
 				},
+				options.configFilepath,
 				cwd,
 			);
 
