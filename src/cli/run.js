@@ -69,7 +69,7 @@ export async function run(entry, options = {}) {
 				dev: options.development,
 				build: false,
 			},
-			options.configFilepath,
+			options.config,
 			cwd,
 		);
 
