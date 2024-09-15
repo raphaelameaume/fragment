@@ -138,6 +138,14 @@ class Sketch {
 
 		if (value.isColor) {
 			value = { r: value.r, g: value.g, b: value.b };
+		} else if (value.isVector2) {
+			value = { x: value.x, y: value.y };
+		} else if (value.isVector3) {
+			value = { x: value.x, y: value.y, z: value.z };
+		} else if (value.isVector4) {
+			value = { x: value.x, y: value.y, z: value.z, w: value.w };
+		} else if (value.isQuaternion) {
+			value = { x: value.x, y: value.y, z: value.z, w: value.w };
 		}
 
 		// if (group && !newPropsGroups.includes(group)) {
@@ -237,7 +245,7 @@ class Sketch {
 	}
 
 	sync() {
-		Object.keys(this.instance.props).forEach((key) => {
+		Object.keys(this.instance.props ?? {}).forEach((key) => {
 			const instanceProp = this.instance.props[key];
 			const prop = this.props[key];
 
