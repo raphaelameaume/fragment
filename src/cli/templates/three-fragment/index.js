@@ -10,7 +10,7 @@ let uniforms = {
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas
- * @param {THREE.Renderer} params.renderer
+ * @param {THREE.WebGLRenderer} params.renderer
  * @param {THREE.Scene} params.scene
  * @param {number} params.width
  * @param {number} params.height
@@ -54,7 +54,7 @@ export let init = ({ scene, width, height }) => {
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas
- * @param {THREE.Renderer} params.renderer
+ * @param {THREE.WebGLRenderer} params.renderer
  * @param {THREE.Scene} params.scene
  * @param {number} params.width
  * @param {number} params.height
@@ -74,7 +74,7 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas
- * @param {THREE.Renderer} params.renderer
+ * @param {THREE.WebGLRenderer} params.renderer
  * @param {THREE.Scene} params.scene
  * @param {number} params.width
  * @param {number} params.height
