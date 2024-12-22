@@ -1,10 +1,5 @@
 <script>
-	let {
-		name,
-		collapsed = $bindable(false),
-		children,
-		onchange = () => {},
-	} = $props();
+	let { name, collapsed = false, children, onchange = () => {} } = $props();
 
 	function handleClick() {
 		collapsed = !collapsed;

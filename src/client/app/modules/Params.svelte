@@ -16,103 +16,7 @@
 	let render = $derived(rendering.renders[0]);
 	let sketch = $derived(render?.sketch);
 	let sketchProps = $derived(sketch?.props ?? {});
-
-	let sketchFieldsTree = $derived.by(() => {
-		let fieldgroups = [];
-		let tree = [];
-
-		const getElementFromRef = (ref, part = tree) => {
-			let element;
-
-			for (let i = 0; i < part.length; i++) {
-				if (part[i] === ref) {
-					element = part[i];
-					break;
-				}
-
-				if (part[i]?.children?.length > 0) {
-					for (let j = 0; j < part[i].children.length; j++) {
-						element = getElementFromRef(ref, part[i].children[j]);
-
-						if (element) {
-							break;
-						}
-					}
-				}
-			}
-
-			return element;
-		};
-
-		Object.keys(sketchProps).forEach((key) => {
-			const sketchProp = sketchProps[key];
-			const { folder } = sketchProp;
-
-			if (folder) {
-				let names = folder.split('.');
-
-				for (let i = 0; i < names.length; i++) {
-					let name = names[i];
-					let depth = i;
-					let parentName = i > 0 ? names[i - 1] : undefined;
-					let parent = parentName
-						? fieldgroups.find(
-								(f) =>
-									f.displayName === parentName &&
-									f.depth === depth - 1,
-							)
-						: undefined;
-
-					let fieldgroup = fieldgroups.find(
-						(f) =>
-							f.displayName === name &&
-							f.depth === depth &&
-							f.parent === parent,
-					);
-
-					if (!fieldgroup) {
-						fieldgroup = {
-							type: 'fieldgroup',
-							displayName: name,
-							collapsed: false,
-							children: [],
-							parent,
-							depth,
-						};
-
-						if (parent) {
-							parent.children.push(fieldgroup);
-						}
-						fieldgroups.push(fieldgroup);
-
-						if (depth === 0) {
-							tree.push(fieldgroup);
-						}
-					}
-
-					if (i === names.length - 1) {
-						fieldgroup.children.push({
-							type: 'field',
-							ref: sketchProp,
-							key,
-						});
-					}
-				}
-			} else {
-				tree.push({
-					type: 'field',
-					ref: sketchProp,
-					key,
-				});
-			}
-		});
-
-		return tree;
-	});
-
-	$effect(() => {
-		console.log(sketchFieldsTree);
-	});
+	let sketchPropsTree = $derived(sketch?.propsTree);
 
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
 	let framerate = $derived(
@@ -213,24 +117,31 @@
 					{/if}
 				{/if}
 			{/snippet}
-			{#snippet sketchTreeItem(index, item)}
+			{#snippet sketchPropItem(index, item)}
 				{#if item.type === 'field'}
-					{@render sketchField(index, item.key, item.ref)}
+					{@render sketchField(
+						index,
+						item.key,
+						sketchProps[item.key],
+					)}
 				{:else if item.type === 'fieldgroup'}
 					<FieldGroup
 						name={item.displayName}
 						collapsed={item.collapsed}
+						onchange={(collapsed) => {
+							sketch.updateFolder(item, collapsed);
+						}}
 					>
 						{#if item.children.length > 0}
 							{#each item.children as child, childIndex}
-								{@render sketchTreeItem(childIndex, child)}
+								{@render sketchPropItem(childIndex, child)}
 							{/each}
 						{/if}
 					</FieldGroup>
 				{/if}
 			{/snippet}
-			{#each sketchFieldsTree as sketchFieldTreeItem, index}
-				{@render sketchTreeItem(index, sketchFieldTreeItem)}
+			{#each sketchPropsTree as sketchPropsTreeItem, index}
+				{@render sketchPropItem(index, sketchPropsTreeItem)}
 			{/each}
 		{/if}
 	{/if}

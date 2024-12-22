@@ -166,45 +166,41 @@ class Sketch {
 			}
 		};
 
-		const restorePropsTree = (prevTree) => {
-			const restorePropsTreeItem = (prevTreeItem) => {
-				const newTreeItem = newPropsFolders.find((f) => {
+		const restorePropsFolders = (prevFolders) => {
+			const restoreFolder = (prevFolder) => {
+				const newFolder = newPropsFolders.find((f) => {
 					return (
-						prevTreeItem.displayName === f.displayName &&
-						prevTreeItem.depth === f.depth
+						prevFolder.displayName === f.displayName &&
+						prevFolder.depth === f.depth
 					);
 				});
 
 				if (
-					newTreeItem &&
-					newTreeItem.__initialCollapsed ===
-						prevTreeItem.__initialCollapsed
+					newFolder &&
+					newFolder.__initialCollapsed ===
+						prevFolder.__initialCollapsed
 				) {
-					newTreeItem.collapsed = prevTreeItem.collapsed;
-					console.log(
-						'restore collapsed state for item',
-						newTreeItem,
-					);
-				}
-
-				if (prevTreeItem.children?.length > 0) {
-					restorePropsTree(prevTreeItem.children);
+					newFolder.collapsed = prevFolder.collapsed;
 				}
 			};
 
-			if (prevTree.length > 0) {
-				prevTree.forEach((prevTreeItem) => {
-					restorePropsTreeItem(prevTreeItem);
+			if (prevFolders.length > 0) {
+				prevFolders.forEach((prevFolder) => {
+					restoreFolder(prevFolder);
 				});
 			}
 		};
 
 		if (previous) {
 			restoreProps(previous.props);
-			restorePropsTree(previous.propsTree);
+			restorePropsFolders(previous.propsFolders);
 		} else {
-			const { props: savedProps = {} } = hydrate(this.key);
+			const {
+				props: savedProps = {},
+				propsFolders: savedPropsFolders = [],
+			} = hydrate(this.key);
 			restoreProps(savedProps);
+			restorePropsFolders(savedPropsFolders);
 		}
 
 		Object.keys(newProps).forEach((key) => {
@@ -300,6 +296,14 @@ class Sketch {
 
 		Object.keys(this.props).forEach((key) => {
 			this.props[key].hidden = this.props[key].__hidden();
+		});
+	}
+
+	updateFolder(folder, collapsed) {
+		this.propsFolders.forEach((f, index) => {
+			if (f === folder) {
+				this.propsFolders[index].collapsed = collapsed;
+			}
 		});
 	}
 
@@ -410,6 +414,25 @@ class Sketch {
 	toJSON() {
 		return {
 			props: this.props,
+			propsFolders: this.propsFolders.map(
+				({
+					displayName,
+					depth,
+					parent,
+					collapsed,
+					__initialCollapsed,
+				}) => ({
+					displayName,
+					depth,
+					collapsed,
+					__initialCollapsed,
+					parent: this.propsFolders.findIndex(
+						(f) =>
+							f.displayName === parent?.displayName &&
+							f.depth === parent?.depth,
+					),
+				}),
+			),
 		};
 	}
 
