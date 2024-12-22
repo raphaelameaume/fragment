@@ -16,6 +16,7 @@ class Sketch {
 	paused = $state(false);
 	propsGroups = $state([]);
 	propsFolders = $state([]);
+	propsTree = $state([]);
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -53,9 +54,75 @@ class Sketch {
 		const newProps = {};
 		const newPropsGroups = [];
 		const newPropsFolders = [];
+		const newPropsTree = [];
 
 		Object.keys(instanceProps).forEach((key) => {
 			newProps[key] = this.createProp(instanceProps[key]);
+
+			const { group, folder } = newProps[key];
+
+			if (group && !newPropsGroups.includes(group)) {
+				newPropsGroups.push(group);
+			}
+
+			if (folder) {
+				let names = folder.split('.');
+
+				for (let i = 0; i < names.length; i++) {
+					let name = names[i];
+					let depth = i;
+					let parentName = i > 0 ? names[i - 1] : undefined;
+					let parent = parentName
+						? newPropsFolders.find(
+								(f) =>
+									f.displayName === parentName &&
+									f.depth === depth - 1,
+							)
+						: undefined;
+
+					let fieldgroup = newPropsFolders.find(
+						(f) =>
+							f.displayName === name &&
+							f.depth === depth &&
+							f.parent === parent,
+					);
+
+					if (!fieldgroup) {
+						const collapsed = false;
+						fieldgroup = {
+							type: 'fieldgroup',
+							displayName: name,
+							collapsed,
+							__initialCollapsed: collapsed,
+							children: [],
+							parent,
+							depth,
+						};
+
+						if (parent) {
+							parent.children.push(fieldgroup);
+						}
+
+						newPropsFolders.push(fieldgroup);
+
+						if (depth === 0) {
+							newPropsTree.push(fieldgroup);
+						}
+					}
+
+					if (i === names.length - 1) {
+						fieldgroup.children.push({
+							type: 'field',
+							key,
+						});
+					}
+				}
+			} else {
+				newPropsTree.push({
+					type: 'field',
+					key,
+				});
+			}
 		});
 
 		const restoreProps = (prevProps) => {
@@ -99,20 +166,58 @@ class Sketch {
 			}
 		};
 
+		const restorePropsTree = (prevTree) => {
+			const restorePropsTreeItem = (prevTreeItem) => {
+				const newTreeItem = newPropsFolders.find((f) => {
+					return (
+						prevTreeItem.displayName === f.displayName &&
+						prevTreeItem.depth === f.depth
+					);
+				});
+
+				if (
+					newTreeItem &&
+					newTreeItem.__initialCollapsed ===
+						prevTreeItem.__initialCollapsed
+				) {
+					newTreeItem.collapsed = prevTreeItem.collapsed;
+					console.log(
+						'restore collapsed state for item',
+						newTreeItem,
+					);
+				}
+
+				if (prevTreeItem.children?.length > 0) {
+					restorePropsTree(prevTreeItem.children);
+				}
+			};
+
+			if (prevTree.length > 0) {
+				prevTree.forEach((prevTreeItem) => {
+					restorePropsTreeItem(prevTreeItem);
+				});
+			}
+		};
+
 		if (previous) {
 			restoreProps(previous.props);
+			restorePropsTree(previous.propsTree);
 		} else {
 			const { props: savedProps = {} } = hydrate(this.key);
 			restoreProps(savedProps);
 		}
 
 		Object.keys(newProps).forEach((key) => {
-			newProps[key].hidden = newProps[key].__hidden();
+			const newProp = newProps[key];
+
+			// compute hidden after restoring props values
+			newProp.hidden = newProp.__hidden();
 		});
 
 		this.props = newProps;
 		this.propsGroups = newPropsGroups;
 		this.propsFolders = newPropsFolders;
+		this.propsTree = newPropsTree;
 	}
 
 	createProp(instanceProp) {
@@ -133,6 +238,7 @@ class Sketch {
 			params = {},
 			triggers = [],
 			group,
+			folder,
 			displayName,
 		} = instanceProp;
 
@@ -147,37 +253,6 @@ class Sketch {
 		} else if (value.isQuaternion) {
 			value = { x: value.x, y: value.y, z: value.z, w: value.w };
 		}
-
-		// if (group && !newPropsGroups.includes(group)) {
-		// 	newPropsGroups.push(group);
-		// }
-
-		// if (folder) {
-		// 	const folders = folder.split('.');
-
-		// 	for (let i = 0; i < folders.length; i++) {
-		// 		const folderName = folders[i];
-
-		// 		if (
-		// 			newPropsFolders.findIndex(
-		// 				(f) => f.name === folderName,
-		// 			) < 0
-		// 		) {
-		// 			let parent;
-		// 			if (i > 0) {
-		// 				parent = folders[i - 1];
-		// 			}
-
-		// 			folder = {
-		// 				parent,
-		// 				name: folderName,
-		// 				collapsed: false,
-		// 			};
-
-		// 			newPropsFolders.push(folder);
-		// 		}
-		// 	}
-		// }
 
 		let __hidden =
 			typeof instanceProp.hidden === 'function'
@@ -194,7 +269,7 @@ class Sketch {
 			params: structuredClone(params),
 			triggers,
 			group,
-			// folder,
+			folder,
 			displayName,
 		};
 	}
@@ -240,8 +315,6 @@ class Sketch {
 		// 		canvas,
 		// 	});
 		// }
-
-		this.destroyCanvas();
 	}
 
 	sync() {
