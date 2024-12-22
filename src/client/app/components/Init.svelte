@@ -53,6 +53,12 @@
 		}
 	}
 
+	function checkForRecord(event) {
+		if (event.shiftKey) {
+			exports.recording = !exports.recording;
+		}
+	}
+
 	let prefix = $derived(
 		sketchesManager.keys.length === 1
 			? `${getFilename(sketchesManager.keys[0])} | `
@@ -68,8 +74,4 @@
 <KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
 <KeyBinding type="down" key=" " onTrigger={checkForPause} />
 <KeyBinding type="down" key="s" onTrigger={checkForScreenshot} />
-<KeyBinding
-	type="down"
-	key="S"
-	onTrigger={() => (exports.recording = !exports.recording)}
-/>
+<KeyBinding type="down" key="S" onTrigger={checkForRecord} />
