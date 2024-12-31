@@ -16,7 +16,30 @@ class Sketch {
 	paused = $state(false);
 	propsGroups = $state([]);
 	propsFolders = $state([]);
-	propsTree = $state([]);
+	propsTree = $derived.by(() => {
+		const tree = [];
+
+		Object.keys(this.props).forEach((key) => {
+			const { folder } = this.props[key];
+
+			if (folder) {
+				const { depth, root } = folder;
+
+				if (depth === 0) {
+					tree.push(folder);
+				} else if (!tree.includes(root)) {
+					tree.push(root);
+				}
+			} else {
+				tree.push({
+					type: 'field',
+					key,
+				});
+			}
+		});
+
+		return tree;
+	});
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -54,7 +77,6 @@ class Sketch {
 		const newProps = {};
 		const newPropsGroups = [];
 		const newPropsFolders = [];
-		const newPropsTree = [];
 
 		Object.keys(instanceProps).forEach((key) => {
 			newProps[key] = this.createProp(instanceProps[key]);
@@ -66,62 +88,12 @@ class Sketch {
 			}
 
 			if (folder) {
-				let names = folder.split('.');
-
-				for (let i = 0; i < names.length; i++) {
-					let name = names[i];
-					let depth = i;
-					let parentName = i > 0 ? names[i - 1] : undefined;
-					let parent = parentName
-						? newPropsFolders.find(
-								(f) =>
-									f.displayName === parentName &&
-									f.depth === depth - 1,
-							)
-						: undefined;
-
-					let fieldgroup = newPropsFolders.find(
-						(f) =>
-							f.displayName === name &&
-							f.depth === depth &&
-							f.parent === parent,
-					);
-
-					if (!fieldgroup) {
-						const collapsed = false;
-						fieldgroup = {
-							type: 'fieldgroup',
-							displayName: name,
-							collapsed,
-							__initialCollapsed: collapsed,
-							children: [],
-							parent,
-							depth,
-						};
-
-						if (parent) {
-							parent.children.push(fieldgroup);
-						}
-
-						newPropsFolders.push(fieldgroup);
-
-						if (depth === 0) {
-							newPropsTree.push(fieldgroup);
-						}
-					}
-
-					if (i === names.length - 1) {
-						fieldgroup.children.push({
-							type: 'field',
-							key,
-						});
-					}
-				}
-			} else {
-				newPropsTree.push({
-					type: 'field',
+				let fieldgroup = this.getPropFolder(
+					folder,
+					newPropsFolders,
 					key,
-				});
+				);
+				newProps[key].folder = fieldgroup;
 			}
 		});
 
@@ -213,7 +185,6 @@ class Sketch {
 		this.props = newProps;
 		this.propsGroups = newPropsGroups;
 		this.propsFolders = newPropsFolders;
-		this.propsTree = newPropsTree;
 	}
 
 	createProp(instanceProp) {
@@ -299,6 +270,72 @@ class Sketch {
 		});
 	}
 
+	getPropFolder(folder, collection, key) {
+		if (!folder) return undefined;
+
+		let propFolder;
+		let names = folder.split('.');
+
+		if (names.length > 0) {
+			let root;
+
+			for (let i = 0; i < names.length; i++) {
+				let name = names[i];
+				let depth = i;
+				let parentName = depth > 0 ? names[i - 1] : undefined;
+				let parent =
+					depth > 0
+						? collection.find(
+								(f) =>
+									f.displayName === parentName &&
+									f.depth === depth - 1,
+							)
+						: undefined;
+
+				let fieldgroup = collection.find(
+					(f) =>
+						f.displayName === name &&
+						f.depth === depth &&
+						f.parent === parent,
+				);
+
+				if (!fieldgroup) {
+					fieldgroup = {
+						type: 'fieldgroup',
+						displayName: name,
+						collapsed: false,
+						__initialCollapsed: false,
+						children: [],
+						parent,
+						depth,
+						root,
+					};
+
+					if (parent) {
+						parent.children.push(fieldgroup);
+					}
+
+					collection.push(fieldgroup);
+				}
+
+				if (i === 0) {
+					root = fieldgroup;
+				}
+
+				if (i === names.length - 1) {
+					fieldgroup.children.push({
+						type: 'field',
+						key,
+					});
+
+					propFolder = fieldgroup;
+				}
+			}
+		}
+
+		return propFolder;
+	}
+
 	updateFolder(folder, collapsed) {
 		this.propsFolders.forEach((f, index) => {
 			if (f === folder) {
@@ -341,107 +378,43 @@ class Sketch {
 				}
 
 				if (instanceProp.folder !== prop.folder) {
-					if (instanceProp.folder) {
-						if (prop.folder) {
-							// remove it from the current folder it is
-							let names = prop.folder.split('.');
-							let displayName = names[names.length - 1];
-							let depth = names.length - 1;
+					// if the existing prop already had a folder
+					if (prop.folder) {
+						const { children } = prop.folder;
 
-							console.log({ displayName, depth });
+						const childIndex = children.findIndex(
+							(c) => c.key === key,
+						);
+						prop.folder.children.splice(childIndex, 1);
 
-							const currentFolderIndex =
-								this.propsFolders.findIndex(
-									(f) =>
-										f.depth === depth &&
-										f.displayName === displayName,
-								);
-							const currentFolder =
-								this.propsFolders[currentFolderIndex];
+						const removeFolderIfNeeded = (folder) => {
+							if (!folder) return;
 
-							if (currentFolder) {
-								const childIndex =
-									currentFolder.children.findIndex(
-										(c) => c.key === key,
+							if (folder.children.length === 0) {
+								const currentFolderIndex =
+									this.propsFolders.findIndex(
+										(c) => c === folder,
 									);
-								currentFolder.children.splice(childIndex, 1);
+								this.propsFolders.splice(currentFolderIndex, 1);
 
-								if (currentFolder.children.length === 0) {
-									console.log('remove folder');
-									this.propsFolders.splice(
-										currentFolderIndex,
-										1,
-									);
-								}
-							} else {
-								console.warn(`cannot retrieve previous folder`);
-								console.log(this.propsFolders);
+								removeFolderIfNeeded(folder.parent);
 							}
-						} else {
-							// remove it from tree root
-							const index = this.propsTree.findIndex(
-								(c) => c.key === key,
-							);
-							this.propsTree.splice(index, 1);
-						}
+						};
 
-						let names = instanceProp.folder.split('.');
-
-						for (let i = 0; i < names.length; i++) {
-							let name = names[i];
-							let depth = i;
-							let parentName = i > 0 ? names[i - 1] : undefined;
-							let parent = parentName
-								? this.propsFolders.find(
-										(f) =>
-											f.displayName === parentName &&
-											f.depth === depth - 1,
-									)
-								: undefined;
-
-							let fieldgroup = this.propsFolders.find(
-								(f) =>
-									f.displayName === name &&
-									f.depth === depth &&
-									f.parent === parent,
-							);
-
-							if (!fieldgroup) {
-								const collapsed = false;
-								fieldgroup = {
-									type: 'fieldgroup',
-									displayName: name,
-									collapsed,
-									__initialCollapsed: collapsed,
-									children: [],
-									parent,
-									depth,
-								};
-
-								if (parent) {
-									parent.children.push(fieldgroup);
-								}
-
-								this.propsFolders.push(fieldgroup);
-
-								if (depth === 0) {
-									this.propsTree.push(fieldgroup);
-								}
-							}
-
-							if (i === names.length - 1) {
-								fieldgroup.children.push({
-									type: 'field',
-									key,
-								});
-							}
-						}
-					} else {
-						// check if folder removed
+						removeFolderIfNeeded(prop.folder);
 					}
 
-					console.log('folder structure has changed');
-					prop.folder = instanceProp.folder;
+					if (instanceProp.folder) {
+						let fieldgroup = this.getPropFolder(
+							instanceProp.folder,
+							this.propsFolders,
+							key,
+						);
+
+						prop.folder = fieldgroup;
+					} else {
+						prop.folder = undefined;
+					}
 				}
 
 				// sync hidden
@@ -517,26 +490,26 @@ class Sketch {
 
 	toJSON() {
 		return {
-			props: this.props,
-			propsFolders: this.propsFolders.map(
-				({
-					displayName,
-					depth,
-					parent,
-					collapsed,
-					__initialCollapsed,
-				}) => ({
-					displayName,
-					depth,
-					collapsed,
-					__initialCollapsed,
-					parent: this.propsFolders.findIndex(
-						(f) =>
-							f.displayName === parent?.displayName &&
-							f.depth === parent?.depth,
-					),
-				}),
-			),
+			// props: this.props,
+			// propsFolders: this.propsFolders.map(
+			// 	({
+			// 		displayName,
+			// 		depth,
+			// 		parent,
+			// 		collapsed,
+			// 		__initialCollapsed,
+			// 	}) => ({
+			// 		displayName,
+			// 		depth,
+			// 		collapsed,
+			// 		__initialCollapsed,
+			// 		parent: this.propsFolders.findIndex(
+			// 			(f) =>
+			// 				f.displayName === parent?.displayName &&
+			// 				f.depth === parent?.depth,
+			// 		),
+			// 	}),
+			// ),
 		};
 	}
 
