@@ -166,7 +166,7 @@ class Sketch {
 			}
 		};
 
-		const restorePropsFolders = (prevFolders) => {
+		const restorePropsFoldersState = (prevFolders) => {
 			const restoreFolder = (prevFolder) => {
 				const newFolder = newPropsFolders.find((f) => {
 					return (
@@ -193,14 +193,14 @@ class Sketch {
 
 		if (previous) {
 			restoreProps(previous.props);
-			restorePropsFolders(previous.propsFolders);
+			restorePropsFoldersState(previous.propsFolders);
 		} else {
 			const {
 				props: savedProps = {},
 				propsFolders: savedPropsFolders = [],
 			} = hydrate(this.key);
 			restoreProps(savedProps);
-			restorePropsFolders(savedPropsFolders);
+			restorePropsFoldersState(savedPropsFolders);
 		}
 
 		Object.keys(newProps).forEach((key) => {
@@ -338,6 +338,110 @@ class Sketch {
 				// sync displayName
 				if (instanceProp.displayName !== prop.displayName) {
 					prop.displayName = instanceProp.displayName;
+				}
+
+				if (instanceProp.folder !== prop.folder) {
+					if (instanceProp.folder) {
+						if (prop.folder) {
+							// remove it from the current folder it is
+							let names = prop.folder.split('.');
+							let displayName = names[names.length - 1];
+							let depth = names.length - 1;
+
+							console.log({ displayName, depth });
+
+							const currentFolderIndex =
+								this.propsFolders.findIndex(
+									(f) =>
+										f.depth === depth &&
+										f.displayName === displayName,
+								);
+							const currentFolder =
+								this.propsFolders[currentFolderIndex];
+
+							if (currentFolder) {
+								const childIndex =
+									currentFolder.children.findIndex(
+										(c) => c.key === key,
+									);
+								currentFolder.children.splice(childIndex, 1);
+
+								if (currentFolder.children.length === 0) {
+									console.log('remove folder');
+									this.propsFolders.splice(
+										currentFolderIndex,
+										1,
+									);
+								}
+							} else {
+								console.warn(`cannot retrieve previous folder`);
+								console.log(this.propsFolders);
+							}
+						} else {
+							// remove it from tree root
+							const index = this.propsTree.findIndex(
+								(c) => c.key === key,
+							);
+							this.propsTree.splice(index, 1);
+						}
+
+						let names = instanceProp.folder.split('.');
+
+						for (let i = 0; i < names.length; i++) {
+							let name = names[i];
+							let depth = i;
+							let parentName = i > 0 ? names[i - 1] : undefined;
+							let parent = parentName
+								? this.propsFolders.find(
+										(f) =>
+											f.displayName === parentName &&
+											f.depth === depth - 1,
+									)
+								: undefined;
+
+							let fieldgroup = this.propsFolders.find(
+								(f) =>
+									f.displayName === name &&
+									f.depth === depth &&
+									f.parent === parent,
+							);
+
+							if (!fieldgroup) {
+								const collapsed = false;
+								fieldgroup = {
+									type: 'fieldgroup',
+									displayName: name,
+									collapsed,
+									__initialCollapsed: collapsed,
+									children: [],
+									parent,
+									depth,
+								};
+
+								if (parent) {
+									parent.children.push(fieldgroup);
+								}
+
+								this.propsFolders.push(fieldgroup);
+
+								if (depth === 0) {
+									this.propsTree.push(fieldgroup);
+								}
+							}
+
+							if (i === names.length - 1) {
+								fieldgroup.children.push({
+									type: 'field',
+									key,
+								});
+							}
+						}
+					} else {
+						// check if folder removed
+					}
+
+					console.log('folder structure has changed');
+					prop.folder = instanceProp.folder;
 				}
 
 				// sync hidden
