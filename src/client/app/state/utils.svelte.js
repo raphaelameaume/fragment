@@ -35,6 +35,10 @@ export function isObject(item) {
 	return item && typeof item === 'object';
 }
 
+export function isFunction(item) {
+	return item && typeof item === 'function';
+}
+
 export function deepAssign(target, source) {
 	for (const key in source) {
 		if (isObject(source[key]) && isObject(target[key])) {

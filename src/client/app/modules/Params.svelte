@@ -16,7 +16,6 @@
 	let render = $derived(rendering.renders[0]);
 	let sketch = $derived(render?.sketch);
 	let sketchProps = $derived(sketch?.props ?? {});
-	let sketchPropsTree = $derived(sketch?.propsTree);
 
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
 	let framerate = $derived(
@@ -42,6 +41,43 @@
 			? params.sketchPropGroup
 			: sketchGroupOptions[0].value,
 	);
+
+	let sketchPropsTree = $derived.by(() => {
+		const tree = [];
+
+		Object.keys(sketchProps).forEach((key) => {
+			const { folder, group } = sketchProps[key];
+
+			if (!sketchPropGroup || group === sketchPropGroup) {
+				if (folder) {
+					const fieldgroup = sketch?.propsFolders.find(
+						(f) => f.id === folder,
+					);
+
+					if (fieldgroup) {
+						const { depth, root } = fieldgroup;
+
+						if (depth === 0 && !tree.includes(folder)) {
+							tree.push(fieldgroup);
+						} else if (root && !tree.includes(root)) {
+							tree.push(root);
+						}
+					} else {
+						console.warn(
+							'Prop cannot be render in undefined fielgroup',
+						);
+					}
+				} else {
+					tree.push({
+						type: 'field',
+						key,
+					});
+				}
+			}
+		});
+
+		return tree;
+	});
 </script>
 
 <Module {id} {headless} name={`Parameters`} slug="params">
@@ -94,27 +130,25 @@
 				{@const isDisabled =
 					typeof disabled === 'function' ? disabled() : disabled}
 				{#if !hidden}
-					{#if !sketchPropGroup || prop.group === sketchPropGroup}
-						<Field
-							context={sketch.key}
-							{key}
-							{displayName}
-							{value}
-							{initialValue}
-							{type}
-							{index}
-							disabled={isDisabled}
-							bind:params={sketchProps[key].params}
-							triggers={prop.triggers}
-							onclick={() => {
-								rendering.invalidate(sketch.key);
-							}}
-							onchange={(v) => {
-								sketch.updateProp(key, v);
-								rendering.invalidate(sketch.key);
-							}}
-						/>
-					{/if}
+					<Field
+						context={sketch.key}
+						{key}
+						{displayName}
+						{value}
+						{initialValue}
+						{type}
+						{index}
+						disabled={isDisabled}
+						bind:params={sketchProps[key].params}
+						triggers={prop.triggers}
+						onclick={() => {
+							rendering.invalidate(sketch.key);
+						}}
+						onchange={(v) => {
+							sketch.updateProp(key, v);
+							rendering.invalidate(sketch.key);
+						}}
+					/>
 				{/if}
 			{/snippet}
 			{#snippet sketchPropItem(index, item)}

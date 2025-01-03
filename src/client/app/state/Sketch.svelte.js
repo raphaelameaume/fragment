@@ -3,6 +3,7 @@ import {
 	deepAssign,
 	deepEqual,
 	hydrate,
+	isFunction,
 	isObject,
 	persist,
 } from './utils.svelte';
@@ -16,30 +17,6 @@ class Sketch {
 	paused = $state(false);
 	propsGroups = $state([]);
 	propsFolders = $state([]);
-	propsTree = $derived.by(() => {
-		const tree = [];
-
-		Object.keys(this.props).forEach((key) => {
-			const { folder } = this.props[key];
-
-			if (folder) {
-				const { depth, root } = folder;
-
-				if (depth === 0) {
-					tree.push(folder);
-				} else if (!tree.includes(root)) {
-					tree.push(root);
-				}
-			} else {
-				tree.push({
-					type: 'field',
-					key,
-				});
-			}
-		});
-
-		return tree;
-	});
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -79,22 +56,13 @@ class Sketch {
 		const newPropsFolders = [];
 
 		Object.keys(instanceProps).forEach((key) => {
-			newProps[key] = this.createProp(instanceProps[key]);
-
-			const { group, folder } = newProps[key];
-
-			if (group && !newPropsGroups.includes(group)) {
-				newPropsGroups.push(group);
-			}
-
-			if (folder) {
-				let fieldgroup = this.getPropFolder(
-					folder,
-					newPropsFolders,
-					key,
-				);
-				newProps[key].folder = fieldgroup;
-			}
+			this.createProp(
+				newProps,
+				key,
+				instanceProps[key],
+				newPropsFolders,
+				newPropsGroups,
+			);
 		});
 
 		const restoreProps = (prevProps) => {
@@ -141,10 +109,7 @@ class Sketch {
 		const restorePropsFoldersState = (prevFolders) => {
 			const restoreFolder = (prevFolder) => {
 				const newFolder = newPropsFolders.find((f) => {
-					return (
-						prevFolder.displayName === f.displayName &&
-						prevFolder.depth === f.depth
-					);
+					return prevFolder.id === f.id;
 				});
 
 				if (
@@ -187,9 +152,15 @@ class Sketch {
 		this.propsFolders = newPropsFolders;
 	}
 
-	createProp(instanceProp) {
+	createProp(
+		target,
+		key,
+		instanceProp,
+		propsFoldersCollection,
+		propsGroupsCollection,
+	) {
 		const duplicateInitialValue = (value) => {
-			if (typeof value === 'function') {
+			if (isFunction(value)) {
 				return value;
 			}
 
@@ -228,7 +199,15 @@ class Sketch {
 
 		let initialValue = duplicateInitialValue(value);
 
-		return {
+		if (group && !propsGroupsCollection.includes(group)) {
+			propsGroupsCollection.push(group);
+		}
+
+		if (folder) {
+			this.createPropFolder(folder, propsFoldersCollection, key);
+		}
+
+		let prop = {
 			value,
 			__initialValue: initialValue,
 			__currentValue: value,
@@ -239,6 +218,10 @@ class Sketch {
 			folder,
 			displayName,
 		};
+
+		target[key] = prop;
+
+		return prop;
 	}
 
 	updateProp(key, newValue) {
@@ -270,7 +253,7 @@ class Sketch {
 		});
 	}
 
-	getPropFolder(folder, collection, key) {
+	createPropFolder(folder, collection, key) {
 		if (!folder) return undefined;
 
 		let propFolder;
@@ -282,25 +265,18 @@ class Sketch {
 			for (let i = 0; i < names.length; i++) {
 				let name = names[i];
 				let depth = i;
-				let parentName = depth > 0 ? names[i - 1] : undefined;
+				let id = [...names].slice(0, i + 1).join('.');
+				let parentId = [...names].slice(0, i).join('.');
 				let parent =
 					depth > 0
-						? collection.find(
-								(f) =>
-									f.displayName === parentName &&
-									f.depth === depth - 1,
-							)
+						? collection.find((f) => f.id === parentId)
 						: undefined;
 
-				let fieldgroup = collection.find(
-					(f) =>
-						f.displayName === name &&
-						f.depth === depth &&
-						f.parent === parent,
-				);
+				let fieldgroup = collection.find((f) => f.id === id);
 
 				if (!fieldgroup) {
 					fieldgroup = {
+						id,
 						type: 'fieldgroup',
 						displayName: name,
 						collapsed: false,
@@ -364,10 +340,19 @@ class Sketch {
 			const prop = this.props[key];
 
 			if (!prop) {
-				this.props[key] = this.createProp(instanceProp);
+				this.createProp(
+					this.props,
+					key,
+					instanceProp,
+					this.propsFolders,
+					this.propsGroups,
+				);
 			} else {
 				// sync value
-				if (!deepEqual(instanceProp.value, prop.__currentValue)) {
+				if (
+					!isFunction(instanceProp.value) &&
+					!deepEqual(instanceProp.value, prop.__currentValue)
+				) {
 					prop.value = structuredClone(instanceProp.value);
 					prop.__currentValue = prop.value;
 				}
@@ -380,38 +365,57 @@ class Sketch {
 				if (instanceProp.folder !== prop.folder) {
 					// if the existing prop already had a folder
 					if (prop.folder) {
-						const { children } = prop.folder;
+						const fieldgroup = this.propsFolders.find(
+							(f) => f.id === prop.folder,
+						);
+
+						if (!fieldgroup) {
+							console.warn(
+								`Cannot find fieldgroup from prop.folder`,
+								prop.folder,
+							);
+							console.log(this.propsFolders);
+							return;
+						}
+
+						const { children } = fieldgroup;
 
 						const childIndex = children.findIndex(
 							(c) => c.key === key,
 						);
-						prop.folder.children.splice(childIndex, 1);
+						fieldgroup.children.splice(childIndex, 1);
 
-						const removeFolderIfNeeded = (folder) => {
-							if (!folder) return;
-
-							if (folder.children.length === 0) {
+						const removeFolderIfNeeded = (fieldgroup) => {
+							if (fieldgroup.children.length === 0) {
 								const currentFolderIndex =
 									this.propsFolders.findIndex(
-										(c) => c === folder,
+										(c) => c === fieldgroup,
 									);
 								this.propsFolders.splice(currentFolderIndex, 1);
 
-								removeFolderIfNeeded(folder.parent);
+								const { parent } = fieldgroup;
+
+								if (parent) {
+									const childIndex =
+										parent.children.findIndex(
+											(c) => c.id === fieldgroup.id,
+										);
+									parent.children.splice(childIndex, 1);
+									removeFolderIfNeeded(fieldgroup.parent);
+								}
 							}
 						};
 
-						removeFolderIfNeeded(prop.folder);
+						removeFolderIfNeeded(fieldgroup);
 					}
 
 					if (instanceProp.folder) {
-						let fieldgroup = this.getPropFolder(
+						this.createPropFolder(
 							instanceProp.folder,
 							this.propsFolders,
 							key,
 						);
-
-						prop.folder = fieldgroup;
+						prop.folder = instanceProp.folder;
 					} else {
 						prop.folder = undefined;
 					}
@@ -490,26 +494,28 @@ class Sketch {
 
 	toJSON() {
 		return {
-			// props: this.props,
-			// propsFolders: this.propsFolders.map(
-			// 	({
-			// 		displayName,
-			// 		depth,
-			// 		parent,
-			// 		collapsed,
-			// 		__initialCollapsed,
-			// 	}) => ({
-			// 		displayName,
-			// 		depth,
-			// 		collapsed,
-			// 		__initialCollapsed,
-			// 		parent: this.propsFolders.findIndex(
-			// 			(f) =>
-			// 				f.displayName === parent?.displayName &&
-			// 				f.depth === parent?.depth,
-			// 		),
-			// 	}),
-			// ),
+			props: this.props,
+			propsFolders: this.propsFolders.map(
+				({
+					id,
+					displayName,
+					depth,
+					parent,
+					collapsed,
+					__initialCollapsed,
+				}) => ({
+					id,
+					displayName,
+					depth,
+					collapsed,
+					__initialCollapsed,
+					parent: this.propsFolders.findIndex(
+						(f) =>
+							f.displayName === parent?.displayName &&
+							f.depth === parent?.depth,
+					),
+				}),
+			),
 		};
 	}
 
