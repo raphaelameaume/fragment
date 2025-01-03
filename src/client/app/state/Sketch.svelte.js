@@ -47,6 +47,10 @@ class Sketch {
 		Object.keys(this.props).forEach((key) => {
 			this.updateProp(key, this.props[key].__initialValue);
 		});
+
+		this.propsFolders.forEach((fieldgroup) => {
+			fieldgroup.collapsed = fieldgroup.__initialCollapsed;
+		});
 	}
 
 	reconcile(previous) {
@@ -261,9 +265,14 @@ class Sketch {
 
 		if (names.length > 0) {
 			let root;
+			let collapsedRegex = /^(.*?)(?:\[collapsed=(true|false)\])?$/;
 
 			for (let i = 0; i < names.length; i++) {
 				let name = names[i];
+				let match = name.match(collapsedRegex);
+				let displayName = match[1];
+				let collapsed = match[2] ? match[2] === 'true' : false;
+
 				let depth = i;
 				let id = [...names].slice(0, i + 1).join('.');
 				let parentId = [...names].slice(0, i).join('.');
@@ -278,9 +287,9 @@ class Sketch {
 					fieldgroup = {
 						id,
 						type: 'fieldgroup',
-						displayName: name,
-						collapsed: false,
-						__initialCollapsed: false,
+						displayName,
+						collapsed,
+						__initialCollapsed: collapsed,
 						children: [],
 						parent,
 						depth,
