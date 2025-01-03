@@ -1,27 +1,12 @@
 import { WebGLRenderer, Scene } from 'three';
-import { Texture, fragment } from '@fragment/lib/gl';
 import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
 let previews = [];
 
-/** @type {WebGLRenderer} */
-let renderer;
-
-let fragmentShader = /* glsl */ `
-    precision highp float;
-    uniform sampler2D uSampler;
-    varying vec2 vUv;
-
-    void main() {
-        vec3 mapTexel = texture2D(uSampler, vUv).rgb;
-        gl_FragColor = vec4(mapTexel, 1.);
-    }
-`;
-
-export let init = ({ canvas }) => {
-	renderer = new WebGLRenderer({ antialias: true });
+export let onMountPreview = ({ id, canvas }) => {
+	let renderer = new WebGLRenderer({ antialias: true, canvas });
 
 	const render = renderer.render;
 
@@ -31,42 +16,19 @@ export let init = ({ canvas }) => {
 		render.call(renderer, scene, camera);
 	};
 
-	return {
-		renderer,
-	};
-};
-
-export let onMountPreview = ({ id, canvas }) => {
-	let { gl, render, resize, uniforms, destroy } = fragment({
-		canvas,
-		shader: fragmentShader,
-		uniforms: {
-			uSampler: { value: null, type: 'sampler2D' },
-		},
-	});
-
-	let texture = new Texture(gl, {
-		image: renderer.domElement,
-	});
-
-	uniforms.uSampler.value = texture;
-
 	let scene = new Scene();
 
 	previews.push({
 		id,
 		scene,
-		texture,
-		render,
-		resize,
-		destroy,
+		renderer,
 		rendered: false,
 	});
 
 	return {
 		scene,
 		renderer,
-		canvas,
+		canvas: renderer.domElement,
 	};
 };
 
@@ -74,11 +36,10 @@ export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);
 	const preview = previews[previewIndex];
 
-	clearError(renderer.getContext().__uuid);
-
 	if (preview) {
-		preview.texture.destroy();
-		preview.destroy();
+		const { renderer } = preview;
+		clearError(renderer.getContext().__uuid);
+		renderer.dispose();
 		previews.splice(previewIndex, 1);
 	}
 };
@@ -95,8 +56,6 @@ export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
 	if (preview) {
-		preview.texture.needsUpdate = true;
-		preview.render();
 		preview.rendered = true;
 	}
 
@@ -108,16 +67,13 @@ export let onAfterUpdatePreview = ({ id }) => {
 	}
 };
 
-export let resize = ({ width, height, pixelRatio }) => {
-	renderer.setPixelRatio(pixelRatio);
-	renderer.setSize(width, height);
-};
-
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
 	if (preview) {
-		preview.resize({ width, height, pixelRatio });
+		const { renderer } = preview;
+		renderer.setPixelRatio(pixelRatio);
+		renderer.setSize(width, height);
 	}
 };
 
@@ -126,32 +82,39 @@ let _shaderUpdates = [];
 
 function handleHotShaderUpdate(scene) {
 	if (_shaderUpdates.length > 0) {
+		const verifyMaterial = (material) => {
+			if (!material) return;
+
+			const { vertexShader = '', fragmentShader = '' } = material;
+
+			Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
+				const shader = material[key];
+				const shaderPath = getShaderPath(shader);
+				const shaderUpdate = _shaderUpdates.find(
+					(shaderUpdate) => shaderUpdate.filepath === shaderPath,
+				);
+
+				if (shaderUpdate) {
+					console.log(
+						`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
+							__CWD__,
+							'',
+						)}`,
+					);
+					material[key] = shaderUpdate.source;
+					material.needsUpdate = true;
+				}
+			});
+		};
 		scene.traverse((child) => {
 			if (child.material) {
 				const { material } = child;
 
-				// if (material.isShaderMaterial || material.isRawShaderMaterial) {
-				const { vertexShader = '', fragmentShader = '' } = material;
-
-				Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
-					const shader = material[key];
-					const shaderPath = getShaderPath(shader);
-					const shaderUpdate = _shaderUpdates.find(
-						(shaderUpdate) => shaderUpdate.filepath === shaderPath,
-					);
-
-					if (shaderUpdate) {
-						console.log(
-							`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
-								__CWD__,
-								'',
-							)}`,
-						);
-						material[key] = shaderUpdate.source;
-						material.needsUpdate = true;
-					}
-				});
-				// }
+				if (Array.isArray(material)) {
+					material.forEach((m) => verifyMaterial(m));
+				} else {
+					verifyMaterial(material);
+				}
 			}
 		});
 	}
@@ -168,7 +131,9 @@ if (import.meta.hot) {
 }
 
 client.on('shader-update', (shaderUpdates) => {
-	clearError(renderer.getContext().__uuid);
+	previews.forEach((preview) => {
+		clearError(preview.renderer.getContext().__uuid);
+	});
 
 	_shaderUpdates = shaderUpdates;
 });
