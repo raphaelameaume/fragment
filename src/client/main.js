@@ -1,4 +1,3 @@
-import './app/stores/console';
 import { mount } from 'svelte';
 import App from './app/App.svelte';
 
