@@ -21,6 +21,7 @@ class Sketch {
 	constructor({ key, instance, previous }) {
 		this.key = key;
 		this.instance = instance;
+		this.name = this.instance.name ?? this.key;
 		this.fps = this.instance.fps;
 		this.load = this.instance.load ?? noop;
 		this.setup = this.instance.setup ?? this.instance.init ?? noop;

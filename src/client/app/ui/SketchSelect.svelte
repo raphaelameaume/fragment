@@ -1,20 +1,14 @@
 <script>
 	import ModuleHeaderAction from './ModuleHeaderAction.svelte';
 	import { sketchesManager } from '../state/sketches.svelte';
-	import {
-		sketches,
-		sketchesKeys,
-		sketchesCount,
-	} from '../stores/sketches.js';
-	import { monitors } from '../stores/rendering';
 
 	let { sketchKey = sketchesManager.keys[0], onchange } = $props();
 
 	let options = $derived(
 		[
 			...sketchesManager.keys.map((key) => {
-				// @TODO: read sketch name if it exists
-				return { value: key, label: key };
+				const name = sketchesManager.sketches[key].name ?? key;
+				return { value: key, label: name };
 			}),
 			sketchesManager.count > 1
 				? { value: 'output', label: 'output' }
