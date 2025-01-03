@@ -29,14 +29,13 @@
 		<ModuleHeaderSelect {options} {value} {disabled} {onchange} />
 	{:else}
 		<ModuleHeaderButton {label} {onclick}>
-			{#snippet text()}
-				<div class="text">
-					{@render children()}
-				</div>
-			{/snippet}
+			{#snippet text()}{/snippet}
 			{#if icon}
 				{@render icon()}
 			{/if}
+			<div class="text">
+				{@render children()}
+			</div>
 		</ModuleHeaderButton>
 	{/if}
 </div>

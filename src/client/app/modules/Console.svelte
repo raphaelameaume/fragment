@@ -72,8 +72,16 @@
 
 <Module {id} {headless} name="console" scrollable={false}>
 	{#snippet headerRight()}
-		<ModuleHeaderAction border label="Clear" onclick={() => (logs = [])}
-			>clear</ModuleHeaderAction
+		<ModuleHeaderAction
+			permanent
+			border
+			label="Clear"
+			onclick={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				logs = [];
+			}}>clear</ModuleHeaderAction
 		>
 	{/snippet}
 	<div class="container">
