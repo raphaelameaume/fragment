@@ -34,7 +34,7 @@
 		currentSize = current.size;
 	}
 
-	function handleMouseDown() {
+	function handleMouseDown(event) {
 		findNext();
 
 		if (!isDragging && next) {
@@ -50,6 +50,8 @@
 			nextRect = next.node.getBoundingClientRect();
 
 			visible = currentSize === nextSize;
+
+			handleMouseMove(event);
 		}
 	}
 
