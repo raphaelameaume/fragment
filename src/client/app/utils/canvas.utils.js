@@ -65,7 +65,7 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 export async function screenshotCanvas(
 	canvas,
 	{
-		filename = '',
+		filename = 'Screenshot',
 		index,
 		pattern = defaultFilenamePattern,
 		exportDir,
@@ -73,7 +73,7 @@ export async function screenshotCanvas(
 		encoding = 'png',
 		quality = 100,
 		pixelsPerInch = 72,
-	},
+	} = {},
 ) {
 	let { extension, dataURL } = exportCanvas(canvas, {
 		encoding: `image/${encoding}`,
