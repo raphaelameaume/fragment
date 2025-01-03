@@ -69,11 +69,6 @@
 	key="canvasSize"
 	value={rendering.resizing}
 	onchange={(resizing) => {
-		if (resizing === SIZES.ASPECT_RATIO) {
-			// compute aspect ratio based on previous props
-			rendering.aspectRatio = rendering.width / rendering.height;
-		}
-
 		$exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
 		rendering.resizing = resizing;
 	}}
