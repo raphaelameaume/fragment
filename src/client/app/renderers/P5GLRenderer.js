@@ -66,7 +66,8 @@ export let onBeforeUpdatePreview = ({ id }) => {
 
 	if (preview) {
 		preview.rendered = false;
-		preview.p.resetMatrix();
+
+		preview.p?.resetMatrix();
 	}
 };
 
