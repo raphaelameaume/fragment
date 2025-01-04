@@ -1,13 +1,12 @@
 <script>
-	import { SIZES, monitors } from '../stores/rendering.js';
-	import { rendering } from '../state/rendering.svelte';
+	import { SIZES, rendering } from '../state/rendering.svelte';
 	import Field from './Field.svelte';
 	import presets, {
 		PRESET_ORIENTATIONS,
 		getDimensionsForPreset,
 	} from '../lib/presets';
 	import { exports } from '../stores';
-	import ParamsMultisampling from './ParamsMultisampling.svelte';
+	// import ParamsMultisampling from './ParamsMultisampling.svelte';
 	import Select from './fields/Select.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
 
@@ -34,6 +33,11 @@
 	let dimensionsEnabled = $derived(
 		[SIZES.FIXED, SIZES.SCALE].includes(rendering.resizing),
 	);
+	let dimensionsParams = $state({
+		step: 1,
+		suffix: 'px',
+		locked: false,
+	});
 
 	$effect(() => {
 		if (rendering.resizing === SIZES.PRESET) {
@@ -58,11 +62,7 @@
 	key="dimensions"
 	value={dimensions}
 	onchange={handleChangeDimensions}
-	params={{
-		step: 1,
-		suffix: 'px',
-		locked: false,
-	}}
+	bind:params={dimensionsParams}
 	disabled={!dimensionsEnabled}
 />
 <Field

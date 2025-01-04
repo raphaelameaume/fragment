@@ -1,7 +1,6 @@
 <script>
 	import Module from '../ui/Module.svelte';
 	import SketchRenderer from '../ui/SketchRenderer.svelte';
-	import OutputRenderer from '../ui/OutputRenderer.svelte';
 	import SketchSelect from '../ui/SketchSelect.svelte';
 
 	import ErrorOverlay from '../ui/ErrorOverlay.svelte';
@@ -169,7 +168,4 @@
 	{#if error}
 		<ErrorOverlay {error} />
 	{/if}
-	<!-- {:else if selected}
-		<OutputRenderer />
-	{/if} -->
 </Module>
