@@ -21,7 +21,7 @@
 		{title}
 	>
 		<span class="label" class:visually-hidden={!showLabel}>{label}</span>
-		{@render children()}
+		{@render children?.()}
 	</button>
 </div>
 
