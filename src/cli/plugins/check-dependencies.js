@@ -55,8 +55,10 @@ export default function checkDependencies({
 						`node_modules/${dependency}`,
 					);
 					const isInstalled = fs.existsSync(dependencyPath);
+					//@TODO: handle check for monorepos
+					const checkForInstall = false;
 
-					if (!isInstalled) {
+					if (!isInstalled && checkForInstall) {
 						const filename = entry.split(`${cwd}/`)[1];
 						log.message();
 						log.error(
