@@ -1,5 +1,5 @@
 <script>
-	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { onKeyPress, onKeyDown, onKeyUp } from '../triggers';
 
 	let { key, type = 'press', onTrigger = () => {} } = $props();
