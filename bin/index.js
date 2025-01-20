@@ -72,6 +72,7 @@ prog.command('build [entry]')
 	.option('--base', 'Base public path', undefined)
 	.option('-dev, --development', 'Enable development mode', false)
 	.option('--prompts', 'Enable interactive prompts', true)
+	.option('--config', 'Path to Fragment config file')
 	.action((entry, options) => {
 		build(entry, options);
 	});
