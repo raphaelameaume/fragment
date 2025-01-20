@@ -93,26 +93,28 @@ export default function checkDependencies({
 		})
 		.flat();
 
+	const defines = {
+		__THREE_RENDERER__: JSON.stringify(
+			renderings.some((rendering) => rendering === 'three'),
+		),
+		__P5_RENDERER__: JSON.stringify(
+			renderings.some((rendering) => rendering === 'p5'),
+		),
+		__P5_WEBGL_RENDERER__: JSON.stringify(
+			renderings.some((rendering) => rendering === 'p5-webgl'),
+		),
+		__FRAGMENT_RENDERER__: JSON.stringify(
+			renderings.some((rendering) => rendering === 'fragment'),
+		),
+		__2D_RENDERER__: JSON.stringify(
+			renderings.some((rendering) => rendering === '2d'),
+		),
+	};
+
 	return {
 		name: 'check-dependencies',
 		config: () => ({
-			define: {
-				__THREE_RENDERER__: build
-					? renderings.some((rendering) => rendering === 'three')
-					: true,
-				__P5_RENDERER__: build
-					? renderings.some((rendering) => rendering === 'p5')
-					: true,
-				__P5_WEBGL_RENDERER__: build
-					? renderings.some((rendering) => rendering === 'p5-webgl')
-					: true,
-				__FRAGMENT_RENDERER__: build
-					? renderings.some((rendering) => rendering === 'fragment')
-					: true,
-				__2D_RENDERER__: build
-					? renderings.some((rendering) => rendering === '2d')
-					: true,
-			},
+			define: defines,
 		}),
 		load(id) {
 			if (build && skipFiles.includes(id)) {
