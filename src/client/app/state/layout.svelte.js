@@ -91,13 +91,11 @@ class Layout {
 					});
 					col1.children.push(...originChildren.map((c) => c.id));
 
-					this.createComponent({
+					component = this.createComponent({
 						type: intermediate.type === 'column' ? 'row' : 'column',
 						size: 0.5,
 						origin: intermediate.id,
 					});
-
-					component = null;
 				} else {
 					// add sibling
 					const sibling = originComponent;
