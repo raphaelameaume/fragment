@@ -80,9 +80,9 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height }) => {
-	uniforms.uResolution.value.x = width;
-	uniforms.uResolution.value.y = height;
+export let resize = ({ width, height, pixelRatio }) => {
+	uniforms.uResolution.value.x = width * pixelRatio;
+	uniforms.uResolution.value.y = height * pixelRatio;
 
 	camera.left = -width * 0.5;
 	camera.right = width * 0.5;
