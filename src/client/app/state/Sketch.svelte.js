@@ -14,9 +14,9 @@ class Sketch {
 	props = $state({});
 	canvas = $state(null);
 	backgroundColor = $state('inherit');
-	paused = $state(false);
 	propsGroups = $state([]);
 	propsFolders = $state([]);
+	version = $state(0);
 
 	constructor({ key, instance, previous }) {
 		this.key = key;
@@ -256,6 +256,8 @@ class Sketch {
 		Object.keys(this.props).forEach((key) => {
 			this.props[key].hidden = this.props[key].__hidden();
 		});
+
+		this.version++;
 	}
 
 	createPropFolder(folder, collection, key) {
@@ -363,8 +365,7 @@ class Sketch {
 					!isFunction(instanceProp.value) &&
 					!deepEqual(instanceProp.value, prop.__currentValue)
 				) {
-					prop.value = structuredClone(instanceProp.value);
-					prop.__currentValue = prop.value;
+					this.updateProp(key, structuredClone(instanceProp.value));
 				}
 
 				// sync displayName
