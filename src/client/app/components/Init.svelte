@@ -1,43 +1,30 @@
 <script>
 	import { assignSketchFiles } from '../triggers/shared.js';
-	import { loadAll, sketchesKeys, sketches } from '../stores/sketches.js';
+	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { onSketchReload } from '@fragment/sketches';
 	import { getFilename } from '../utils/file.utils.js';
 	import '../utils/glslErrors.js';
-	import { props, reconcile } from '../stores/props.js';
 
-	sketches.subscribe((sketches) => {
-		props.update((currentProps) => {
-			Object.keys(sketches).forEach((key) => {
-				const sketch = sketches[key];
+	$effect(() => {
+		assignSketchFiles(sketchesManager.keys);
+	});
 
-				if (sketch) {
-					// sketch can be undefined if failed to load
-					currentProps[key] = reconcile(
-						sketch.props,
-						currentProps[key],
-					);
-				}
-			});
-
-			return currentProps;
+	$effect(() => {
+		Object.keys(sketchesManager.sketches).forEach((key) => {
+			sketchesManager.sketches[key].save();
 		});
 	});
 
-	sketchesKeys.subscribe((keys) => {
-		if (keys.length > 0) {
-			assignSketchFiles(keys);
-		}
-	});
-
 	onSketchReload(({ sketches }) => {
-		loadAll(sketches);
+		sketchesManager.loadAll(sketches);
 	});
 
-	$: prefix =
-		$sketchesKeys.length === 1 ? `${getFilename($sketchesKeys[0])} | ` : '';
-
-	$: title = `${prefix}fragment`;
+	let prefix = $derived(
+		sketchesManager.keys.length === 1
+			? `${getFilename(sketchesManager.keys[0])} | `
+			: '',
+	);
+	let title = $derived(`${prefix}fragment`);
 </script>
 
 <svelte:head>

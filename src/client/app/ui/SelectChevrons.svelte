@@ -1,6 +1,5 @@
 <script>
-	export let width = 24;
-	export let height = 24;
+	let { width = 24, height = width } = $props();
 </script>
 
 <div class="chevrons" style={`width: ${width}px;`}>

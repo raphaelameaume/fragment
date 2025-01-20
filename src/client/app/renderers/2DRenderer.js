@@ -15,6 +15,7 @@
  */
 export let onMountPreview = ({ canvas }) => {
 	return {
+		canvas,
 		context: canvas.getContext('2d'),
 	};
 };

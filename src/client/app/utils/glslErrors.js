@@ -1,4 +1,4 @@
-import { displayError } from '../stores/errors';
+import { displayError } from '../state/errors.svelte';
 import { getShaderPath, removeShaderPath } from './glsl.utils';
 
 const methods = ['attachShader'];

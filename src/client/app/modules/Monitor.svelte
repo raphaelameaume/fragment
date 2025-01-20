@@ -1,74 +1,166 @@
-<script context="module">
-	let ID = 0;
-</script>
-
 <script>
-	import { onMount, onDestroy } from 'svelte';
 	import Module from '../ui/Module.svelte';
 	import SketchRenderer from '../ui/SketchRenderer.svelte';
-	import OutputRenderer from '../ui/OutputRenderer.svelte';
 	import SketchSelect from '../ui/SketchSelect.svelte';
-	import { sketchesKeys } from '../stores/sketches.js';
-	import { monitors, preview } from '../stores/rendering';
 
-	export let mID;
-	export let hasHeader = true;
-	export let sketchKey = null;
+	import ErrorOverlay from '../ui/ErrorOverlay.svelte';
+	import { errors } from '../state/errors.svelte.js';
+	import { onMount } from 'svelte';
+	import { layout } from '../state/layout.svelte';
+	import { rendering, SIZES } from '../state/rendering.svelte.js';
+	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
+	import { sketchesManager } from '../state/sketches.svelte';
 
-	let id = ID++;
-	let name = 'monitor';
-	let selected = sketchKey
-		? sketchKey
-		: $preview
-			? $preview
-			: $sketchesKeys[Math.min(id, $sketchesKeys.length - 1)];
+	let { id = layout.getID(), headless = false, params } = $props();
 
-	sketchesKeys.subscribe((keys) => {
-		if (!selected && keys.length > 0) {
-			$monitors = $monitors.map((monitor) => {
-				if (monitor.id === id) {
-					monitor.selected =
-						$sketchesKeys[Math.min(id, $sketchesKeys.length - 1)];
+	let key = $derived(
+		sketchesManager.keys.includes(params.selected) ||
+			(params.selected === 'output' && sketchesManager.keys.length > 1)
+			? params.selected
+			: sketchesManager.keys[0],
+	);
+
+	let monitors = $derived(rendering.monitors);
+	let monitorID = rendering.getMonitorID();
+	let index = $derived(monitors.findIndex((m) => m.id === monitorID));
+	let name = $derived(
+		`Monitor ${monitors.length > 1 ? index + 1 : ''}`.trim(),
+	);
+	let monitor = $derived(monitors[index]);
+
+	// display error if error context match current key
+	// or if an error doesn't match any params from monitor
+	let error = $derived(
+		errors.has(key)
+			? errors.get(key)
+			: monitors.length === 1 ||
+				  !monitors.some(
+						(m) => m.selected === errors.keys().next().value,
+				  )
+				? errors.values().next().value
+				: null,
+	);
+
+	let dimensions = $state({
+		width: undefined,
+		height: undefined,
+	});
+	let node;
+	let zoomLevel = $derived.by(() => {
+		const zx = dimensions.width / rendering.width;
+		const zy = dimensions.height / rendering.height;
+
+		if (zx >= 1 && zy >= 1) {
+			return 100;
+		} else {
+			return Math.round(Math.min(zx, zy) * 100);
+		}
+	});
+
+	function checkForResize(resizing, { width, height }) {
+		if (isFinite(width) && isFinite(height)) {
+			let isWindowResize = resizing === SIZES.WINDOW;
+			let isAspectResize = resizing === SIZES.ASPECT_RATIO;
+			let canUpdate = isWindowResize || isAspectResize;
+
+			if (canUpdate) {
+				let newWidth, newHeight;
+
+				if (isWindowResize) {
+					newWidth = Math.round(width);
+					newHeight = Math.round(height);
+				} else if (isAspectResize) {
+					const { offsetWidth, offsetHeight } = node;
+					const aspectRatio = rendering.aspectRatio;
+					const monitorRatio = offsetWidth / offsetHeight;
+
+					if (aspectRatio < monitorRatio) {
+						newHeight = offsetHeight;
+						newWidth = Math.round(newHeight * aspectRatio);
+					} else {
+						newWidth = offsetWidth;
+						newHeight = Math.round(newWidth / aspectRatio);
+					}
 				}
 
-				return monitor;
-			});
+				let needsUpdate =
+					newWidth !== rendering.width ||
+					newHeight !== rendering.height;
+
+				if (needsUpdate) {
+					rendering.width = newWidth;
+					rendering.height = newHeight;
+				}
+			}
 		}
-	});
+	}
 
 	onMount(() => {
-		$monitors = [
-			...$monitors,
-			{
-				id,
-				selected,
-			},
-		];
+		rendering.monitors.push({
+			id: monitorID,
+			dimensions,
+		});
+
+		return () => {
+			const monitorIndex = rendering.monitors.findIndex(
+				(m) => m.id === monitorID,
+			);
+			rendering.monitors.splice(monitorIndex, 1);
+		};
 	});
 
-	monitors.subscribe((all) => {
-		const current = all.find((monitor) => monitor.id === id);
-
-		if (current && current.selected !== selected) {
-			selected = current.selected;
+	$effect(() => {
+		if (index === 0) {
+			checkForResize(rendering.resizing, dimensions);
 		}
 	});
 
-	onDestroy(() => {
-		$monitors = $monitors.filter((m) => m.id !== id);
-	});
+	/**
+	 *
+	 * @param {ResizeObserverEntry[]} event
+	 */
+	function onresize(event) {
+		const { contentRect, target } = event[0];
 
-	$: index = $monitors.findIndex((monitor) => monitor.id === id);
-	$: moduleName = `${name} ${$monitors.length > 1 ? index + 1 : ''}`;
+		if (!node) node = target;
+
+		dimensions.width = contentRect.width;
+		dimensions.height = contentRect.height;
+	}
 </script>
 
-<Module {hasHeader} {mID} slug="monitor" name={moduleName} scrollable={false}>
-	<svelte:fragment slot="header-left">
-		<SketchSelect monitorID={id} {selected} />
-	</svelte:fragment>
-	{#if selected && selected !== 'output'}
-		<SketchRenderer key={selected} {id} />
-	{:else if selected}
-		<OutputRenderer />
+{#snippet headerLeft()}
+	<SketchSelect
+		monitorID={id}
+		sketchKey={key}
+		onchange={(event) => {
+			params.selected = event.target.value;
+		}}
+	/>
+{/snippet}
+
+{#snippet headerRight()}
+	<ModuleHeaderAction
+		value={zoomLevel}
+		permanent
+		border
+		options={[{ value: zoomLevel, label: `${zoomLevel}%` }]}
+	/>
+{/snippet}
+
+<Module
+	{id}
+	{headless}
+	slug="monitor"
+	{name}
+	scrollable={false}
+	{headerLeft}
+	{headerRight}
+	{onresize}
+>
+	<!-- {#if selected && selected !== 'output'} -->
+	<SketchRenderer {key} {id} />
+	{#if error}
+		<ErrorOverlay {error} />
 	{/if}
 </Module>

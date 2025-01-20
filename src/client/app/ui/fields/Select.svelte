@@ -1,26 +1,20 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import SelectChevrons from '../SelectChevrons.svelte';
 
-	export let options = [];
-	export let name = '';
-	export let value;
-	export let disabled = false;
-	export let title = '';
-	export let context = null;
-	export let key = '';
-
-	let node;
-	let sanitizedValue,
-		sanitizedOptions = [];
-
-	const dispatch = createEventDispatcher();
+	let {
+		options,
+		name = '',
+		value = $bindable(),
+		disabled = false,
+		title = '',
+		onchange = () => {},
+	} = $props();
 
 	function toStringifiedValue(option, optionType = typeof option) {
 		if (option === null) {
-			return `null`;
+			return null;
 		} else if (option === undefined) {
-			return `undefined`;
+			return undefined;
 		} else if (optionType === 'object') {
 			return toStringifiedValue(option.value);
 		} else if (optionType === 'function') {
@@ -30,49 +24,41 @@
 		return option.toString();
 	}
 
-	$: {
-		sanitizedOptions = [];
-
-		for (let i = 0; i < options.length; i++) {
-			let option = options[i];
+	let sanitizedOptions = $derived(
+		options.map((option) => {
 			let optionType = typeof option;
 			let disabled =
 				optionType === 'object' && typeof option.disabled === 'boolean'
 					? option.disabled
 					: false;
-			let _value = optionType === 'object' ? option.value : option;
+			let value = optionType === 'object' ? option.value : option;
 
-			let stringifiedValue = toStringifiedValue(option);
-			let label;
+			let stringValue = toStringifiedValue(option);
 
-			if (_value === value) {
-				sanitizedValue = stringifiedValue;
-			}
+			let label = option.label ?? stringValue;
 
-			if (option.label) {
-				label = option.label;
-			} else {
-				label = stringifiedValue;
-			}
-
-			sanitizedOptions[i] = {
+			return {
 				label,
-				value: stringifiedValue,
+				value,
+				stringValue,
 				disabled,
 			};
-		}
-	}
+		}),
+	);
+
+	let sanitizedValue = $derived(
+		sanitizedOptions.find((opt) => opt.value === value),
+	);
 
 	function handleChange(event) {
 		const index = sanitizedOptions.findIndex(
-			(opt) => opt.value === event.currentTarget.value,
+			(opt) => opt.stringValue === event.currentTarget.value,
 		);
+
 		const option = options[index];
 		const newValue = typeof option === 'object' ? option.value : option;
 
-		value = newValue;
-
-		dispatch('change', newValue);
+		onchange(newValue);
 	}
 </script>
 
@@ -84,16 +70,15 @@
 	<div class="container">
 		<select
 			class="select"
-			bind:this={node}
-			on:change={handleChange}
+			onchange={handleChange}
 			{name}
 			{disabled}
 			{title}
-			bind:value={sanitizedValue}
+			value={sanitizedValue.stringValue}
 		>
 			{#each sanitizedOptions as option}
 				<option
-					value={option.value}
+					value={option.stringValue}
 					selected={sanitizedValue === option.value}
 					disabled={option.disabled}>{option.label}</option
 				>
@@ -151,6 +136,10 @@
 
 	.select-input:not(.disabled) .select {
 		cursor: pointer;
+	}
+
+	.select-input .select option {
+		background-color: var(--color-background);
 	}
 
 	.select-input:not(.disabled) .select:focus {

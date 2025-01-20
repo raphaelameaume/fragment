@@ -8,7 +8,7 @@ const commands = {
 
 const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-const LOCAL_STORAGE_KEY = 'midi.requested';
+const LOCAL_STORAGE_KEY = 'fragment.midi.requested';
 
 class MIDI extends Input {
 	constructor() {
@@ -125,6 +125,7 @@ class MIDI extends Input {
 	}
 
 	async request() {
+		console.log('MIDI :: request!');
 		try {
 			if (!this.requesting && !this.access) {
 				localStorage.setItem(LOCAL_STORAGE_KEY, true);

@@ -1,9 +1,9 @@
 <script>
 	import LayoutComponent from './LayoutComponent.svelte';
 
-	export let size = 1;
+	let { size = 1, children } = $props();
 </script>
 
 <LayoutComponent {size} type="column">
-	<slot />
+	{@render children?.()}
 </LayoutComponent>

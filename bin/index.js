@@ -44,7 +44,7 @@ prog.command('run [entry]', '', { default: true })
 				emptyOutDir: options.emptyOutDir,
 				base: options.base,
 				prompts: options.prompts,
-				config: options.config,
+				configFilepath: options.config,
 			});
 		}
 
@@ -52,7 +52,7 @@ prog.command('run [entry]', '', { default: true })
 			development: options.development,
 			exportDir: options.exportDir,
 			port: options.port,
-			config: options.config,
+			configFilepath: options.config,
 		});
 	});
 

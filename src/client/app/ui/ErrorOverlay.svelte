@@ -1,5 +1,5 @@
 <script>
-	import { clearErrors } from '../stores/errors';
+	import { clearErrors } from '../state/errors.svelte';
 
 	export let error;
 
@@ -20,7 +20,7 @@
 		? error.stack
 				.split('\n')
 				.filter((line, i, s) => (s.length === 1 ? true : i !== 0))
-				.filter((line) => !line.includes('/app'))
+				.filter((line) => !line.includes('/app/'))
 				.map((line) => {
 					// remove path to file in URL
 					line = line.replace(

@@ -10,7 +10,7 @@ let uniforms = {
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas
- * @param {THREE.Renderer} params.renderer
+ * @param {THREE.WebGLRenderer} params.renderer
  * @param {THREE.Scene} params.scene
  * @param {number} params.width
  * @param {number} params.height
@@ -54,7 +54,7 @@ export let init = ({ scene, width, height }) => {
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas
- * @param {THREE.Renderer} params.renderer
+ * @param {THREE.WebGLRenderer} params.renderer
  * @param {THREE.Scene} params.scene
  * @param {number} params.width
  * @param {number} params.height
@@ -74,15 +74,15 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas
- * @param {THREE.Renderer} params.renderer
+ * @param {THREE.WebGLRenderer} params.renderer
  * @param {THREE.Scene} params.scene
  * @param {number} params.width
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height }) => {
-	uniforms.uResolution.value.x = width;
-	uniforms.uResolution.value.y = height;
+export let resize = ({ width, height, pixelRatio }) => {
+	uniforms.uResolution.value.x = width * pixelRatio;
+	uniforms.uResolution.value.y = height * pixelRatio;
 
 	camera.left = -width * 0.5;
 	camera.right = width * 0.5;

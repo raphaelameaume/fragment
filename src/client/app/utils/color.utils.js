@@ -74,9 +74,9 @@ export function toString(color, format = getColorFormat(color)) {
 		return componentsToRGBAString(vecArrayToComponents(color));
 	if (format === FORMATS.THREE) return threeToHex(color);
 	if (format === FORMATS.RGB_OBJECT)
-		return componentsToRGBString([color.r, color.g, color.b]);
+		return componentsToRGBStringObject([color.r, color.g, color.b]);
 	if (format === FORMATS.RGBA_OBJECT)
-		return componentsToRGBAString([
+		return componentsToRGBAStringObject([
 			color.r,
 			color.g,
 			color.b,
@@ -148,7 +148,7 @@ export function stringToHex(color) {
 
 export function vecStringToComponents(color) {
 	const match = color.match(
-		/vec[3-4]?\((\d*(?:\.\d*?)), ?(\d*(?:\.\d*?)), ?(\d*(?:\.\d*))?(?:, ?(\d*(?:\.?\d*?))\))?/,
+		/vec[3-4]?\((\d*(?:\.?\d*?)), ?(\d*(?:\.?\d*?)), ?(\d*(?:\.?\d*))?(?:, ?(\d*(?:\.?\d*?))\))?/,
 	);
 
 	if (match) {
@@ -278,6 +278,14 @@ export function toVec3String(color) {
 	return componentsToVec3String(toComponents(color));
 }
 
+export function toRGBStringObject(color) {
+	return componentsToRGBStringObject(toComponents(color));
+}
+
+export function toRGBAStringObject(color) {
+	return componentsToRGBAStringObject(toComponents(color));
+}
+
 export function toVec4String(color) {
 	return componentsToVec4String(toComponents(color));
 }
@@ -302,6 +310,26 @@ export function componentsToVec3String(components = []) {
 	}
 
 	return `vec3(${rn}, ${gn}, ${bn})`;
+}
+
+export function componentsToRGBStringObject(components) {
+	const [r = 0, g = 0, b = 0] = components;
+
+	let rn = `${Math.round(r * 1000) / 1000}`;
+	let gn = `${Math.round(g * 1000) / 1000}`;
+	let bn = `${Math.round(b * 1000) / 1000}`;
+
+	return `{ r: ${rn}, g: ${gn}, b: ${bn} }`;
+}
+
+export function componentsToRGBAStringObject(components) {
+	const [r = 0, g = 0, b = 0, a = 1] = components;
+
+	let rn = `${Math.round(r * 1000) / 1000}`;
+	let gn = `${Math.round(g * 1000) / 1000}`;
+	let bn = `${Math.round(b * 1000) / 1000}`;
+
+	return `{ r: ${rn}, g: ${gn}, b: ${bn}, a: ${a} }`;
 }
 
 export function componentsToVec4String(components = []) {
@@ -329,16 +357,6 @@ export function componentsToVec4String(components = []) {
 	}
 
 	return `vec4(${rn}, ${gn}, ${bn}, ${an})`;
-}
-
-export function toRGBString(color) {
-	const [r, g, b] = toComponents(color);
-
-	return componentsToRGBString([r, g, b]);
-}
-
-export function toRGBAString(color) {
-	return componentsToRGBAString(toComponents(color));
 }
 
 export function hexToRGBString(color) {
@@ -564,4 +582,19 @@ export function getColorFormat(value) {
 	if (isHSLAString(value)) return FORMATS.HSLA_STRING;
 	if (isHSLString(value)) return FORMATS.HSL_STRING;
 	if (isCSSColor(value)) return FORMATS.CSS_COLOR;
+}
+
+export function componentsToFormat(components, format) {
+	const [r, g, b, a] = components;
+
+	switch (format) {
+		case FORMATS.RGB_STRING:
+			return componentsToRGBString(components);
+		case FORMATS.RGBA_STRING:
+			return componentsToRGBAString([r, g, b, a]);
+		case FORMATS.VEC3_STRING:
+			return componentsToVec3String(components);
+		case FORMATS.VEC4_STRING:
+			return componentsToVec4String(components);
+	}
 }

@@ -1,55 +1,20 @@
 <script>
 	import ModuleHeaderAction from './ModuleHeaderAction.svelte';
-	import {
-		sketches,
-		sketchesKeys,
-		sketchesCount,
-	} from '../stores/sketches.js';
-	import { monitors } from '../stores/rendering';
+	import { sketchesManager } from '../state/sketches.svelte';
 
-	export let monitorID;
-	export let selected;
+	let { sketchKey = sketchesManager.keys[0], onchange } = $props();
 
-	$: options = [
-		...$sketchesKeys.map((key) => ({
-			value: key,
-			label:
-				$sketches[key] && $sketches[key].name
-					? $sketches[key].name
-					: key,
-		})),
-	];
-
-	$: {
-		if (
-			$sketchesCount > 1 &&
-			!options.some((opt) => opt.value === 'output')
-		) {
-			options = [...options, { value: 'output', label: 'output' }];
-		}
-
-		if (options.length > 0 && selected === undefined) {
-			selected = options[0].value;
-		}
-	}
-
-	$: {
-		monitors.update((all) => {
-			return all.map((monitor) => {
-				if (monitor.id === monitorID) {
-					monitor.selected = selected;
-				}
-
-				return monitor;
-			});
-		});
-	}
+	let options = $derived(
+		[
+			...sketchesManager.keys.map((key) => {
+				const name = sketchesManager.sketches[key].name ?? key;
+				return { value: key, label: name };
+			}),
+			sketchesManager.count > 1
+				? { value: 'output', label: 'output' }
+				: undefined,
+		].filter((opt) => opt !== undefined),
+	);
 </script>
 
-<ModuleHeaderAction
-	value={selected}
-	permanent
-	border
-	on:change={(event) => (selected = event.detail)}
-	{options}
-/>
+<ModuleHeaderAction value={sketchKey} permanent border {onchange} {options} />

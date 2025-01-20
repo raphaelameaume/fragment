@@ -1,39 +1,34 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import FieldInputRow from './FieldInputRow.svelte';
 	import NumberInput from './NumberInput.svelte';
 
-	export let value;
-	export let suffix = '';
-	export let min = -Infinity;
-	export let max = Infinity;
-	export let step = 0.1;
-	export let locked = false;
-	export let disabled = false;
-	export let context = null;
-	export let key = '';
+	let {
+		value,
+		suffix = '',
+		min = -Infinity,
+		max = Infinity,
+		step = 0.1,
+		locked = false,
+		disabled = false,
+		context = null,
+		key = '',
+		onchange,
+	} = $props();
 
-	const dispatch = createEventDispatcher();
 
-	$: isArray = Array.isArray(value);
-	$: isObject = !isArray && typeof value === 'object';
-	$: components = isObject ? Object.values(value) : value;
-	$: keys = isObject ? Object.keys(value) : value.map(() => undefined);
+	let isArray = $derived(Array.isArray(value));
+	let isObject = $derived(!isArray && typeof value === 'object');
+	let components = $derived(isObject ? Object.values(value) : [...value]);
+	let keys = $derived(isObject ? Object.keys(value) : value.map((v, i) => i));
 
 	function dispatchChange() {
-		let needsUpdate = false;
-		for (let i = 0; i < components.length; i++) {
-			const key = isArray ? i : keys[i];
+		let newValue = keys.reduce((all, key, index) => {
+			all[key] = components[index];
 
-			if (value[key] !== components[i]) {
-				value[key] = components[i];
-				needsUpdate = true;
-			}
-		}
+			return all;
+		}, isArray ? [] : {});
 
-		if (needsUpdate) {
-			dispatch('change', value);
-		}
+		onchange(newValue);
 	}
 
 	function handleComponentChange(newValue, componentIndex) {
@@ -43,8 +38,8 @@
 			ratio = 1;
 		}
 
-		components = components.map((component, index) => {
-			return index === componentIndex
+		components.forEach((component, index) => {
+			components[index] = index === componentIndex
 				? newValue
 				: locked
 					? Math.round(component * ratio * (1 / step)) / (1 / step)
@@ -70,8 +65,8 @@
 				{key}
 				label={keys[index]}
 				value={component}
-				on:change={(event) =>
-					handleComponentChange(event.detail, index)}
+				onchange={(value) =>
+					handleComponentChange(value, index)}
 			/>
 		{/each}
 	</FieldInputRow>

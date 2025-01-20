@@ -1,45 +1,39 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	let {
+		label,
+		value = $bindable(),
+		disabled = false,
+		oninput,
+		onchange,
+		onkeydown,
+		onfocus,
+		onblur,
+	} = $props();
 
-	export let label = null;
-	export let value;
-	export let disabled = false;
-	export let context = null;
-	export let key = '';
-
+	/** @type {HTMLInputElement} */
 	let node;
-
-	const dispatch = createEventDispatcher();
 
 	function onKeyPress(event) {
 		if (event.key === 'Enter') {
 			node.blur();
 		}
 	}
-
-	function handleInput(event) {
-		dispatch('input', event.currentTarget.value);
-	}
-
-	function handleChange(event) {
-		dispatch('change', event.currentTarget.value);
-	}
 </script>
 
 <div class="input-container" class:disabled>
-	{#if label}
+	{#if label !== undefined}
 		<span class="label">{label}</span>
 	{/if}
 	<input
 		class="input"
 		bind:this={node}
 		bind:value
-		on:change={handleChange}
-		on:input={handleInput}
-		on:keypress={onKeyPress}
-		on:keydown
-		on:focus
-		on:blur
+		{oninput}
+		{onchange}
+		{onkeydown}
+		{onfocus}
+		{onblur}
+		onkeypress={onKeyPress}
 		disabled={disabled ? 'disabled' : null}
 		autocomplete="off"
 		spellcheck="false"

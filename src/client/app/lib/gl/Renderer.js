@@ -20,6 +20,7 @@ class Renderer {
 		};
 
 		this.canvas = canvas;
+		this.canvas.setAttribute('data-engine', `fragment-gl`);
 
 		if (webgl === 2) gl = canvas.getContext('webgl2', attributes);
 		if (!gl) {

@@ -102,7 +102,7 @@ export async function build(entry, options) {
 					dev: options.development,
 					build: true,
 				},
-				options.config,
+				options.configFilepath,
 				cwd,
 			);
 

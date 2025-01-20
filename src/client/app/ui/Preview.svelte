@@ -1,13 +1,24 @@
 <script>
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
-	import { rendering } from '../stores/rendering';
+	import { rendering } from '../state/rendering.svelte';
 	import Build from './Build.svelte';
 
-	let saved = $rendering;
+	const { resizing, width, height, pixelRatio, aspectRatio, scale, preset } =
+		rendering;
 
 	onDestroy(() => {
-		$rendering = saved;
+		const prevRendering = {
+			resizing,
+			width,
+			height,
+			pixelRatio,
+			aspectRatio,
+			scale,
+			preset,
+		};
+
+		rendering.override(prevRendering);
 	});
 </script>
 

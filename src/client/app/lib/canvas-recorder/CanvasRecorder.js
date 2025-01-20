@@ -29,11 +29,14 @@ class CanvasRecorder {
 			: Infinity;
 		this.started = false;
 		this.stopped = false;
+
+		this.startTime = 0;
 	}
 
 	async load() {}
 
 	async start() {
+		this.startTime = performance.now();
 		this.onStart();
 
 		await this.load();
@@ -96,7 +99,9 @@ class CanvasRecorder {
 	tick() {}
 
 	end() {
-		console.log(`CanvasRecorder - compiled ${this.frameCount + 1} frames`);
+		console.log(
+			`CanvasRecorder - compiled ${this.frameCount + 1} frames in ${(performance.now() - this.startTime) / 1000}s`,
+		);
 		this.onComplete(this.result);
 	}
 

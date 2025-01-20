@@ -1,32 +1,20 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import IconCross from '../components/IconCross.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import Select from './fields/Select.svelte';
 	import { moduleNames } from './ModuleRenderer.svelte';
 
+	let {
+		moduleName,
+		isRoot,
+		vertical = false,
+		onAddColumn,
+		onAddRow,
+		onDelete,
+		onchange,
+	} = $props();
+
 	const defaultValue = 'Select a module';
-
-	export let moduleName = undefined;
-	export let isRoot = false;
-	export let vertical = false;
-
-	const dispatch = createEventDispatcher();
-
-	let splitColumns = false;
-	let splitRows = false;
-
-	function handleAddRow() {
-		dispatch('add-row');
-	}
-
-	function handleAddColumn() {
-		dispatch('add-column');
-	}
-
-	function handleDelete() {
-		dispatch('delete');
-	}
 
 	const options = [
 		{ value: undefined, label: defaultValue, disabled: true },
@@ -34,19 +22,14 @@
 	];
 </script>
 
-<div
-	class="toolbar"
-	class:root={isRoot}
-	class:split-columns={splitColumns}
-	class:split-rows={splitRows}
->
+<div class="toolbar" class:root={isRoot}>
 	<div class="content" class:vertical>
 		{#if !isRoot}
 			<div class="module">
 				<Select
 					value={moduleName}
 					{options}
-					on:change
+					{onchange}
 					title="Switch module"
 				/>
 			</div>
@@ -57,9 +40,7 @@
 				label="Split in columns"
 				showLabel={false}
 				title="Split in columns"
-				on:mouseenter={() => (splitColumns = true)}
-				on:mouseleave={() => (splitColumns = false)}
-				on:click={handleAddColumn}
+				onclick={onAddColumn}
 			>
 				<div class="icon-layout">
 					<div class="icon-box"></div>
@@ -70,9 +51,7 @@
 				label="Split in rows"
 				showLabel={false}
 				title="Split in rows"
-				on:mouseenter={() => (splitRows = true)}
-				on:mouseleave={() => (splitRows = false)}
-				on:click={handleAddRow}
+				onclick={onAddRow}
 			>
 				<div class="icon-layout row">
 					<div class="icon-box"></div>
@@ -84,7 +63,7 @@
 					<ButtonInput
 						label="Delete"
 						showLabel={false}
-						on:click={handleDelete}
+						onclick={onDelete}
 						--color-text="white"
 						--background-color="var(--color-red)"
 						--box-shadow-color-active="var(--color-lightred)"
@@ -102,7 +81,7 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		/* z-index: 200; */
+		z-index: 100;
 
 		display: grid;
 		justify-content: center;
@@ -116,47 +95,9 @@
 		background: rgba(0, 0, 0, 0.8);
 	}
 
-	.toolbar:after {
-		content: '';
-
-		position: absolute;
-		right: 0;
-		z-index: 100;
-
-		width: 6px;
-		height: 100%;
-
-		background-color: rgba(255, 255, 255, 0.2);
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 100ms ease;
-	}
-
-	.toolbar.split-columns:after {
-		opacity: 1;
-	}
-
-	.toolbar:before {
-		content: '';
-
-		position: absolute;
-		left: 0;
-		bottom: 0;
-
-		width: 100%;
-		height: 6px;
-
-		background-color: rgba(255, 255, 255, 0.2);
-		opacity: 0;
-		transition: opacity 100ms ease;
-	}
-
-	.toolbar.split-rows:before {
-		opacity: 1;
-	}
-
 	.toolbar.root {
 		align-items: flex-start;
+		z-index: 200;
 
 		pointer-events: none;
 	}

@@ -1,37 +1,94 @@
 <script>
+	import { onMount } from 'svelte';
 	import Module from '../ui/Module.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
-	import { logs } from '../stores/console';
 	import ConsoleLine from './Console/ConsoleLine.svelte';
-	import { afterUpdate } from 'svelte';
 
-	export let mID;
-	export let hasHeader;
+	let { id, headless = false } = $props();
 
+	let logs = $state([]);
+	let mirrored = ['log', 'warn', 'error', 'dir'];
+	let refs = {};
+	let clear = console.clear;
+	/** @type {HTMLDivElement}*/
 	let scrollableContainer;
 
-	function clear() {
-		$logs = [];
+	function enable() {
+		mirrored.forEach((key) => {
+			const ref = console[`${key}`];
+			refs[`${key}`] = ref;
+			// window[`${key}`] = ref;
+
+			console[`${key}`] = (...args) => {
+				let isFromVite = args.some(
+					(log) => typeof log === 'string' && log.includes('[vite]'),
+				);
+
+				if (!isFromVite) {
+					ref(...args);
+
+					if (logs.length > 0) {
+						const lastLog = logs[logs.length - 1];
+						const { level: lastLevel, args: lastArgs } = lastLog;
+
+						if (lastLevel === key && lastArgs[0] === args[0]) {
+							logs[logs.length - 1].count++;
+							return;
+						}
+					}
+
+					logs.push({
+						level: key,
+						args,
+						count: 1,
+					});
+				}
+			};
+		});
+
+		console.clear = () => {
+			clear();
+			logs = [];
+		};
 	}
 
-	afterUpdate(() => {
-		if (scrollableContainer) {
-			scrollableContainer.scrollTop = scrollableContainer.scrollHeight;
-		}
+	function disable() {
+		mirrored.forEach((key) => {
+			const ref = refs[key];
+
+			console[`${key}`] = ref;
+		});
+
+		console.clear = clear;
+	}
+
+	onMount(() => {
+		enable();
+		return () => {
+			disable();
+		};
 	});
 </script>
 
-<Module {mID} {hasHeader} name="console" scrollable={false}>
-	<svelte:fragment slot="header-right">
-		<ModuleHeaderAction border label="Clear" on:click={() => clear()}
-			>clear</ModuleHeaderAction
+<Module {id} {headless} name="console" scrollable={false}>
+	{#snippet headerRight()}
+		<ModuleHeaderAction
+			permanent
+			border
+			label="Clear"
+			onclick={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				logs = [];
+			}}>clear</ModuleHeaderAction
 		>
-	</svelte:fragment>
+	{/snippet}
 	<div class="container">
 		<div class="list">
 			<div class="scroll" bind:this={scrollableContainer}>
-				{#each $logs as log}
-					<ConsoleLine {log} />
+				{#each logs as log}
+					<ConsoleLine log={$state.snapshot(log)} />
 				{/each}
 			</div>
 		</div>
@@ -65,6 +122,14 @@
 		height: 100%;
 		overflow-x: hidden;
 		overflow-y: scroll;
+
+		scroll-snap-type: y proximity;
+	}
+
+	.scroll::after {
+		display: block;
+		content: '';
+		scroll-snap-align: end;
 	}
 
 	.scroll::-webkit-scrollbar {

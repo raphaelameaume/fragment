@@ -1,207 +1,92 @@
-<script context="module">
-	let ID = 0;
-</script>
-
 <script>
-	import { getContext, hasContext, onDestroy, setContext } from 'svelte';
-	import { writable } from 'svelte/store';
-	import {
-		addChildren,
-		addSibling,
-		layout,
-		remove,
-		replaceChildren,
-		swapRoot,
-		updateModule,
-	} from '../stores/layout';
+	import { getContext, setContext } from 'svelte';
+	import { layout } from '../state/layout.svelte';
 	import Toolbar from './LayoutToolbar.svelte';
 	import Resizer from './LayoutResizer.svelte';
-	import { getModuleID } from './Module.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import Preview from './Preview.svelte';
+	import LayoutComponent from './LayoutComponent.svelte';
 
-	export let size = 1;
-	export let type = 'column';
-	export let tree = { children: [] };
+	let { id = layout.getID(), size = 1, type = 'column', children } = $props();
 
-	let parent = hasContext('parent') ? getContext('parent') : null;
-	let depth = hasContext('depth') ? getContext('depth') + 1 : 0;
-	let module = writable({});
-	setContext('depth', depth);
-	setContext('module', module);
+	let parent = getContext('parent');
+	let isColumn = $derived(type === 'column');
+	let isRow = $derived(!isColumn);
 
-	let isRoot = parent === null;
-	let children = writable([]);
-	let style = '';
-
-	function createComponent({
+	const component = layout.createComponent({
 		id,
-		parent = null,
-		root = false,
-		node = null,
-		depth,
-		size = 1,
-		minimized = false,
-		type,
-		children = [],
-	}) {
-		return {
-			id,
-			root,
-			node,
-			depth,
-			size,
-			minimized,
-			parent: parent ? parent.id : null,
-			type,
-			children,
-		};
-	}
-
-	let current = createComponent({
-		id: !isNaN(tree.id) ? tree.id : ID++,
-		root: isRoot,
-		depth,
 		size,
-		parent,
+		origin: parent,
 		type,
 	});
 
-	ID = Math.max(ID, !isNaN(current.id) ? current.id + 1 : 0);
+	let current = $derived(layout.components.find((c) => c.id === id));
+	let childComponents = $derived(
+		current.children.map((c) => layout.getComponent(c)),
+	);
+	let minimized = $derived(current.minimized);
+	let isRoot = $derived(current.root);
 
-	$: isColumn = type === 'column';
-	$: isRow = !isColumn;
+	setContext('parent', component.id);
+	setContext('minimize', () => {
+		component.minimized = !component.minimized;
+	});
 
-	const context = {
-		id: current.id,
-		children,
-		registerChild: (child) => {
-			$children = [...$children, child];
-
-			onDestroy(() => {
-				$children = $children.filter((c) => c !== child);
-			});
-		},
-	};
-
-	setContext('parent', context);
-
-	if (parent) {
-		parent.registerChild(current);
-	}
-
-	if (!__BUILD__) {
-		$layout.registerChild(current, () => $children);
-	}
-
-	$: {
-		let property = ``,
-			value = ``;
-
-		const nodes = tree.children;
-
-		if (Array.isArray(nodes) && nodes.length > 1) {
-			if (isColumn) {
-				property = `grid-template-rows`;
-				value = nodes
-					.map((row, i) => {
-						let size = `${row.size}fr`;
-
-						return `minmax(25px, ${size}) 0px`;
-					})
-					.join(' ');
-			} else {
-				property = `grid-template-columns`;
-				value = nodes
-					.map((col, i) => {
-						let size = `${col.size}fr`;
-
-						return `minmax(25px, ${size}) 0px`;
-					})
-					.join(' ');
-			}
-
-			style = `${property}:${value}`;
-		} else {
-			style = '';
-		}
-	}
+	let property = $derived(
+		isColumn ? `grid-template-rows` : `grid-template-columns`,
+	);
+	let value = $derived.by(() => {
+		const totalSize = childComponents.reduce((t, n) => t + n.size, 0);
+		return childComponents
+			.map(({ size, minimized }) =>
+				minimized && isColumn && !layout.editing
+					? '25px 0px'
+					: `minmax(25px, ${(size / totalSize) * 100}%) 0px`,
+			)
+			.join(' ');
+	});
+	let style = $derived(
+		Array.isArray(childComponents) && childComponents.length > 0
+			? `${property}:${value}`
+			: '',
+	);
 
 	function addComponent(newType) {
-		const isSibling = newType === type;
+		const childCount = childComponents.length;
 
-		const newborn = createComponent({
-			id: ID++,
-			parent: isSibling ? parent : context,
-			depth: isSibling ? depth : depth + 1,
+		layout.createComponent({
+			origin: current.id,
 			type: newType,
-			children: [{ mID: getModuleID(), type: 'module' }],
 		});
 
-		if (isSibling) {
-			if (isRoot) {
-				const newSibling = createComponent({
-					id: ID++,
-					depth: newborn.depth,
-					type: newborn.type,
-					children: current.children,
-				});
-
-				// switch type
-				current.children = [newSibling, newborn];
-				current.type = current.type === 'column' ? 'row' : 'column';
-
-				swapRoot(current);
-			} else {
-				addSibling(current, newborn);
-			}
-		} else {
-			if ($children.length === 1 && $children[0].type === 'module') {
-				replaceChildren(current, [
-					...$children.map((c, i) =>
-						createComponent({
-							id: ID++,
-							type: type === 'row' ? 'column' : 'row',
-							depth: depth + 1,
-							children: [c],
-						}),
-					),
-					newborn,
-				]);
-
-				module.set({});
-			} else {
-				addChildren(current, newborn);
-			}
+		// create a second child of new type to create divisions
+		// instead of a single child component which wouldn't make any visual change
+		if (childCount === 0 && newType !== current.type) {
+			layout.createComponent({
+				origin: current.id,
+				type: newType,
+			});
 		}
 	}
 
-	function addColumn() {
-		addComponent('column');
-	}
-
-	function addRow() {
-		addComponent('row');
-	}
+	const addColumn = () => addComponent('column');
+	const addRow = () => addComponent('row');
 
 	function deleteCurrent() {
-		remove(current);
-
-		$children = current.children;
+		layout.remove(current);
 	}
 
-	function handleModuleChange(event) {
-		const moduleName = event.detail;
-		$children[0].name = moduleName; // keep state when replacingChildren
-
-		updateModule($module, {
-			name: moduleName,
-		});
+	function handleModuleChange(moduleName) {
+		if (childComponents.length && childComponents[0].type === 'module') {
+			childComponents[0].name = moduleName; // keep state when replacingChildren
+		} else {
+			layout.createComponent({
+				type: 'module',
+				origin: current.id,
+				name: moduleName,
+			});
+		}
 	}
-
-	let offsetWidth;
-
-	$: minimized = current.minimized;
 </script>
 
 <div
@@ -211,43 +96,45 @@
 	class:row={isRow}
 	class:minimized
 	bind:this={current.node}
-	bind:offsetWidth
+	data-component={component.id}
 >
-	{#if isRoot && $layout.previewing}
+	{#if isRoot && layout.previewing}
 		<Preview />
-	{:else if tree && Array.isArray(tree.children) && tree.children.length > 0}
-		{#each tree.children as child (child.id)}
+	{:else if childComponents.length > 0}
+		{#each childComponents as child (child.id)}
 			{#if child.type === 'column' || child.type === 'row'}
-				<svelte:self type={child.type} size={child.size} tree={child} />
+				<LayoutComponent
+					id={child.id}
+					type={child.type}
+					size={child.size}
+				/>
 			{:else if child.type === 'module'}
 				<ModuleRenderer
+					id={child.id}
 					name={child.name}
-					mID={child.mID}
-					hasHeader={child.hasHeader}
+					headless={child.headless}
+					params={child.params}
 				/>
+			{:else}
+				<p>Cannot render child</p>
 			{/if}
 		{/each}
 	{:else}
-		<slot />
+		{@render children()}
 	{/if}
-	{#if $layout.editing && (($children.length === 1 && $children[0].type === 'module') || isRoot)}
+	{#if layout.editing && (isRoot || (childComponents.length === 1 && childComponents[0].type === 'module') || childComponents.length === 0)}
 		<Toolbar
 			{isRoot}
-			moduleName={$children[0].name}
-			on:change={handleModuleChange}
-			on:add-row={addRow}
-			on:add-column={addColumn}
-			on:delete={deleteCurrent}
-			vertical={offsetWidth < 300}
+			moduleName={childComponents[0]?.name}
+			onchange={handleModuleChange}
+			onAddRow={addRow}
+			onAddColumn={addColumn}
+			onDelete={deleteCurrent}
 		/>
 	{/if}
 </div>
 {#if !isRoot}
-	<Resizer
-		direction={isColumn ? 'vertical' : 'horizontal'}
-		{current}
-		{parent}
-	/>
+	<Resizer direction={isColumn ? 'vertical' : 'horizontal'} {current} />
 {/if}
 
 <style>
@@ -262,6 +149,10 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		grid-template-rows: minmax(25px, 1fr);
+	}
+
+	.column.minimized {
+		height: 25px;
 	}
 
 	.column:not(:last-child) {

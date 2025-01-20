@@ -1,7 +1,7 @@
 import p5 from 'p5';
 import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
-import { clearError } from '../stores/errors';
+import { clearError } from '../state/errors.svelte';
 
 /**
  * @typedef {object} PreviewP5GLRenderer
@@ -66,7 +66,8 @@ export let onBeforeUpdatePreview = ({ id }) => {
 
 	if (preview) {
 		preview.rendered = false;
-		preview.p.resetMatrix();
+
+		preview.p?.resetMatrix();
 	}
 };
 
@@ -91,9 +92,13 @@ export let onAfterUpdatePreview = ({ id }) => {
 /**
  * @param {PreviewParamsP5GLRenderer} params
  */
-export let onResizePreview = ({ p, width, height, pixelRatio }) => {
-	p.pixelDensity(pixelRatio);
-	p.resizeCanvas(width, height, false);
+export let onResizePreview = ({ id, width, height, pixelRatio }) => {
+	const preview = previews.find((p) => p.id === id);
+
+	if (preview) {
+		preview.p.pixelDensity(pixelRatio);
+		preview.p.resizeCanvas(width, height, false);
+	}
 };
 
 /**
@@ -180,6 +185,7 @@ if (import.meta.hot) {
 
 client.on('shader-update', (shaderUpdates) => {
 	previews.forEach(({ p }) => {
+		console.log('clear error', p._renderer.GL.__uuid);
 		clearError(p._renderer.GL.__uuid);
 	});
 

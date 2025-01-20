@@ -2,18 +2,19 @@
 	import { createEventDispatcher } from 'svelte';
 	import { map, clamp, roundToStep } from '../../utils/math.utils.js';
 
-	export let value;
-	export let min;
-	export let max;
-	export let step;
-	export let context = null;
-	export let key = '';
-	export let disabled = false;
+	let {
+		value,
+		min,
+		max,
+		step,
+		context = null,
+		key = '',
+		disabled = false,
+		onchange,
+	} = $props();
 
 	let node;
 	let rect;
-
-	const dispatch = createEventDispatcher();
 
 	let isDragging = false;
 
@@ -42,7 +43,7 @@
 		dragValue = roundToStep(dragValue, step);
 
 		if (dragValue !== value) {
-			dispatch('change', dragValue);
+			onchange(dragValue);
 		}
 	}
 
@@ -53,14 +54,14 @@
 		isDragging = false;
 	}
 
-	$: progress = clamp(map(value, min, max, 0, 1), 0.0001, 1);
-	$: opacity = progress > 0 ? 1 : 0;
+	let progress = $derived(clamp(map(value, min, max, 0, 1), 0.0001, 1));
+	let opacity = $derived(progress > 0 ? 1 : 0);
 </script>
 
 <div
 	class="progress {isDragging ? 'dragging' : ''} "
 	bind:this={node}
-	on:mousedown={handleMouseDown}
+	onmousedown={handleMouseDown}
 	class:disabled
 >
 	<div class="fill" style="--progress: {progress}; --opacity: {opacity};" />

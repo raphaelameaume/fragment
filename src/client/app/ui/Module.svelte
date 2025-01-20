@@ -1,49 +1,44 @@
-<script context="module">
-	let MODULE_ID = 0;
-
-	export let getModuleID = () => {
-		return MODULE_ID++;
-	};
-</script>
-
 <script>
 	import { getContext } from 'svelte';
-	import { layout } from '../stores/layout.js';
+	import { layout } from '../state/layout.svelte.js';
+	import { resize } from '../actions/resize.js';
 
-	export let mID = undefined;
-	export let name;
-	export let slug = name;
-	export let scrollable = true;
-	export let hasHeader = true;
+	let {
+		id,
+		name,
+		slug = name,
+		scrollable = true,
+		headless = false,
+		children,
+		headerLeft,
+		headerRight,
+		onresize,
+	} = $props();
 
 	const parent = getContext('parent');
+	const minimize = getContext('minimize');
 
-	const current = {
-		mID: !isNaN(mID) ? mID : MODULE_ID++,
+	const current = layout.createComponent({
+		id,
 		type: 'module',
 		name: slug,
-		hasHeader,
-	};
-
-	MODULE_ID = Math.max(MODULE_ID, !isNaN(current.mID) ? current.mID + 1 : 0);
-
-	parent.registerChild(current);
-
-	const m = getContext('module');
-	m.set(current);
+		headless,
+		origin: parent,
+	});
 </script>
 
 <div
 	class="module module--{slug}"
 	class:scrollable
-	class:no-header={!hasHeader}
-	class:editing={$layout.editing}
+	class:headless
+	class:editing={layout.editing}
+	bind:this={current.node}
 >
-	{#if hasHeader && name}
-		<header class="module__header">
+	{#if !headless && name}
+		<header class="module__header" onclick={minimize}>
 			<div class="header__col">
 				<div class="slot slot--left">
-					<slot name="header-left" />
+					{@render headerLeft?.()}
 				</div>
 			</div>
 			<div class="header__col">
@@ -51,13 +46,14 @@
 			</div>
 			<div class="header__col">
 				<div class="slot slot--right">
-					<slot name="header-right" />
+					{@render headerRight?.()}
+					<!-- <slot name="header-right" /> -->
 				</div>
 			</div>
 		</header>
 	{/if}
-	<div class="module__container">
-		<slot />
+	<div class="module__container" use:resize={onresize}>
+		{@render children?.()}
 	</div>
 </div>
 
@@ -71,7 +67,7 @@
 		align-items: stretch;
 	}
 
-	.module.no-header {
+	.module.headless {
 		--header-height: 0px;
 		grid-template-rows: minmax(0px, auto);
 	}

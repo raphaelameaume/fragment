@@ -1,16 +1,15 @@
 <script>
-	export let name;
-
-	export let collapsed = false;
+	let { name, collapsed = false, children, onchange = () => {} } = $props();
 
 	function handleClick() {
 		collapsed = !collapsed;
+		onchange(collapsed);
 	}
 </script>
 
 <div class="field-group {collapsed ? 'collapsed' : ''}">
 	<header class="header">
-		<button class="header__action" on:click={handleClick}>
+		<button class="header__action" onclick={handleClick}>
 			<svg
 				class="header__icon"
 				width="24"
@@ -30,7 +29,7 @@
 		</button>
 	</header>
 	<div class="content">
-		<slot />
+		{@render children?.()}
 	</div>
 </div>
 

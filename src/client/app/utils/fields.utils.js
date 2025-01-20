@@ -76,7 +76,7 @@ export function inferFieldType({ type, value, params, key }) {
 		}
 	}
 
-	console.warn(`Field: cannot find field type  for ${key}`);
+	console.warn(`Field: cannot find field type for ${key}`);
 }
 
 export function hasChanged(initialValue, currentValue) {

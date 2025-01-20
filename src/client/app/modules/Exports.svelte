@@ -2,90 +2,90 @@
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import FieldGroup from '../ui/FieldGroup.svelte';
-	import { exports } from '../stores';
+	import { layout } from '../state/layout.svelte';
 	import {
-		recording,
-		capturing,
 		IMAGE_ENCODINGS,
 		VIDEO_FORMATS,
-	} from '../stores/exports';
+		exports,
+	} from '../state/exports.svelte';
 
-	export let mID;
-	export let hasHeader = true;
+	let { id = layout.getID(), headless = false } = $props();
 
 	const LABEL_RECORD = 'start';
 	const LABEL_RECORDING = 'stop';
 
-	function record() {
-		$recording = !$recording;
-	}
-
-	function capture() {
-		$capturing = !$capturing;
-	}
-
-	$: recordLabel = $recording ? LABEL_RECORDING : LABEL_RECORD;
+	let recordLabel = $derived(
+		exports.recording ? LABEL_RECORDING : LABEL_RECORD,
+	);
 </script>
 
-<Module {mID} {hasHeader} name="exports">
-	<FieldGroup name="image">
+<Module {id} {headless} name="exports">
+	<FieldGroup
+		name="image"
+		collapsed={exports.imageCollapsed}
+		onchange={(collapsed) => (exports.imageCollapsed = collapsed)}
+	>
 		<Field
 			key="encoding"
-			value={$exports.imageEncoding}
+			value={exports.imageEncoding}
 			params={{ options: IMAGE_ENCODINGS }}
-			on:change={(e) => {
-				$exports.imageEncoding = e.detail;
+			onchange={(value) => {
+				exports.imageEncoding = value;
 			}}
 		/>
 		<Field
 			key="quality"
-			value={$exports.imageQuality}
+			value={exports.imageQuality}
 			params={{ min: 1, max: 100, suffix: '%', triggerable: false }}
-			on:change={(e) => {
-				$exports.imageQuality = e.detail;
+			onchange={(value) => {
+				exports.imageQuality = value;
 			}}
 		/>
 		<Field
 			key="pixelsPerInch"
-			value={$exports.pixelsPerInch}
+			value={exports.pixelsPerInch}
 			params={{ step: 1 }}
-			on:change={(e) => {
-				$exports.pixelsPerInch = e.detail;
+			onchange={(value) => {
+				exports.pixelsPerInch = value;
 			}}
 		/>
 		<Field
 			key="count"
-			value={$exports.imageCount || 1}
+			value={exports.imageCount || 1}
 			params={{ step: 1 }}
-			on:change={(e) => {
-				$exports.imageCount = e.detail;
+			onchange={(value) => {
+				exports.imageCount = value;
 			}}
 		/>
 		<Field
 			key="screenshot"
-			value={capture}
+			value={() => (exports.capturing = !exports.capturing)}
 			params={{ label: 'capture', triggerable: false }}
 		/>
 	</FieldGroup>
-	<FieldGroup name="video">
+	<FieldGroup
+		name="video"
+		collapsed={exports.videoCollapsed}
+		onchange={(collapsed) => (exports.videoCollapsed = collapsed)}
+	>
 		<Field
 			key="framerate"
-			value={$exports.framerate}
-			on:change={(e) => {
-				$exports.framerate = e.detail;
+			value={exports.framerate}
+			onchange={(value) => {
+				exports.framerate = value;
 			}}
 		/>
 		<Field
 			key="format"
-			value={$exports.videoFormat}
+			value={exports.videoFormat}
 			params={{ options: Object.values(VIDEO_FORMATS) }}
-			on:change={(e) => {
-				$exports.videoFormat = e.detail;
+			onchange={(value) => {
+				exports.videoFormat = value;
 			}}
 		/>
 		<Field
 			key="quality"
-			value={$exports.videoQuality}
+			value={exports.videoQuality}
 			params={{
 				min: 1,
 				max: 100,
@@ -93,30 +93,30 @@
 				suffix: '%',
 				triggerable: false,
 			}}
-			on:change={(e) => {
-				$exports.videoQuality = e.detail;
+			onchange={(value) => {
+				exports.videoQuality = value;
 			}}
 		/>
 		<Field
 			key="useDuration"
-			value={$exports.useDuration}
-			on:change={(e) => {
-				$exports.useDuration = e.detail;
+			value={exports.useDuration}
+			onchange={(value) => {
+				exports.useDuration = value;
 			}}
 		/>
-		{#if $exports.useDuration}
+		{#if exports.useDuration}
 			<Field
 				key="loopCount"
-				value={$exports.loopCount}
+				value={exports.loopCount}
 				params={{ step: 1 }}
-				on:change={(e) => {
-					$exports.loopCount = e.detail;
+				onchange={(value) => {
+					exports.loopCount = value;
 				}}
 			/>
 		{/if}
 		<Field
 			key="record"
-			value={record}
+			value={() => (exports.recording = !exports.recording)}
 			params={{ label: recordLabel, triggerable: false }}
 		/>
 	</FieldGroup>

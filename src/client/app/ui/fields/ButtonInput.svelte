@@ -1,24 +1,27 @@
 <script>
-	export let value = null;
-	export let label;
-	export let disabled = false;
-	export let showLabel = true;
-	export let title = '';
-	export let context = null;
-	export let key = '';
+	let {
+		label = 'run',
+		disabled = false,
+		showLabel = true,
+		title = '',
+		onclick,
+		onmouseenter,
+		onmouseleave,
+		children,
+	} = $props();
 </script>
 
 <div class="button-container" class:disabled>
 	<button
 		class="button"
 		{disabled}
-		on:click
+		{onclick}
+		{onmouseenter}
+		{onmouseleave}
 		{title}
-		on:mouseenter
-		on:mouseleave
 	>
 		<span class="label" class:visually-hidden={!showLabel}>{label}</span>
-		<slot />
+		{@render children?.()}
 	</button>
 </div>
 
