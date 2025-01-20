@@ -1,7 +1,7 @@
 import { fragment } from '../lib/gl';
 import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
-import { clearError } from '../state/errors';
+import { clearError } from '../state/errors.svelte';
 
 let frags = [];
 
