@@ -2,13 +2,14 @@
 	import Module from '../ui/Module.svelte';
 	import Field from '../ui/Field.svelte';
 	import FieldGroup from '../ui/FieldGroup.svelte';
+	import { layout } from '../state/layout.svelte';
 	import {
 		IMAGE_ENCODINGS,
 		VIDEO_FORMATS,
 		exports,
 	} from '../state/exports.svelte';
 
-	let { id, headless = false } = $props();
+	let { id = layout.getID(), headless = false } = $props();
 
 	const LABEL_RECORD = 'start';
 	const LABEL_RECORDING = 'stop';
