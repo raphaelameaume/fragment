@@ -98,7 +98,7 @@ class Exports {
 		onComplete(captureParams);
 	}
 
-	async record(
+	record(
 		canvas,
 		{
 			framerate = this.framerate,

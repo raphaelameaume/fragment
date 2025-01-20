@@ -23,345 +23,6 @@ export const SIZES = {
 
 let MONITOR_ID = 0;
 
-class Render {
-	loaded = $state(false);
-	deferred = $state(false);
-	errored = $state(false);
-	resized = $state(false);
-
-	constructor({
-		id,
-		container,
-		width,
-		height,
-		pixelRatio,
-		sketch,
-		renderer,
-		time,
-		onCanvasSizeChange,
-	}) {
-		this.id = id;
-		this.container = container;
-		this.width = width;
-		this.height = height;
-		this.pixelRatio = pixelRatio;
-		this.sketch = sketch;
-		this.renderer = renderer;
-		this.time = time;
-		this.onCanvasSizeChange = onCanvasSizeChange;
-
-		this.observer = new MutationObserver((mutationsList) => {
-			if (
-				mutationsList.some(
-					(mutation) =>
-						mutation.attributeName === 'width' ||
-						mutation.attributeName === 'height',
-				)
-			) {
-				const { target } = mutationsList[0];
-
-				const { width, height } = target;
-				const widthHasChanged = width !== this.width;
-				const heightHasChanged = height !== this.height;
-				const needsUpdate = widthHasChanged || heightHasChanged;
-
-				if (needsUpdate) {
-					this.onCanvasSizeChange(width, height);
-
-					// if (this.resizing !== SIZES.FIXED) {
-					// 	this.resizing = SIZES.FIXED;
-					// }
-
-					// if (widthHasChanged) {
-					// 	this.width = width;
-					// }
-
-					// if (heightHasChanged) {
-					// 	this.height = height;
-					// }
-				}
-			}
-		});
-
-		this.canvas = this.createCanvas({ container, context: sketch.key });
-
-		this.then = performance.now();
-
-		this.playhead = 0;
-		this.playcount = 0;
-		this.frame = 0;
-
-		const { duration, fps } = sketch;
-
-		let frameLength = isFinite(fps) ? (1 / fps) * 1000 : 0;
-		let frameCount = fps * duration;
-		let interval = 1 / frameCount;
-
-		this.elapsed =
-			isFinite(fps) && fps !== 0
-				? this.time - frameLength * Math.floor(this.time / frameLength)
-				: 0;
-
-		this.timeTotal = isFinite(duration)
-			? this.time -
-				duration * 1000 * Math.floor(this.time / (duration * 1000))
-			: 0;
-
-		this.renderSketch = (deltaTime = 0) => {
-			try {
-				renderer?.onBeforeUpdatePreview?.({ id });
-
-				sketch.draw({
-					...this.params,
-					time: this.time,
-					deltaTime,
-					playhead: this.playhead,
-					playcount: this.playcount,
-					frame: this.frame,
-				});
-
-				renderer?.onAfterUpdatePreview?.({ id });
-
-				sketch.sync();
-			} catch (error) {
-				console.error(error);
-				displayError(error, sketch.key);
-				this.errored = true;
-			}
-		};
-
-		this.loop = ({ time } = {}) => {
-			if (this.deferred || !this.loaded || !this.resized || this.errored)
-				return;
-
-			let playhead = time / 1000 / duration;
-			playhead %= 1;
-
-			let playcount = 0;
-
-			if (isFinite(interval)) {
-				// round values for low framerates
-				playhead = Math.floor(playhead / interval) * interval;
-			}
-
-			if (isFinite(duration)) {
-				playcount = Math.floor(this.timeTotal / 1000 / duration);
-			}
-
-			if (fps === 0) {
-				playhead = 0;
-			}
-
-			const now = performance.now();
-			const deltaTime = now - this.then;
-
-			this.playhead = playhead;
-			this.playcount = playcount;
-			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
-
-			if (
-				this.elapsed === 0 ||
-				this.elapsed >= frameLength ||
-				this.sketch.needsUpdate()
-			) {
-				this.elapsed = 0;
-				this.renderSketch(deltaTime);
-				this.then = now;
-			}
-
-			this.time = time;
-			this.timeTotal += deltaTime;
-			this.elapsed += deltaTime;
-		};
-
-		this.init = async () => {
-			clearError(this.sketch.key);
-
-			this.mountParams = this.renderer?.onMountPreview?.(this.params);
-
-			if (this.mountParams.canvas !== this.canvas) {
-				this.destroyCanvas(this.canvas);
-				this.canvas = this.createCanvas({
-					container: this.container,
-					canvas: this.mountParams.canvas,
-					context: this.sketch.key,
-				});
-			}
-
-			const { params } = this;
-
-			try {
-				await sketch.load(params);
-				await sketch.setup(params);
-
-				if (this.deferred) {
-					this.renderer?.onResizePreview(params);
-					sketch.resize(params);
-					this.deferred = false;
-					this.resized = true;
-				}
-
-				this.loaded = true;
-			} catch (error) {
-				console.error(error);
-				displayError(error, sketch.key);
-				this.errored = true;
-			}
-		};
-	}
-
-	createCanvas({
-		container,
-		canvas = document.createElement('canvas'),
-		context,
-	}) {
-		canvas.onmousedown = (event) => checkForTriggersDown(event, context);
-		canvas.onmousemove = (event) => checkForTriggersMove(event, context);
-		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
-		canvas.onclick = (event) => checkForTriggersClick(event, context);
-
-		this.observer.observe(canvas, {
-			attributes: true,
-		});
-
-		if (container) {
-			container.appendChild(canvas);
-		}
-
-		return canvas;
-	}
-
-	destroyCanvas(canvas) {
-		if (canvas) {
-			this.observer.disconnect();
-
-			canvas.parentNode?.removeChild(canvas);
-			canvas.onmousedown = null;
-			canvas.onmousemove = null;
-			canvas.onmouseup = null;
-			canvas.onclick = null;
-			canvas = null;
-		}
-	}
-
-	async screenshot({
-		filename = this.sketch.name ?? this.sketch.key,
-		pattern = this.sketch.filenamePattern,
-		exportDir = this.sketch.exportDir,
-	} = {}) {
-		const { sketch } = this;
-
-		await exports.screenshot(this.canvas, {
-			filename,
-			pattern,
-			exportDir,
-			params: {
-				props: sketch.props,
-			},
-			onBeforeCapture: (params) => {
-				sketch.beforeCapture.forEach((fn) => fn(params));
-				this.renderSketch();
-			},
-			onAfterCapture: (params) => {
-				sketch.afterCapture.forEach((fn) => fn(params));
-				this.renderSketch();
-			},
-		});
-	}
-
-	get params() {
-		return {
-			...this.mountParams,
-			id: this.id,
-			canvas: this.canvas,
-			container: this.container,
-			width: this.width,
-			height: this.height,
-			pixelRatio: this.pixelRatio,
-			publicPath: `@fs${__CWD__}`,
-			props: this.sketch?.instance.props ?? {},
-		};
-	}
-
-	async startRecording() {
-		const { sketch } = this;
-
-		if (this.record) {
-			console.warn(`Render :: already recording`);
-			return;
-		}
-
-		this.record = await exports.record(this.canvas, {
-			filename: sketch.key,
-			pattern: sketch.filenamePattern,
-			exportDir: sketch.exportDir,
-			duration: exports.useDuration ? sketch.duration : undefined,
-			params: {
-				props: sketch.props,
-			},
-			onStart: (params) => {
-				this.time = 0;
-				this.elapsed = 0;
-				sketch.beforeRecord.forEach((fn) => fn(params));
-			},
-			onTick: ({ time, deltaTime }) => {
-				this.loop({ time, deltaTime });
-			},
-			onComplete: (params) => {
-				sketch.afterRecord.forEach((fn) => fn(params));
-				this.record = null;
-			},
-		});
-	}
-
-	stopRecording() {
-		if (this.record) {
-			this.record.stop();
-		}
-	}
-
-	reset() {
-		this.renderer?.onDestroyPreview?.({ id: this.id });
-
-		this.sketch.instance?.dispose?.();
-		this.sketch.reset();
-
-		this.deferred = true;
-		this.init();
-	}
-
-	resize(width, height, pixelRatio) {
-		this.width = width;
-		this.height = height;
-		this.pixelRatio = pixelRatio;
-
-		const { params } = this;
-
-		this.renderer?.onResizePreview?.(params);
-		this.sketch.resize?.(params);
-		this.resized = true;
-
-		// trigger re-render
-		if (this.sketch.fps === 0) {
-			this.invalidate();
-		}
-
-		this.observer.takeRecords();
-	}
-
-	invalidate() {
-		this.time = 0;
-		this.elapsed = 0;
-	}
-
-	dispose() {
-		const { id, sketch } = this;
-		this.renderer?.onDestroyPreview?.({ id });
-		this.destroyCanvas(this.canvas);
-		sketch?.instance?.dispose?.();
-	}
-}
-
 class Rendering {
 	width = $state(1024);
 	fixedWidth = $state(1024);
@@ -373,20 +34,22 @@ class Rendering {
 	scale = $state(1);
 	preset = $state('a4');
 	presetOrientation = $state(PRESET_ORIENTATIONS.PORTRAIT);
-	paused = $state(false);
-	/** @type {Render[]} */
-	renders = $state([]);
 	refreshRate = $state(0);
 	monitors = $state([]);
+	renders = $state([]);
 
 	constructor() {
 		this.key = 'rendering';
 
-		this.today = new Date();
-		this.time = this.today;
-		this.then = this.time;
 		this.renderers = {};
 		this.recording = false;
+		// sync time between multiple windows
+		this.today = new Date();
+		this.today.setHours(0);
+		this.today.setMinutes(0);
+		this.today.setSeconds(0);
+		this.today.setMilliseconds(0);
+		this.today = this.today.getTime();
 
 		$effect.root(() => {
 			$effect(() => {
@@ -424,62 +87,9 @@ class Rendering {
 					});
 				}
 			});
-
-			$effect(() => {
-				const { width, height, pixelRatio } = this;
-
-				if (this.renders.length > 0) {
-					if (this.timeout) clearTimeout(this.timeout);
-
-					this.timeout = setTimeout(() => {
-						clearTimeout(this.timeout);
-						this.timeout = null;
-						this.renders.forEach((render) => {
-							const { loaded } = render;
-
-							// sync resize to avoid flickering
-							if (loaded) {
-								render.resize(width, height, pixelRatio);
-							} else {
-								render.deferred = true;
-							}
-						});
-					}, 0);
-				}
-			});
-
-			$effect(() => {
-				if (exports.recording && !this.recording) {
-					this.startRecording();
-				} else if (this.recording && !exports.recording) {
-					this.stopRecording();
-				}
-			});
 		});
 
 		hydrate(this.key, this);
-
-		this.raf = requestAnimationFrame(() => {
-			// sync time between multiple windows
-			this.today = new Date();
-			this.today.setHours(0);
-			this.today.setMinutes(0);
-			this.today.setSeconds(0);
-			this.today.setMilliseconds(0);
-			this.today = this.today.getTime();
-			this.time = new Date().getTime() - this.today;
-			this.then = this.time;
-			this.update(this.time);
-		});
-
-		client.on('shader-update', () => {
-			this.renders.forEach((render) => {
-				const { sketch } = render;
-				if (sketch.fps === 0) {
-					render.renderSketch();
-				}
-			});
-		});
 
 		this.estimateRefreshRate();
 	}
@@ -506,10 +116,7 @@ class Rendering {
 		}
 	}
 
-	async findRenderer({ renderingMode, customRenderer }) {
-		if (this.renderers[renderingMode])
-			return this.renderers[renderingMode].instance;
-
+	async preloadRenderer({ renderingMode, customRenderer }) {
 		// load and save
 		const instance = customRenderer
 			? typeof customRenderer === 'function'
@@ -542,151 +149,8 @@ class Rendering {
 		}
 	}
 
-	update(time) {
-		const deltaTime = time - this.then;
-		this.then = time;
-
-		if (!this.paused) {
-			for (let i = 0; i < this.renders.length; i++) {
-				this.renders[i].loop({ time: this.time, deltaTime });
-			}
-
-			this.time += deltaTime;
-		}
-
-		this.raf = requestAnimationFrame(() => {
-			const t = new Date().getTime() - this.today;
-
-			this.update(t);
-		});
-	}
-
-	async mount(id, container, sketch) {
-		const renderer = await this.findRenderer({
-			renderingMode: sketch.instance.rendering,
-		});
-		const { width, height, pixelRatio } = this;
-
-		const render = new Render({
-			id,
-			container,
-			width,
-			height,
-			pixelRatio,
-			sketch,
-			renderer,
-			time: this.time,
-			onCanvasSizeChange: (width, height) =>
-				this.onCanvasSizeChange(width, height),
-		});
-		const previousIndex = this.renders.findIndex(
-			(render) => render.id === id,
-		);
-		if (previousIndex >= 0) {
-			this.unmount(id);
-		}
-
-		this.renders.push(render);
-
-		await render.init();
-	}
-
-	onCanvasSizeChange(width, height) {
-		if (this.renders.length === 1) {
-			console.warn('Canvas size has been overridden from sketch');
-
-			if (width !== this.width) {
-				this.width = width;
-			}
-
-			if (height !== this.height) {
-				this.height = height;
-			}
-
-			if (this.resizing !== SIZES.FIXED) {
-				if (!__BUILD__) {
-					console.warn('Canvas resizing has been switch to fixed.');
-				}
-
-				this.resizing = SIZES.FIXED;
-			}
-		} else {
-			console.warn(
-				`Canvas resizing has been ignored because there are multiple active monitors.`,
-			);
-		}
-	}
-
-	reset() {
-		this.renders.forEach((render) => {
-			render.reset();
-		});
-	}
-
-	unmount(renderId) {
-		const index = this.renders.findIndex(
-			(render) => render.id === renderId,
-		);
-		const render = this.renders[index];
-		if (render) {
-			const { canvas } = render;
-			render.dispose();
-			// this.destroyCanvas(canvas);
-
-			this.renders.splice(index, 1);
-		}
-	}
-
-	unmountFromKey(key) {
-		clearError(key);
-
-		this.renders.forEach((render) => {
-			const { id, sketch } = render;
-
-			if (sketch.key === key) {
-				this.unmount(id);
-			}
-		});
-	}
-
-	invalidate(key) {
-		this.renders.forEach((render) => {
-			const { sketch } = render;
-
-			if (sketch.key === key && sketch.fps === 0) {
-				render.invalidate();
-			}
-		});
-	}
-
-	async screenshot() {
-		this.paused = true;
-
-		for (let i = 0; i < this.renders.length; i++) {
-			const render = this.renders[i];
-
-			await render.screenshot();
-		}
-
-		this.paused = false;
-	}
-
-	startRecording() {
-		this.paused = true;
-		this.recording = true;
-
-		this.renders.forEach((render) => {
-			render.startRecording();
-		});
-	}
-
-	stopRecording() {
-		this.renders.forEach((render) => {
-			render.stopRecording();
-		});
-
-		this.paused = false;
-		this.recording = false;
+	findRenderer({ renderingMode }) {
+		return this.renderers[renderingMode].instance;
 	}
 
 	override(config) {
@@ -838,3 +302,396 @@ class Rendering {
 }
 
 export let rendering = new Rendering();
+
+export class Render {
+	loaded = $state(false);
+	errored = $state(false);
+	paused = $state(false);
+	resized = $state(false);
+
+	constructor({ id, container, sketch, renderer }) {
+		this.id = id;
+		this.container = container;
+		this.width = undefined;
+		this.height = undefined;
+		this.pixelRatio = undefined;
+		this.sketch = sketch;
+		this.renderer = renderer;
+		this.time = 0;
+		this.recording = false;
+
+		$effect(() => {
+			const { width, height, pixelRatio } = rendering;
+
+			if (this.loaded) {
+				this.resize(width, height, pixelRatio);
+			} else {
+				this.width = width;
+				this.height = height;
+				this.pixelRatio = pixelRatio;
+				this.init();
+			}
+		});
+
+		$effect(() => {
+			const { version, fps } = this.sketch;
+
+			if (fps === 0) {
+				this.invalidate(version);
+			}
+		});
+
+		this.observer = new MutationObserver((mutationsList) => {
+			const attributes = ['width', 'height'];
+
+			let attributesMutationsList = mutationsList.filter(
+				(mutationRecord) =>
+					attributes.includes(mutationRecord.attributeName),
+			);
+
+			const { pixelRatio } = rendering;
+
+			attributesMutationsList.forEach((mutationRecord) => {
+				const { target, attributeName } = mutationRecord;
+
+				const dimension = Math.round(
+					target[attributeName] / pixelRatio,
+				);
+				const needsUpdate = rendering[attributeName] !== dimension;
+
+				if (needsUpdate) {
+					console.warn(
+						`Canvas ${attributeName} was changed from sketch to ${dimension}px to previous  ${rendering[attributeName]}`,
+					);
+					rendering[attributeName] = dimension;
+
+					if (rendering.resizing !== SIZES.FIXED) {
+						if (!__BUILD__) {
+							console.warn(
+								'Canvas resizing has been switch to fixed.',
+							);
+						}
+						rendering.resizing = SIZES.FIXED;
+					}
+				}
+			});
+		});
+
+		this.canvas = this.createCanvas({ container, context: sketch.key });
+
+		this.then = performance.now();
+
+		this.playhead = 0;
+		this.playcount = 0;
+		this.frame = 0;
+
+		const { duration, fps } = sketch;
+
+		let frameLength = isFinite(fps) ? (1 / fps) * 1000 : 0;
+		let frameCount = fps * duration;
+		let interval = 1 / frameCount;
+
+		this.elapsed =
+			isFinite(fps) && fps !== 0
+				? this.time - frameLength * Math.floor(this.time / frameLength)
+				: 0;
+
+		this.timeTotal = isFinite(duration)
+			? this.time -
+				duration * 1000 * Math.floor(this.time / (duration * 1000))
+			: 0;
+
+		this.renderSketch = (deltaTime = 0) => {
+			try {
+				this.renderer?.onBeforeUpdatePreview?.({ id });
+				sketch.draw({
+					...this.params,
+					time: this.time,
+					deltaTime,
+					playhead: this.playhead,
+					playcount: this.playcount,
+					frame: this.frame,
+				});
+				this.renderer?.onAfterUpdatePreview?.({ id });
+				sketch.sync();
+			} catch (error) {
+				console.error(error);
+				displayError(error, sketch.key);
+				this.errored = true;
+			}
+		};
+
+		this.loop = (time) => {
+			if (!this.loaded || !this.resized || this.errored) {
+				return;
+			}
+
+			let playhead = time / 1000 / duration;
+			playhead %= 1;
+			let playcount = 0;
+			if (isFinite(interval)) {
+				// round values for low framerates
+				playhead = Math.floor(playhead / interval) * interval;
+			}
+			if (isFinite(duration)) {
+				playcount = Math.floor(this.timeTotal / 1000 / duration);
+			}
+			if (fps === 0) {
+				playhead = 0;
+			}
+			const now = performance.now();
+			const deltaTime = now - this.thenLoop;
+
+			this.playhead = playhead;
+			this.playcount = playcount;
+			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
+			if (
+				this.elapsed === 0 ||
+				this.elapsed >= frameLength ||
+				this.sketch.needsUpdate()
+			) {
+				this.elapsed = 0;
+				this.renderSketch(deltaTime);
+				this.thenLoop = now;
+			}
+
+			this.timeTotal += deltaTime;
+			this.elapsed += deltaTime;
+		};
+
+		this.init = async () => {
+			clearError(this.sketch.key);
+			this.mountParams = this.renderer?.onMountPreview?.(this.params);
+			if (this.mountParams && this.mountParams.canvas !== this.canvas) {
+				this.destroyCanvas(this.canvas);
+				this.canvas = this.createCanvas({
+					container: this.container,
+					canvas: this.mountParams.canvas,
+					context: this.sketch.key,
+				});
+			}
+			const { params } = this;
+
+			try {
+				await sketch.load(params);
+				await sketch.setup(params);
+
+				this.raf = requestAnimationFrame(() => {
+					this.time = new Date().getTime() - rendering.today;
+					this.then = this.time;
+					this.thenLoop = performance.now();
+					this.update(this.time);
+				});
+
+				this.loaded = true;
+			} catch (error) {
+				console.error(error);
+				displayError(error, sketch.key);
+				this.errored = true;
+			}
+		};
+
+		this.removeShaderUpdateListener = client.on('shader-update', () => {
+			const { sketch } = this;
+
+			if (sketch.fps === 0) {
+				this.renderSketch();
+			}
+		});
+	}
+
+	createCanvas({
+		container,
+		canvas = document.createElement('canvas'),
+		context,
+	}) {
+		canvas.onmousedown = (event) => checkForTriggersDown(event, context);
+		canvas.onmousemove = (event) => checkForTriggersMove(event, context);
+		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
+		canvas.onclick = (event) => checkForTriggersClick(event, context);
+
+		this.observer.observe(canvas, {
+			attributes: true,
+		});
+
+		if (container) {
+			container.appendChild(canvas);
+		}
+
+		return canvas;
+	}
+
+	destroyCanvas(canvas) {
+		if (canvas) {
+			this.observer.disconnect();
+			canvas.parentNode?.removeChild(canvas);
+			canvas.onmousedown = null;
+			canvas.onmousemove = null;
+			canvas.onmouseup = null;
+			canvas.onclick = null;
+			canvas = null;
+		}
+	}
+
+	async screenshot({
+		filename = this.sketch.name ?? this.sketch.key,
+		pattern = this.sketch.filenamePattern,
+		exportDir = this.sketch.exportDir,
+	} = {}) {
+		const { sketch } = this;
+
+		await exports.screenshot(this.canvas, {
+			filename,
+			pattern,
+			exportDir,
+			params: {
+				props: sketch.props,
+			},
+			onBeforeCapture: (params) => {
+				sketch.beforeCapture.forEach((fn) => fn(params));
+				this.renderSketch();
+			},
+			onAfterCapture: (params) => {
+				sketch.afterCapture.forEach((fn) => fn(params));
+				this.renderSketch();
+			},
+		});
+	}
+
+	get params() {
+		return {
+			...this.mountParams,
+			id: this.id,
+			canvas: this.canvas,
+			container: this.container,
+			width: this.width,
+			height: this.height,
+			pixelRatio: this.pixelRatio,
+			publicPath: `@fs${__CWD__}`,
+			props: this.sketch?.instance.props ?? {},
+		};
+	}
+
+	async startRecording() {
+		this.paused = true;
+		this.recording = true;
+
+		const { sketch } = this;
+
+		if (this.record) {
+			console.warn(`Render :: already recording`);
+			return;
+		}
+
+		this.record = await exports.record(this.canvas, {
+			filename: sketch.key,
+			pattern: sketch.filenamePattern,
+			exportDir: sketch.exportDir,
+			duration: exports.useDuration ? sketch.duration : undefined,
+			params: {
+				props: sketch.props,
+			},
+			onStart: (params) => {
+				this.time = 0;
+				this.elapsed = 0;
+				this.thenLoop = performance.now();
+
+				sketch.beforeRecord.forEach((fn) => fn(params));
+			},
+			onTick: ({ time, deltaTime }) => {
+				this.loop(time);
+			},
+			onComplete: (params) => {
+				sketch.afterRecord.forEach((fn) => fn(params));
+				this.record = null;
+			},
+		});
+	}
+
+	stopRecording() {
+		if (this.record) {
+			this.record.stop();
+		}
+
+		this.paused = false;
+		this.recording = false;
+	}
+
+	reset() {
+		this.renderer?.onDestroyPreview?.({ id: this.id });
+
+		try {
+			this.sketch.instance?.dispose?.();
+			this.sketch.reset();
+
+			this.init();
+		} catch (error) {
+			console.error(error);
+			displayError(error, this.sketch.key);
+			this.errored = true;
+		}
+	}
+
+	/**
+	 *
+	 * @param {number} width
+	 * @param {number} height
+	 * @param {number} pixelRatio
+	 */
+	resize(width, height, pixelRatio) {
+		this.width = width;
+		this.height = height;
+		this.pixelRatio = pixelRatio;
+		const { params } = this;
+		this.renderer?.onResizePreview?.(params);
+
+		try {
+			this.sketch.resize?.(params);
+			this.resized = true;
+			// trigger re-render
+			if (this.sketch.fps === 0) {
+				this.invalidate();
+			}
+			this.observer.takeRecords();
+		} catch (error) {
+			console.error(error);
+			displayError(error, this.sketch.key);
+			this.errored = true;
+		}
+	}
+
+	update(time) {
+		if (!this.paused) {
+			const deltaTime = time - this.then;
+
+			this.time += deltaTime;
+			this.then = this.time;
+			this.loop(this.time);
+		}
+
+		this.raf = requestAnimationFrame(() => {
+			const t = new Date().getTime() - rendering.today;
+
+			this.update(t);
+		});
+	}
+
+	invalidate() {
+		this.time = 0;
+		this.elapsed = 0;
+	}
+
+	dispose() {
+		this.removeShaderUpdateListener();
+
+		const { id, sketch } = this;
+		clearError(sketch.key);
+
+		this.renderer?.onDestroyPreview?.({ id });
+		this.destroyCanvas(this.canvas);
+		sketch?.instance?.dispose?.();
+
+		cancelAnimationFrame(this.raf);
+		this.raf = null;
+	}
+}

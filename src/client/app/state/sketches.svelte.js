@@ -13,6 +13,11 @@ class SketchesManager {
 		try {
 			let sketch = await collection[key]();
 
+			await rendering.preloadRenderer({
+				renderingMode: sketch.rendering,
+				renderer: sketch.renderer,
+			});
+
 			return sketch;
 		} catch (error) {
 			console.error(error);
@@ -25,7 +30,6 @@ class SketchesManager {
 
 		Object.keys(this.sketches).forEach((key) => {
 			removeHotListeners(key);
-			rendering.unmountFromKey(key);
 
 			if (!keys.includes(key)) {
 				delete this.sketches[key];

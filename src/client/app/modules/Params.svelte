@@ -4,17 +4,19 @@
 	import OutputParams from '../ui/ParamsOutput.svelte';
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
 	import { rendering } from '../state/rendering.svelte.js';
+	import { layout } from '../state/layout.svelte';
 	import FieldGroup from '../ui/FieldGroup.svelte';
+	import { sketchesManager } from '../state/sketches.svelte';
 
 	let {
-		id,
+		id = layout.getID(),
 		headless = false,
 		output = true,
 		params = $bindable({}),
 	} = $props();
 
-	let render = $derived(rendering.renders[0]);
-	let sketch = $derived(render?.sketch);
+	let key = $derived(sketchesManager.keys[0]);
+	let sketch = $derived(sketchesManager.sketches[key]);
 	let sketchProps = $derived(sketch?.props ?? {});
 
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
@@ -57,7 +59,7 @@
 					if (fieldgroup) {
 						const { depth, root } = fieldgroup;
 
-						if (depth === 0 && !tree.includes(folder)) {
+						if (depth === 0 && !tree.includes(fieldgroup)) {
 							tree.push(fieldgroup);
 						} else if (root && !tree.includes(root)) {
 							tree.push(root);
@@ -141,12 +143,12 @@
 						disabled={isDisabled}
 						bind:params={sketchProps[key].params}
 						triggers={prop.triggers}
-						onclick={() => {
-							rendering.invalidate(sketch.key);
+						onclick={(event) => {
+							sketch.version++;
+							// value(event, sketch.params);
 						}}
 						onchange={(v) => {
 							sketch.updateProp(key, v);
-							rendering.invalidate(sketch.key);
 						}}
 					/>
 				{/if}

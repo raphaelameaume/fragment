@@ -1,15 +1,14 @@
 <script>
-	import { onMount, onDestroy, untrack } from 'svelte';
-	import { derived } from 'svelte/store';
 	import { sketchesManager } from '../state/sketches.svelte.js';
 	import { layout } from '../state/layout.svelte.js';
-	import { rendering, SIZES } from '../state/rendering.svelte';
+	import { Render, rendering, SIZES } from '../state/rendering.svelte';
 	import Sketch from '../state/Sketch.svelte.js';
 	import { exports } from '../state/exports.svelte.js';
 	import HintRecord from '../components/HintRecord.svelte';
 	import HintPaused from '../components/HintPaused.svelte';
+	import KeyBinding from '../components/KeyBinding.svelte';
 	import HintLoading from '../components/HintLoading.svelte';
-	import { scale } from 'svelte/transition';
+	import { untrack } from 'svelte';
 
 	let { key, id, visible = true } = $props();
 
@@ -18,15 +17,94 @@
 
 	/** @type {Sketch} */
 	let sketch = $derived(sketchesManager.sketches[key]);
+
+	/** @type {Render} */
+	let render = $derived(rendering.renders.find((r) => r.id === id));
+
 	let loaded = $derived(
 		rendering.renders.find((r) => r.id === id)?.loaded ?? false,
 	);
 
+	let paused = $derived(
+		(render?.paused ?? false) &&
+			!exports.recording &&
+			!__BUILD__ &&
+			!layout.previewing,
+	);
+
 	$effect(() => {
-		if (sketch) {
-			rendering.mount(id, container, sketch);
-		}
+		if (!sketch) return;
+
+		const renderer = rendering.findRenderer({
+			renderingMode: sketch.instance.rendering,
+		});
+
+		let render = new Render({
+			id,
+			container,
+			sketch,
+			renderer,
+		});
+
+		untrack(() => rendering.renders.push(render));
+
+		return () => {
+			untrack(() => {
+				const index = rendering.renders.findIndex(
+					(r) => r.id === render.id,
+				);
+
+				if (index >= 0) {
+					rendering.renders.splice(index, 1);
+				}
+			});
+
+			render.dispose();
+		};
 	});
+
+	function checkForRefresh(event) {
+		if (!event.metaKey && !event.ctrlKey) {
+			event.preventDefault();
+			render.reset();
+		}
+	}
+
+	function checkForPause(event) {
+		if (!event.metaKey || !event.ctrlKey) {
+			event.preventDefault();
+
+			if (!exports.recording) {
+				render.paused = !render.paused;
+			} else {
+				console.warn(`Fragment can't be paused while recording.`);
+			}
+		}
+	}
+
+	function checkForScreenshot(event) {
+		if (event.metaKey || event.ctrlKey) {
+			event.preventDefault();
+
+			if (!exports.recording) {
+				render.screenshot();
+			} else {
+				console.warn(`Fragment can't screenshot while recording.`);
+			}
+		}
+	}
+
+	function checkForRecord(event) {
+		if (event.shiftKey) {
+			exports.recording = !exports.recording;
+
+			if (exports.recording && !render.recording) {
+				render.startRecording();
+			} else if (render.recording && !exports.recording) {
+				render.stopRecording();
+			}
+		}
+	}
 
 	let backgroundColor = $derived.by(() => {
 		if (layout.previewing) {
@@ -34,10 +112,6 @@
 		}
 
 		return sketch?.backgroundColor ?? 'inherit';
-	});
-
-	onDestroy(() => {
-		rendering.unmount(id);
 	});
 </script>
 
@@ -57,13 +131,18 @@
 	{#if exports.recording}
 		<HintRecord />
 	{/if}
-	{#if rendering.paused && !exports.recording && !__BUILD__ && !layout.previewing}
+	{#if paused}
 		<HintPaused />
 	{/if}
 	{#if !loaded}
 		<HintLoading />
 	{/if}
 </div>
+
+<KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
+<KeyBinding type="down" key=" " onTrigger={checkForPause} />
+<KeyBinding type="down" key="s" onTrigger={checkForScreenshot} />
+<KeyBinding type="down" key="S" onTrigger={checkForRecord} />
 
 <style>
 	.sketch-renderer {

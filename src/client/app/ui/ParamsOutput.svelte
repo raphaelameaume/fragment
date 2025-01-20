@@ -5,7 +5,7 @@
 		PRESET_ORIENTATIONS,
 		getDimensionsForPreset,
 	} from '../lib/presets';
-	import { exports } from '../stores';
+	import { exports } from '../state/exports.svelte';
 	// import ParamsMultisampling from './ParamsMultisampling.svelte';
 	import Select from './fields/Select.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
@@ -50,11 +50,6 @@
 			rendering.width = width;
 			rendering.height = height;
 		}
-
-		if (rendering.resizing === SIZES.FIXED) {
-			rendering.width = rendering.fixedWidth;
-			rendering.height = rendering.fixedHeight;
-		}
 	});
 </script>
 
@@ -69,7 +64,13 @@
 	key="canvasSize"
 	value={rendering.resizing}
 	onchange={(resizing) => {
-		$exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
+		exports.pixelsPerInch = resizing === SIZES.PRESET ? 300 : 72;
+
+		if (rendering.resizing !== SIZES.FIXED && resizing === SIZES.FIXED) {
+			rendering.width = rendering.fixedWidth;
+			rendering.height = rendering.fixedHeight;
+		}
+
 		rendering.resizing = resizing;
 	}}
 	params={{
@@ -106,8 +107,8 @@
 			<Select
 				value={rendering.preset}
 				options={presets}
-				on:change={(event) => {
-					rendering.preset = event.detail;
+				onchange={(preset) => {
+					rendering.preset = preset;
 				}}
 			/>
 			<Select
@@ -116,8 +117,8 @@
 					PRESET_ORIENTATIONS.PORTRAIT,
 					PRESET_ORIENTATIONS.LANDSCAPE,
 				]}
-				on:change={(event) => {
-					rendering.presetOrientation = event.detail;
+				onchange={(presetOrientation) => {
+					rendering.presetOrientation = presetOrientation;
 				}}
 			/>
 		</FieldInputRow>

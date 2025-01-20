@@ -11,12 +11,7 @@
 	import ModuleHeaderAction from '../ui/ModuleHeaderAction.svelte';
 	import { sketchesManager } from '../state/sketches.svelte';
 
-	let {
-		id = layout.getID(),
-		headless = false,
-		sketchKey = null,
-		params,
-	} = $props();
+	let { id = layout.getID(), headless = false, params } = $props();
 
 	let key = $derived(
 		sketchesManager.keys.includes(params.selected) ||
