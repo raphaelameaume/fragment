@@ -1,14 +1,6 @@
 import { rendering } from './state/rendering.svelte';
 import { sketchesManager } from './state/sketches.svelte';
-
 import { getContext } from './triggers/shared';
-
-// export {
-// 	onBeforeCapture,
-// 	onAfterCapture,
-// 	onBeforeRecord,
-// 	onAfterRecord,
-// } from './stores/exports';
 
 export let onBeforeCapture = (listener, context = getContext()) => {
 	sketchesManager.sketches[context]?.onBeforeCapture(listener);
