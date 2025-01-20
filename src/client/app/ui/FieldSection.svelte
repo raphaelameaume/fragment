@@ -1,6 +1,6 @@
 <script>
-	let { 
-		key, 
+	let {
+		key,
 		visible = true,
 		secondary,
 		interactive,
@@ -28,10 +28,10 @@
 				<span class="field__label">{displayName ?? key}</span>
 			{/if}
 		{/if}
-		{@render infos()}
+		{@render infos?.()}
 	</div>
 	<div class="field__input">
-		{@render children()}
+		{@render children?.()}
 	</div>
 </div>
 

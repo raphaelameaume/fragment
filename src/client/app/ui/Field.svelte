@@ -158,7 +158,7 @@
 			{onchange}
 			onclick={onTrigger}
 		/>
-		{@render children()}
+		{@render children?.()}
 	</FieldSection>
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>

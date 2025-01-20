@@ -101,7 +101,7 @@
 		}}
 	/>
 {/if}
-{#if rendering.resizing === SIZES.PRESET}
+<!-- {#if rendering.resizing === SIZES.PRESET}
 	<Field key="preset">
 		<FieldInputRow --grid-template-columns="1fr 1fr">
 			<Select
@@ -123,7 +123,7 @@
 			/>
 		</FieldInputRow>
 	</Field>
-{/if}
+{/if} -->
 
 {#if rendering.resizing !== SIZES.PRESET}
 	<Field

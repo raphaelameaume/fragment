@@ -38,7 +38,7 @@
 </script>
 
 {#if displayMode === 'summary'}
-	{@render summary()}
+	{@render summary?.()}
 {:else}
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 	<span class="root jsonnested" onclick={(e) => toggleExpand(e)}>
@@ -46,7 +46,7 @@
 			<JSONArrow {expanded} {expandable} />
 		{/if} -->
 		<Summary>
-			{@render preview(root)}
+			{@render preview?.(root)}
 		</Summary>
 	</span>
 
@@ -64,12 +64,12 @@
 					<Expandable key={expandKey(key)}>
 						<span class="label">
 							<!-- <JSONArrow /> -->
-							{@render itemKey(key)}
+							{@render itemKey?.(key)}
 							{#if !shouldShowColon || shouldShowColon(key)}
 								<span class="operator">{': '}</span>
 							{/if}
 						</span>
-						{@render itemValue(key)}
+						{@render itemValue?.(key)}
 					</Expandable>
 				</li>
 			{/each}

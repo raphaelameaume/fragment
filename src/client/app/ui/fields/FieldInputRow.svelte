@@ -3,7 +3,7 @@
 </script>
 
 <div class="row">
-	{@render children()}
+	{@render children?.()}
 </div>
 
 <style>

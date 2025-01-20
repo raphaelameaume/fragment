@@ -3,7 +3,7 @@
 </script>
 
 <button class="module-header-action__button" aria-label={label} {onclick}>
-	{@render children()}
+	{@render children?.()}
 </button>
 
 <style>

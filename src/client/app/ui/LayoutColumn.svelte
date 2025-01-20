@@ -5,5 +5,5 @@
 </script>
 
 <LayoutComponent {size} type="column">
-	{@render children()}
+	{@render children?.()}
 </LayoutComponent>

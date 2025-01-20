@@ -38,7 +38,7 @@
 		<header class="module__header" onclick={minimize}>
 			<div class="header__col">
 				<div class="slot slot--left">
-					{@render headerLeft()}
+					{@render headerLeft?.()}
 				</div>
 			</div>
 			<div class="header__col">
@@ -46,14 +46,14 @@
 			</div>
 			<div class="header__col">
 				<div class="slot slot--right">
-					{@render headerRight()}
+					{@render headerRight?.()}
 					<!-- <slot name="header-right" /> -->
 				</div>
 			</div>
 		</header>
 	{/if}
 	<div class="module__container" use:resize={onresize}>
-		{@render children()}
+		{@render children?.()}
 	</div>
 </div>
 

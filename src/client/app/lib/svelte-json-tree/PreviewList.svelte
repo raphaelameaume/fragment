@@ -18,7 +18,7 @@
 	<span class="operator">{prefix} </span>
 {/if}
 {#each list as node, index}
-	{@render item(node)}
+	{@render item?.(node)}
 	{#if index < list.length - 1}
 		<span class="comma operator">,</span>
 	{/if}

@@ -6,4 +6,4 @@
 	setContext('displayMode', 'summary');
 </script>
 
-{@render children()}
+{@render children?.()}

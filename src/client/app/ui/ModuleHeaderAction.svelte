@@ -31,10 +31,10 @@
 		<ModuleHeaderButton {label} {onclick}>
 			{#snippet text()}{/snippet}
 			{#if icon}
-				{@render icon()}
+				{@render icon?.()}
 			{/if}
 			<div class="text">
-				{@render children()}
+				{@render children?.()}
 			</div>
 		</ModuleHeaderButton>
 	{/if}

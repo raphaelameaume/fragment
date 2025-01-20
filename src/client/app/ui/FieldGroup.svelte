@@ -29,7 +29,7 @@
 		</button>
 	</header>
 	<div class="content">
-		{@render children()}
+		{@render children?.()}
 	</div>
 </div>
 

@@ -5,6 +5,7 @@
 	import Resizer from './LayoutResizer.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import Preview from './Preview.svelte';
+	import LayoutComponent from './LayoutComponent.svelte';
 
 	let { id = layout.getID(), size = 1, type = 'column', children } = $props();
 
@@ -102,7 +103,7 @@
 	{:else if childComponents.length > 0}
 		{#each childComponents as child (child.id)}
 			{#if child.type === 'column' || child.type === 'row'}
-				<svelte:self
+				<LayoutComponent
 					id={child.id}
 					type={child.type}
 					size={child.size}

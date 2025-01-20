@@ -5,5 +5,5 @@
 </script>
 
 <LayoutComponent {size} type="row">
-	{@render children()}
+	{@render children?.()}
 </LayoutComponent>
