@@ -138,6 +138,10 @@
 		cursor: pointer;
 	}
 
+	.select-input .select option {
+		background-color: var(--color-background);
+	}
+
 	.select-input:not(.disabled) .select:focus {
 		color: var(--color-text);
 	}
