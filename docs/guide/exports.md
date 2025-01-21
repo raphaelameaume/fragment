@@ -92,7 +92,12 @@ export let buildConfig = {
 | `dimensions` | `number[2]` | Change the dimensions of the canvas | Viewport size |
 | `canvasSize`| `string` | Change the resizing method of the canvas. Can be `window`, `fixed`, `scale`, `preset`, `aspect-ratio` | `window` |
 | `pixelRatio` | `number\|function` | Change the pixel ratio of the canvas. | `1` |
-| `gui` | `bool` | Display gui | `false` |
+| `layout` | `object` | Change the layout options | `{}` |
+| `layout.resizable` | `boolean` | Enable resizing of the modules | `true` |
+| `layout.headless` | `boolean` | Hide modules headers | `false` |
+| `layout.persistent` | `boolean` | Preserve resizing between reloads | `false` |
+| `layout.component` | `SvelteComponent` | Swap the BuildLayout component | `undefined` |
+| `gui` | `boolean\|object` | Display gui | `false` |
 | `gui.position` | `string` | Change gui appearance. Can be `fixed` or `float` | `float` |
 | `gui.align` | `string` | Change gui position. Can be `left` or `right` | `right` |
 | `gui.size` | `string\|number` | Change gui width. Can be a percentage or a number between 0 and 1 | `0.3`
