@@ -361,7 +361,7 @@ export class Render {
 
 				if (needsUpdate) {
 					console.warn(
-						`Canvas ${attributeName} was changed from sketch to ${dimension}px to previous  ${rendering[attributeName]}`,
+						`Canvas ${attributeName} was changed from sketch from ${rendering[attributeName]}px to ${dimension}px.`,
 					);
 					rendering[attributeName] = dimension;
 
