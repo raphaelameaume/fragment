@@ -6,17 +6,22 @@ class Layout {
 	components = $state([]);
 	editing = $state(false);
 	previewing = $state(false);
+	persistent = $state(true);
 
 	getID() {
 		return COMPONENT_ID++;
 	}
 
 	constructor() {
-		this.key = 'layout';
+		this.key = __BUILD__ ? `layout${__START_TIME__}` : `layout`;
 
 		$effect.root(() => {
 			$effect(() => {
-				if (!this.previewing && !__BUILD__) {
+				const isPersistent = __BUILD__
+					? this.persistent
+					: !this.previewing;
+
+				if (isPersistent) {
 					this.persist($state.snapshot(this.components));
 				}
 			});
@@ -156,6 +161,7 @@ class Layout {
 			type: source.type,
 			name: source.name,
 			minimized: source.minimized,
+			headless: source.headless,
 			params: source.params,
 			children: [...source.children],
 		}));

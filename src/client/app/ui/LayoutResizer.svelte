@@ -11,7 +11,11 @@
 	import { layout } from '../state/layout.svelte.js';
 	import { clamp, map } from '../utils/math.utils.js';
 
-	let { direction = DIRECTIONS.HORIZONTAL, current } = $props();
+	let {
+		direction = DIRECTIONS.HORIZONTAL,
+		current,
+		disabled = false,
+	} = $props();
 
 	let visible = $state(false);
 	let isDragging = $state(false);
@@ -133,6 +137,7 @@
 	class="resizer resizer--{direction}"
 	class:dragging={isDragging}
 	class:editing={layout.editing}
+	class:disabled
 >
 	<div
 		class="resizer-hover"
@@ -148,6 +153,10 @@
 		--thickness: 2px;
 
 		position: relative;
+	}
+
+	.resizer.disabled {
+		pointer-events: none;
 	}
 
 	[class~='resizer']:last-of-type {

@@ -1,7 +1,7 @@
 <script>
 	import Root from './LayoutRoot.svelte';
 	import Column from './LayoutColumn.svelte';
-	import Build from './Build.svelte';
+	import Build from '../components/Build.svelte';
 	import Row from './LayoutRow.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
 	import { layout } from '../state/layout.svelte.js';

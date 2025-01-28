@@ -4,10 +4,16 @@
 	import Toolbar from './LayoutToolbar.svelte';
 	import Resizer from './LayoutResizer.svelte';
 	import ModuleRenderer from './ModuleRenderer.svelte';
-	import Preview from './Preview.svelte';
+	import Preview from '../components/Preview.svelte';
 	import LayoutComponent from './LayoutComponent.svelte';
 
-	let { id = layout.getID(), size = 1, type = 'column', children } = $props();
+	let {
+		id = layout.getID(),
+		size = 1,
+		type = 'column',
+		children,
+		resizable = true,
+	} = $props();
 
 	let parent = getContext('parent');
 	let isColumn = $derived(type === 'column');
@@ -120,7 +126,7 @@
 			{/if}
 		{/each}
 	{:else}
-		{@render children()}
+		{@render children?.()}
 	{/if}
 	{#if layout.editing && (isRoot || (childComponents.length === 1 && childComponents[0].type === 'module') || childComponents.length === 0)}
 		<Toolbar
@@ -134,7 +140,11 @@
 	{/if}
 </div>
 {#if !isRoot}
-	<Resizer direction={isColumn ? 'vertical' : 'horizontal'} {current} />
+	<Resizer
+		direction={isColumn ? 'vertical' : 'horizontal'}
+		{current}
+		disabled={!resizable}
+	/>
 {/if}
 
 <style>
