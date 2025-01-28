@@ -50,7 +50,7 @@ export function deepAssign(target, source) {
 }
 
 export function deepEqual(target, source) {
-	if (isObject(target) && isObject(target)) {
+	if (isObject(target) && isObject(source)) {
 		let isEqual = true;
 		for (const key in source) {
 			if (isEqual) {
