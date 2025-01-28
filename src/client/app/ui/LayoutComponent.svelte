@@ -126,7 +126,7 @@
 			{/if}
 		{/each}
 	{:else}
-		{@render children()}
+		{@render children?.()}
 	{/if}
 	{#if layout.editing && (isRoot || (childComponents.length === 1 && childComponents[0].type === 'module') || childComponents.length === 0)}
 		<Toolbar
