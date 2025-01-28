@@ -460,6 +460,8 @@ export class Render {
 		};
 
 		this.init = async () => {
+			if (this.errored) return;
+
 			clearError(this.sketch.key);
 			this.mountParams = this.renderer?.onMountPreview?.(this.params);
 			if (this.mountParams && this.mountParams.canvas !== this.canvas) {
