@@ -148,6 +148,9 @@
 							// value(event, sketch.params);
 						}}
 						onchange={(v) => {
+							if (v.currentTarget && v.type === 'change') {
+								v = v.currentTarget.value;
+							}
 							sketch.updateProp(key, v);
 						}}
 					/>
