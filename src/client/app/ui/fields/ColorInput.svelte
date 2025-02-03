@@ -3,19 +3,27 @@
 	import TextInput from './TextInput.svelte';
 	import Field from '../Field.svelte';
 
-	let { value, context = null, key = '', disabled = false, onchange } = $props();
+	let {
+		value,
+		context = null,
+		key = '',
+		disabled = false,
+		onchange,
+	} = $props();
 
 	let format = $derived(color.getColorFormat(value));
 	let hexValue = $derived(color.toHex(value, format));
 	let textValue = $state();
 	let alpha = $state(1);
-	let hasAlpha = $derived([
-		color.FORMATS.RGBA_STRING,
-		color.FORMATS.VEC4_STRING,
-		color.FORMATS.VEC4_ARRAY,
-		color.FORMATS.RGBA_OBJECT,
-		color.FORMATS.HSLA_STRING,
-	].includes(format));
+	let hasAlpha = $derived(
+		[
+			color.FORMATS.RGBA_STRING,
+			color.FORMATS.VEC4_STRING,
+			color.FORMATS.VEC4_ARRAY,
+			color.FORMATS.RGBA_OBJECT,
+			color.FORMATS.HSLA_STRING,
+		].includes(format),
+	);
 
 	$effect(() => {
 		if (hasAlpha) {
@@ -24,7 +32,7 @@
 		} else {
 			alpha = 1;
 		}
-	})
+	});
 
 	$effect(() => {
 		textValue = color.toString(value, format)?.toLowerCase();
@@ -36,10 +44,10 @@
 		if (format === newFormat) {
 			onchange(newColor);
 		} else {
-			const components = color.toComponents(newColor); 
+			const components = color.toComponents(newColor);
 			const [r, g, b] = components;
 
-			switch(format) {
+			switch (format) {
 				case color.FORMATS.RGB_OBJECT:
 					onchange({ r, g, b });
 					break;
@@ -47,7 +55,9 @@
 					onchange({ r, g, b, a: alpha });
 					break;
 				default:
-					onchange(color.componentsToFormat([r, g, b, alpha], format));
+					onchange(
+						color.componentsToFormat([r, g, b, alpha], format),
+					);
 			}
 		}
 	}
@@ -207,7 +217,7 @@
 		pointer-events: none;
 	}
 
-	.mirror:hover {
+	:global(body:not(.fragment-dragging)) .mirror:hover {
 		box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--color-active));
 	}
 

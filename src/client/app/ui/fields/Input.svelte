@@ -53,7 +53,8 @@
 		box-shadow: inset 0 0 0 1px var(--color-border-input);
 	}
 
-	.input-container:not(.disabled):hover {
+	:global(body:not(.fragment-dragging))
+		.input-container:not(.disabled):hover {
 		box-shadow: inset 0 0 0 1px var(--color-active);
 	}
 

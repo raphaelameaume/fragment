@@ -113,7 +113,9 @@
 		background-color: var(--color-background-input);
 	}
 
-	.select-input:not(.disabled) .container:hover {
+	:global(body:not(.fragment-dragging))
+		.select-input:not(.disabled)
+		.container:hover {
 		box-shadow: inset 0 0 0 1px var(--color-active);
 	}
 

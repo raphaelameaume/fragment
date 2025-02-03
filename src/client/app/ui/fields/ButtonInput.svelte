@@ -57,7 +57,7 @@
 		color: var(--color-text-input-disabled);
 	}
 
-	.button:hover {
+	:global(body:not(.fragment-dragging)) .button:hover {
 		color: var(--color-text);
 
 		box-shadow: inset 0 0 0 1px
