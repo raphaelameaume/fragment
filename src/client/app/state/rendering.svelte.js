@@ -601,7 +601,8 @@ export class Render {
 				sketch.beforeRecord.forEach((fn) => fn(params));
 			},
 			onTick: ({ time, deltaTime }) => {
-				this.loop(time);
+				this.time += deltaTime;
+				this.loop(this.time);
 			},
 			onComplete: (params) => {
 				sketch.afterRecord.forEach((fn) => fn(params));
