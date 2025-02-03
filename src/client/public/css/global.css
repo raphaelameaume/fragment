@@ -54,6 +54,20 @@ body {
 	overscroll-behavior: none;
 }
 
+body.fragment-dragging {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+body.fragment-dragging input {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+body.fragment-dragging * {
+	cursor: ew-resize !important;
+}
+
 #app {
 	position: fixed;
 	top: 0;

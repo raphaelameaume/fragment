@@ -186,7 +186,7 @@
 		opacity: 0.1;
 	}
 
-	.resizer .resizer-hover:hover:before {
+	:global(body:not(.fragment-dragging)) .resizer .resizer-hover:hover:before {
 		opacity: 0.25;
 	}
 

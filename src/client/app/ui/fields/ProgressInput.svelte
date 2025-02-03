@@ -16,10 +16,11 @@
 	let node;
 	let rect;
 
-	let isDragging = false;
+	let isDragging = $state(false);
 
 	// handlers
 	function handleMouseDown(event) {
+		document.body.classList.add('fragment-dragging');
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseup', handleMouseUp);
 
@@ -48,6 +49,7 @@
 	}
 
 	function handleMouseUp() {
+		document.body.classList.remove('fragment-dragging');
 		document.removeEventListener('mousemove', handleMouseMove);
 		document.removeEventListener('mouseup', handleMouseUp);
 
@@ -59,10 +61,11 @@
 </script>
 
 <div
-	class="progress {isDragging ? 'dragging' : ''} "
+	class="progress"
 	bind:this={node}
 	onmousedown={handleMouseDown}
 	class:disabled
+	class:dragging={isDragging}
 >
 	<div class="fill" style="--progress: {progress}; --opacity: {opacity};" />
 </div>
@@ -80,7 +83,7 @@
 		container-type: size;
 	}
 
-	.progress:hover {
+	:global(body:not(.fragment-dragging)) .progress:hover {
 		box-shadow: inset 0 0 0 1px var(--color-active);
 	}
 

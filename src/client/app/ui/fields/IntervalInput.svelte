@@ -21,7 +21,7 @@
 	/** @type {DOMRect}*/
 	let rect;
 	/** @type {boolean}*/
-	let isDragging = false;
+	let isDragging = $state(false);
 
 	let proximityIndex = -1;
 
@@ -30,7 +30,8 @@
 	 * @param {MouseEvent} event
 	 */
 	function handleMouseDown(event) {
-		document.body.style.userSelect = 'none';
+		document.body.classList.add('fragment-dragging');
+
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseup', handleMouseUp);
 
@@ -85,7 +86,7 @@
 	}
 
 	function handleMouseUp() {
-		document.body.style.userSelect = null;
+		document.body.classList.remove('fragment-dragging');
 		document.removeEventListener('mousemove', handleMouseMove);
 		document.removeEventListener('mouseup', handleMouseUp);
 
@@ -119,9 +120,10 @@
 <div class="interval-input" class:disabled>
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div
-			class="range {isDragging ? 'dragging' : ''} "
+			class="range"
+			class:dragging={isDragging}
 			bind:this={node}
-			on:mousedown={handleMouseDown}
+			onmousedown={handleMouseDown}
 		>
 			<div class="handler" style="--position: {p1};" />
 			<div class="filler" style="--p1: {p1}; --p2: {p2};"></div>
@@ -189,7 +191,7 @@
 		container-type: size;
 	}
 
-	.range:hover {
+	:global(body:not(.fragment-dragging)) .range:hover {
 		box-shadow: inset 0 0 0 1px var(--color-active);
 	}
 

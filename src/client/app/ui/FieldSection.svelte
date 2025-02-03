@@ -48,7 +48,7 @@
 		grid-template-columns: 1fr;
 	}
 
-	.field__section:hover .field__label,
+	:global(body:not(.fragment-dragging)) .field__section:hover .field__label,
 	.field__section:focus-within .field__label {
 		opacity: 1;
 	}
@@ -102,9 +102,9 @@
 	}
 
 	.field__label:focus-visible {
-		outline: 0;
-		box-shadow: 0 0 0 2px var(--color-text);
-		border-radius: 2px;
+		outline: 2px var(--color-active) solid;
+		outline-offset: 2px;
+		border-radius: 1px;
 	}
 
 	.field__section.secondary {

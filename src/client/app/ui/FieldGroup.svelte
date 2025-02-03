@@ -79,7 +79,8 @@
 		transition: opacity 0.1s ease;
 	}
 
-	.header__action:hover .header__icon {
+	:global(body:not(.fragment-dragging)) .header__action:hover .header__icon,
+	.header__action:focus-visible .header__icon {
 		opacity: 1;
 	}
 
@@ -98,7 +99,9 @@
 		transition: opacity 0.1s ease;
 	}
 
-	.header__action:hover .field-group__name,
+	:global(body:not(.fragment-dragging))
+		.header__action:hover
+		.field-group__name,
 	.header__action:focus-visible .field-group__name {
 		opacity: 1;
 	}
