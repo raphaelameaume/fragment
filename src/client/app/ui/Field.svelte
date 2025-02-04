@@ -40,7 +40,7 @@
 
 	let {
 		key,
-		value = null,
+		value,
 		initialValue = value,
 		context = null,
 		params = $bindable({}),

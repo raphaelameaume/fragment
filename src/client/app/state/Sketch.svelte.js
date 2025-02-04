@@ -185,15 +185,15 @@ class Sketch {
 			displayName,
 		} = instanceProp;
 
-		if (value.isColor) {
+		if (value?.isColor) {
 			value = { r: value.r, g: value.g, b: value.b };
-		} else if (value.isVector2) {
+		} else if (value?.isVector2) {
 			value = { x: value.x, y: value.y };
-		} else if (value.isVector3) {
+		} else if (value?.isVector3) {
 			value = { x: value.x, y: value.y, z: value.z };
-		} else if (value.isVector4) {
+		} else if (value?.isVector4) {
 			value = { x: value.x, y: value.y, z: value.z, w: value.w };
-		} else if (value.isQuaternion) {
+		} else if (value?.isQuaternion) {
 			value = { x: value.x, y: value.y, z: value.z, w: value.w };
 		}
 
@@ -239,9 +239,7 @@ class Sketch {
 		}
 
 		if (instanceProp) {
-			if (isObject(instanceProp.value)) {
-				deepAssign(instanceProp.value, newValue);
-			} else {
+			if (!deepEqual(instanceProp.value, newValue)) {
 				instanceProp.value = newValue;
 			}
 
@@ -365,7 +363,7 @@ class Sketch {
 					!isFunction(instanceProp.value) &&
 					!deepEqual(instanceProp.value, prop.__currentValue)
 				) {
-					this.updateProp(key, structuredClone(instanceProp.value));
+					this.updateProp(key, instanceProp.value);
 				}
 
 				// sync displayName
@@ -440,34 +438,11 @@ class Sketch {
 					for (const paramKey in instanceProp.params) {
 						const instanceParam = instanceProp.params[paramKey];
 						const param = prop.params[paramKey];
-						let needsUpdate = false;
-
-						if (isObject(instanceParam)) {
-							Object.keys(instanceParam).forEach((key) => {
-								if (isObject(instanceParam[key])) {
-									Object.keys(instanceParam[key]).forEach(
-										(k) => {
-											if (
-												instanceParam[key][k] !==
-												param[key][k]
-											) {
-												needsUpdate = true;
-											}
-										},
-									);
-								} else if (instanceParam[key] !== param[key]) {
-									needsUpdate = true;
-								}
-							});
-						} else if (instanceParam !== param) {
-							needsUpdate = true;
-						}
+						let needsUpdate = !deepEqual(instanceParam, param);
 
 						if (needsUpdate) {
-							if (needsUpdate) {
-								prop.params[paramKey] =
-									structuredClone(instanceParam);
-							}
+							prop.params[paramKey] =
+								structuredClone(instanceParam);
 						}
 					}
 				}
