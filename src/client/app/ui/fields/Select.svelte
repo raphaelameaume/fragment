@@ -1,4 +1,5 @@
 <script>
+	import { isObject } from '../../state/utils.svelte';
 	import SelectChevrons from '../SelectChevrons.svelte';
 
 	let {
@@ -10,55 +11,48 @@
 		onchange = () => {},
 	} = $props();
 
-	function toStringifiedValue(option, optionType = typeof option) {
-		if (option === null) {
-			return null;
-		} else if (option === undefined) {
-			return undefined;
-		} else if (optionType === 'object') {
-			return toStringifiedValue(option.value);
-		} else if (optionType === 'function') {
-			return option.name;
+	function toStringifiedValue(value) {
+		if (typeof value === 'function') {
+			return `${value.name}()`;
 		}
 
-		return option.toString();
+		return String(value);
 	}
 
-	let sanitizedOptions = $derived(
-		options.map((option) => {
-			let optionType = typeof option;
-			let disabled =
-				optionType === 'object' && typeof option.disabled === 'boolean'
-					? option.disabled
-					: false;
-			let value = optionType === 'object' ? option.value : option;
+	function createOption(option) {
+		let value =
+			isObject(option) && 'value' in option ? option.value : option;
+		let label = option?.label ?? toStringifiedValue(value);
+		let disabled = option?.disabled ?? false;
+		let stringValue = toStringifiedValue(value);
 
-			let stringValue = toStringifiedValue(option);
+		return {
+			label,
+			value,
+			stringValue,
+			disabled,
+		};
+	}
 
-			let label = option.label ?? stringValue;
+	let sanitizedOptions = $derived.by(() => {
+		let opts = options.map((option, optionIndex) => {
+			return createOption(option, optionIndex);
+		});
 
-			return {
-				label,
-				value,
-				stringValue,
-				disabled,
-			};
-		}),
-	);
+		return opts;
+	});
 
 	let sanitizedValue = $derived(
-		sanitizedOptions.find((opt) => opt.value === value),
+		sanitizedOptions.find((opt) => opt.value === value) ??
+			sanitizedOptions[0],
 	);
 
 	function handleChange(event) {
-		const index = sanitizedOptions.findIndex(
+		const sanitizedOption = sanitizedOptions.find(
 			(opt) => opt.stringValue === event.currentTarget.value,
 		);
 
-		const option = options[index];
-		const newValue = typeof option === 'object' ? option.value : option;
-
-		onchange(newValue);
+		onchange(sanitizedOption.value);
 	}
 </script>
 
@@ -84,9 +78,7 @@
 				>
 			{/each}
 		</select>
-		{#if sanitizedOptions.length > 1}
-			<SelectChevrons />
-		{/if}
+		<SelectChevrons />
 	</div>
 </div>
 
