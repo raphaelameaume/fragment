@@ -64,8 +64,8 @@
 			var(--box-shadow-color-active, var(--color-active));
 	}
 
-	.button:active,
-	.button:focus-visible {
+	:global(body:not(.fragment-dragging)) .button:active,
+	:global(body:not(.fragment-dragging)) .button:focus-visible {
 		box-shadow: 0 0 0 2px
 			var(--box-shadow-color-active, var(--color-active));
 	}
