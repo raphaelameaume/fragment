@@ -52,9 +52,20 @@ export function deepAssign(target, source) {
 export function deepEqual(target, source) {
 	if (isObject(target) && isObject(source)) {
 		let isEqual = true;
-		for (const key in source) {
-			if (isEqual) {
-				isEqual = deepEqual(target[key], source[key]);
+
+		if (
+			Array.isArray(target) &&
+			Array.isArray(source) &&
+			target.length !== source.length
+		) {
+			isEqual = false;
+		}
+
+		if (isEqual) {
+			for (const key in source) {
+				if (isEqual) {
+					isEqual = deepEqual(target[key], source[key]);
+				}
 			}
 		}
 
