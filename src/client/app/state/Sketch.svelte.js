@@ -181,6 +181,7 @@ class Sketch {
 			params = {},
 			triggers = [],
 			group,
+			type,
 			folder,
 			displayName,
 		} = instanceProp;
@@ -217,6 +218,7 @@ class Sketch {
 			__initialValue: initialValue,
 			__currentValue: value,
 			__hidden,
+			type,
 			params: structuredClone(params),
 			triggers,
 			group,
