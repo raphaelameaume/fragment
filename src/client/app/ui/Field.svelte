@@ -21,6 +21,7 @@
 		[`${fieldTypes.COLOR}`]: ColorInput,
 		[`${fieldTypes.BUTTON}`]: ButtonInput,
 		[`${fieldTypes.DOWNLOAD}`]: ButtonInput,
+		[`${fieldTypes.IMPORT}`]: ImportInput,
 		[`${fieldTypes.IMAGE}`]: ImageInput,
 		[`${fieldTypes.INTERVAL}`]: IntervalInput,
 	};
@@ -35,6 +36,7 @@
 	import { inferFieldType } from '../utils/fields.utils.js';
 	import IconTriggers from '../components/IconTriggers.svelte';
 	import IconLocked from '../components/IconLocked.svelte';
+	import ImportInput from './fields/ImportInput.svelte';
 
 	let {
 		key,

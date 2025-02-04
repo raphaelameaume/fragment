@@ -10,6 +10,7 @@ export const fieldTypes = {
 	COLOR: 'color',
 	BUTTON: 'button',
 	DOWNLOAD: 'download',
+	IMPORT: 'import',
 	IMAGE: 'image',
 	INTERVAL: 'interval',
 };
