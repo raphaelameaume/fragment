@@ -1,22 +1,14 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import Keyboard from '../../inputs/Keyboard.js';
 	import { map, clamp, roundToStep } from '../../utils/math.utils.js';
 
-	let {
-		value,
-		min,
-		max,
-		step,
-		context = null,
-		key = '',
-		disabled = false,
-		onchange,
-	} = $props();
+	let { value, min, max, step, disabled = false, onchange } = $props();
 
 	let node;
 	let rect;
 
 	let isDragging = $state(false);
+	let steppedValue = $derived(roundToStep(value, step));
 
 	// handlers
 	function handleMouseDown(event) {
@@ -48,6 +40,28 @@
 		}
 	}
 
+	function handleKeyDown(event) {
+		const direction = ['ArrowUp', 'ArrowRight'].includes(event.key)
+			? 1
+			: ['ArrowDown', 'ArrowLeft'].includes(event.key)
+				? -1
+				: 0;
+
+		const diff = Keyboard.getStepFromEvent(event) * step;
+
+		if (direction !== 0) {
+			const newValue = clamp(
+				roundToStep(value + direction * diff, step),
+				min,
+				max,
+			);
+
+			if (newValue !== value) {
+				onchange(newValue);
+			}
+		}
+	}
+
 	function handleMouseUp() {
 		document.body.classList.remove('fragment-dragging');
 		document.removeEventListener('mousemove', handleMouseMove);
@@ -56,7 +70,9 @@
 		isDragging = false;
 	}
 
-	let progress = $derived(clamp(map(value, min, max, 0, 1), 0.0001, 1));
+	let progress = $derived(
+		clamp(map(steppedValue, min, max, 0, 1), 0.0001, 1),
+	);
 	let opacity = $derived(progress > 0 ? 1 : 0);
 </script>
 
@@ -64,10 +80,19 @@
 	class="progress"
 	bind:this={node}
 	onmousedown={handleMouseDown}
+	onkeydown={handleKeyDown}
 	class:disabled
 	class:dragging={isDragging}
+	role="slider"
+	aria-valuemin={min}
+	aria-valuemax={max}
+	aria-valuenow={value}
+	tabindex="0"
 >
-	<div class="fill" style="--progress: {progress}; --opacity: {opacity};" />
+	<div
+		class="fill"
+		style="--progress: {progress}; --opacity: {opacity};"
+	></div>
 </div>
 
 <style>
@@ -81,13 +106,15 @@
 		background: var(--color-background-input);
 		cursor: ew-resize;
 		container-type: size;
+		outline: 0;
 	}
 
 	:global(body:not(.fragment-dragging)) .progress:hover {
 		box-shadow: inset 0 0 0 1px var(--color-active);
 	}
 
-	.progress.dragging {
+	.progress.dragging,
+	:global(body:not(.fragment-dragging)) .progress:focus-visible {
 		box-shadow: 0 0 0 2px var(--color-active);
 	}
 
