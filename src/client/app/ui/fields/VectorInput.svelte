@@ -8,27 +8,71 @@
 		min = -Infinity,
 		max = Infinity,
 		step = 0.1,
+		key,
 		locked = false,
 		disabled = false,
 		context = null,
-		key = '',
 		onchange,
 	} = $props();
 
+	const keysChecks = ['x', 'y', 'z', 'w'];
 
 	let isArray = $derived(Array.isArray(value));
 	let isObject = $derived(!isArray && typeof value === 'object');
-	let components = $derived(isObject ? Object.values(value) : [...value]);
-	let keys = $derived(isObject ? Object.keys(value) : value.map((v, i) => i));
+	let keys = $derived.by(() => {
+		let keys = [];
+
+		if (isArray) {
+			return value.map((_, index) => index);
+		}
+
+		if (!isArray && !isObject) return [0];
+
+		for (let i = 0; i < keysChecks; i++) {
+			let keyCheck = keysChecks[i];
+
+			if (keyCheck in value) {
+				keys.push(keyCheck);
+			}
+		}
+
+		if (value.isVector2) {
+			return ['x', 'y'];
+		}
+
+		if (value.isVector3) {
+			return ['x', 'y', 'z'];
+		}
+
+		if (value.isVector4 || value.isQuaternion) {
+			return ['x', 'y', 'z', 'w'];
+		}
+
+		if (isObject) {
+			return Object.keys(value);
+		}
+
+		return keys;
+	});
+	let components = $derived.by(() => {
+		if (!isObject && !isArray) {
+			return [value];
+		}
+
+		return keys.map((key) => value[key]);
+	});
+	let mins = $derived(keys.map((key) => min[key]));
+	let maxs = $derived(keys.map((key) => max[key]));
+	let steps = $derived(keys.map((key) => step[key]));
 
 	function dispatchChange() {
-		let newValue = keys.reduce((all, key, index) => {
-			all[key] = components[index];
+		let clone = isArray ? [] : {};
 
-			return all;
-		}, isArray ? [] : {});
+		keys.forEach((key, index) => {
+			clone[key] = components[index];
+		});
 
-		onchange(newValue);
+		onchange(clone);
 	}
 
 	function handleComponentChange(newValue, componentIndex) {
@@ -39,11 +83,13 @@
 		}
 
 		components.forEach((component, index) => {
-			components[index] = index === componentIndex
-				? newValue
-				: locked
-					? Math.round(component * ratio * (1 / step)) / (1 / step)
-					: component;
+			components[index] =
+				index === componentIndex
+					? newValue
+					: locked
+						? Math.round(component * ratio * (1 / step)) /
+							(1 / step)
+						: component;
 		});
 
 		dispatchChange();
@@ -56,17 +102,16 @@
 	>
 		{#each components as component, index}
 			<NumberInput
-				{min}
-				{max}
-				{step}
+				min={mins[index]}
+				max={maxs[index]}
+				step={steps[index]}
 				{suffix}
 				{disabled}
 				{context}
 				{key}
 				label={keys[index]}
 				value={component}
-				onchange={(value) =>
-					handleComponentChange(value, index)}
+				onchange={(value) => handleComponentChange(value, index)}
 			/>
 		{/each}
 	</FieldInputRow>
