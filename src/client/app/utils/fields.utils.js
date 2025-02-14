@@ -108,3 +108,46 @@ export function inferFieldType({ type, value, params, key }) {
 
 	console.warn(`Field: cannot find field type for ${key}`);
 }
+
+/**
+ *
+ * @param {string} folder
+ */
+export function parseFolder(folder) {
+	const regex = /(?<name>\w+)(?:\[(?<attributes>[^\]]+)\])?/g;
+	const matches = [...folder.matchAll(regex)];
+
+	const results = matches.map((match) => {
+		return {
+			name: match.groups.name,
+			attributes: match.groups.attributes
+				? Object.fromEntries(
+						match.groups.attributes
+							.split(', ')
+							.map((attr) => attr.split('=')),
+					)
+				: {},
+		};
+	});
+
+	let names = results.map((match) => match.name);
+
+	let rootId;
+
+	results.forEach((match, index) => {
+		let id = [...names].slice(0, index + 1).join('.');
+		let parentId = [...names].slice(0, index).join('.');
+
+		if (index === 0) {
+			rootId = id;
+		}
+
+		match.id = id;
+		match.parentId = parentId;
+		match.depth = index;
+		match.isCurrent = index === results.length - 1;
+		match.rootId = rootId;
+	});
+
+	return results;
+}
