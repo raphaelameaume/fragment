@@ -320,12 +320,27 @@ export class Render {
 		this.time = 0;
 		this.recording = false;
 
-		$effect(() => {
+		let resizeTimeout;
+
+		$effect.pre(() => {
 			const { width, height, pixelRatio } = rendering;
 
 			if (this.loaded) {
-				this.resize(width, height, pixelRatio);
-			} else {
+				if (resizeTimeout) clearTimeout(resizeTimeout);
+
+				resizeTimeout = setTimeout(() => {
+					clearTimeout(resizeTimeout);
+					resizeTimeout = null;
+
+					this.resize(width, height, pixelRatio);
+				}, 0);
+			}
+		});
+
+		$effect(() => {
+			const { width, height, pixelRatio } = rendering;
+
+			if (!this.loaded) {
 				this.width = width;
 				this.height = height;
 				this.pixelRatio = pixelRatio;
