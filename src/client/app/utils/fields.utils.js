@@ -43,11 +43,40 @@ export function inferFieldType({ type, value, params, key }) {
 
 		const isArray = Array.isArray(value);
 		const isObject = !isArray && typeof value === 'object';
-		const values = isObject ? Object.values(value) : value;
+		const getKeys = (value) => {
+			if (isArray) {
+				return value.map((_, index) => index);
+			}
+
+			if (!isArray && !isObject) return [0];
+
+			if (value.isVector3) {
+				return ['x', 'y', 'z'];
+			}
+
+			if (value.isVector4 || value.isQuaternion) {
+				return ['x', 'y', 'z', 'w'];
+			}
+
+			if (isObject) {
+				return Object.keys(value);
+			}
+		};
+
+		const getValues = (value, keys) => {
+			if (!isObject && !isArray) {
+				value = [value];
+			}
+
+			return keys.map((key) => value[key]);
+		};
+
+		const keys = getKeys(value);
+		const values = getValues(value, keys);
 
 		if (
 			isArray &&
-			value.length === 2 &&
+			values.length === 2 &&
 			typeof params.min === 'number' &&
 			typeof params.max === 'number'
 		) {
@@ -78,55 +107,4 @@ export function inferFieldType({ type, value, params, key }) {
 	}
 
 	console.warn(`Field: cannot find field type for ${key}`);
-}
-
-export function hasChanged(initialValue, currentValue) {
-	const initialType = initialValue && typeof initialValue;
-	const currentType = currentValue && typeof currentValue;
-
-	if (initialType !== currentType) return true;
-
-	if (Array.isArray(currentValue)) {
-		if (initialValue.length !== currentValue.length) {
-			return true;
-		}
-
-		for (let i = 0; i < currentValue.length; i++) {
-			if (currentValue[i] !== initialValue[i]) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	if (initialType === 'object') {
-		const keys1 = Object.keys(initialValue);
-		const keys2 = Object.keys(currentValue);
-
-		if (
-			keys1.length !== keys2.length ||
-			!keys1.every((key) => keys2.includes(key))
-		) {
-			return true;
-		}
-
-		for (const key of keys1) {
-			const value1 = initialValue[key];
-			const value2 = currentValue[key];
-
-			if (typeof value1 === 'object' && typeof value2 === 'object') {
-				// If both values are objects, recursively compare them
-				if (hasChanged(value1, value2)) {
-					return true;
-				}
-			} else if (value1 !== value2) {
-				// If values are not objects, directly compare them
-				return true;
-			}
-
-			return false;
-		}
-	}
-
-	return initialValue !== currentValue;
 }
