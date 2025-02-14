@@ -8,6 +8,7 @@
 		min = -Infinity,
 		max = Infinity,
 		step = 0.1,
+		key,
 		locked = false,
 		disabled = false,
 		context = null,
@@ -100,7 +101,6 @@
 		--grid-template-columns={components.map(() => '1fr').join(' ')}
 	>
 		{#each components as component, index}
-			{@const key = keys[index]}
 			<NumberInput
 				min={mins[index]}
 				max={maxs[index]}
