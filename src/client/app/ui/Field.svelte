@@ -9,7 +9,7 @@
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import ImageInput from './fields/ImageInput.svelte';
 	import IntervalInput from './fields/IntervalInput.svelte';
-	import { fieldTypes, hasChanged } from '../utils/fields.utils.js';
+	import { fieldTypes } from '../utils/fields.utils.js';
 
 	const fields = {
 		[`${fieldTypes.SELECT}`]: Select,
@@ -37,6 +37,7 @@
 	import IconTriggers from '../components/IconTriggers.svelte';
 	import IconLocked from '../components/IconLocked.svelte';
 	import ImportInput from './fields/ImportInput.svelte';
+	import { deepEqual } from '../state/utils.svelte';
 
 	let {
 		key,
@@ -91,7 +92,7 @@
 	let fieldType = $derived(inferFieldType({ type, value, params, key }));
 	let fieldProps = $derived(composeFieldProps(params, disabled));
 	let onTrigger = $derived(frameDebounce(onTriggers[fieldType]));
-	let input = $derived(fields[fieldType]);
+	let Component = $derived(fields[fieldType]);
 	let triggerable = $derived(
 		params.triggerable !== false &&
 			((fieldType === fieldTypes.NUMBER &&
@@ -117,12 +118,17 @@
 			context,
 		};
 	}
+
+	function hasChanged(current, next) {
+		const changed = !deepEqual(current, next);
+		return changed;
+	}
 </script>
 
 <div
 	class="field"
 	class:disabled
-	class:changed={!disabled && hasChanged(initialValue, value)}
+	class:changed={!disabled && hasChanged(value, initialValue)}
 	style="--index: {index};"
 >
 	<FieldSection
@@ -153,13 +159,7 @@
 				{/if}
 			</div>
 		{/snippet}
-		<svelte:component
-			this={input}
-			{value}
-			{...fieldProps}
-			{onchange}
-			onclick={onTrigger}
-		/>
+		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
 	{#if triggerable}

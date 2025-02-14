@@ -22,6 +22,12 @@ export function clamp(value, min, max) {
 	return Math.max(min, Math.min(value, max));
 }
 
+/**
+ *
+ * @param {number} value
+ * @param {number} step
+ * @returns {number}
+ */
 export function roundToStep(value, step) {
 	return Math.round(value * (1 / step)) / (1 / step);
 }
