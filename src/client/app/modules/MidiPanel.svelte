@@ -6,17 +6,19 @@
 
 	let { mID, headless = false, ...restProps } = $props();
 
-	let input = $state(null);
-	let output = $state(null);
-	let inputs = $state([]);
-	let outputs = $state([]);
+	let input = $state(undefined);
+	let output = $state(undefined);
+	let inputs = $state(MIDI.inputs);
+	let outputs = $state(MIDI.outputs);
+	let inputOptions = $derived.by(() => createDeviceOptions(inputs));
+	let outputOptions = $derived.by(() => createDeviceOptions(outputs));
 	let messages = $state([]);
 
 	function createDeviceOptions(deviceMap = new Map()) {
 		let options = [];
 
 		if (deviceMap.size !== 0) {
-			options.push({ value: 'none', label: 'No device selected.' });
+			options.push({ value: undefined, label: 'No device selected.' });
 		}
 
 		for (let entry of deviceMap) {
@@ -30,7 +32,7 @@
 		}
 
 		if (options.length === 0) {
-			options = [{ value: 'none', label: 'No device detected.' }];
+			options.push({ value: undefined, label: 'No device detected.' });
 		}
 
 		return options;
@@ -45,15 +47,23 @@
 		await MIDI.request();
 
 		function refresh() {
-			inputs = createDeviceOptions(MIDI.inputs);
-			outputs = createDeviceOptions(MIDI.outputs);
+			inputs = MIDI.inputs;
+			outputs = MIDI.outputs;
 
 			// if a single device is connected, select it by default
-			input = inputs.length === 2 ? inputs[1].value : inputs[0].value;
-			output = outputs.length === 2 ? outputs[1].value : outputs[0].value;
+			input =
+				inputs.size === 1
+					? MIDI.inputs.values().next().value.id
+					: undefined;
+			output =
+				outputs.size === 1
+					? MIDI.outputs.values().next().value.id
+					: undefined;
 		}
 
-		MIDI.addEventListener('connected', refresh);
+		MIDI.addEventListener('connected', () => {
+			refresh();
+		});
 		MIDI.addEventListener('disconnected', () => {
 			refresh();
 		});
@@ -83,7 +93,7 @@
 		value={input}
 		onchange={(value) => (input = value)}
 		params={{
-			options: inputs,
+			options: inputOptions,
 		}}
 	/>
 	<Field
@@ -91,7 +101,7 @@
 		value={output}
 		onchange={(value) => (output = value)}
 		params={{
-			options: outputs,
+			options: outputOptions,
 		}}
 	/>
 	<Field key="messages" value={messages} type="list" disabled />

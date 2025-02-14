@@ -125,7 +125,6 @@ class MIDI extends Input {
 	}
 
 	async request() {
-		console.log('MIDI :: request!');
 		try {
 			if (!this.requesting && !this.access) {
 				localStorage.setItem(LOCAL_STORAGE_KEY, true);
