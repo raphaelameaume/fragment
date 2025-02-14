@@ -7,6 +7,7 @@
 	import { layout } from '../state/layout.svelte';
 	import FieldGroup from '../ui/FieldGroup.svelte';
 	import { sketchesManager } from '../state/sketches.svelte';
+	import { parseFolder } from '../utils/fields.utils';
 
 	let {
 		id = layout.getID(),
@@ -52,16 +53,25 @@
 
 			if (!sketchPropGroup || group === sketchPropGroup) {
 				if (folder) {
+					const parsed = parseFolder(folder);
+					const current = parsed.find((m) => m.isCurrent);
+
 					const fieldgroup = sketch?.propsFolders.find(
-						(f) => f.id === folder,
+						(f) => f.id === current.id,
 					);
 
 					if (fieldgroup) {
-						const { depth, root } = fieldgroup;
+						const { depth, rootId } = fieldgroup;
+						const root =
+							rootId &&
+							sketch?.propsFolders.find((f) => f.id === rootId);
 
 						if (depth === 0 && !tree.includes(fieldgroup)) {
 							tree.push(fieldgroup);
-						} else if (root && !tree.includes(root)) {
+						} else if (
+							root &&
+							!tree.some((fieldgroup) => fieldgroup.id === rootId)
+						) {
 							tree.push(root);
 						}
 					} else {
@@ -164,19 +174,21 @@
 						sketchProps[item.key],
 					)}
 				{:else if item.type === 'fieldgroup'}
-					<FieldGroup
-						name={item.displayName}
-						collapsed={item.collapsed}
-						onchange={(collapsed) => {
-							sketch.updateFolder(item, collapsed);
-						}}
-					>
-						{#if item.children.length > 0}
-							{#each item.children as child, childIndex}
-								{@render sketchPropItem(childIndex, child)}
-							{/each}
-						{/if}
-					</FieldGroup>
+					{#if !item.hidden}
+						<FieldGroup
+							name={item.displayName}
+							collapsed={item.collapsed}
+							onchange={(collapsed) => {
+								sketch.updateFolder(item, collapsed);
+							}}
+						>
+							{#if item.children.length > 0}
+								{#each item.children as child, childIndex}
+									{@render sketchPropItem(childIndex, child)}
+								{/each}
+							{/if}
+						</FieldGroup>
+					{/if}
 				{/if}
 			{/snippet}
 			{#each sketchPropsTree as sketchPropsTreeItem, index}

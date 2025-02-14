@@ -1,6 +1,8 @@
+import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
 	deepAssign,
+	deepClone,
 	deepEqual,
 	hydrate,
 	isFunction,
@@ -46,7 +48,10 @@ class Sketch {
 
 	reset() {
 		Object.keys(this.props).forEach((key) => {
-			this.updateProp(key, this.props[key].__initialValue);
+			this.updateProp(
+				key,
+				$state.snapshot(this.props[key].__initialValue),
+			);
 		});
 
 		this.propsFolders.forEach((fieldgroup) => {
@@ -89,12 +94,16 @@ class Sketch {
 						) {
 							deepAssign(newProp.value, prevProp.value);
 							deepAssign(instanceProp.value, prevProp.value);
-							newProp.__currentValue = newProp.value;
+							newProp.__currentValue = deepClone(
+								$state.snapshot(newProp.value),
+							);
 						} else if (
 							newProp.__initialValue === prevProp.__initialValue
 						) {
 							newProp.value = prevProp.value;
-							newProp.__currentValue = newProp.value;
+							newProp.__currentValue = deepClone(
+								$state.snapshot(newProp.value),
+							);
 							instanceProp.value = prevProp.value;
 						}
 
@@ -164,18 +173,6 @@ class Sketch {
 		propsFoldersCollection,
 		propsGroupsCollection,
 	) {
-		const duplicateInitialValue = (value) => {
-			if (isFunction(value)) {
-				return value;
-			}
-
-			if (isObject(value)) {
-				return structuredClone(value);
-			}
-
-			return value;
-		};
-
 		let {
 			value,
 			params = {},
@@ -203,7 +200,7 @@ class Sketch {
 				? instanceProp.hidden
 				: () => instanceProp.hidden;
 
-		let initialValue = duplicateInitialValue(value);
+		let initialValue = deepClone(value);
 
 		if (group && !propsGroupsCollection.includes(group)) {
 			propsGroupsCollection.push(group);
@@ -216,7 +213,7 @@ class Sketch {
 		let prop = {
 			value,
 			__initialValue: initialValue,
-			__currentValue: value,
+			__currentValue: deepClone(value),
 			__hidden,
 			type,
 			params: structuredClone(params),
@@ -237,12 +234,16 @@ class Sketch {
 
 		if (prop) {
 			prop.value = newValue;
-			prop.__currentValue = newValue;
+			prop.__currentValue = deepClone(newValue);
 		}
 
 		if (instanceProp) {
 			if (!deepEqual(instanceProp.value, newValue)) {
-				instanceProp.value = newValue;
+				if (isObject(instanceProp.value) && isObject(newValue)) {
+					deepAssign(instanceProp.value, newValue);
+				} else {
+					instanceProp.value = newValue;
+				}
 			}
 
 			instanceProp.onChange?.(instanceProp, {
@@ -264,21 +265,24 @@ class Sketch {
 		if (!folder) return undefined;
 
 		let propFolder;
-		let names = folder.split('.');
 
-		if (names.length > 0) {
-			let root;
-			let collapsedRegex = /^(.*?)(?:\[collapsed=(true|false)\])?$/;
+		const parsed = parseFolder(folder);
 
-			for (let i = 0; i < names.length; i++) {
-				let name = names[i];
-				let match = name.match(collapsedRegex);
-				let displayName = match[1];
-				let collapsed = match[2] ? match[2] === 'true' : false;
+		if (parsed.length > 0) {
+			for (let i = 0; i < parsed.length; i++) {
+				let match = parsed[i];
+				let {
+					depth,
+					id,
+					parentId,
+					rootId,
+					isCurrent,
+					name,
+					attributes = {},
+				} = match;
+				let { collapsed = false } = attributes;
+				let displayName = name;
 
-				let depth = i;
-				let id = [...names].slice(0, i + 1).join('.');
-				let parentId = [...names].slice(0, i).join('.');
 				let parent =
 					depth > 0
 						? collection.find((f) => f.id === parentId)
@@ -296,7 +300,8 @@ class Sketch {
 						children: [],
 						parent,
 						depth,
-						root,
+						rootId,
+						hidden: false,
 					};
 
 					if (parent) {
@@ -306,11 +311,7 @@ class Sketch {
 					collection.push(fieldgroup);
 				}
 
-				if (i === 0) {
-					root = fieldgroup;
-				}
-
-				if (i === names.length - 1) {
+				if (isCurrent) {
 					fieldgroup.children.push({
 						type: 'field',
 						key,
@@ -326,7 +327,7 @@ class Sketch {
 
 	updateFolder(folder, collapsed) {
 		this.propsFolders.forEach((f, index) => {
-			if (f === folder) {
+			if (f.id === folder.id) {
 				this.propsFolders[index].collapsed = collapsed;
 			}
 		});
@@ -366,6 +367,9 @@ class Sketch {
 					!deepEqual(instanceProp.value, prop.__currentValue)
 				) {
 					this.updateProp(key, instanceProp.value);
+					prop.__initialValue = deepClone(
+						$state.snapshot(prop.value),
+					);
 				}
 
 				// sync displayName
@@ -460,6 +464,29 @@ class Sketch {
 		Object.keys(this.props).forEach((key) => {
 			if (!(key in (this.instance.props ?? {}))) {
 				delete this.props[key];
+			}
+		});
+
+		const fieldgroups = [...this.propsFolders].sort(
+			(a, b) => b.depth - a.depth,
+		);
+
+		fieldgroups.forEach((fieldgroup) => {
+			const hasAllFieldsHidden = fieldgroup.children
+				.filter((child) => child.type === 'field')
+				.every((child) => this.props[child.key].__hidden());
+			const hasAllFieldgroupsHidden = fieldgroup.children
+				.filter((child) => child.type === 'fieldgroup')
+				.every((child) => child.hidden);
+
+			if (hasAllFieldsHidden && hasAllFieldgroupsHidden) {
+				if (!fieldgroup.hidden) {
+					fieldgroup.hidden = true;
+				}
+			} else {
+				if (fieldgroup.hidden) {
+					fieldgroup.hidden = false;
+				}
 			}
 		});
 	}
