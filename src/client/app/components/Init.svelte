@@ -19,11 +19,15 @@
 		sketchesManager.loadAll(sketches);
 	});
 
-	let prefix = $derived(
-		sketchesManager.keys.length === 1
-			? `${getFilename(sketchesManager.keys[0])} | `
-			: '',
-	);
+	let prefix = $derived.by(() => {
+		const { keys } = sketchesManager;
+
+		if (keys.length === 1) {
+			return `${sketchesManager.sketches[keys[0]].name ?? getFilename(sketchesManager.keys[0])} | `;
+		}
+
+		return '';
+	});
 	let title = $derived(`${prefix}fragment`);
 </script>
 
