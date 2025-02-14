@@ -74,3 +74,16 @@ export function deepEqual(target, source) {
 
 	return target === source;
 }
+
+export function deepClone(value) {
+	if (isFunction(value)) {
+		return value;
+	}
+
+	if (isObject(value)) {
+		const clone = structuredClone(value);
+		return clone;
+	}
+
+	return value;
+}
