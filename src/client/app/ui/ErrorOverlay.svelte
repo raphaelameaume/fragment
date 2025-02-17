@@ -1,7 +1,7 @@
 <script>
 	import { clearErrors } from '../state/errors.svelte';
 
-	export let error;
+	let { error } = $props();
 
 	export function getLineAndColNumber(stack) {
 		const match = stack.match(/(:([0-9]+)\:([0-9]+))/);
@@ -16,30 +16,34 @@
 		return { lineNumber, colNumber };
 	}
 
-	$: stackLines = error.stack
-		? error.stack
-				.split('\n')
-				.filter((line, i, s) => (s.length === 1 ? true : i !== 0))
-				.filter((line) => !line.includes('/app/'))
-				.map((line) => {
-					// remove path to file in URL
-					line = line.replace(
-						`${window.location.origin}/@fs${__CWD__}/`,
-						'',
-					);
-					// remove vite injected params in URL
-					line = line.replace(/\?.+?\:/g, ':');
+	let stackLines = $derived(
+		error.stack
+			? error.stack
+					.split('\n')
+					.filter((line, i, s) => (s.length === 1 ? true : i !== 0))
+					.filter((line) => !line.includes('/app/'))
+					.map((line) => {
+						// remove path to file in URL
+						line = line.replace(
+							`${window.location.origin}/@fs${__CWD__}/`,
+							'',
+						);
+						// remove vite injected params in URL
+						line = line.replace(/\?.+?\:/g, ':');
 
-					return line;
-				})
-		: null;
+						return line;
+					})
+			: null,
+	);
 
-	$: extract = error.source
-		? error.source.split('\n').map((text, index) => ({
-				text,
-				highlighted: text.includes(`> ${error.lineNumber}:`),
-			}))
-		: [];
+	let extract = $derived(
+		error.source
+			? error.source.split('\n').map((text, index) => ({
+					text,
+					highlighted: text.includes(`> ${error.lineNumber}:`),
+				}))
+			: [],
+	);
 </script>
 
 <div class="error-overlay" on:click={() => clearErrors()}>
