@@ -304,6 +304,7 @@ class Rendering {
 export let rendering = new Rendering();
 
 export class Render {
+	loading = $state(false);
 	loaded = $state(false);
 	errored = $state(false);
 	paused = $state(false);
@@ -340,10 +341,11 @@ export class Render {
 		$effect(() => {
 			const { width, height, pixelRatio } = rendering;
 
-			if (!this.loaded) {
+			if (!this.loaded && !this.loading) {
 				this.width = width;
 				this.height = height;
 				this.pixelRatio = pixelRatio;
+
 				this.init();
 			}
 		});
@@ -477,6 +479,8 @@ export class Render {
 		this.init = async () => {
 			if (this.errored) return;
 
+			this.loading = true;
+
 			clearError(this.sketch.key);
 			this.mountParams = this.renderer?.onMountPreview?.(this.params);
 			if (this.mountParams && this.mountParams.canvas !== this.canvas) {
@@ -500,6 +504,7 @@ export class Render {
 					this.update(this.time);
 				});
 
+				this.loading = false;
 				this.loaded = true;
 			} catch (error) {
 				console.error(error);
@@ -703,11 +708,17 @@ export class Render {
 		this.removeShaderUpdateListener();
 
 		const { id, sketch } = this;
-		clearError(sketch.key);
 
 		this.renderer?.onDestroyPreview?.({ id });
 		this.destroyCanvas(this.canvas);
-		sketch?.instance?.dispose?.();
+
+		try {
+			sketch?.instance?.dispose?.();
+		} catch (error) {
+			console.error(error);
+			displayError(error, sketch.key);
+			this.errored = true;
+		}
 
 		cancelAnimationFrame(this.raf);
 		this.raf = null;
