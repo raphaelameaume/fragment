@@ -33,10 +33,7 @@
 	let error = $derived(
 		errors.has(key)
 			? errors.get(key)
-			: monitors.length === 1 ||
-				  !monitors.some(
-						(m) => m.selected === errors.keys().next().value,
-				  )
+			: monitors.length === 1
 				? errors.values().next().value
 				: null,
 	);
