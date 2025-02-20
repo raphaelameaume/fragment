@@ -81,7 +81,7 @@
 			value[0] = newValues[0];
 			value[1] = newValues[1];
 
-			onchange(value);
+			onchange(newValues);
 		}
 	}
 
