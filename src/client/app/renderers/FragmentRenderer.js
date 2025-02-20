@@ -15,7 +15,7 @@ export let onMountPreview = ({ canvas, id }) => {
 		frag,
 	});
 
-	return { frag };
+	return { canvas, frag };
 };
 
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
