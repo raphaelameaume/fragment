@@ -16,6 +16,7 @@
 	class="field__section"
 	class:visible
 	class:secondary
+	class:disabled
 	class:nameless={displayName === null}
 >
 	<div class="field__infos">
@@ -48,8 +49,10 @@
 		grid-template-columns: 1fr;
 	}
 
-	:global(body:not(.fragment-dragging)) .field__section:hover .field__label,
-	.field__section:focus-within .field__label {
+	:global(body:not(.fragment-dragging))
+		.field__section:not(.disabled):hover
+		.field__label,
+	.field__section:not(.disabled):focus-within .field__label {
 		opacity: 1;
 	}
 

@@ -87,7 +87,7 @@
 	aria-valuemin={min}
 	aria-valuemax={max}
 	aria-valuenow={value}
-	tabindex="0"
+	tabindex={disabled ? -1 : 0}
 >
 	<div
 		class="fill"

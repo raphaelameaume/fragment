@@ -11,7 +11,7 @@
 	} = $props();
 </script>
 
-<div class="button-container" class:disabled>
+<div class="button-input" class:disabled>
 	<button
 		class="button"
 		{disabled}
@@ -26,7 +26,7 @@
 </div>
 
 <style>
-	.button-container {
+	.button-input {
 		display: flex;
 		width: 100%;
 	}
@@ -57,15 +57,15 @@
 		color: var(--color-text-input-disabled);
 	}
 
-	:global(body:not(.fragment-dragging)) .button:hover {
+	:global(body:not(.fragment-dragging)) .button:not(:disabled):hover {
 		color: var(--color-text);
 
 		box-shadow: inset 0 0 0 1px
 			var(--box-shadow-color-active, var(--color-active));
 	}
 
-	:global(body:not(.fragment-dragging)) .button:active,
-	:global(body:not(.fragment-dragging)) .button:focus-visible {
+	:global(body:not(.fragment-dragging)) .button:not(:disabled):active,
+	:global(body:not(.fragment-dragging)) .button:not(:disabled):focus-visible {
 		box-shadow: 0 0 0 2px
 			var(--box-shadow-color-active, var(--color-active));
 	}

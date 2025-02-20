@@ -139,8 +139,6 @@
 					disabled,
 					__initialValue: initialValue,
 				} = prop}
-				{@const isDisabled =
-					typeof disabled === 'function' ? disabled() : disabled}
 				{#if !hidden}
 					<Field
 						context={sketch.key}
@@ -150,7 +148,7 @@
 						{initialValue}
 						{type}
 						{index}
-						disabled={isDisabled}
+						{disabled}
 						bind:params={sketchProps[key].params}
 						triggers={prop.triggers}
 						onclick={(event) => {

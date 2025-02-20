@@ -199,6 +199,10 @@ class Sketch {
 			typeof instanceProp.hidden === 'function'
 				? instanceProp.hidden
 				: () => instanceProp.hidden;
+		let __disabled =
+			typeof instanceProp.disabled === 'function'
+				? instanceProp.disabled
+				: () => instanceProp.disabled;
 
 		let initialValue = deepClone(value);
 
@@ -215,6 +219,9 @@ class Sketch {
 			__initialValue: initialValue,
 			__currentValue: deepClone(value),
 			__hidden,
+			__disabled,
+			hidden: __hidden(),
+			disabled: __disabled(),
 			type,
 			params: structuredClone(params),
 			triggers,
@@ -256,6 +263,7 @@ class Sketch {
 
 		Object.keys(this.props).forEach((key) => {
 			this.props[key].hidden = this.props[key].__hidden();
+			this.props[key].disabled = this.props[key].__disabled();
 		});
 
 		this.version++;
@@ -438,6 +446,8 @@ class Sketch {
 
 				// sync hidden
 				prop.hidden = prop.__hidden();
+				// sync disabled state
+				prop.disabled = prop.__disabled();
 
 				// sync params
 				if (instanceProp.params) {
