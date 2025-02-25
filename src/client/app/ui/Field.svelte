@@ -101,6 +101,7 @@
 				fieldType === fieldTypes.BUTTON),
 	);
 	let triggersActive = $derived(triggers.length > 0);
+	let changed = $derived(!deepEqual(value, initialValue));
 
 	function toggleTriggers(event) {
 		event.preventDefault();
@@ -119,16 +120,15 @@
 		};
 	}
 
-	function hasChanged(current, next) {
-		const changed = !deepEqual(current, next);
-		return changed;
+	function resetValue() {
+		onchange(initialValue);
 	}
 </script>
 
 <div
 	class="field"
 	class:disabled
-	class:changed={!disabled && hasChanged(value, initialValue)}
+	class:changed={!disabled && changed}
 	style="--index: {index};"
 >
 	<FieldSection
@@ -162,6 +162,11 @@
 		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
+	{#if changed}
+		<button class="field-changed" onclick={resetValue}>
+			<span class="visually-hidden">Reset value</span>
+		</button>
+	{/if}
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
@@ -188,9 +193,7 @@
 		border-bottom: 1px solid var(--color-spacing);
 	}
 
-	.field.changed:before {
-		content: '';
-
+	.field-changed {
 		position: absolute;
 		top: 0px;
 		left: 0px;
