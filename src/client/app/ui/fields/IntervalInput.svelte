@@ -94,9 +94,10 @@
 	}
 
 	function handleValueChange(index, newValue) {
-		value[index] = newValue;
+		let newValues = [...value];
+		newValues[index] = newValue;
 
-		onchange(value);
+		onchange(newValues);
 	}
 
 	$effect(() => {
@@ -141,7 +142,7 @@
 				{max}
 				progress={false}
 				value={value[0]}
-				on:change={(event) => handleValueChange(0, event.detail)}
+				onchange={(event) => handleValueChange(0, event)}
 			/>
 			<NumberInput
 				{label}
@@ -154,7 +155,7 @@
 				{max}
 				progress={false}
 				value={value[1]}
-				on:change={(event) => handleValueChange(1, event.detail)}
+				onchange={(event) => handleValueChange(1, event)}
 			/>
 		</div>
 	</FieldInputRow>

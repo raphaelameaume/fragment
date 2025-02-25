@@ -222,10 +222,6 @@
 		padding-bottom: 0px !important;
 	}
 
-	.field.disabled {
-		pointer-events: none;
-	}
-
 	.field__actions {
 		display: flex;
 		align-items: center;

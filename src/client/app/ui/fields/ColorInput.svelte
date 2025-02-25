@@ -217,7 +217,9 @@
 		pointer-events: none;
 	}
 
-	:global(body:not(.fragment-dragging)) .mirror:hover {
+	:global(body:not(.fragment-dragging))
+		.color-input:not(.disabled)
+		.mirror:hover {
 		box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--color-active));
 	}
 
@@ -229,8 +231,12 @@
 		width: 100%;
 		height: 100%;
 		opacity: 0;
-		cursor: pointer;
+
 		background: transparent;
 		border: none;
+	}
+
+	.color-input:not(.disabled) .input {
+		cursor: pointer;
 	}
 </style>
