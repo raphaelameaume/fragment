@@ -1,5 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Using triggers</sup>
-
 # Using triggers
 
 Triggers are functions you can call imperatively from your sketch file to make it *interactive*. They can also be assigned on a prop through the UI.

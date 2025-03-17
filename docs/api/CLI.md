@@ -1,6 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → CLI</sup>
-<br>
-
 # CLI
 
 Once `fragment` is properly [installed](../../README.md#installation), you can launch it and create sketches from the command line.

@@ -1,18 +1,15 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → Renderers</sup>
-<br>
-
 # Renderers
 
 They described systems that take *sketchs* as input and output their results to a canvas. A renderer should be capable of displaying multiple skeches of the same *rendering* at the same time in the most efficient way possible, meaning it should share ressources between sketches whenever possible.
 
-A renderer can implement the [*hooks*](#hooks) described here in order to match requirements described above.
+A renderer should implement [lifecycle functions](#lifecycle-functions) as described here in order to work properly.
 
-## Hooks
+## Lifecycle functions
 
 #### `init`
 - Type: `() => InitParams`
 
-Called once on the first time a sketch with matching rendering is mounted. Useful to create and save ressources that will be shared across sketches. The object returned from this function will spread as params and made available to sketch hooks.
+Called once on the first time a sketch with matching rendering is mounted. Useful to create and save ressources that will be shared across sketches. The object returned from this function will spread as params and made available to sketch lifecycle functions.
 
 Example:
 ```js
@@ -36,7 +33,7 @@ export let init = ({ renderer, value }) => {
 #### `onMountPreview`
 - Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement, width: number, height: number, pixelRatio: number }) => MountParams`
 
-Called everytime a sketch is mounted or hot reloaded. The object returned from this function will spread as params and made available to sketch hooks.
+Called everytime a sketch is mounted or hot reloaded. The object returned from this function will spread as params and made available to the sketch lifecycle functions.
 
 ```js
 // renderer.js
@@ -52,7 +49,7 @@ export let update = ({ previewIndex }) => {
 };
 ```
 
-> ⚠️ InitParams and MountParams are both spread at the same level and in this order, so if you export an object key from `init()` and the same key for a different value from `onMountPreview`, `onMountPreview` value will take over as the spread happen {...InitParams, ...MountParams }.
+> ⚠️ InitParams and MountParams are both spread at the same level and in this order, so if you export an object key from `init()` and the same key for a different value from `onMountPreview`, `onMountPreview` value will take over when the parameters are merged like this `{...InitParams, ...MountParams }`.
 
 #### `onBeforeUpdatePreview`
 - Type: `({ index: number, canvas: HTMLCanvasElement, container: HTMLElement }) => void`

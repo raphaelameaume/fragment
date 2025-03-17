@@ -1,17 +1,16 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Exports</sup>
-<br>
-
 # Exports
 
-`fragment` provides different ways to export sketches, whereas it's for communication or archive purposes. It currently supports image, video and live exports.
+Fragment provides different ways to export sketches, whereas it's for communication or archive purposes. It currently supports image, video and live exports.
 
-Settings of the `Exports` module are saved in localStorage so they will be kept between working sessions as long as `fragment` starts on the same URL/port.
+---
+
+Settings of the Exports module are saved in localStorage so they will be kept between working sessions as long as Fragment starts on the same URL and port.
 
 ## Export one or multiple images
 
-`fragment` can export .png, .webp and .jpeg files.
+Fragment can export PNG, WEBP and JPEG files.
 
-You can change `encoding`, `quality` and `pixelsPerInch` in the module settings.
+You can change `encoding`, `quality` and `pixelsPerInch` in the Exports module settings.
 
 The size of the image used when exporting will be the current one used for display. If you want to create hi-res exports, make sure to change the `dimensions` or `pixelRatio` of the canvas before doing so.
 
@@ -24,6 +23,7 @@ Type `Cmd+S` on Mac or `Ctrl+S` on Windows to save a screenshot with selected se
 You can also export multiple images by increasing the `count` value in the module settings. `fragment` will run the `update()` function of your sketch between each capture. `fragment` provides *hooks* to run a function between captures.
 
 ```js
+// Export a batch of renders using different seeds
 import { onAfterCapture } from '@fragment/hooks';
 
 let seed = randomSeed();
@@ -36,23 +36,22 @@ export let init = () => {
 
 export let update = () => {
   random.setSeed(seed);
-  
+
   // ...
 };
-
 ```
 
 ## Export a video
 
-`fragment` can export .mp4, .gif, .webm videos and frame sequences.
+Fragment can export MP4, GIF, WEBM videos and frame sequences.
 
-You can change the `framerate`, the `encoding` and the `quality` of the recording in the module settings.
+You can change the `framerate`, the `encoding` and the `quality` of the recording in the Exports module settings.
 
-If `useDuration` is `true` and a sketch exports a [duration](../api/sketch.md#duration) property, the recording will stop once `fragment` has exported enough frames to compose the recording at specified framerate. This can be useful to export loop-based sketchs.
+If `useDuration` is `true` and a sketch exports a [duration](../api/sketch.md#duration) property, the recording will stop once Fragment has exported enough frames to compose the recording at the specified framerate. This can be useful to export loop-based sketchs.
 
-If `loopCount` is greater than 1, the recording will stop once fragment has enough frames to compose the recording for a final duration equals to sketchDuration*loopCount. This can be useful to export loop-based sketchs with variations between loops.
+If `loopCount` is greater than 1, recording will stop once Fragment has enough frames. The total number of frames equals to `sketchDuration*loopCount`. This can be useful to export loop-based sketchs with variations between loops.
 
-> ⚠️ The `framerate` used for recording can be different from sketch [fps](../api/sketch.md#duration) property.
+> ⚠️ The `framerate` used for recording can be different from the [sketch framerate](../api/sketch.md#duration).
 
 ## Export a live version
 
@@ -109,9 +108,12 @@ A built sketch can be previewed on dev mode by typing `p`.
 
 ## Change the filename
 
-By default, `fragment` will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`. See [filenamePattern](../api/sketch.md#filenamepattern) to change this behavior.
+By default, Fragment will use the sketch filename and a timestamp to name your export like `sketch.js.2022.05.27-08.30.00.[extension]`. See [filenamePattern](../api/sketch.md#filenamepattern) to change this behaviour.
 
 ## Change the directory of exports
 
-By default, `fragment` will use the directory where the command was started (`process.cwd()`) for saving the exports. This can be changed by passing the `--exportDir=/path/to/custom/directory` to the command line on start.
- 
+By default, Fragment will use the directory where the command was started (`process.cwd()`) for saving the exports. This can be changed by specifying the `exportDir`.
+
+```js
+export let exportDir =/path/to/custom/directory`;
+```

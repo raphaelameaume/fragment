@@ -1,6 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Hot shader replacement</sup>
-<br>
-
 # Hot shader replacement
 
 The same way [vite](https://vitejs.dev/) provides instant updates to your sketch with its [HMR API](https://vitejs.dev/guide/features.html#hot-module-replacement), `fragment` provides instant updates to shaders when using the following file extensions:
