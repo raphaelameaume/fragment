@@ -1,6 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Reactive props</sup>
-<br>
-
 # Reactive props
 
 By default, `fragment` recommends declaring props as a plain JavaScript Object like this:
@@ -13,12 +10,12 @@ export let props = {
 };
 ```
 
-However, using a plain object prevents the interface to be synchronized with changes you might apply to values directly from code. 
+However, using a plain object prevents the interface to be synchronized with changes you might apply to values directly from code.
 
 ```js
 export let init = () => {
 	let shouldChangeRadius = /*...*/;
-	
+
 	if (shouldChangeRadius) {
 		props.radius.value = 40; // prop.radius in the interface will still display 20, e.g the initial value of the prop
 	}
@@ -38,7 +35,7 @@ export let props = reactiveProps({
 
 export let init = () => {
 	let shouldChangeRadius = /*...*/;
-	
+
 	if (shouldChangeRadius) {
 		props.radius.value = 40; // prop.radius in the interface will be updated
 	}

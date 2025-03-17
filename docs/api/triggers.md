@@ -1,6 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → Triggers</sup>
-<br>
-
 # Triggers
 
 ## Mouse
@@ -73,7 +70,7 @@ Register a `keyup` listener for `key` on `window`.
 
 ## MIDI
 
-MIDI triggers are called when using a MIDI device after authorizing usage of the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API). 
+MIDI triggers are called when using a MIDI device after authorizing usage of the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API).
 
 #### `onNoteOn`
 - Type: `(note?:(string|string[]), listener(event:MIDIEvent): function) => void`

@@ -1,5 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Using existing p5.js sketches</sup>
-
 # Using existing p5.js sketches
 
 In case you already have a few sketches around, you can port them to Fragment in a few steps with very little changes and then enjoy the features Fragment provides such as video and images exports, using MIDI inputs to trigger functions or deploy something online.
@@ -230,7 +228,7 @@ export function draw({ p, width, height }) {
 }
 ```
 
-You should be able to edit the values in the new available inputs under the Parameters module. 
+You should be able to edit the values in the new available inputs under the Parameters module.
 
 11. Let's ask Fragment to create sliders so it's easier to play with values. On the `props` declaration, let's add a new `params` to each prop with min and max values like this:
 

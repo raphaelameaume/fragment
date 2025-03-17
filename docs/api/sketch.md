@@ -1,17 +1,14 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → Sketch</sup>
-<br>
-
 # Sketch
 
-A sketch in `fragment` is the entry point of your project. Its API is fairly simple, supports different types of renderings and can grow in complexity.
+A sketch in Fragment is the entry point of your project. Its API is fairly simple, supports different types of renderings and can grow in complexity.
 
 ## Lifecycle
 
-Each time your sketch is saved, the previous one is destroyed and a new *lifecycle* is called. Internally, `fragment` will call available [exports](./#exports) from your sketch in this specific order.
+Each time your sketch is saved, the previous one is destroyed and a new *lifecycle* is called. Internally, Fragment will call available [exports](./#exports) from your sketch in this specific order.
 
 ```js
 await sketch.load();
-sketch.init();
+await sketch.init();
 sketch.resize();
 sketch.update();
 // on sketch hot reload
@@ -161,7 +158,7 @@ In order to reuse the timestamp in your own pattern, `timestamp` is available as
 
 The callback is also returning the sketch current props so you can use their values in your export name.
 
-Example: 
+Example:
 
 ```js
 export let filenamePattern = ({ filename, suffix, props }) => {
@@ -202,7 +199,7 @@ export let props = {
 export let update = ({ context }) => {
   const radius = props.radius.value;
 
-  context.arc(x, y, radius, 0, 2 * Math.PI); 
+  context.arc(x, y, radius, 0, 2 * Math.PI);
 };
 ```
 

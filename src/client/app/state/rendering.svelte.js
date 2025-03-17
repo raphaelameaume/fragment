@@ -627,6 +627,8 @@ export class Render {
 			onComplete: (params) => {
 				sketch.afterRecord.forEach((fn) => fn(params));
 				this.record = null;
+				this.recording = false;
+				this.paused = false;
 			},
 		});
 	}

@@ -1,6 +1,3 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Getting started</sup>
-<br>
-
 # Getting started
 
 ## Create a sketch
@@ -51,7 +48,7 @@ export let update = ({ context, width, height }) => {
   context.beginPath();
   context.arc(width * 0.5, height * 0.5, radius, 0, 2 * Math.PI, false);
   // fill the previous path drawing with the current fillStyle
-  context.fill(); 
+  context.fill();
 };
 ```
 
@@ -59,7 +56,7 @@ export let update = ({ context, width, height }) => {
 
 In order to quickly create controls on the screen, `fragment` checks for an existing `props` object exported from your sketch. The controls will be built based on the type of values in the `props` object.
 
-Let's create our first prop `radius`. 
+Let's create our first prop `radius`.
 
 ```js
 export let props = {
@@ -102,7 +99,7 @@ export let props = {
 
 A slider should have appeared after saving the sketch file next to the previous input. Now if you click and drag on the slider, you should see your circle changing live.
 
-Congrats, you made your first sketch in `fragment`! 
+Congrats, you made your first sketch in `fragment`!
 
 If you want to know more about `props` and what can be done with it, check out the [SketchProps](../api/sketch.md#sketchprops) section of the documentation.
 

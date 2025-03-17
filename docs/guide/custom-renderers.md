@@ -1,11 +1,8 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [Guide](../README.md#guide) → Custom renderers</sup>
-<br>
-
 # Custom renderers
 
-`fragment` has built-in support for [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/) and [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader), however you might want to implement your own renderer.
+Fragment has built-in support for [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/) and [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader), however you might want to implement your own renderer.
 
-You can do so by exporting a `renderer` from the sketch file like so:
+You can do so by exporting a `renderer` property from the sketch file:
 
 ```js
 import * as SVGRenderer from './custom-svg-renderer.js';
@@ -23,7 +20,7 @@ export let renderer = () => import('./SVGRenderer');
 
 ## Implementation
 
-Renderers have their own lifecycle inside `fragment`, that can be defined through ESM named-exports just like in a sketch file. 
+Renderers have their own lifecycle inside `fragment`, that can be defined through ESM named-exports just like in a sketch file.
 You can refer to the [Renderers](../api/renderers.md) API that list available exports and their usage.
 
 ## Example
@@ -115,10 +112,10 @@ export let renderer = () => import('./custom-svg-renderer.js');
 export let update = ({ svg, width, height }) => {
 	// use the tag function exposed by the renderer in `onMountPreview`
 	svg`
-<circle cx="${width * 0.5}" height="${height * 0.5}" r="50" fill="red" />	
+<circle cx="${width * 0.5}" height="${height * 0.5}" r="50" fill="red" />
 `
 };
 
 ```
 
-> ⚠️ In this example, nothing is drawn on the canvas, so the different exports (images or videos) will not work (the files will be blank). You might want to implement your own way of replicating the SVG (in this special case) to the canvas by parsing it and drawing it with a 2D context in `onAfterUpdatePreview`. 
+> ⚠️ In this example, nothing is drawn on the canvas, so the different exports (images or videos) will not work (the files will be blank). You might want to implement your own way of replicating the SVG (in this special case) to the canvas by parsing it and drawing it in a 2D context in `onAfterUpdatePreview`.
