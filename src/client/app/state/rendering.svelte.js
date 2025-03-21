@@ -605,7 +605,7 @@ export class Render {
 			return;
 		}
 
-		this.record = await exports.record(this.canvas, {
+		this.record = exports.record(this.canvas, {
 			filename: sketch.key,
 			pattern: sketch.filenamePattern,
 			exportDir: sketch.exportDir,
@@ -627,6 +627,8 @@ export class Render {
 			onComplete: (params) => {
 				sketch.afterRecord.forEach((fn) => fn(params));
 				this.record = null;
+				this.paused = false;
+				this.recording = false;
 			},
 		});
 	}
