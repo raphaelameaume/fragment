@@ -63,6 +63,14 @@
 		};
 	});
 
+	$effect(() => {
+		if (exports.recording && !render?.recording) {
+			render.startRecording();
+		} else if (render?.recording && !exports.recording) {
+			render.stopRecording();
+		}
+	});
+
 	function checkForRefresh(event) {
 		if (!event.metaKey && !event.ctrlKey) {
 			event.preventDefault();
@@ -97,12 +105,6 @@
 	function checkForRecord(event) {
 		if (event.shiftKey) {
 			exports.recording = !exports.recording;
-
-			if (exports.recording && !render.recording) {
-				render.startRecording();
-			} else if (render.recording && !exports.recording) {
-				render.stopRecording();
-			}
 		}
 	}
 
