@@ -649,7 +649,8 @@ export class Render {
 			this.sketch.instance?.dispose?.();
 			this.sketch.reset();
 
-			this.init();
+			this.loading = false;
+			this.loaded = false;
 		} catch (error) {
 			console.error(error);
 			displayError(error, this.sketch.key);
