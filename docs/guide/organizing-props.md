@@ -83,7 +83,6 @@ If one prop has a group specified, Fragment will create a <select> at the top of
 This behaviour allows to have one or multiple Params modules in the layout and arrange props in very different ways.
 
 ```js
-
 export let props = {
 	color: {
 		value: '#ff0000',
