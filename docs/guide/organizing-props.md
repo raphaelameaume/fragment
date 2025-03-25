@@ -79,7 +79,7 @@ export let props = {
 ## Groups
 
 Props can also be organized in **groups**. Groups can be used to filter props display in the Params module.
-If one prop has a group specified, Fragment will create a <select> at the top of the Params module so you can filter the group to be displayed.
+If one prop has a group specified, Fragment will create a `<select>` at the top of the Params module so you can filter the group to be displayed.
 This behaviour allows to have one or multiple Params modules in the layout and arrange props in very different ways.
 
 ```js
