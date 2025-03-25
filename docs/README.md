@@ -7,6 +7,7 @@
 ## Guide
 - [Configuration](./guide/configuration.md)
 - [Export a sketch](./guide/exports.md)
+- [Organizing props](./guide/organizing-props.md)
 - [Using external dependencies](./guide/external-dependencies.md)
 - [Using existing p5.js sketches](./guide/using-existing-p5js-sketches.md)
 - [Using triggers](./guide/using-triggers.md)
