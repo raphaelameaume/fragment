@@ -108,7 +108,7 @@ git clone https://github.com/raphaelameaume/fragment.git
 # Move to the root of the repository
 cd fragment
 
-# Tun the command line locally
+# Run the command line locally
 node ./bin/index.js examples/shape-2d.js --dev
 
 # or from your sketch folder

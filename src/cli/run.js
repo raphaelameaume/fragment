@@ -1,9 +1,6 @@
 import { createServer, mergeConfig } from 'vite';
 import { createConfig } from './createConfig.js';
-import {
-	createSketchesFile,
-	createTsConfigFile,
-} from './createFragmentFile.js';
+import { createSketchesFile } from './createFragmentFile.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta, bold, cyan, red } from './log.js';
 import save from './plugins/save.js';
@@ -61,8 +58,6 @@ export async function run(entry, options = {}) {
 		}
 
 		const sketchesPath = await createSketchesFile(entries, cwd);
-
-		await createTsConfigFile(cwd);
 
 		fragmentServer = await startWebSocketServer({
 			cwd,
