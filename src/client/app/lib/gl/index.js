@@ -2,8 +2,9 @@ import Geometry from './Geometry.js';
 import Texture from './Texture.js';
 import Program, { defaultFragment, defaultVertex } from './Program.js';
 import Renderer from './Renderer.js';
+import FBO from './FBO.js';
 
-export { Geometry, Texture, Program, Renderer };
+export { Geometry, Texture, Program, Renderer, FBO };
 
 export function fragment({
 	canvas = document.createElement('canvas'),
@@ -47,6 +48,7 @@ export function fragment({
 
 	const frag = {
 		gl: renderer.gl,
+		renderer,
 		program,
 
 		texture: (params = {}) => new Texture(gl, params),

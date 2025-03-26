@@ -49,6 +49,7 @@ declare module '@fragment/lib/gl' {
 		needsUpdate: boolean;
 		glTexture: WebGLTexture | null;
 		bind(): void;
+		resize: (width: number, height: number) => void;
 		update(textureUnit?: number): void;
 		destroy(): void;
 	}
@@ -105,8 +106,42 @@ declare module '@fragment/lib/gl' {
 		destroy(): void;
 	}
 
+	class FBO {
+		constructor(
+			renderer: Renderer,
+			params?: {
+				name?: string;
+				vertex?: string;
+				fragment?: string;
+				uniforms?: Uniforms;
+				width?: number;
+				height?: number;
+				type?: number;
+				wrapS?: number;
+				wrapT?: number;
+				generateMipmaps?: boolean;
+				format?: number;
+				internalFormat?: number;
+				minFilter?: number;
+				magFilter?: number;
+			},
+		);
+		gl: Gl;
+		renderer: Renderer;
+		geometry: Geometry;
+		program: Program;
+		texture: Texture;
+		framebuffer: WebGLFramebuffer | null;
+		width: number;
+		height: number;
+		resize: (width: number, height: number) => void;
+		render: () => void;
+		destroy: () => void;
+	}
+
 	interface Frag {
 		gl: Gl;
+		renderer: Renderer;
 		program: Program;
 		texture: (params?: {}) => Texture;
 		shader: string;
