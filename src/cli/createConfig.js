@@ -4,7 +4,7 @@ import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 import checkDependencies from './plugins/check-dependencies.js';
-import { file } from './utils.js';
+import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
 
@@ -43,7 +43,7 @@ export async function loadConfig({ cwd, filepath }) {
 /**
  * Create Vite config from entries
  * @param {string[]} entries
- * @param {string} fragmentFilepath
+ * @param {string} sketchesPath
  * @param {options} options
  * @param {boolean} [options.dev=false]
  * @param {boolean} [options.build=false]
@@ -52,7 +52,7 @@ export async function loadConfig({ cwd, filepath }) {
  */
 export async function createConfig(
 	entries,
-	fragmentFilepath,
+	sketchesPath,
 	{ dev = false, build = false } = {},
 	configFilepath,
 	cwd = process.cwd(),
@@ -76,25 +76,14 @@ export async function createConfig(
 			logLevel: dev ? 'info' : 'silent',
 			publicDir,
 			resolve: {
-				alias: [
-					{
-						find: '@fragment/sketches',
-						replacement: fragmentFilepath,
-					},
-					{ find: '@fragment', replacement: app },
-					{
-						find: 'three',
-						replacement: path.join(cwd, 'node_modules/three'),
-					},
-					{
-						find: 'p5',
-						replacement: path.join(cwd, 'node_modules/p5'),
-					},
-					{
-						find: 'ogl',
-						replacement: path.join(cwd, 'node_modules/ogl'),
-					},
-				],
+				alias: {
+					'@fragment/sketches': sketchesPath,
+					'@fragment/types': path.join(__dirname, 'src/types'),
+					'@fragment': path.join(__dirname, 'src/client/app'),
+					three: path.join(cwd, 'node_modules/three'),
+					p5: path.join(cwd, 'node_modules/p5'),
+					ogl: path.join(cwd, 'node_modules/ogl'),
+				},
 			},
 			plugins: [
 				svelte({

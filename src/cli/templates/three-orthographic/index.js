@@ -11,7 +11,7 @@ let camera;
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ scene, width, height }) => {
+export const init = ({ scene, width, height }) => {
 	camera = new THREE.OrthographicCamera(1, 1, 1, 1, 1, 1000);
 	camera.position.z = 1;
 };
@@ -30,7 +30,7 @@ export let init = ({ scene, width, height }) => {
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ renderer, scene, time, deltaTime }) => {
+export const update = ({ renderer, scene, time, deltaTime }) => {
 	renderer.render(scene, camera);
 };
 
@@ -43,7 +43,7 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height }) => {
+export const resize = ({ width, height }) => {
 	camera.left = -width * 0.5;
 	camera.right = width * 0.5;
 	camera.top = height * 0.5;
@@ -52,4 +52,4 @@ export let resize = ({ width, height }) => {
 	camera.updateProjectionMatrix();
 };
 
-export let rendering = 'three';
+export const rendering = 'three';

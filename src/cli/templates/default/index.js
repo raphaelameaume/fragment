@@ -1,4 +1,4 @@
-export let props = {};
+export const props = {};
 
 /**
  * @param {object} params
@@ -8,7 +8,7 @@ export let props = {};
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ canvas, context, width, height }) => {};
+export const init = ({ canvas, context, width, height }) => {};
 
 /**
  * @param {object} params
@@ -23,7 +23,7 @@ export let init = ({ canvas, context, width, height }) => {};
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ context, width, height, pixelRatio }) => {
+export const update = ({ context, width, height, pixelRatio }) => {
 	context.clearRect(0, 0, width * pixelRatio, height * pixelRatio);
 };
 
@@ -34,6 +34,6 @@ export let update = ({ context, width, height, pixelRatio }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height }) => {};
+export const resize = ({ width, height }) => {};
 
-export let rendering = '2d';
+export const rendering = '2d';

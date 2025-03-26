@@ -1,4 +1,5 @@
 import p5 from 'p5';
+
 import fragmentShader from './fragment.fs';
 
 export let props = {
@@ -17,7 +18,7 @@ let shader;
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export function setup({ p, width, height }) {
+export const setup = ({ p, width, height }) => {
 	shader = p.createShader(
 		/* glsl */ `
 attribute vec3 aPosition;
@@ -33,13 +34,13 @@ void main() {
 
 	vec3 transformed = aPosition;
     transformed.xy = transformed.xy - 1.;
-    
+
     gl_Position = vec4(transformed, 1.);
 }
 `,
 		fragmentShader,
 	);
-}
+};
 
 /**
  * @param {object} params
@@ -54,7 +55,7 @@ void main() {
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export function draw({ p, width, height, time }) {
+export const draw = ({ p, width, height, time }) => {
 	p.background(props.backgroundColor.value);
 
 	p.shader(shader);
@@ -62,6 +63,6 @@ export function draw({ p, width, height, time }) {
 	shader.setUniform('uTime', time / 1000);
 
 	p.rect(0, 0, width, height);
-}
+};
 
-export let rendering = 'p5-webgl';
+export const rendering = 'p5-webgl';

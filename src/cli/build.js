@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { mergeConfig, build as viteBuild } from 'vite';
-import { createFragmentFile } from './createFragmentFile.js';
+import { createSketchesFile } from './createFragmentFile.js';
 import { createConfig } from './createConfig.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta } from './log.js';
@@ -17,6 +17,7 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * @param {string} options.outDir
  * @param {boolean} options.emptyOutDir
  * @param {boolean} options.development
+ * @param {string} options.configFilepath
  * @param {boolean} [options.prompts=true]
  */
 export async function build(entry, options) {
@@ -94,10 +95,11 @@ export async function build(entry, options) {
 				prefix,
 			);
 
-			const fragmentFilepath = await createFragmentFile(entries, cwd);
+			const sketchesPath = await createSketchesFile(entries, cwd);
+
 			const config = await createConfig(
 				entries,
-				fragmentFilepath,
+				sketchesPath,
 				{
 					dev: options.development,
 					build: true,

@@ -1,6 +1,9 @@
 import { createServer, mergeConfig } from 'vite';
 import { createConfig } from './createConfig.js';
-import { createFragmentFile } from './createFragmentFile.js';
+import {
+	createSketchesFile,
+	createTsConfigFile,
+} from './createFragmentFile.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta, bold, cyan, red } from './log.js';
 import save from './plugins/save.js';
@@ -17,6 +20,7 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * @param {boolean} options.development
  * @param {number} options.port
  * @param {number} options.exportDir
+ * @param {string} options.configFilepath
  */
 export async function run(entry, options = {}) {
 	let fragmentServer;
@@ -56,7 +60,9 @@ export async function run(entry, options = {}) {
 			);
 		}
 
-		const fragmentFilepath = await createFragmentFile(entries, cwd);
+		const sketchesPath = await createSketchesFile(entries, cwd);
+
+		await createTsConfigFile(cwd);
 
 		fragmentServer = await startWebSocketServer({
 			cwd,
@@ -64,7 +70,7 @@ export async function run(entry, options = {}) {
 
 		const config = await createConfig(
 			entries,
-			fragmentFilepath,
+			sketchesPath,
 			{
 				dev: options.development,
 				build: false,

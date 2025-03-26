@@ -1,0 +1,39 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"skipLibCheck": true,
+
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"esModuleInterop": false,
+		"moduleDetection": "force",
+		"resolveJsonModule": true,
+		"noEmit": true,
+
+		/* Linting */
+		"strict": true,
+		"allowJs": true,
+		"checkJs": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+
+		/* Paths */
+		"types": ["./src/types"],
+		"paths": {
+			"@fragment/types": ["./src/types"],
+			"@fragment/types/*": ["./src/types/*"],
+			"@fragment/*": ["./src/client/app/*"]
+		}
+	}
+}

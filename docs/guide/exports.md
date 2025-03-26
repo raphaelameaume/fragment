@@ -57,7 +57,7 @@ If `loopCount` is greater than 1, recording will stop once Fragment has enough f
 
 A sketch can be built into static files (html, js, css) to be deployed anywhere online.
 
-```
+```bash
 fragment ./sketch.js --build
 ```
 

@@ -16,7 +16,8 @@ fragment create [filename]
 
 | Flag | Shortcut | Description | Default |
 |---|---|---|---|
-|`--template`| `-t` | Prepopulate template choice | `2d` |
+|`--template`| `-t` | Pre-populate template choice | `2d` |
+|`--typescript`| none | Pre-populate TypeScript support choice | `false` |
 
 #### Example
 
@@ -81,11 +82,11 @@ fragment preview [directory]
 ## Templates
 
 `fragment` currently has the following templates:
-- [blank](../../src/cli/templates/blank/index.js)
-- [2d](../../src/cli/templates/default/index.js)
-- [fragment](../../src/cli/templates/fragment-gl/index.js)
-- [three/fragment](../../src/cli/templates/three-fragment/index.js)
-- [three/orthographic](../../src/cli/templates/three-orthographic/index.js)
-- [three/perspective](../../src/cli/templates/three-perspective/index.js)
-- [p5](../../src/cli/templates/p5/index.js)
-- [p5-webgl](../../src/cli/templates/p5-webgl/index.js)
+- [blank](../../src/cli/templates/blank)
+- [2d](../../src/cli/templates/default)
+- [fragment](../../src/cli/templates/fragment-gl)
+- [three/fragment](../../src/cli/templates/three-fragment)
+- [three/orthographic](../../src/cli/templates/three-orthographic)
+- [three/perspective](../../src/cli/templates/three-perspective)
+- [p5](../../src/cli/templates/p5)
+- [p5-webgl](../../src/cli/templates/p5-webgl)

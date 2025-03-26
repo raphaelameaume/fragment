@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 import fragmentShader from './fragment.fs';
 
 let camera;
@@ -16,7 +17,7 @@ let uniforms = {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ scene, width, height }) => {
+export const init = ({ scene, width, height }) => {
 	camera = new THREE.OrthographicCamera(1, 1, 1, 1, 1, 1000);
 
 	let geometry = new THREE.BufferGeometry();
@@ -65,7 +66,7 @@ export let init = ({ scene, width, height }) => {
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ renderer, scene, time, deltaTime }) => {
+export const update = ({ renderer, scene, time, deltaTime }) => {
 	uniforms.uTime.value = time;
 
 	renderer.render(scene, camera);
@@ -80,7 +81,7 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height, pixelRatio }) => {
+export const resize = ({ width, height, pixelRatio }) => {
 	uniforms.uResolution.value.x = width * pixelRatio;
 	uniforms.uResolution.value.y = height * pixelRatio;
 
@@ -92,4 +93,4 @@ export let resize = ({ width, height, pixelRatio }) => {
 	camera.updateProjectionMatrix();
 };
 
-export let rendering = 'three';
+export const rendering = 'three';

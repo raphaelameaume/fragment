@@ -38,6 +38,8 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@types/p5": "^1.7.6",
+    "@types/three": "^0.174.0",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.6"
   }
