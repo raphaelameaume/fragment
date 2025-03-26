@@ -204,6 +204,8 @@ export async function create(entry, { templateName, typescript } = {}) {
 				`Copying templates/${template.path}/${file} to ${path.relative(cwd, dest)}...`,
 			);
 
+			dest = await checkForFileExistence(dest);
+
 			let buffer = await readFile(source);
 			let content = buffer.toString();
 
