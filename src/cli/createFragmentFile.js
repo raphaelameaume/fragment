@@ -113,7 +113,6 @@ export async function createTsConfigFile(cwd = process.cwd()) {
 		"forceConsistentCasingInFileNames": true,
 
 		/* Paths */
-		"types": ["${path.join(fragmentPath, 'src/types')}"],
 		"paths": {
 			"@fragment/types": ["${path.join(fragmentPath, 'src/types')}"],
 			"@fragment/types/*": ["${path.join(fragmentPath, 'src/types')}/*"],
