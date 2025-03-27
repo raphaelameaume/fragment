@@ -29,11 +29,10 @@
 		"forceConsistentCasingInFileNames": true,
 
 		/* Paths */
-		"types": ["./src/types"],
 		"paths": {
-			"@fragment/types": ["./src/types"],
-			"@fragment/types/*": ["./src/types/*"],
-			"@fragment/*": ["./src/client/app/*"]
+			"@fragment/types": ["src/types"],
+			"@fragment/types/*": ["src/types/*"],
+			"@fragment/*": ["src/client/app/*"]
 		}
 	}
 }

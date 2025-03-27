@@ -6,7 +6,7 @@ type UniformValue = number | number[] | Texture;
 type Uniform = { type?: string; value?: UniformValue };
 type Uniforms = Record<string, Uniform>;
 
-type Attributes = Record<string, { dataa: number[] }>;
+type Attributes = Record<string, { data: number[] }>;
 
 export class Geometry {
 	constructor(gl: Gl, attributes?: Attributes);
