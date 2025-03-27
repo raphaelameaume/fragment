@@ -1,6 +1,6 @@
-import type { Frag } from './gl';
 import type { Props } from './props';
 import type { Rendering, MountParams, InitParams } from './renderers';
+import type { Frag } from './gl';
 
 export type Load<R extends Rendering> = (
 	params: InitParams &
