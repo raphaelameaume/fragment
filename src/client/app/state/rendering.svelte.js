@@ -128,15 +128,15 @@ class Rendering {
 			const params =
 				instance.init?.({
 					canvas: document.createElement('canvas'),
-					pixelRatio: this.pixelRatio,
 					width: this.width,
 					height: this.height,
+					pixelRatio: this.pixelRatio,
 				}) ?? {};
 
 			instance.resize?.({
-				pixelRatio: this.pixelRatio,
 				width: this.width,
 				height: this.height,
+				pixelRatio: this.pixelRatio,
 				...params,
 			});
 

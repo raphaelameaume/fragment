@@ -3,9 +3,32 @@ import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
+/**
+ * @typedef {object} MountParamsFragmentRenderer
+ * @property {HTMLCanvasElement} canvas
+ * @property {Frag} frag
+ */
+
+/**
+ * @typedef {object} FragFragmentRenderer
+ * @property {number} id
+ * @property {Frag} frag
+ */
+
+/** @type {FragFragmentRenderer[]} */
 let frags = [];
 
-export let onMountPreview = ({ canvas, id }) => {
+/**
+ * @param {object} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ * @returns {MountParamsFragmentRenderer}
+ */
+export let onMountPreview = ({ id, canvas }) => {
 	let frag = fragment({
 		canvas,
 	});
@@ -18,13 +41,27 @@ export let onMountPreview = ({ canvas, id }) => {
 	return { canvas, frag };
 };
 
+/**
+ * @param {MountParamsFragmentRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	let { frag } = frags.find((f) => f.id === id);
 
 	frag.resize({ width, height, pixelRatio });
 };
 
-export let onDestroyPreview = ({ canvas, id }) => {
+/**
+ * @param {MountParamsFragmentRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLElement} params.container
+ */
+export let onDestroyPreview = ({ id, canvas }) => {
 	let fragIndex = frags.findIndex((f) => f.id === id);
 	let { frag } = frags[fragIndex];
 

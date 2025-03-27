@@ -1,7 +1,30 @@
 import p5 from 'p5';
 
+/**
+ * @typedef {object} MountParamsP5Renderer
+ * @property {HTMLCanvasElement} canvas
+ * @property {p5} p
+ */
+
+/**
+ * @typedef {object} PreviewP5Renderer
+ * @property {number} id
+ * @property {p5} p
+ */
+
+/** @type {PreviewP5Renderer[]} */
 let previews = [];
 
+/**
+ * @param {object} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ * @returns {MountParamsP5Renderer}
+ */
 export let onMountPreview = ({ id, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
@@ -22,6 +45,12 @@ export let onMountPreview = ({ id, width, height }) => {
 	};
 };
 
+/**
+ * @param {MountParamsP5Renderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
+ */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -30,6 +59,14 @@ export let onBeforeUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {MountParamsP5Renderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -39,6 +76,12 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	}
 };
 
+/**
+ * @param {MountParamsP5Renderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLElement} params.container
+ */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);
 	const preview = previews[previewIndex];
