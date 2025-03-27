@@ -1,5 +1,5 @@
 export type * from './renderers';
-export type * from './sketches';
+export type * from './sketch';
 export type * from './props';
 export type * from './triggers';
 export type * from './midi';
