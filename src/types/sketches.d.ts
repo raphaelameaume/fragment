@@ -10,7 +10,7 @@ type SharedParams = {
 };
 
 export type Init<R extends Rendering> = (
-	params: SharedParams & MountParams[R],
+	params: SharedParams & MountParams<R>,
 ) => void;
 
 export type Update<R extends Rendering> = (
@@ -20,11 +20,11 @@ export type Update<R extends Rendering> = (
 		playhead?: number;
 		playcount?: number;
 	} & SharedParams &
-		MountParams[R],
+		MountParams<R>,
 ) => void;
 
 export type Resize<R extends Rendering> = (
-	params: SharedParams & MountParams[R],
+	params: SharedParams & MountParams<R>,
 ) => void;
 
 export type FilenamePattern = (params: {
