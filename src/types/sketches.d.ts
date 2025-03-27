@@ -1,18 +1,6 @@
-import type p5 from 'p5';
-import type { Scene, WebGLRenderer } from 'three';
-
 import type { Frag } from './gl';
 import type { Props } from './props';
-
-export type Rendering = '2d' | 'fragment' | 'p5' | 'p5-webgl' | 'three';
-
-type RenderingParams = {
-	'2d': { context: CanvasRenderingContext2D };
-	fragment: { frag: Frag };
-	p5: { p: p5 };
-	'p5-webgl': { p: p5 };
-	three: { renderer: WebGLRenderer; scene: Scene };
-};
+import type { Rendering, MountParams } from './renderers';
 
 type SharedParams = {
 	canvas: HTMLCanvasElement;
@@ -22,7 +10,7 @@ type SharedParams = {
 };
 
 export type Init<R extends Rendering> = (
-	params: SharedParams & RenderingParams[R],
+	params: SharedParams & MountParams[R],
 ) => void;
 
 export type Update<R extends Rendering> = (
@@ -32,11 +20,11 @@ export type Update<R extends Rendering> = (
 		playhead?: number;
 		playcount?: number;
 	} & SharedParams &
-		RenderingParams[R],
+		MountParams[R],
 ) => void;
 
 export type Resize<R extends Rendering> = (
-	params: SharedParams & RenderingParams[R],
+	params: SharedParams & MountParams[R],
 ) => void;
 
 export type FilenamePattern = (params: {
