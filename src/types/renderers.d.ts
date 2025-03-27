@@ -63,7 +63,7 @@ export type RendererOnResizePreview<
 		MountParams<R>,
 ) => void;
 
-export type RendererOnBeforeUpdatePrevie<
+export type RendererOnBeforeUpdatePreview<
 	Params = InitParams,
 	R extends Rendering | object = any,
 > = (
