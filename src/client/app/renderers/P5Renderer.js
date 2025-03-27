@@ -32,12 +32,10 @@ export let onMountPreview = ({ id, width, height }) => {
 		};
 	});
 
-	const preview = {
+	previews.push({
 		id,
 		p,
-	};
-
-	previews.push(preview);
+	});
 
 	return {
 		canvas: p.canvas,

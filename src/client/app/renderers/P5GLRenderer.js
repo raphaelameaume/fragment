@@ -36,14 +36,11 @@ export let onMountPreview = ({ id, width, height }) => {
 		};
 	});
 
-	/** @type {PreviewP5GLRenderer} */
-	const preview = {
+	previews.push({
 		id,
 		p,
 		rendered: false,
-	};
-
-	previews.push(preview);
+	});
 
 	return {
 		canvas: p.canvas,
