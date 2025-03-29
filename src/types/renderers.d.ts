@@ -4,6 +4,8 @@ import type { Frag } from '@fragment/types/gl';
 
 export type Rendering = '2d' | 'fragment' | 'p5' | 'p5-webgl' | 'three';
 
+type Params = Record<string, any>;
+
 export type RendererParams = {
 	id: number;
 	canvas: HTMLCanvasElement;
@@ -13,7 +15,7 @@ export type RendererParams = {
 	pixelRatio: number;
 };
 
-export type InitParams = any;
+export type InitParams<P extends Params = Params> = P;
 
 type RenderingsMountParams = {
 	'2d': { canvas: HTMLCanvasElement; context: CanvasRenderingContext2D };
@@ -27,7 +29,7 @@ type RenderingsMountParams = {
 	};
 };
 
-export type MountParams<R extends Rendering | object> =
+export type MountParams<R extends Rendering | Params> =
 	R extends keyof RenderingsMountParams ? RenderingsMountParams[R] : R;
 
 export type MountParams2DRenderer = MountParams<'2d'>;
@@ -36,61 +38,63 @@ export type MountParamsP5Renderer = MountParams<'p5'>;
 export type MountParamsP5GLRenderer = MountParams<'p5-webgl'>;
 export type MountParamsThreeRenderer = MountParams<'three'>;
 
-export type RendererInit<Params = InitParams> = (
+export type RendererInit<P extends Params = InitParams> = (
 	params: Pick<RendererParams, 'canvas' | 'width' | 'height' | 'pixelRatio'>,
-) => Params;
+) => InitParams<P>;
 
 export type RendererOnMountPreview<
-	Params = InitParams,
-	R extends Rendering | object = any,
+	P extends Params = InitParams,
+	R extends Rendering | Params = Params,
 > = (
 	params: Pick<
 		RendererParams,
 		'id' | 'canvas' | 'container' | 'width' | 'height' | 'pixelRatio'
 	> &
-		Params,
+		InitParams<P>,
 ) => MountParams<R>;
 
 export type RendererOnResizePreview<
-	Params = InitParams,
-	R extends Rendering | object = any,
+	P extends Params = InitParams,
+	R extends Rendering | Params = Params,
 > = (
 	params: Pick<
 		RendererParams,
 		'id' | 'canvas' | 'width' | 'height' | 'pixelRatio'
 	> &
-		Params &
+		InitParams<P> &
 		MountParams<R>,
 ) => void;
 
 export type RendererOnBeforeUpdatePreview<
-	Params = InitParams,
-	R extends Rendering | object = any,
+	P extends Params = InitParams,
+	R extends Rendering | Params = Params,
 > = (
 	params: Pick<RendererParams, 'id' | 'canvas' | 'container'> &
-		Params &
+		InitParams<P> &
 		MountParams<R>,
 ) => void;
 
 export type RendererOnAfterUpdatePreview<
-	Params = InitParams,
-	R extends Rendering | object = any,
+	P extends Params = InitParams,
+	R extends Rendering | Params = Params,
 > = (
 	params: Pick<RendererParams, 'id' | 'canvas' | 'container'> &
-		Params &
+		InitParams<P> &
 		MountParams<R>,
 ) => void;
 
 export type RendererOnDestroyPreview<
-	Params = InitParams,
-	R extends Rendering | object = any,
-> = (params: Params & MountParams<R> & Pick<RendererParams, 'id'>) => void;
+	P extends Params = InitParams,
+	R extends Rendering | Params = Params,
+> = (
+	params: Pick<RendererParams, 'id'> & InitParams<P> & MountParams<R>,
+) => void;
 
 export type RendererResize<
-	Params = InitParams,
-	R extends Rendering | object = any,
+	P extends Params = InitParams,
+	R extends Rendering | Params = Params,
 > = (
 	params: Pick<RendererParams, 'width' | 'height' | 'pixelRatio'> &
-		Params &
+		InitParams<P> &
 		MountParams<R>,
 ) => void;
