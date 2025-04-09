@@ -17,7 +17,7 @@ sketch.dispose();
 
 ## Exports
 
-`fragment` leverages the power of [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export), meaning that you can export various properties from your sketch entry point and they will be picked up on runtime.
+Fragment leverages [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export), meaning that you can export various properties from your sketch entry point and they will be picked up on runtime.
 
 #### `load`
 

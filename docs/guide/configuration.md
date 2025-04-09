@@ -2,7 +2,7 @@
 
 Fragment will automatically try to resolve a config file named `fragment.config.js` at the root.
 
-This configuration file is optional and for now it can only be used to specify Vite configuration options inside a `vite` object in the config.
+This configuration file is optional and for now can only be used to specify Vite configuration options inside a `vite` object in the config.
 
 ```js
 export default {

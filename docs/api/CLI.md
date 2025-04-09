@@ -1,6 +1,6 @@
 # CLI
 
-Once `fragment` is properly [installed](../../README.md#installation), you can launch it and create sketches from the command line.
+Once Fragment is properly [installed](../../README.md#installation), you can launch it and create sketches from the command line.
 
 ## Usage
 

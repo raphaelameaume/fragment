@@ -1,97 +1,93 @@
 # Reactive props
 
-By default, `fragment` recommends declaring props as a plain JavaScript Object like this:
+In order to create controllers in the interface, your sketch can export a plain JavaScript Object named `props` like this:
 
 ```js
 export let props = {
-  radius: {
-    value: 20,
-  }
+    radius: {
+        value: 20,
+        params: {
+            min: 0,
+            max: 1
+        }
+    }
 };
 ```
 
-However, using a plain object prevents the interface to be synchronized with changes you might apply to values directly from code.
-
-```js
-export let init = () => {
-	let shouldChangeRadius = /*...*/;
-
-	if (shouldChangeRadius) {
-		props.radius.value = 40; // prop.radius in the interface will still display 20, e.g the initial value of the prop
-	}
-};
-```
-
-If you need the interface to change when updating prop values, you can make the interface reacts to value changes by wrapping your props in a helper function called `reactiveProps()` available on `@fragment/helpers` namespace.
-
-```js
-import { reactiveProps } from '@fragment/helpers';
-
-export let props = reactiveProps({
-  radius: {
-    value: 20,
-  }
-});
-
-export let init = () => {
-	let shouldChangeRadius = /*...*/;
-
-	if (shouldChangeRadius) {
-		props.radius.value = 40; // prop.radius in the interface will be updated
-	}
-};
-```
-
-By making the props *reactive* to code changes, you can enable complex behaviours such as:
-- Adding props on the fly
-
-```js
-export let init = () => {
-	onClick((event) => {
-		const sphere = retrieveSelectedObject(event);
-
-		// create new color controller
-		props.objectColor = {
-			value: sphere.color,
-		};
-
-		// create new number controller
-		props.radius = {
-			value: sphere.radius,
-			params: {
-				min: 0,
-				max: sphere.radius * 4,
-				step: 0.01,
-			}
-		};
-	});
-};
-```
-
-- Change prop params on the fly
+However, you might want to update the value from your code and the interface to update accordingly. Fragment tracks value changes internally so you don't have to do anything and it works out-of-the-box.
 
 ```js
 export let props = {
-	mode: {
-		value: 'mode1',
-		params: {
-			options: ['mode1', 'mode2']
-		}
-	}
-};
-
-export let init = () => {
-	onClick((event) => {
-		let shouldUpdateMode = /*...*/
-		if (shouldUpdateMode) {
-			props.mode.params.options = ['mode3', 'mode4'];
-			props.mode.value = props.mode.params.options[0];
-		}
-	});
+    radius: {
+        value: 20,
+        params: {
+            min: 10,
+            max: 50
+        }
+    },
+    randomRadius: {
+        value: () => {
+            const { min, max } = props.radius.params;
+            props.radius.value = random(min, max); // <- this will update the controller for radius too!
+        }
+    }
 };
 ```
 
-- Log values
+With reactive props, you can enable complex behaviours such as:
+- Adding props
+
+```js
+export let props = {
+    radius: {
+        value: 20,
+        params: {
+            min: 10,
+            max: 50
+        }
+    },
+    addObject: {
+        value: () => {
+            const object = createObject();
+
+            props[`color${object.name}`] = { // <- this will create a new color picker in the interface!
+                value: object.color,
+                onChange: ({ value }) => {
+                    object.color = value;
+                }
+            };
+        }
+    }
+};
+```
+
+- Change prop `params`
+
+```js
+
+let modes = ['mode1', 'mode2'];
+
+function createModeOptions() {
+    return modes.map((mode, index) => ({ value: mode, label: `Mode ${index}`}));
+}
+
+export let props = {
+    mode: {
+        value: modes[0],
+        params: {
+            options: createModeOptions(),
+        }
+    },
+    addNewMode: {
+        value: () => {
+            modes.push(`mode${modes.length+1}`);
+            mode.params.options = createModeOptions();
+        }
+    }
+};
+```
+
+- Monitor value changes
 
 ```js
 export let props = {
@@ -106,7 +102,3 @@ export let props = {
 	}
 };
 ```
-
-## Why isn't it the recommended way of declaring props?
-
-See [`Principles → Freedom`](./about.md#freedom).
