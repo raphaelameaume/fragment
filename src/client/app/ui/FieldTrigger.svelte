@@ -32,13 +32,15 @@
 </script>
 
 <script>
+	import { onMount } from 'svelte';
 	import IconCross from '../components/IconCross.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
-	import Select from './fields/Select.svelte';
-	import TextInput from './fields/TextInput.svelte';
-	import * as triggersMap from '../triggers/index.js';
-	import { onMount } from 'svelte';
+	import FieldGroup from './FieldGroup.svelte';
+	import Field from './Field.svelte';
+	import FieldTriggerMouse from './FieldTriggerMouse.svelte';
+	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
+	import FieldTriggersMIDI from './FieldTriggersMIDI.svelte';
 
 	let {
 		index,
@@ -81,32 +83,31 @@
 		})),
 	]);
 
-	let eventOptions = $derived(
-		inputType
-			? [
-					{ label: '-', value: undefined, disabled: true },
-					...validInputs[inputType].events.map((event) => ({
-						value: event.name,
-					})),
-				]
-			: [],
-	);
+	let trigger = $state(undefined);
+	let name = $derived.by(() => {
+		let name = 'Trigger';
 
-	let isValid = $derived(inputType && eventName);
-	let key = $derived(params.key);
-	let trigger;
+		if (inputType) {
+			name = inputType;
+		}
 
-	function registerTrigger() {
-		let wasEnabled = trigger?.enabled;
+		if (eventName) {
+			name += ` — ${eventName}`;
+		}
+
+		return name;
+	});
+
+	function registerTrigger(createTrigger, params = {}) {
+		let wasEnabled = enabled;
+
 		if (trigger) {
 			trigger.destroy();
 			trigger = null;
 		}
 
-		const createTrigger = triggersMap[eventName];
-
 		trigger = createTrigger(onTrigger, {
-			...$state.snapshot(params),
+			params,
 			context,
 			hot: false,
 			enabled: wasEnabled,
@@ -118,57 +119,22 @@
 	function onTypeChange(value) {
 		inputType = value;
 
-		if (!eventOptions.includes(eventName)) {
-			eventName = undefined;
-			params.key = null;
-		}
-
 		if (trigger) {
 			trigger.destroy();
 			trigger = null;
 		}
 	}
 
-	function onEventChange(value) {
-		const clearParams =
-			inputType === 'MIDI' &&
-			eventName !== undefined &&
-			((eventName.includes('Number') && value.includes('Note')) ||
-				(eventName.includes('Note') && value.includes('Number')));
-
-		eventName = value;
-
-		if (clearParams) {
-			params.key = '';
-		}
-
-		if (inputType === 'Mouse' || inputType === 'Keyboard') {
-			registerTrigger();
-		}
-	}
-
-	function onTextChange(event) {
-		params.key = event.currentTarget.value;
-
-		registerTrigger();
-	}
-
 	function handleClickDelete() {
 		onDelete(index);
 	}
 
-	function toggleTrigger() {
-		if (trigger) {
-			trigger.enabled = !trigger.enabled;
-			registerTrigger();
-		}
+	function toggleTrigger(value) {
+		trigger.enabled = value;
+		onchange(index, trigger);
 	}
 
 	onMount(() => {
-		if (isValid) {
-			registerTrigger();
-		}
-
 		return () => {
 			trigger?.destroy();
 			trigger = null;
@@ -177,52 +143,61 @@
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
-	<FieldInputRow
-		--grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)"
-	>
-		<button
-			class="activity"
-			class:valid={isValid}
-			class:enabled
-			class:disabled={!enabled}
-			onclick={toggleTrigger}
-		></button>
-		<Select
-			name="trigger-input"
-			value={inputType}
-			options={inputOptions}
-			onchange={onTypeChange}
-		/>
-		{#if inputType}
-			<Select
-				options={eventOptions}
-				value={eventName}
-				disabled={inputType === undefined}
-				onchange={onEventChange}
+	<FieldInputRow --grid-template-columns="var(--width-cols)">
+		<div class="delete">
+			<ButtonInput
+				label="delete"
+				showLabel={false}
+				onclick={handleClickDelete}
+				--color-text="white"
+				--background-color="var(--color-red)"
+				--box-shadow-color-active="var(--color-lightred)"
+			>
+				<IconCross />
+			</ButtonInput>
+		</div>
+		<FieldGroup {name}>
+			<Field
+				key="input"
+				value={inputType}
+				params={{
+					options: inputOptions,
+				}}
+				onchange={onTypeChange}
 			/>
-		{/if}
-		{#if inputType === 'Keyboard'}
-			<TextInput value={key} label="key" oninput={onTextChange} />
-		{/if}
-		{#if inputType === 'MIDI'}
-			<TextInput
-				value={key}
-				label={['onNoteOn', 'onNoteOff'].includes(eventName)
-					? 'note'
-					: 'number'}
-				oninput={onTextChange}
-			/>
-		{/if}
-		<ButtonInput
-			label="delete"
-			showLabel={false}
-			onclick={handleClickDelete}
-			--color-text="white"
-			--background-color="var(--color-red)"
-			--box-shadow-color-active="var(--color-lightred)"
-		>
-			<IconCross />
-		</ButtonInput>
+			{#if inputType === 'Mouse'}
+				<FieldTriggerMouse
+					event={eventName}
+					{registerTrigger}
+					{enabled}
+				/>
+			{/if}
+			{#if inputType === 'Keyboard'}
+				<FieldTriggerKeyboard
+					event={eventName}
+					{registerTrigger}
+					{enabled}
+					{params}
+				/>
+			{/if}
+			{#if inputType === 'MIDI'}
+				<FieldTriggersMIDI
+					event={eventName}
+					{registerTrigger}
+					{enabled}
+					{params}
+					{controllable}
+					{triggerable}
+				/>
+			{/if}
+			{#if trigger}
+				<Field
+					key="enabled"
+					value={trigger?.enabled}
+					onchange={toggleTrigger}
+				/>
+			{/if}
+		</FieldGroup>
 	</FieldInputRow>
 </div>
 
@@ -271,12 +246,10 @@
 		--background-color: var(--color-red);
 	}
 
-	.field-trigger.mouse {
-		--width-cols: var(--width-input) 1fr;
-	}
-
-	.field-trigger.keyboard,
-	.field-trigger.midi {
-		--width-cols: var(--width-input) 1fr 0.75fr;
+	.delete {
+		position: absolute;
+		top: 5px;
+		right: calc(var(--column-gap) * 2);
+		z-index: 1;
 	}
 </style>

@@ -34,8 +34,8 @@
 	import { map } from '../utils/math.utils';
 	import frameDebounce from '../lib/helpers/frameDebounce.js';
 	import { inferFieldType } from '../utils/fields.utils.js';
-	import IconTriggers from '../components/IconTriggers.svelte';
 	import IconLocked from '../components/IconLocked.svelte';
+	import IconTriggers from '../components/IconTriggers.svelte';
 	import ImportInput from './fields/ImportInput.svelte';
 	import { deepEqual } from '../state/utils.svelte';
 
@@ -163,15 +163,13 @@
 		{@render children?.()}
 	</FieldSection>
 	{#if triggerable}
-		<FieldSection {key} visible={showTriggers} secondary>
-			<FieldTriggers
-				{triggers}
-				{onTrigger}
-				{context}
-				triggerable={fieldType === fieldTypes.BUTTON}
-				controllable={fieldType === fieldTypes.NUMBER}
-			/>
-		</FieldSection>
+		<FieldTriggers
+			{triggers}
+			{onTrigger}
+			{context}
+			triggerable={fieldType === fieldTypes.BUTTON}
+			controllable={fieldType === fieldTypes.NUMBER}
+		/>
 	{/if}
 </div>
 

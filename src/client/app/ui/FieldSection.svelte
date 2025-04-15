@@ -114,18 +114,6 @@
 		grid-template-columns: 1fr;
 	}
 
-	.field__section.secondary .field__infos {
-		display: none;
-	}
-
-	.field__section.secondary .field__label {
-		position: relative;
-
-		padding-left: 5px;
-
-		background-color: #242425;
-	}
-
 	.field__input {
 		display: flex;
 		flex-direction: column;
@@ -133,10 +121,5 @@
 		align-items: flex-start;
 
 		min-height: calc(var(--height-input) + 4px);
-	}
-
-	.field__section.secondary .field__input {
-		padding: var(--column-gap);
-		border: 1px solid var(--color-spacing);
 	}
 </style>

@@ -1,4 +1,5 @@
 <script>
+	import FieldGroup from './FieldGroup.svelte';
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 
@@ -26,34 +27,65 @@
 </script>
 
 {#if onTrigger}
-	<ButtonInput label="add trigger" onclick={handleClickAdd} />
 	<div class="field-triggers">
-		{#each triggers as trigger, index}
-			<FieldTrigger
-				{index}
-				inputType={trigger.inputType}
-				eventName={trigger.eventName}
-				params={trigger.params}
-				enabled={trigger.enabled}
-				{onTrigger}
-				{context}
-				{controllable}
-				{triggerable}
-				onchange={(index, trigger) => {
-					triggers[index] = trigger;
-				}}
-				onDelete={onTriggerDelete}
-			/>
-		{/each}
+		<header class="header">
+			<ButtonInput label="add trigger" onclick={handleClickAdd} />
+		</header>
+		<div class="triggers-list">
+			{#each triggers as trigger, index}
+				<FieldTrigger
+					{index}
+					inputType={trigger?.inputType}
+					eventName={trigger?.eventName}
+					params={trigger?.params}
+					enabled={trigger?.enabled}
+					{onTrigger}
+					{context}
+					{controllable}
+					{triggerable}
+					onchange={(index, trigger) => {
+						triggers[index] = trigger;
+					}}
+					onDelete={onTriggerDelete}
+				/>
+			{/each}
+		</div>
 	</div>
 {/if}
 
 <style>
 	.field-triggers {
+		--margin: 15px;
+		position: relative;
 		width: 100%;
+		padding: 0px 0px;
+		margin-top: var(--margin);
+		margin-bottom: var(--column-gap);
+		border-width: 1px 1px 0px 1px;
+		border-style: solid;
+		border-color: var(--color-spacing);
+	}
+
+	.field-triggers:before {
+		content: '';
+
+		position: absolute;
+		left: 10px;
+		top: calc(var(--margin) * -1);
+
+		width: 1px;
+		height: var(--margin);
+
+		background-color: var(--color-spacing);
+	}
+
+	.header {
+		display: flex;
+		padding: var(--column-gap);
+		border-bottom: 1px solid var(--color-spacing);
 	}
 
 	.field-triggers:not(:empty) {
-		margin-top: var(--column-gap);
+		/* margin-top: var(--column-gap); */
 	}
 </style>
