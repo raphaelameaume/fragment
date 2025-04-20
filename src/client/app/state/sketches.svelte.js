@@ -1,5 +1,7 @@
 import { displayError } from '../state/errors.svelte.js';
-import { sketches as all } from '@fragment/sketches';
+
+import { sketches as all } from 'virtual:sketches';
+
 import Sketch from './Sketch.svelte.js';
 import { rendering } from './rendering.svelte.js';
 import { removeHotListeners } from '../triggers/index.js';
