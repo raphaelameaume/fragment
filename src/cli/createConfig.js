@@ -6,6 +6,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import checkDependencies from './plugins/check-dependencies.js';
 import { file } from './utils.js';
 import { log } from './log.js';
+import sketches from './plugins/sketches.js';
 
 export async function loadConfig({ cwd, filepath }) {
 	try {
@@ -110,6 +111,7 @@ export async function createConfig(
 					entriesPaths,
 					build,
 				}),
+				sketches({ cwd, entries }),
 			],
 			define: {
 				__CWD__: `${JSON.stringify(cwd)}`,
