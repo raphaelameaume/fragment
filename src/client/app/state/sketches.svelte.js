@@ -15,7 +15,7 @@ class SketchesManager {
 
 			await rendering.preloadRenderer({
 				renderingMode: sketch.rendering,
-				renderer: sketch.renderer,
+				customRenderer: sketch.renderer,
 			});
 
 			return sketch;
