@@ -150,7 +150,7 @@ class Rendering {
 	}
 
 	findRenderer({ renderingMode }) {
-		return this.renderers[renderingMode].instance;
+		return this.renderers[renderingMode]?.instance;
 	}
 
 	override(config) {
