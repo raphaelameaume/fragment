@@ -27,6 +27,13 @@
 	};
 
 	let eventName = $state(event);
+	let key = $derived.by(() => {
+		if (params?.key && Array.isArray(params.key)) {
+			return params.key.join(', ');
+		}
+
+		return '';
+	});
 	let eventOptions = $derived(
 		controllable
 			? [
@@ -93,9 +100,10 @@
 {#if eventName}
 	<Field
 		key={['onNoteOn', 'onNoteOff'].includes(eventName) ? 'note' : 'number'}
-		value={params.key ?? ''}
+		value={key}
 		onchange={(value) => {
-			params.key = value;
+			console.log(params);
+			// params.key = value;
 		}}
 	/>
 {/if}

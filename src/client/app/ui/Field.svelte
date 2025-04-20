@@ -164,7 +164,6 @@
 	</FieldSection>
 	{#if triggerable}
 		<FieldTriggers
-			{triggers}
 			{onTrigger}
 			{context}
 			triggerable={fieldType === fieldTypes.BUTTON}

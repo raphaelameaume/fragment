@@ -41,19 +41,19 @@
 	import FieldTriggerMouse from './FieldTriggerMouse.svelte';
 	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
 	import FieldTriggersMIDI from './FieldTriggersMIDI.svelte';
+	import Trigger from '../triggers/Trigger';
 
 	let {
-		index,
-		inputType,
-		eventName,
-		enabled,
+		trigger,
+		index = 0,
 		controllable = false,
 		triggerable = false,
 		context,
+		onTypeChange,
 		onchange = () => {},
 		onTrigger = () => {},
 		onDelete = () => {},
-		params = { key: [] },
+		params = {},
 	} = $props();
 
 	let validInputs = $derived.by(() =>
@@ -83,7 +83,9 @@
 		})),
 	]);
 
-	let trigger = $state(undefined);
+	let enabled = $state(false);
+	let inputType = $derived(trigger.inputType);
+
 	let name = $derived.by(() => {
 		let name = 'Trigger';
 
@@ -91,55 +93,30 @@
 			name = inputType;
 		}
 
-		if (eventName) {
-			name += ` — ${eventName}`;
-		}
+		// if (eventName) {
+		// 	name += ` — ${eventName}`;
+		// }
 
 		return name;
 	});
 
-	function registerTrigger(createTrigger, params = {}) {
-		let wasEnabled = enabled;
-
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
-		}
-
-		trigger = createTrigger(onTrigger, {
-			params,
-			context,
-			hot: false,
-			enabled: wasEnabled,
-		});
-
-		onchange(index, trigger);
+	function registerTrigger(newTrigger, params = {}) {
+		onchange(index, newTrigger);
 	}
 
-	function onTypeChange(value) {
-		inputType = value;
+	// function onTypeChange(value) {
+	// 	trigger.inputType = value;
 
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
-		}
-	}
+	// 	console.log('setInputType', trigger, value);
+	// }
 
 	function handleClickDelete() {
 		onDelete(index);
 	}
 
 	function toggleTrigger(value) {
-		trigger.enabled = value;
-		onchange(index, trigger);
+		enabled = value;
 	}
-
-	onMount(() => {
-		return () => {
-			trigger?.destroy();
-			trigger = null;
-		};
-	});
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
@@ -148,7 +125,7 @@
 			<ButtonInput
 				label="delete"
 				showLabel={false}
-				onclick={handleClickDelete}
+				onclick={onDelete}
 				--color-text="white"
 				--background-color="var(--color-red)"
 				--box-shadow-color-active="var(--color-lightred)"
@@ -163,40 +140,30 @@
 				params={{
 					options: inputOptions,
 				}}
-				onchange={onTypeChange}
+				onchange={(value) => (trigger.inputType = value)}
 			/>
 			{#if inputType === 'Mouse'}
-				<FieldTriggerMouse
-					event={eventName}
-					{registerTrigger}
-					{enabled}
-				/>
+				<FieldTriggerMouse bind:trigger />
 			{/if}
-			{#if inputType === 'Keyboard'}
-				<FieldTriggerKeyboard
-					event={eventName}
-					{registerTrigger}
-					{enabled}
-					{params}
-				/>
+			<!-- {#if inputType === 'Keyboard'}
+				<FieldTriggerKeyboard {enabled} {params} />
 			{/if}
 			{#if inputType === 'MIDI'}
 				<FieldTriggersMIDI
-					event={eventName}
 					{registerTrigger}
 					{enabled}
 					{params}
 					{controllable}
 					{triggerable}
 				/>
-			{/if}
-			{#if trigger}
+			{/if} -->
+			<!-- {#if trigger}
 				<Field
 					key="enabled"
 					value={trigger?.enabled}
 					onchange={toggleTrigger}
 				/>
-			{/if}
+			{/if} -->
 		</FieldGroup>
 	</FieldInputRow>
 </div>

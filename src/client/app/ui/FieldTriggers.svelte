@@ -1,4 +1,5 @@
 <script>
+	import Trigger from '../triggers/Trigger';
 	import FieldGroup from './FieldGroup.svelte';
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
@@ -6,23 +7,22 @@
 	let {
 		context,
 		onTrigger,
-		triggers = $bindable(),
 		triggerable = false,
 		controllable = false,
 	} = $props();
+
+	let inputTypes = $state([]);
+	let triggers = $state([]);
 
 	function onTriggerDelete(triggerIndex) {
 		triggers.splice(triggerIndex, 1);
 		// triggers = triggers.filter((t, i) => i !== triggerIndex);
 	}
 
+	$inspect(triggers);
+
 	function handleClickAdd() {
-		triggers.push({
-			inputType: undefined,
-			eventName: undefined,
-			enabled: false,
-			params: {},
-		});
+		inputTypes.push(undefined);
 	}
 </script>
 
@@ -34,19 +34,27 @@
 		<div class="triggers-list">
 			{#each triggers as trigger, index}
 				<FieldTrigger
+					bind:trigger={triggers[index]}
 					{index}
-					inputType={trigger?.inputType}
-					eventName={trigger?.eventName}
-					params={trigger?.params}
-					enabled={trigger?.enabled}
 					{onTrigger}
 					{context}
 					{controllable}
 					{triggerable}
 					onchange={(index, trigger) => {
+						if (triggers[index]) {
+							console.log(triggers[index]);
+							// triggers[index].destroy();
+						}
+
 						triggers[index] = trigger;
 					}}
-					onDelete={onTriggerDelete}
+					onDelete={(trigger) => {
+						const index = triggers.findIndex((t) => t === trigger);
+
+						if (index >= 0) {
+							triggers.splice(index, 1);
+						}
+					}}
 				/>
 			{/each}
 		</div>

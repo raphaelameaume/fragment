@@ -1,6 +1,7 @@
 import Trigger from './Trigger';
 import { wildcard, getContext } from './shared.js';
 import { addToMapArray, removeFromMapArray } from '../utils';
+import Mouse from '../inputs/Mouse.js';
 
 window.mouseIsPressed = false;
 window.mouseX = 0;
@@ -98,7 +99,29 @@ export const checkForTriggersUp = (event, context) =>
 export const checkForTriggersClick = (event, context) =>
 	checkForTriggers(clicks, event, context);
 
-export const onMouseDown = createTrigger('onMouseDown', downs);
-export const onMouseUp = createTrigger('onMouseUp', ups);
-export const onMouseMove = createTrigger('onMouseMove', moves);
-export const onClick = createTrigger('onClick', clicks);
+// export const onMouseDown = createTrigger('onMouseDown', downs);
+// export const onMouseUp = createTrigger('onMouseUp', ups);
+// export const onMouseMove = createTrigger('onMouseMove', moves);
+// export const onClick = createTrigger('onClick', clicks);
+
+export const onMouseDown = (fn, params) => {
+	return Mouse.createTrigger(fn, {
+		eventName: 'onMouseDown',
+		collection: Mouse.triggersDown,
+		...params,
+	});
+};
+
+export const onMouseUp = (fn, params) => {
+	return Mouse.createTrigger(fn, {
+		eventName: 'onMouseUp',
+		collection: Mouse.triggersUp,
+	});
+};
+
+export const onMouseMove = (fn, params) => {
+	return Mouse.createTrigger(fn, {
+		eventName: 'onMouseUp',
+		collection: Mouse.triggersUp,
+	});
+};

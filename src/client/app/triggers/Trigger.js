@@ -1,3 +1,5 @@
+import { wildcard } from './shared';
+
 let ID = 0;
 
 class Trigger {
@@ -12,7 +14,7 @@ class Trigger {
 		inputType,
 		eventName,
 		fn,
-		context,
+		context = wildcard,
 		params = { key: [] },
 		destroy = () => {},
 		enabled = typeof inputType === 'string' &&
@@ -65,6 +67,7 @@ class Trigger {
 			eventName: this.eventName,
 			enabled: this.enabled,
 			params: this.params,
+			context: this.context,
 		};
 	}
 }
