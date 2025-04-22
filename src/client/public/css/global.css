@@ -8,7 +8,7 @@
 		local('Jetbrains-Mono-Regular'),
 		local('Jetbrains Mono'),
 		local('Jetbrains-Mono'),
-		url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+		url('../fonts/JetBrainsMono-Regular.woff2') format('woff2');
 }
 
 :root {
