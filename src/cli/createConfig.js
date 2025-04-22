@@ -59,6 +59,7 @@ export async function createConfig(
 ) {
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
 	const root = file('../client');
+	const publicDir = path.join(cwd, 'public');
 	const app = path.join(root, 'app');
 
 	log.info(`Creating Vite configuration...`);
@@ -73,6 +74,7 @@ export async function createConfig(
 			configFile: false,
 			root,
 			logLevel: dev ? 'info' : 'silent',
+			publicDir,
 			resolve: {
 				alias: [
 					{
