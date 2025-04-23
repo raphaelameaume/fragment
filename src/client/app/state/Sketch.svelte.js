@@ -36,6 +36,20 @@ class Sketch {
 		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
 		this.buildConfig = this.instance.buildConfig ?? {};
 
+		this.broadcastChannel = new BroadcastChannel('sketch-sync');
+		this.broadcastChannel.onmessage = (event) => {
+			const { type } = event.data;
+
+			if (type === 'update-prop') {
+				const { key, value } = event.data;
+				this.updateProp(key, value, false);
+			}
+		};
+
+		this.broadcastChannel.addEventListener('message', (event) => {
+			console.log('receive message');
+		});
+
 		this.recording = null;
 		this.params = {};
 		this.beforeCapture = [];
@@ -235,9 +249,17 @@ class Sketch {
 		return prop;
 	}
 
-	updateProp(key, newValue) {
+	updateProp(key, newValue, broadcast = true) {
 		const prop = this.props[key];
 		const instanceProp = this.instance.props[key];
+
+		if (broadcast) {
+			this.broadcastChannel.postMessage({
+				type: 'update-prop',
+				key,
+				value: newValue,
+			});
+		}
 
 		if (prop) {
 			prop.value = newValue;
