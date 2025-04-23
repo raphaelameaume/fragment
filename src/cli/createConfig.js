@@ -7,6 +7,7 @@ import checkDependencies from './plugins/check-dependencies.js';
 import { file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
+import configPlugins from './plugins/config-plugins.js';
 
 export async function loadConfig({ cwd, filepath }) {
 	try {
@@ -114,6 +115,7 @@ export async function createConfig(
 					build,
 				}),
 				sketches({ cwd, entries }),
+				configPlugins({ cwd, config }),
 			],
 			define: {
 				__CWD__: `${JSON.stringify(cwd)}`,

@@ -14,12 +14,20 @@
 	import MidiPanel from '../modules/MidiPanel.svelte';
 	import Console from '../modules/Console.svelte';
 	import Params from '../modules/Params.svelte';
+	import { configModulesList } from 'virtual:config-modules';
+
 	let { id, name, headless = false, params = {} } = $props();
 
-	// const moduleList = {
-	// 	monitor: () => import('../modules/Monitor.svelte'),
-	// 	params: () => import('../modules/Params.svelte'),
-	// };
+	const modulesList = {
+		monitor: Monitor,
+		params: Params,
+		midi: MidiPanel,
+		console: Console,
+		exports: Exports,
+		...configModulesList,
+	};
+
+	let Component = $derived(modulesList[name]);
 
 	// if (!__BUILD__) {
 	// 	Object.assign(moduleList, {
@@ -30,16 +38,8 @@
 	// }
 </script>
 
-{#if name === 'monitor'}
-	<Monitor {id} {headless} {params} />
-{:else if name === 'exports'}
-	<Exports {id} {headless} {params} />
-{:else if name === 'console'}
-	<Console {id} {headless} {params} />
-{:else if name === 'params'}
-	<Params {id} {headless} {params} />
-{:else if name === 'midi'}
-	<MidiPanel {id} {headless} {params} />
+{#if Component}
+	<Component {id} {headless} {params} />
 {:else}
 	<div class="module-renderer">
 		<header class="module-renderer-header">
@@ -51,11 +51,27 @@
 					Something went wrong while loading module:
 					<span class="module-name">{name}</span>
 				</p>
-				<p class="error">{error.message}</p>
 			</div>
 		</div>
 	</div>
 {/if}
+
+<!-- {#await buildConfig.layout.component() then layoutModule}
+	{@const LayoutBuildCustom = layoutModule.default}
+	<LayoutBuildCustom {sketchKey} {buildConfig} {sketch} />
+{/await} -->
+<!--
+{#if name === 'monitor'}
+	<Monitor {id} {headless} {params} />
+{:else if name === 'exports'}
+	<Exports {id} {headless} {params} />
+{:else if name === 'console'}
+	<Console {id} {headless} {params} />
+{:else if name === 'params'}
+	<Params {id} {headless} {params} />
+{:else if name === 'midi'}
+	<MidiPanel {id} {headless} {params} />
+{:else}{/if} -->
 
 <style>
 	.module-renderer {

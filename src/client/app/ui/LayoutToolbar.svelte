@@ -3,6 +3,7 @@
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import Select from './fields/Select.svelte';
 	import { moduleNames } from './ModuleRenderer.svelte';
+	import { configModulesNames } from 'virtual:config-modules';
 
 	let {
 		moduleName,
@@ -19,6 +20,7 @@
 	const options = [
 		{ value: undefined, label: defaultValue, disabled: true },
 		...moduleNames.map((name) => ({ value: name, label: name })),
+		...configModulesNames.map((name) => ({ value: name, label: name })),
 	];
 </script>
 
