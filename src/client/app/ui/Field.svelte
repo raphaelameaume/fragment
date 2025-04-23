@@ -55,7 +55,7 @@
 		triggers = [],
 	} = $props();
 
-	let showTriggers = $state(false);
+	let showTriggers = $state(true);
 
 	const onTriggers = {
 		checkbox: () => {
@@ -162,8 +162,9 @@
 		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
-	{#if triggerable}
+	{#if triggerable && showTriggers}
 		<FieldTriggers
+			{triggers}
 			{onTrigger}
 			{context}
 			triggerable={fieldType === fieldTypes.BUTTON}

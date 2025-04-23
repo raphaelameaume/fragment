@@ -6,23 +6,31 @@
 
 	let {
 		context,
+		triggers = $bindable(),
 		onTrigger,
 		triggerable = false,
 		controllable = false,
 	} = $props();
 
-	let inputTypes = $state([]);
-	let triggers = $state([]);
+	let reactiveTriggers = $derived(
+		triggers.map((trigger) => ({
+			inputType: trigger.inputType,
+			eventName: trigger.eventName,
+			params: trigger.params,
+		})),
+	);
 
-	function onTriggerDelete(triggerIndex) {
-		triggers.splice(triggerIndex, 1);
+	function onTriggerDelete(index) {
+		if (index >= 0) {
+			triggers.splice(index, 1);
+		}
 		// triggers = triggers.filter((t, i) => i !== triggerIndex);
 	}
 
-	$inspect(triggers);
+	$inspect(reactiveTriggers);
 
 	function handleClickAdd() {
-		inputTypes.push(undefined);
+		triggers.push(new Trigger());
 	}
 </script>
 
@@ -32,7 +40,7 @@
 			<ButtonInput label="add trigger" onclick={handleClickAdd} />
 		</header>
 		<div class="triggers-list">
-			{#each triggers as trigger, index}
+			{#each reactiveTriggers as trigger, index}
 				<FieldTrigger
 					bind:trigger={triggers[index]}
 					{index}
@@ -48,13 +56,7 @@
 
 						triggers[index] = trigger;
 					}}
-					onDelete={(trigger) => {
-						const index = triggers.findIndex((t) => t === trigger);
-
-						if (index >= 0) {
-							triggers.splice(index, 1);
-						}
-					}}
+					onDelete={onTriggerDelete}
 				/>
 			{/each}
 		</div>

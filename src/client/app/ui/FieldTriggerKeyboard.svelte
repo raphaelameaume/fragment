@@ -1,52 +1,28 @@
 <script>
 	import Field from './Field.svelte';
-	import { onKeyDown, onKeyUp, onKeyPress } from '../triggers/Keyboard.js';
-	import { onMount } from 'svelte';
 
-	let { event, registerTrigger, enabled, params = {} } = $props();
+	let { trigger } = $props();
 
-	let createTriggersMap = {
-		onKeyDown,
-		onKeyUp,
-		onKeyPress,
-	};
+	$inspect(trigger.params);
 
-	let eventName = $state(event);
+	let eventName = $derived(trigger.eventName);
+	let keys = $derived((trigger.params?.key ?? []).join(','));
 	let eventOptions = [
 		{
 			value: undefined,
 			label: '-',
+			disabled: true,
 		},
 		{
 			value: 'onKeyDown',
-			label: 'onKeyDown',
 		},
 		{
 			value: 'onKeyUp',
-			label: 'onKeyUp',
 		},
 		{
 			value: 'onKeyPress',
-			label: 'onKeyPress',
 		},
 	];
-
-	function onEventChange(value) {
-		eventName = value;
-
-		dispatchTrigger();
-	}
-
-	function dispatchTrigger() {
-		let createTrigger = createTriggersMap[eventName];
-		registerTrigger(createTrigger, params);
-	}
-
-	onMount(() => {
-		if (eventName) {
-			dispatchTrigger();
-		}
-	});
 </script>
 
 <Field
@@ -55,15 +31,27 @@
 	params={{
 		options: eventOptions,
 	}}
-	onchange={onEventChange}
+	onchange={(value) => {
+		trigger.eventName = value;
+	}}
 />
 
 {#if eventName}
 	<Field
 		key="key"
-		value={params.key ?? ''}
-		onchange={(value) => {
-			params.key = value;
+		value={keys}
+		onchange={(event) => {
+			console.log(
+				event.currentTarget.value
+					.trim()
+					.split(',')
+					.map((v) => v.trim()),
+			);
+
+			trigger.params.key = event.currentTarget.value
+				.trim()
+				.split(',')
+				.map((v) => v.trim());
 		}}
 	/>
 {/if}

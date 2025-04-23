@@ -85,6 +85,7 @@
 
 	let enabled = $state(false);
 	let inputType = $derived(trigger.inputType);
+	let eventName = $derived(trigger.eventName);
 
 	let name = $derived.by(() => {
 		let name = 'Trigger';
@@ -93,9 +94,9 @@
 			name = inputType;
 		}
 
-		// if (eventName) {
-		// 	name += ` — ${eventName}`;
-		// }
+		if (eventName) {
+			name += ` — ${eventName}`;
+		}
 
 		return name;
 	});
@@ -125,7 +126,7 @@
 			<ButtonInput
 				label="delete"
 				showLabel={false}
-				onclick={onDelete}
+				onclick={handleClickDelete}
 				--color-text="white"
 				--background-color="var(--color-red)"
 				--box-shadow-color-active="var(--color-lightred)"
@@ -145,10 +146,10 @@
 			{#if inputType === 'Mouse'}
 				<FieldTriggerMouse bind:trigger />
 			{/if}
-			<!-- {#if inputType === 'Keyboard'}
-				<FieldTriggerKeyboard {enabled} {params} />
+			{#if inputType === 'Keyboard'}
+				<FieldTriggerKeyboard bind:trigger />
 			{/if}
-			{#if inputType === 'MIDI'}
+			<!-- {#if inputType === 'MIDI'}
 				<FieldTriggersMIDI
 					{registerTrigger}
 					{enabled}

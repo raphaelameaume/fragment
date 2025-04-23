@@ -1,37 +1,10 @@
 <script>
 	import Field from './Field.svelte';
-	import Mouse from '../inputs/Mouse.js';
-	import Trigger from '../triggers/Trigger';
 
-	let { onTrigger } = $props();
+	let { trigger } = $props();
 
-	let eventName = $state(undefined);
-	/** @type {Trigger} */
-	let trigger;
+	let eventName = $derived(trigger.eventName);
 
-	$effect(() => {
-		if (trigger) {
-			const prevCollection = Mouse.getTriggers(eventName);
-			const triggerIndex = prevCollection?.findIndex(
-				(t) => t === trigger,
-			);
-
-			if (triggerIndex >= 0) {
-				prevCollection.splice(triggerIndex, 1);
-			}
-		}
-
-		if (eventName) {
-			trigger = new Trigger({
-				inputType: 'Mouse',
-				eventName,
-				onTrigger,
-			});
-
-			const newCollection = Mouse.getTriggers(eventName);
-			newCollection.push(trigger);
-		}
-	});
 	let eventOptions = [
 		{
 			value: undefined,
@@ -59,6 +32,6 @@
 		options: eventOptions,
 	}}
 	onchange={(value) => {
-		eventName = value;
+		trigger.eventName = value;
 	}}
 />
