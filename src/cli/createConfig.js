@@ -6,6 +6,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import checkDependencies from './plugins/check-dependencies.js';
 import { file } from './utils.js';
 import { log } from './log.js';
+import sketches from './plugins/sketches.js';
 
 export async function loadConfig({ cwd, filepath }) {
 	try {
@@ -58,6 +59,7 @@ export async function createConfig(
 ) {
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
 	const root = file('../client');
+	const publicDir = path.join(cwd, 'public');
 	const app = path.join(root, 'app');
 
 	log.info(`Creating Vite configuration...`);
@@ -72,6 +74,7 @@ export async function createConfig(
 			configFile: false,
 			root,
 			logLevel: dev ? 'info' : 'silent',
+			publicDir,
 			resolve: {
 				alias: [
 					{
@@ -110,6 +113,7 @@ export async function createConfig(
 					entriesPaths,
 					build,
 				}),
+				sketches({ cwd, entries }),
 			],
 			define: {
 				__CWD__: `${JSON.stringify(cwd)}`,
