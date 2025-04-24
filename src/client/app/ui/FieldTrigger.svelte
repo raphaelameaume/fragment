@@ -51,7 +51,7 @@
 		onchange = () => {},
 		onTrigger = () => {},
 		onDelete = () => {},
-		params = { key: [] },
+		params = $bindable({ key: [] }),
 	} = $props();
 
 	let validInputs = $derived.by(() =>
@@ -202,11 +202,11 @@
 			/>
 		{/if}
 		{#if inputType === 'Keyboard'}
-			<TextInput value={key} label="key" oninput={onTextChange} />
+			<TextInput bind:value={key} label="key" oninput={onTextChange} />
 		{/if}
 		{#if inputType === 'MIDI'}
 			<TextInput
-				value={key}
+				bind:value={key}
 				label={['onNoteOn', 'onNoteOff'].includes(eventName)
 					? 'note'
 					: 'number'}
