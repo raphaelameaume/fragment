@@ -12,6 +12,7 @@ import { layout } from './layout.svelte.js';
 import { persist, hydrate } from './utils.svelte';
 import presets from '../lib/presets';
 import { client } from '../client.js';
+import Mouse from '../inputs/Mouse.js';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -527,7 +528,12 @@ export class Render {
 		canvas = document.createElement('canvas'),
 		context,
 	}) {
-		canvas.onmousedown = (event) => checkForTriggersDown(event, context);
+		canvas.onmousedown = (event) =>
+			Mouse.runTriggers(
+				event,
+				context,
+				Mouse.getCollection('onMouseDown'),
+			);
 		canvas.onmousemove = (event) => checkForTriggersMove(event, context);
 		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
 		canvas.onclick = (event) => checkForTriggersClick(event, context);

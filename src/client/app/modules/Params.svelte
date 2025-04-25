@@ -150,7 +150,7 @@
 						{index}
 						{disabled}
 						bind:params={sketchProps[key].params}
-						triggers={prop.triggers}
+						bind:triggers={prop.triggers}
 						onclick={(event) => {
 							sketch.version++;
 							// value(event, sketch.params);

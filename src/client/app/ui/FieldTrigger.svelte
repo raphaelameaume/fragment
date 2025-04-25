@@ -53,7 +53,7 @@
 		onchange = () => {},
 		onTrigger = () => {},
 		onDelete = () => {},
-		params = {},
+		params = $bindable({}),
 	} = $props();
 
 	let validInputs = $derived.by(() =>
@@ -141,8 +141,12 @@
 				params={{
 					options: inputOptions,
 				}}
-				onchange={(value) => (trigger.inputType = value)}
+				onchange={(value) => {
+					inputType = value;
+					trigger.inputType = value;
+				}}
 			/>
+
 			{#if inputType === 'Mouse'}
 				<FieldTriggerMouse bind:trigger />
 			{/if}

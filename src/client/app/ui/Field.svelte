@@ -52,7 +52,7 @@
 		onchange,
 		onclick = () => {},
 		children,
-		triggers = [],
+		triggers = $bindable([]),
 	} = $props();
 
 	let showTriggers = $state(true);
@@ -164,7 +164,7 @@
 	</FieldSection>
 	{#if triggerable && showTriggers}
 		<FieldTriggers
-			{triggers}
+			bind:triggers
 			{onTrigger}
 			{context}
 			triggerable={fieldType === fieldTypes.BUTTON}

@@ -3,8 +3,6 @@
 
 	let { trigger } = $props();
 
-	$inspect(trigger.params);
-
 	let eventName = $derived(trigger.eventName);
 	let keys = $derived((trigger.params?.key ?? []).join(','));
 	let eventOptions = [
@@ -32,6 +30,7 @@
 		options: eventOptions,
 	}}
 	onchange={(value) => {
+		eventName = value;
 		trigger.eventName = value;
 	}}
 />

@@ -1,3 +1,5 @@
+import { Inputs } from '../inputs';
+import Trigger from '../triggers/Trigger';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
@@ -44,6 +46,24 @@ class Sketch {
 		this.afterRecord = [];
 
 		this.reconcile(previous);
+
+		Object.keys(this.props).forEach((key) => {
+			const { triggers } = this.props[key];
+
+			triggers.forEach((trigger) => {
+				const t = new Trigger({
+					...trigger,
+					fn: () => {
+						console.log(`run trigger`);
+					},
+					enabled: true,
+				});
+
+				Inputs.forEach((input) => {
+					input.register(t);
+				});
+			});
+		});
 	}
 
 	reset() {

@@ -30,7 +30,12 @@
 	$inspect(reactiveTriggers);
 
 	function handleClickAdd() {
-		triggers.push(new Trigger());
+		triggers.push(
+			new Trigger({
+				context,
+				onTrigger,
+			}),
+		);
 	}
 </script>
 
