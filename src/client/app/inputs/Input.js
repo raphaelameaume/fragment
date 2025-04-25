@@ -1,3 +1,5 @@
+import Trigger from '../triggers/Trigger';
+
 class Input {
 	constructor({ type } = {}) {
 		this.type = type;
@@ -32,6 +34,8 @@ class Input {
 
 		return trigger;
 	}
+
+	register(trigger) {}
 
 	enable() {
 		this.enabled = true;
