@@ -46,24 +46,6 @@ class Sketch {
 		this.afterRecord = [];
 
 		this.reconcile(previous);
-
-		Object.keys(this.props).forEach((key) => {
-			const { triggers } = this.props[key];
-
-			triggers.forEach((trigger) => {
-				const t = new Trigger({
-					...trigger,
-					fn: () => {
-						console.log(`run trigger`);
-					},
-					enabled: true,
-				});
-
-				Inputs.forEach((input) => {
-					input.register(t);
-				});
-			});
-		});
 	}
 
 	reset() {
