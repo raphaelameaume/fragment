@@ -13,6 +13,8 @@ import { persist, hydrate } from './utils.svelte';
 import presets from '../lib/presets';
 import { client } from '../client.js';
 import Mouse from '../inputs/Mouse.js';
+import Trigger from '../triggers/Trigger.js';
+import { Inputs } from '../inputs/index.js';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -359,6 +361,54 @@ export class Render {
 			}
 		});
 
+		$effect(() => {
+			const { props } = this.sketch;
+
+			const triggers = [];
+
+			const createOnTriggerCallback = (prop) => {
+				if (typeof prop.value === 'function') {
+					return () => {
+						prop.value();
+						this.sketch.version++;
+					};
+				}
+			};
+
+			Object.keys(props).forEach((key) => {
+				const prop = props[key];
+				const { triggers: propTriggers } = prop;
+
+				propTriggers.forEach((propTrigger) => {
+					const trigger = new Trigger({
+						...propTrigger,
+						fn: createOnTriggerCallback(prop),
+						enabled: true,
+					});
+
+					triggers.push(trigger);
+				});
+			});
+
+			triggers.forEach((trigger) => {
+				Inputs.forEach((input) => {
+					if (trigger.inputType === input.type) {
+						input.add(trigger);
+					}
+				});
+			});
+
+			return () => {
+				triggers.forEach((trigger) => {
+					Inputs.forEach((input) => {
+						if (trigger.inputType === input.type) {
+							input.remove(trigger);
+						}
+					});
+				});
+			};
+		});
+
 		this.observer = new MutationObserver((mutationsList) => {
 			const attributes = ['width', 'height'];
 
@@ -528,15 +578,10 @@ export class Render {
 		canvas = document.createElement('canvas'),
 		context,
 	}) {
-		canvas.onmousedown = (event) =>
-			Mouse.runTriggers(
-				event,
-				context,
-				Mouse.getCollection('onMouseDown'),
-			);
-		canvas.onmousemove = (event) => checkForTriggersMove(event, context);
-		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
-		canvas.onclick = (event) => checkForTriggersClick(event, context);
+		canvas.onmousedown = (event) => Mouse.onMouseDown(event, context);
+		canvas.onmousemove = (event) => Mouse.onMouseMove(event, context);
+		canvas.onmouseup = (event) => Mouse.onMouseUp(event, context);
+		canvas.onclick = (event) => Mouse.onClick(event, context);
 
 		this.observer.observe(canvas, {
 			attributes: true,

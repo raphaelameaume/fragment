@@ -95,9 +95,9 @@ function createTrigger(eventName, collection) {
 	};
 }
 
-window.addEventListener('keypress', createEventListener(pressedKeys));
-window.addEventListener('keyup', createEventListener(upKeys));
-window.addEventListener('keydown', createEventListener(downKeys));
+// window.addEventListener('keypress', createEventListener(pressedKeys));
+// window.addEventListener('keyup', createEventListener(upKeys));
+// window.addEventListener('keydown', createEventListener(downKeys));
 
 export const onKeyPress = createTrigger('onKeyPress', pressedKeys);
 export const onKeyDown = createTrigger('onKeyDown', downKeys);

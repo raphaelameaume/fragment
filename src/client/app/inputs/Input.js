@@ -1,9 +1,14 @@
+import { wildcard } from '../triggers/shared';
 import Trigger from '../triggers/Trigger';
 
 class Input {
 	constructor({ type } = {}) {
+		/** @type {string} */
 		this.type = type;
+		/** @type {boolean} */
 		this.enabled = true;
+		/** @type {Trigger[]} */
+		this.triggers = [];
 	}
 
 	createTrigger(
@@ -35,7 +40,35 @@ class Input {
 		return trigger;
 	}
 
-	register(trigger) {}
+	add(trigger) {
+		this.triggers.push(trigger);
+	}
+
+	remove(trigger) {
+		const index = this.triggers.findIndex((t) => t === trigger);
+
+		if (index >= 0) {
+			this.triggers.splice(index, 1);
+		}
+	}
+
+	runTriggers(event, { context, eventName, params }) {
+		if (!this.enabled) return;
+
+		const triggers = this.triggers.filter(
+			(trigger) =>
+				trigger.eventName == eventName &&
+				(context
+					? trigger.context === context ||
+						trigger.context === wildcard
+					: true) &&
+				(params ? trigger.params.key.includes(params.key) : true),
+		);
+
+		triggers.forEach((trigger) => {
+			trigger.run(event);
+		});
+	}
 
 	enable() {
 		this.enabled = true;
