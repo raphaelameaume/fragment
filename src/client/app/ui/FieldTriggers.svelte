@@ -27,8 +27,6 @@
 		// triggers = triggers.filter((t, i) => i !== triggerIndex);
 	}
 
-	$inspect(triggers);
-
 	function handleClickAdd() {
 		triggers.push({
 			inputType: undefined,

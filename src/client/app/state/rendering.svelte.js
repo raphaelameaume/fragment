@@ -1,10 +1,4 @@
 import { PRESET_ORIENTATIONS, getDimensionsForPreset } from '../lib/presets';
-import {
-	checkForTriggersClick,
-	checkForTriggersDown,
-	checkForTriggersMove,
-	checkForTriggersUp,
-} from '../triggers/Mouse.js';
 import { map } from '../utils/math.utils.js';
 import { clearError, displayError } from './errors.svelte.js';
 import { exports } from './exports.svelte.js';
@@ -366,6 +360,11 @@ export class Render {
 
 			const triggers = [];
 
+			/**
+			 *
+			 * @param {object} prop
+			 * @returns {Function}
+			 */
 			const createOnTriggerCallback = (prop) => {
 				if (typeof prop.value === 'function') {
 					return () => {
@@ -405,6 +404,14 @@ export class Render {
 							input.remove(trigger);
 						}
 					});
+				});
+
+				Inputs.forEach((input) => {
+					const hotListeners = input.triggers.filter(
+						(trigger) => trigger.context === this.sketch.key,
+					);
+
+					hotListeners.forEach((trigger) => input.remove(trigger));
 				});
 			};
 		});

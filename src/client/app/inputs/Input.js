@@ -1,4 +1,4 @@
-import { wildcard } from '../triggers/shared';
+import { getContext, wildcard } from '../triggers/shared';
 import Trigger from '../triggers/Trigger';
 
 class Input {
@@ -11,16 +11,15 @@ class Input {
 		this.triggers = [];
 	}
 
+	/**
+	 *
+	 * @param {Function} fn
+	 * @param {*} param1
+	 * @returns
+	 */
 	createTrigger(
 		fn,
-		{
-			eventName,
-			collection,
-			context = getContext(),
-			hot,
-			enabled,
-			...params
-		},
+		{ eventName, context = getContext(), hot, enabled, ...params },
 	) {
 		const trigger = new Trigger({
 			inputType: this.type,
@@ -30,12 +29,9 @@ class Input {
 			fn,
 			enabled,
 			params,
-			destroy: () => {
-				const index = collection.findIndex((t) => t === trigger);
-
-				collection.splice(index, 1);
-			},
 		});
+
+		this.triggers.push(trigger);
 
 		return trigger;
 	}
@@ -62,7 +58,9 @@ class Input {
 					? trigger.context === context ||
 						trigger.context === wildcard
 					: true) &&
-				(params ? trigger.params.key.includes(params.key) : true),
+				(params?.key && trigger.params?.key?.length > 0
+					? trigger.params.key.includes(params.key)
+					: true),
 		);
 
 		triggers.forEach((trigger) => {

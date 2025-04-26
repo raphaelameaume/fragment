@@ -13,7 +13,7 @@ export { Mouse, Keyboard, MIDI };
  * @param {string} context
  */
 export const removeHotListeners = (context) => {
-	Mouse.removeHotListeners(context);
+	// Mouse.removeHotListeners(context);
 	Keyboard.removeHotListeners(context);
 	MIDI.removeHotListeners(context);
 };
