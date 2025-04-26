@@ -27,15 +27,15 @@
 		// triggers = triggers.filter((t, i) => i !== triggerIndex);
 	}
 
-	$inspect(reactiveTriggers);
+	$inspect(triggers);
 
 	function handleClickAdd() {
-		triggers.push(
-			new Trigger({
-				context,
-				onTrigger,
-			}),
-		);
+		triggers.push({
+			inputType: undefined,
+			eventName: undefined,
+			params: {},
+			context,
+		});
 	}
 </script>
 
