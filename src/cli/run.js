@@ -1,6 +1,12 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import { createServer, mergeConfig } from 'vite';
 import { createConfig } from './createConfig.js';
-import { createSketchesFile } from './createFragmentFile.js';
+import {
+	createSketchesFile,
+	createTsConfigFile,
+	FRAGMENT_DIRECTORY,
+} from './createFragmentFile.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta, bold, cyan, red } from './log.js';
 import save from './plugins/save.js';
@@ -58,6 +64,12 @@ export async function run(entry, options = {}) {
 		}
 
 		const sketchesPath = await createSketchesFile(entries, cwd);
+
+		const tsConfigDirpath = path.join(cwd, FRAGMENT_DIRECTORY);
+		const tsConfigFilepath = path.join(tsConfigDirpath, 'tsconfig.json');
+		if (!fs.existsSync(tsConfigFilepath)) {
+			await createTsConfigFile(cwd);
+		}
 
 		fragmentServer = await startWebSocketServer({
 			cwd,

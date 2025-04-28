@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { log } from './log.js';
 import { __dirname, file, mkdirp } from './utils.js';
 
-export const FRAGMENT_DIRECTORY = '/node_modules/.fragment';
+export const FRAGMENT_DIRECTORY = '/.fragment';
 
 /**
  * Create local sketches file needed by Fragment
@@ -76,8 +76,7 @@ if (import.meta.hot) {
 export async function createTsConfigFile(cwd = process.cwd()) {
 	try {
 		const dirpath = path.join(cwd, FRAGMENT_DIRECTORY);
-		const filename = 'tsconfig.json';
-		const filepath = path.join(dirpath, filename);
+		const filepath = path.join(dirpath, 'tsconfig.json');
 
 		const fragmentPath = path.relative(dirpath, __dirname);
 
