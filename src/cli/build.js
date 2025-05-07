@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { mergeConfig, build as viteBuild } from 'vite';
-import { createSketchesFile } from './createFragmentFile.js';
 import { createConfig } from './createConfig.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta } from './log.js';
@@ -95,11 +94,8 @@ export async function build(entry, options) {
 				prefix,
 			);
 
-			const sketchesPath = await createSketchesFile(entries, cwd);
-
 			const config = await createConfig(
 				entries,
-				sketchesPath,
 				{
 					dev: options.development,
 					build: true,

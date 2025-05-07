@@ -43,7 +43,6 @@ export async function loadConfig({ cwd, filepath }) {
 /**
  * Create Vite config from entries
  * @param {string[]} entries
- * @param {string} sketchesPath
  * @param {options} options
  * @param {boolean} [options.dev=false]
  * @param {boolean} [options.build=false]
@@ -52,7 +51,6 @@ export async function loadConfig({ cwd, filepath }) {
  */
 export async function createConfig(
 	entries,
-	sketchesPath,
 	{ dev = false, build = false } = {},
 	configFilepath,
 	cwd = process.cwd(),
@@ -77,7 +75,6 @@ export async function createConfig(
 			publicDir,
 			resolve: {
 				alias: {
-					'@fragment/sketches': sketchesPath,
 					'@fragment/types': path.join(__dirname, 'src/types'),
 					'@fragment': path.join(__dirname, 'src/client/app'),
 					three: path.join(cwd, 'node_modules/three'),
@@ -114,7 +111,6 @@ export async function createConfig(
 			},
 			optimizeDeps: {
 				include: ['convert-length', 'webm-writer', 'changedpi'],
-				exclude: ['@fragment/sketches', ...entriesPaths],
 			},
 		}),
 		config.vite ?? {},

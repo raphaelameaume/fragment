@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import { createServer, mergeConfig } from 'vite';
 import { createConfig } from './createConfig.js';
 import {
-	createSketchesFile,
 	createTsConfigFile,
 	FRAGMENT_DIRECTORY,
 } from './createFragmentFile.js';
@@ -63,8 +62,6 @@ export async function run(entry, options = {}) {
 			);
 		}
 
-		const sketchesPath = await createSketchesFile(entries, cwd);
-
 		const tsConfigDirpath = path.join(cwd, FRAGMENT_DIRECTORY);
 		const tsConfigFilepath = path.join(tsConfigDirpath, 'tsconfig.json');
 		if (!fs.existsSync(tsConfigFilepath)) {
@@ -77,7 +74,6 @@ export async function run(entry, options = {}) {
 
 		const config = await createConfig(
 			entries,
-			sketchesPath,
 			{
 				dev: options.development,
 				build: false,
