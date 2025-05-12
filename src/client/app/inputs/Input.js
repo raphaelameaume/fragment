@@ -36,6 +36,10 @@ class Input {
 		return trigger;
 	}
 
+	/**
+	 *
+	 * @param {Trigger} trigger
+	 */
 	add(trigger) {
 		this.triggers.push(trigger);
 	}
@@ -46,6 +50,8 @@ class Input {
 		if (index >= 0) {
 			this.triggers.splice(index, 1);
 		}
+
+		trigger.dispose();
 	}
 
 	runTriggers(event, { context, eventName, params }) {

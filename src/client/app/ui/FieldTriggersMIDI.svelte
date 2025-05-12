@@ -1,39 +1,10 @@
 <script>
 	import Field from './Field.svelte';
-	import {
-		onNoteOn,
-		onNoteOff,
-		onNumberOn,
-		onNumberOff,
-		onControlChange,
-	} from '../triggers/MIDI.js';
-	import { onMount } from 'svelte';
 
-	let {
-		controllable,
-		triggerable,
-		event,
-		registerTrigger,
-		enabled,
-		params = {},
-	} = $props();
+	let { controllable, triggerable, trigger } = $props();
 
-	let createTriggersMap = {
-		onNoteOn,
-		onNoteOff,
-		onNumberOn,
-		onNumberOff,
-		onControlChange,
-	};
-
-	let eventName = $state(event);
-	let key = $derived.by(() => {
-		if (params?.key && Array.isArray(params.key)) {
-			return params.key.join(', ');
-		}
-
-		return '';
-	});
+	let eventName = $derived(trigger.eventName);
+	let keys = $derived((trigger.params?.key ?? []).join(','));
 	let eventOptions = $derived(
 		controllable
 			? [
@@ -67,25 +38,6 @@
 					},
 				],
 	);
-
-	function onEventChange(value) {
-		eventName = value;
-	}
-
-	// function onEventChange(value) {
-	// 	eventName = value;
-	// }
-
-	function dispatchTrigger() {
-		let createTrigger = createTriggersMap[eventName];
-		registerTrigger(createTrigger, params);
-	}
-
-	onMount(() => {
-		if (eventName) {
-			dispatchTrigger();
-		}
-	});
 </script>
 
 <Field
@@ -94,16 +46,29 @@
 	params={{
 		options: eventOptions,
 	}}
-	onchange={onEventChange}
+	onchange={(value) => {
+		if (
+			eventName &&
+			((eventName.includes('Note') && value.includes('Number')) ||
+				(eventName.includes('Number') && value.includes('Note')))
+		) {
+			trigger.params.key = [];
+		}
+
+		eventName = value;
+		trigger.eventName = value;
+	}}
 />
 
 {#if eventName}
 	<Field
 		key={['onNoteOn', 'onNoteOff'].includes(eventName) ? 'note' : 'number'}
-		value={key}
-		onchange={(value) => {
-			console.log(params);
-			// params.key = value;
+		value={keys}
+		onchange={(event) => {
+			trigger.params.key = event.currentTarget.value
+				.trim()
+				.split(',')
+				.map((v) => v.trim());
 		}}
 	/>
 {/if}

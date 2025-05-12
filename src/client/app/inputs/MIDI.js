@@ -1,3 +1,4 @@
+import Trigger from '../triggers/Trigger';
 import Input from './Input';
 
 const commands = {
@@ -12,7 +13,9 @@ const LOCAL_STORAGE_KEY = 'fragment.midi.requested';
 
 class MIDI extends Input {
 	constructor() {
-		super();
+		super({
+			type: 'MIDI',
+		});
 
 		this.access = null;
 		this.requesting = false;
@@ -23,6 +26,17 @@ class MIDI extends Input {
 		this.selectedOutputID = null;
 
 		if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+			this.request();
+		}
+	}
+	/**
+	 *
+	 * @param {Trigger} trigger
+	 */
+	add(trigger) {
+		super.add(trigger);
+
+		if (!this.enabled) {
 			this.request();
 		}
 	}
@@ -102,7 +116,32 @@ class MIDI extends Input {
 		};
 
 		this.emit('message', data);
-		this.emit(type, data);
+
+		if (type === 'noteon' || type === 'noteoff') {
+			const suffix = type === 'noteon' ? 'On' : 'Off';
+
+			this.runTriggers(data, {
+				eventName: `onNote${suffix}`,
+				params: {
+					key: `${data.note.name}`,
+				},
+			});
+
+			this.runTriggers(data, {
+				eventName: `onNumber${suffix}`,
+				params: {
+					key: `${data.note.number}`,
+				},
+			});
+		} else if (type === 'controlchange') {
+			console.log(data);
+			this.runTriggers(data, {
+				eventName: `onControlChange`,
+				params: {
+					key: `${data.note.number}`,
+				},
+			});
+		}
 	}
 
 	onStateChange(e) {

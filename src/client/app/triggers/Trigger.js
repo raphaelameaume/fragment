@@ -5,9 +5,13 @@ let ID = 0;
 class Trigger {
 	/**
 	 *
-	 * @param {string} inputType
-	 * @param {string} eventName
-	 * @param {function} fn
+	 * @param {object} params
+	 * @param {string} params.inputType
+	 * @param {string} params.eventName
+	 * @param {Function|undefined} params.fn
+	 * @param {string} params.context
+	 * @param {Object|undefined} params.params
+	 * @param {boolean} params.enabled
 	 * @param {object} params
 	 */
 	constructor({
@@ -15,21 +19,25 @@ class Trigger {
 		eventName,
 		fn,
 		context = wildcard,
-		params = { key: [] },
-		destroy = () => {},
-		enabled = typeof inputType === 'string' &&
-			typeof eventName === 'string',
+		params,
+		enabled = true,
 		hot = true,
 	} = {}) {
 		this.id = ID++;
+		/** @type {string} */
 		this.inputType = inputType;
+		/** @type {string} */
 		this.eventName = eventName;
+		/** @type {Function|undefined} */
 		this.fn = fn;
+		/** @type {string} */
 		this.context = context;
+		/** @type {object} */
 		this.params = params;
+		/** @type {boolean} */
 		this.enabled = enabled;
+		/** @type {boolean} */
 		this.hot = hot;
-		this._destroy = destroy;
 	}
 
 	assign(fn) {
@@ -46,19 +54,14 @@ class Trigger {
 
 	run(...args) {
 		if (this.enabled) {
-			this.fn(...args);
+			this.fn?.(...args);
 		}
 	}
 
-	destroy() {
-		this._destroy();
-
-		this.inputType = null;
-		this.eventName = null;
-		this.fn = null;
-		this.params = null;
-		this.enabled = null;
-		this._destroy = null;
+	dispose() {
+		// remove reference
+		this.fn = undefined;
+		this.params = undefined;
 	}
 
 	toJSON() {

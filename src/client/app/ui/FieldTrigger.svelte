@@ -105,12 +105,6 @@
 		onchange(index, newTrigger);
 	}
 
-	// function onTypeChange(value) {
-	// 	trigger.inputType = value;
-
-	// 	console.log('setInputType', trigger, value);
-	// }
-
 	function handleClickDelete() {
 		onDelete(index);
 	}
@@ -153,15 +147,9 @@
 			{#if inputType === 'Keyboard'}
 				<FieldTriggerKeyboard bind:trigger />
 			{/if}
-			<!-- {#if inputType === 'MIDI'}
-				<FieldTriggersMIDI
-					{registerTrigger}
-					{enabled}
-					{params}
-					{controllable}
-					{triggerable}
-				/>
-			{/if} -->
+			{#if inputType === 'MIDI'}
+				<FieldTriggersMIDI bind:trigger {controllable} {triggerable} />
+			{/if}
 			<!-- {#if trigger}
 				<Field
 					key="enabled"

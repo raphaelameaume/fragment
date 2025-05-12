@@ -365,11 +365,35 @@ export class Render {
 			 * @param {object} prop
 			 * @returns {Function}
 			 */
-			const createOnTriggerCallback = (prop) => {
+			const createOnTriggerCallback = (prop, key) => {
 				if (typeof prop.value === 'function') {
 					return () => {
 						prop.value();
 						this.sketch.version++;
+					};
+				} else if (typeof prop.value === 'number') {
+					const { params } = prop;
+
+					return (event) => {
+						const isValueInRange =
+							event.value >= 0 && event.value <= 1;
+						if (
+							isValueInRange &&
+							isFinite(params.min) &&
+							isFinite(params.max)
+						) {
+							let v = map(
+								event.value,
+								0,
+								1,
+								params.min,
+								params.max,
+							);
+							let step = params.step ? params.step : 1;
+							let value = Math.round(v * (1 / step)) / (1 / step);
+
+							this.sketch.updateProp(key, value);
+						}
 					};
 				}
 			};
@@ -381,7 +405,7 @@ export class Render {
 				propTriggers.forEach((propTrigger) => {
 					const trigger = new Trigger({
 						...propTrigger,
-						fn: createOnTriggerCallback(prop),
+						fn: createOnTriggerCallback(prop, key),
 						enabled: true,
 					});
 
