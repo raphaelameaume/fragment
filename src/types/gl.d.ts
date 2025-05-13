@@ -1,110 +1,126 @@
-import type { fragment } from '../client/app/lib/gl';
+declare module '@fragment/lib/gl' {
+	type Gl = WebGLRenderingContext | WebGL2RenderingContext | null;
 
-type Gl = WebGLRenderingContext | WebGL2RenderingContext | null;
+	type UniformValue = number | number[] | Texture | null;
+	type Uniform = { type?: string; value?: UniformValue };
+	type Uniforms = Record<string, Uniform>;
 
-type UniformValue = number | number[] | Texture;
-type Uniform = { type?: string; value?: UniformValue };
-type Uniforms = Record<string, Uniform>;
+	type Attributes = Record<string, { data: number[] }>;
 
-type Attributes = Record<string, { data: number[] }>;
+	class Geometry {
+		constructor(gl: Gl, attributes?: Attributes);
+		gl: Gl;
+		attributes: Attributes | null;
+		buffers: Record<string, WebGLBuffer> | null;
+	}
 
-export class Geometry {
-	constructor(gl: Gl, attributes?: Attributes);
-	gl: Gl;
-	attributes: Attributes | null;
-	buffers: Record<string, WebGLBuffer> | null;
-}
+	class Texture {
+		constructor(
+			gl: Gl,
+			params?: {
+				image?: TexImageSource | null;
+				name?: string;
+				target?: number;
+				type?: number;
+				wrapS?: number;
+				wrapT?: number;
+				generateMipmaps?: boolean;
+				format?: number;
+				internalFormat?: number;
+				minFilter?: number;
+				magFilter?: number;
+				flipY?: boolean;
+			},
+		);
+		id: number;
+		gl: Gl;
+		image: TexImageSource | null;
+		name: string;
+		target: number;
+		type: number;
+		wrapS: number;
+		wrapT: number;
+		generateMipmaps: boolean;
+		format: number;
+		internalFormat: number;
+		minFilter: number;
+		magFilter: number;
+		flipY: boolean;
+		needsUpdate: boolean;
+		glTexture: WebGLTexture | null;
+		bind(): void;
+		update(textureUnit?: number): void;
+		destroy(): void;
+	}
 
-export class Texture {
-	constructor(
-		gl: Gl,
-		params?: {
-			image?: TexImageSource | null;
-			name?: string;
-			target?: number;
-			type?: number;
-			wrapS?: number;
-			wrapT?: number;
-			generateMipmaps?: boolean;
-			format?: number;
-			internalFormat?: number;
-			minFilter?: number;
-			magFilter?: number;
-			flipY?: boolean;
-		},
-	);
-	id: number;
-	gl: Gl;
-	image: TexImageSource | null;
-	name: string;
-	target: number;
-	type: number;
-	wrapS: number;
-	wrapT: number;
-	generateMipmaps: boolean;
-	format: number;
-	internalFormat: number;
-	minFilter: number;
-	magFilter: number;
-	flipY: boolean;
-	needsUpdate: boolean;
-	glTexture: WebGLTexture | null;
-	bind(): void;
-	update(textureUnit?: number): void;
-	destroy(): void;
-}
+	class Program {
+		constructor(
+			gl: Gl,
+			params: { vertex: string; fragment: string; uniforms: Uniforms },
+		);
+		id: number;
+		gl: Gl;
+		vertexShader: string;
+		fragmentShader: string;
+		uniforms: Uniforms;
+		needsUpdate: boolean;
+		attributesLocations: Record<
+			string,
+			ReturnType<WebGLRenderingContext['getAttribLocation']>
+		>;
+		uniformsLocations: Record<
+			string,
+			ReturnType<WebGLRenderingContext['getUniformLocation']>
+		>;
+		compile(): void;
+	}
 
-export class Program {
-	constructor(
-		gl: Gl,
-		params: { vertex: string; fragment: string; uniforms: Uniforms },
-	);
-	id: number;
-	gl: Gl;
-	vertexShader: string;
-	fragmentShader: string;
-	uniforms: Uniforms;
-	needsUpdate: boolean;
-	attributesLocations: Record<
-		string,
-		ReturnType<WebGLRenderingContext['getAttribLocation']>
-	>;
-	uniformsLocations: Record<
-		string,
-		ReturnType<WebGLRenderingContext['getUniformLocation']>
-	>;
-	compile(): void;
-}
+	class Renderer {
+		constructor(params: {
+			canvas?: HTMLCanvasElement;
+			antialias?: boolean;
+			alpha?: boolean;
+			depth?: boolean;
+			stencil?: boolean;
+			premultipliedAlpha?: boolean;
+			pixelRatio?: number;
+			webgl?: 1 | 2;
+		});
+		gl: Gl;
+		canvas: HTMLCanvasElement;
+		render(params: {
+			geometry: Geometry;
+			program: Program;
+			primitiveType: GLenum;
+			offset?: number;
+			count?: number;
+		}): void;
+		setPixelRatio(pixelRatio?: number): void;
+		setSize(params?: { width?: number; height?: number }): void;
+		setViewport(params?: { width?: number; height?: number }): void;
+		destroy(): void;
+	}
 
-export class Renderer {
-	constructor(params: {
+	interface Frag {
+		gl: Gl;
+		program: Program;
+		texture: (params?: {}) => Texture;
+		shader: string;
+		fragmentShader: string;
+		vertexShader: string;
+		uniforms: Uniforms;
+		resize: (params: {
+			width?: number;
+			height?: number;
+			pixelRatio?: number;
+		}) => void;
+		render: () => void;
+		destroy: () => void;
+	}
+
+	function fragment(params: {
 		canvas?: HTMLCanvasElement;
-		antialias?: boolean;
-		alpha?: boolean;
-		depth?: boolean;
-		stencil?: boolean;
-		premultipliedAlpha?: boolean;
-		pixelRatio?: number;
-		webgl?: 1 | 2;
-	});
-	gl: WebGLRenderingContext;
-	canvas: HTMLCanvasElement;
-	render(params: {
-		geometry: Geometry;
-		program: Programy;
-		primitiveType: GLenum;
-		offset?: number;
-		count?: number;
-	}): void;
-	setPixelRatio(pixelRatio?: number): void;
-	setSize(params?: { width?: number; height?: number }): void;
-	setViewport(params?: { width?: number; height?: number }): void;
-	destroy(): void;
+		shader?: string;
+		uniforms?: Uniforms;
+	}): Frag;
 }
-
-export type Frag = ReturnType<typeof fragment> & {
-	shader: string;
-	fragmentShader: string;
-	vertexShader: string;
-	uniforms: Uniforms;
-};

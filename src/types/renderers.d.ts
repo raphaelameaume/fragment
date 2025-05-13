@@ -1,6 +1,6 @@
 import type p5 from 'p5';
 import type * as THREE from 'three';
-import type { Frag } from '@fragment/types/gl';
+import type { Frag } from '@fragment/lib/gl';
 
 export type Rendering = '2d' | 'fragment' | 'p5' | 'p5-webgl' | 'three';
 
