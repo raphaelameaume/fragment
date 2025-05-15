@@ -1,5 +1,5 @@
 declare module '@fragment/lib/gl' {
-	type Gl = WebGLRenderingContext | WebGL2RenderingContext | null;
+	type Gl = WebGLRenderingContext | WebGL2RenderingContext;
 
 	type UniformValue = number | number[] | Texture | null;
 	type Uniform = { type?: string; value?: UniformValue };
@@ -56,7 +56,11 @@ declare module '@fragment/lib/gl' {
 	class Program {
 		constructor(
 			gl: Gl,
-			params: { vertex: string; fragment: string; uniforms: Uniforms },
+			params: {
+				vertex?: string;
+				fragment?: string;
+				uniforms?: Uniforms;
+			},
 		);
 		id: number;
 		gl: Gl;
@@ -91,7 +95,7 @@ declare module '@fragment/lib/gl' {
 		render(params: {
 			geometry: Geometry;
 			program: Program;
-			primitiveType: GLenum;
+			primitiveType?: GLenum;
 			offset?: number;
 			count?: number;
 		}): void;
