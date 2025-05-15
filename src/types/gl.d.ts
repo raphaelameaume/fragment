@@ -56,7 +56,7 @@ declare module '@fragment/lib/gl' {
 	class Program {
 		constructor(
 			gl: Gl,
-			params: {
+			params?: {
 				vertex?: string;
 				fragment?: string;
 				uniforms?: Uniforms;
@@ -80,7 +80,7 @@ declare module '@fragment/lib/gl' {
 	}
 
 	class Renderer {
-		constructor(params: {
+		constructor(params?: {
 			canvas?: HTMLCanvasElement;
 			antialias?: boolean;
 			alpha?: boolean;
@@ -113,7 +113,7 @@ declare module '@fragment/lib/gl' {
 		fragmentShader: string;
 		vertexShader: string;
 		uniforms: Uniforms;
-		resize: (params: {
+		resize: (params?: {
 			width?: number;
 			height?: number;
 			pixelRatio?: number;
@@ -122,7 +122,7 @@ declare module '@fragment/lib/gl' {
 		destroy: () => void;
 	}
 
-	function fragment(params: {
+	function fragment(params?: {
 		canvas?: HTMLCanvasElement;
 		shader?: string;
 		uniforms?: Uniforms;
