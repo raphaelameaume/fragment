@@ -40,13 +40,6 @@
 		key="key"
 		value={keys}
 		onchange={(event) => {
-			console.log(
-				event.currentTarget.value
-					.trim()
-					.split(',')
-					.map((v) => v.trim()),
-			);
-
 			trigger.params.key = event.currentTarget.value
 				.trim()
 				.split(',')

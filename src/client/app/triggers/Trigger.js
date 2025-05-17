@@ -19,8 +19,9 @@ class Trigger {
 		eventName,
 		fn,
 		context = wildcard,
-		params,
+		params = {},
 		enabled = true,
+		collapsed = false,
 		hot = true,
 	} = {}) {
 		this.id = ID++;
@@ -36,6 +37,8 @@ class Trigger {
 		this.params = params;
 		/** @type {boolean} */
 		this.enabled = enabled;
+		/** @type {boolean} */
+		this.collapsed = collapsed;
 		/** @type {boolean} */
 		this.hot = hot;
 	}

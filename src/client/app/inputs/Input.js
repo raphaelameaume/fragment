@@ -54,7 +54,7 @@ class Input {
 		trigger.dispose();
 	}
 
-	runTriggers(event, { context, eventName, params }) {
+	runTriggers(event, { context, eventName, params = {} }) {
 		if (!this.enabled) return;
 
 		const triggers = this.triggers.filter(
@@ -64,7 +64,7 @@ class Input {
 					? trigger.context === context ||
 						trigger.context === wildcard
 					: true) &&
-				(params?.key && trigger.params?.key?.length > 0
+				(params.key && trigger.params.key?.length > 0
 					? trigger.params.key.includes(params.key)
 					: true),
 		);

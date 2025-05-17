@@ -134,7 +134,6 @@ class MIDI extends Input {
 				},
 			});
 		} else if (type === 'controlchange') {
-			console.log(data);
 			this.runTriggers(data, {
 				eventName: `onControlChange`,
 				params: {

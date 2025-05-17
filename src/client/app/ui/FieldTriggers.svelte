@@ -1,6 +1,5 @@
 <script>
 	import Trigger from '../triggers/Trigger';
-	import FieldGroup from './FieldGroup.svelte';
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 
@@ -12,14 +11,6 @@
 		controllable = false,
 	} = $props();
 
-	let reactiveTriggers = $derived(
-		triggers.map((trigger) => ({
-			inputType: trigger.inputType,
-			eventName: trigger.eventName,
-			params: trigger.params,
-		})),
-	);
-
 	function onTriggerDelete(index) {
 		if (index >= 0) {
 			triggers.splice(index, 1);
@@ -28,12 +19,7 @@
 	}
 
 	function handleClickAdd() {
-		triggers.push({
-			inputType: undefined,
-			eventName: undefined,
-			params: {},
-			context,
-		});
+		triggers.push(new Trigger());
 	}
 </script>
 
@@ -43,7 +29,7 @@
 			<ButtonInput label="add trigger" onclick={handleClickAdd} />
 		</header>
 		<div class="triggers-list">
-			{#each reactiveTriggers as trigger, index}
+			{#each triggers as trigger, index}
 				<FieldTrigger
 					bind:trigger={triggers[index]}
 					{index}

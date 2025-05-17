@@ -90,20 +90,20 @@
 	let name = $derived.by(() => {
 		let name = 'Trigger';
 
-		if (inputType) {
-			name = inputType;
+		if (trigger.inputType) {
+			name = trigger.inputType;
 		}
 
 		if (eventName) {
 			name += ` — ${eventName}`;
 		}
 
+		if (trigger.params.key) {
+			name += ` — ${trigger.params.key?.join(',')}`;
+		}
+
 		return name;
 	});
-
-	function registerTrigger(newTrigger, params = {}) {
-		onchange(index, newTrigger);
-	}
 
 	function handleClickDelete() {
 		onDelete(index);
@@ -128,7 +128,11 @@
 				<IconCross />
 			</ButtonInput>
 		</div>
-		<FieldGroup {name}>
+		<FieldGroup
+			{name}
+			collapsed={trigger.collapsed}
+			onchange={(collapsed) => (trigger.collapsed = collapsed)}
+		>
 			<Field
 				key="input"
 				value={inputType}
@@ -137,6 +141,8 @@
 				}}
 				onchange={(value) => {
 					inputType = value;
+					eventName = undefined;
+					trigger.eventName = undefined;
 					trigger.inputType = value;
 				}}
 			/>

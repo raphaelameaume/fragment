@@ -1,7 +1,7 @@
 <script>
 	import Field from './Field.svelte';
 
-	let { controllable, triggerable, trigger } = $props();
+	let { controllable, trigger } = $props();
 
 	let eventName = $derived(trigger.eventName);
 	let keys = $derived((trigger.params?.key ?? []).join(','));
@@ -60,9 +60,40 @@
 	}}
 />
 
-{#if eventName}
+{#if ['onNoteOn', 'onNoteOff'].includes(eventName)}
 	<Field
-		key={['onNoteOn', 'onNoteOff'].includes(eventName) ? 'note' : 'number'}
+		key="note"
+		value={keys}
+		params={{
+			options: [
+				{
+					value: undefined,
+					label: '*',
+				},
+				{ value: 'A' },
+				{ value: 'A#' },
+				{ value: 'B' },
+				{ value: 'C' },
+				{ value: 'C#' },
+				{ value: 'D' },
+				{ value: 'D#' },
+				{ value: 'E' },
+				{ value: 'F' },
+				{ value: 'G#' },
+			],
+		}}
+		onchange={(value) => {
+			trigger.params.key = value
+				.trim()
+				.split(',')
+				.map((v) => v.trim());
+		}}
+	/>
+{/if}
+
+{#if ['onNumberOn', 'onNumberOff'].includes(eventName)}
+	<Field
+		key="number"
 		value={keys}
 		onchange={(event) => {
 			trigger.params.key = event.currentTarget.value
