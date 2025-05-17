@@ -32,26 +32,28 @@
 </script>
 
 <script>
+	import { onMount } from 'svelte';
 	import IconCross from '../components/IconCross.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
-	import Select from './fields/Select.svelte';
-	import TextInput from './fields/TextInput.svelte';
-	import * as triggersMap from '../triggers/index.js';
-	import { onMount } from 'svelte';
+	import FieldGroup from './FieldGroup.svelte';
+	import Field from './Field.svelte';
+	import FieldTriggerMouse from './FieldTriggerMouse.svelte';
+	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
+	import FieldTriggersMIDI from './FieldTriggersMIDI.svelte';
+	import Trigger from '../triggers/Trigger';
 
 	let {
-		index,
-		inputType,
-		eventName,
-		enabled,
+		trigger,
+		index = 0,
 		controllable = false,
 		triggerable = false,
 		context,
+		onTypeChange,
 		onchange = () => {},
 		onTrigger = () => {},
 		onDelete = () => {},
-		params = { key: [] },
+		params = $bindable({}),
 	} = $props();
 
 	let validInputs = $derived.by(() =>
@@ -81,148 +83,87 @@
 		})),
 	]);
 
-	let eventOptions = $derived(
-		inputType
-			? [
-					{ label: '-', value: undefined, disabled: true },
-					...validInputs[inputType].events.map((event) => ({
-						value: event.name,
-					})),
-				]
-			: [],
-	);
+	let enabled = $state(false);
+	let inputType = $derived(trigger.inputType);
+	let eventName = $derived(trigger.eventName);
 
-	let isValid = $derived(inputType && eventName);
-	let key = $derived(params.key);
-	let trigger;
+	let name = $derived.by(() => {
+		let name = 'Trigger';
 
-	function registerTrigger() {
-		let wasEnabled = trigger?.enabled;
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
+		if (trigger.inputType) {
+			name = trigger.inputType;
 		}
 
-		const createTrigger = triggersMap[eventName];
-
-		trigger = createTrigger(onTrigger, {
-			...$state.snapshot(params),
-			context,
-			hot: false,
-			enabled: wasEnabled,
-		});
-
-		onchange(index, trigger);
-	}
-
-	function onTypeChange(value) {
-		inputType = value;
-
-		if (!eventOptions.includes(eventName)) {
-			eventName = undefined;
-			params.key = null;
+		if (eventName) {
+			name += ` — ${eventName}`;
 		}
 
-		if (trigger) {
-			trigger.destroy();
-			trigger = null;
-		}
-	}
-
-	function onEventChange(value) {
-		const clearParams =
-			inputType === 'MIDI' &&
-			eventName !== undefined &&
-			((eventName.includes('Number') && value.includes('Note')) ||
-				(eventName.includes('Note') && value.includes('Number')));
-
-		eventName = value;
-
-		if (clearParams) {
-			params.key = '';
+		if (trigger.params.key) {
+			name += ` — ${trigger.params.key?.join(',')}`;
 		}
 
-		if (inputType === 'Mouse' || inputType === 'Keyboard') {
-			registerTrigger();
-		}
-	}
-
-	function onTextChange(event) {
-		params.key = event.currentTarget.value;
-
-		registerTrigger();
-	}
+		return name;
+	});
 
 	function handleClickDelete() {
 		onDelete(index);
 	}
 
-	function toggleTrigger() {
-		if (trigger) {
-			trigger.enabled = !trigger.enabled;
-			registerTrigger();
-		}
+	function toggleTrigger(value) {
+		enabled = value;
 	}
-
-	onMount(() => {
-		if (isValid) {
-			registerTrigger();
-		}
-
-		return () => {
-			trigger?.destroy();
-			trigger = null;
-		};
-	});
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
-	<FieldInputRow
-		--grid-template-columns="var(--width-activity) var(--width-cols) var(--width-delete)"
-	>
-		<button
-			class="activity"
-			class:valid={isValid}
-			class:enabled
-			class:disabled={!enabled}
-			onclick={toggleTrigger}
-		></button>
-		<Select
-			name="trigger-input"
-			value={inputType}
-			options={inputOptions}
-			onchange={onTypeChange}
-		/>
-		{#if inputType}
-			<Select
-				options={eventOptions}
-				value={eventName}
-				disabled={inputType === undefined}
-				onchange={onEventChange}
-			/>
-		{/if}
-		{#if inputType === 'Keyboard'}
-			<TextInput value={key} label="key" oninput={onTextChange} />
-		{/if}
-		{#if inputType === 'MIDI'}
-			<TextInput
-				value={key}
-				label={['onNoteOn', 'onNoteOff'].includes(eventName)
-					? 'note'
-					: 'number'}
-				oninput={onTextChange}
-			/>
-		{/if}
-		<ButtonInput
-			label="delete"
-			showLabel={false}
-			onclick={handleClickDelete}
-			--color-text="white"
-			--background-color="var(--color-red)"
-			--box-shadow-color-active="var(--color-lightred)"
+	<FieldInputRow --grid-template-columns="var(--width-cols)">
+		<div class="delete">
+			<ButtonInput
+				label="delete"
+				showLabel={false}
+				onclick={handleClickDelete}
+				--color-text="white"
+				--background-color="var(--color-red)"
+				--box-shadow-color-active="var(--color-lightred)"
+			>
+				<IconCross />
+			</ButtonInput>
+		</div>
+		<FieldGroup
+			{name}
+			collapsed={trigger.collapsed}
+			onchange={(collapsed) => (trigger.collapsed = collapsed)}
 		>
-			<IconCross />
-		</ButtonInput>
+			<Field
+				key="input"
+				value={inputType}
+				params={{
+					options: inputOptions,
+				}}
+				onchange={(value) => {
+					inputType = value;
+					eventName = undefined;
+					trigger.eventName = undefined;
+					trigger.inputType = value;
+				}}
+			/>
+
+			{#if inputType === 'Mouse'}
+				<FieldTriggerMouse bind:trigger />
+			{/if}
+			{#if inputType === 'Keyboard'}
+				<FieldTriggerKeyboard bind:trigger />
+			{/if}
+			{#if inputType === 'MIDI'}
+				<FieldTriggersMIDI bind:trigger {controllable} {triggerable} />
+			{/if}
+			<!-- {#if trigger}
+				<Field
+					key="enabled"
+					value={trigger?.enabled}
+					onchange={toggleTrigger}
+				/>
+			{/if} -->
+		</FieldGroup>
 	</FieldInputRow>
 </div>
 
@@ -271,12 +212,10 @@
 		--background-color: var(--color-red);
 	}
 
-	.field-trigger.mouse {
-		--width-cols: var(--width-input) 1fr;
-	}
-
-	.field-trigger.keyboard,
-	.field-trigger.midi {
-		--width-cols: var(--width-input) 1fr 0.75fr;
+	.delete {
+		position: absolute;
+		top: 5px;
+		right: calc(var(--column-gap) * 2);
+		z-index: 1;
 	}
 </style>

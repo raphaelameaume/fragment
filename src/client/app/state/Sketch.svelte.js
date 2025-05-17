@@ -1,3 +1,5 @@
+import { Inputs } from '../inputs';
+import Trigger from '../triggers/Trigger';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {

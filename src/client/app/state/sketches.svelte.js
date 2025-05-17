@@ -31,8 +31,6 @@ class SketchesManager {
 		const keys = [...Object.keys(collection)];
 
 		Object.keys(this.sketches).forEach((key) => {
-			removeHotListeners(key);
-
 			if (!keys.includes(key)) {
 				delete this.sketches[key];
 			}

@@ -1,104 +1,45 @@
-import Trigger from './Trigger';
 import Keyboard from '../inputs/Keyboard';
 import { wildcard, getContext } from './shared';
-import { addToMapArray, removeFromMapArray } from '../utils';
 
-const pressedKeys = new Map();
-const upKeys = new Map();
-const downKeys = new Map();
+function createTrigger(eventName, ...args) {
+	let key = [];
+	let fn = args[0];
 
-export const removeHotListeners = (context) => {
-	function removeHotFrom(collection) {
-		for (let trigger of collection) {
-			const [key, triggers] = trigger;
-
-			collection.set(
-				key,
-				triggers.filter((trigger) => trigger.context !== context),
-			);
-		}
+	if (typeof args[0] === 'string' && typeof args[1] === 'function') {
+		key.push(...args[0].split(',').map((k) => k.trim()));
+		fn = args[1];
 	}
 
-	removeHotFrom(pressedKeys);
-	removeHotFrom(upKeys);
-	removeHotFrom(downKeys);
+	Keyboard.createTrigger(fn, {
+		eventName,
+		enabled: true,
+		key,
+	});
+}
+
+/**
+ *
+ * @param {string|Function} key
+ * @param {Function} fn
+ */
+export const onKeyPress = (key, fn) => {
+	createTrigger('onKeyPress', key, fn);
 };
 
-function createEventListener(collection) {
-	return (event) => {
-		const { key, target } = event;
+/**
+ *
+ * @param {string|Function} key
+ * @param {Function} fn
+ */
+export const onKeyDown = (key, fn) => {
+	createTrigger('onKeyDown', key, fn);
+};
 
-		if (!target.classList.contains('input')) {
-			const triggers = [
-				...(collection.has(key) ? collection.get(key) : []),
-				...(collection.has(wildcard) ? collection.get(wildcard) : []),
-			];
-
-			triggers.forEach((trigger) => {
-				if (!Keyboard.enabled) return;
-
-				trigger.run(event);
-			});
-		}
-	};
-}
-
-function createTrigger(eventName, collection) {
-	return (key, fn, options = {}) => {
-		if (typeof key === 'function') {
-			if (typeof fn === 'object') {
-				options = {
-					...options,
-					...fn,
-				};
-			}
-
-			fn = key;
-			key = '*';
-
-			if (options.key) {
-				key = options.key;
-			}
-		}
-
-		const { hot, enabled, ...params } = options;
-		const context = getContext();
-
-		const keys = Array.isArray(key)
-			? key
-			: [...`${key}`.split(',').map((k) => (k !== ' ' ? k.trim() : k))];
-
-		const trigger = new Trigger({
-			inputType: 'Keyboard',
-			eventName,
-			fn,
-			context,
-			params: { ...params, key: keys },
-			hot,
-			enabled,
-			destroy: () => {
-				keys.forEach((key) => {
-					removeFromMapArray(
-						collection,
-						key,
-						(item) => item.id === trigger.id,
-					);
-				});
-			},
-		});
-
-		keys.forEach((key) => {
-			addToMapArray(collection, key, trigger);
-		});
-
-		return trigger;
-	};
-}
-
-window.addEventListener('keypress', createEventListener(pressedKeys));
-window.addEventListener('keyup', createEventListener(upKeys));
-window.addEventListener('keydown', createEventListener(downKeys));
-
-export const onKeyPress = createTrigger('onKeyPress', pressedKeys);
-export const onKeyDown = createTrigger('onKeyDown', downKeys);
-export const onKeyUp = createTrigger('onKeyUp', upKeys);
+/**
+ *
+ * @param {string|Function} key
+ * @param {Function} fn
+ */
+export const onKeyUp = (key, fn) => {
+	createTrigger('onKeyUp', key, fn);
+};
