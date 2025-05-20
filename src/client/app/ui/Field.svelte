@@ -55,7 +55,7 @@
 		triggers = $bindable([]),
 	} = $props();
 
-	let showTriggers = $state(true);
+	let showTriggers = $state(false);
 
 	const onTriggers = {
 		checkbox: () => {

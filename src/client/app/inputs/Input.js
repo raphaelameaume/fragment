@@ -54,10 +54,10 @@ class Input {
 		trigger.dispose();
 	}
 
-	runTriggers(event, { context, eventName, params = {} }) {
+	runTriggers(event, { context, eventName, params = {}, filter, onRun }) {
 		if (!this.enabled) return;
 
-		const triggers = this.triggers.filter(
+		let triggers = this.triggers.filter(
 			(trigger) =>
 				trigger.eventName == eventName &&
 				(context
@@ -69,8 +69,12 @@ class Input {
 					: true),
 		);
 
+		if (filter) {
+			triggers = triggers.filter(filter);
+		}
+
 		triggers.forEach((trigger) => {
-			trigger.run(event);
+			trigger.run(onRun ? onRun(trigger, event) : event);
 		});
 	}
 

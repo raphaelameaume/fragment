@@ -41,7 +41,7 @@
 	import FieldTriggerMouse from './FieldTriggerMouse.svelte';
 	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
 	import FieldTriggersMIDI from './FieldTriggersMIDI.svelte';
-	import Trigger from '../triggers/Trigger';
+	import { configInputsTriggerList } from 'virtual:config-inputs';
 
 	let {
 		trigger,
@@ -81,6 +81,9 @@
 			value: inputName,
 			disabled: validInputs[inputName].disabled,
 		})),
+		...Object.keys(configInputsTriggerList).map((inputName) => ({
+			value: inputName,
+		})),
 	]);
 
 	let enabled = $state(false);
@@ -112,6 +115,15 @@
 	function toggleTrigger(value) {
 		enabled = value;
 	}
+
+	const FieldTriggerComponents = {
+		Mouse: FieldTriggerMouse,
+		Keyboard: FieldTriggerKeyboard,
+		MIDI: FieldTriggersMIDI,
+		...configInputsTriggerList,
+	};
+
+	const FieldTriggerComponent = $derived(FieldTriggerComponents[inputType]);
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
@@ -147,14 +159,12 @@
 				}}
 			/>
 
-			{#if inputType === 'Mouse'}
-				<FieldTriggerMouse bind:trigger />
-			{/if}
-			{#if inputType === 'Keyboard'}
-				<FieldTriggerKeyboard bind:trigger />
-			{/if}
-			{#if inputType === 'MIDI'}
-				<FieldTriggersMIDI bind:trigger {controllable} {triggerable} />
+			{#if FieldTriggerComponent}
+				<FieldTriggerComponent
+					bind:trigger
+					{controllable}
+					{triggerable}
+				/>
 			{/if}
 			<!-- {#if trigger}
 				<Field
