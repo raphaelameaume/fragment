@@ -1,6 +1,6 @@
 {
   "name": "fragment-tools",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A web development environment for creative coding",
   "main": "index.js",
   "bin": {
@@ -33,7 +33,7 @@
     "kleur": "^4.1.4",
     "sade": "^1.7.4",
     "svelte": "^5.19.0",
-    "vite": "^6.3.3",
+    "vite": "^6.3.5",
     "webm-writer": "^1.0.0",
     "ws": "^8.2.3"
   },
