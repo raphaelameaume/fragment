@@ -51,7 +51,6 @@
 					Something went wrong while loading module:
 					<span class="module-name">{name}</span>
 				</p>
-				<p class="error">{error.message}</p>
 			</div>
 		</div>
 	</div>
