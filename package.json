@@ -7,6 +7,7 @@
     "fragment": "bin/index.js"
   },
   "scripts": {
+    "electron:dev": "ELECTRON_START_URL=http://localhost:3002 electron src/electron/main.js",
     "format": "prettier . --write"
   },
   "type": "module",
@@ -38,6 +39,8 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "electron": "^36.2.1",
+    "electron-builder": "^26.0.12",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.6"
   }
