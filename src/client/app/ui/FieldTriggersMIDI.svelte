@@ -57,6 +57,7 @@
 
 		eventName = value;
 		trigger.eventName = value;
+		console.log(trigger.eventName);
 	}}
 />
 
@@ -92,6 +93,19 @@
 {/if}
 
 {#if ['onNumberOn', 'onNumberOff'].includes(eventName)}
+	<Field
+		key="number"
+		value={keys}
+		onchange={(event) => {
+			trigger.params.key = event.currentTarget.value
+				.trim()
+				.split(',')
+				.map((v) => v.trim());
+		}}
+	/>
+{/if}
+
+{#if ['onControlChange'].includes(eventName)}
 	<Field
 		key="number"
 		value={keys}

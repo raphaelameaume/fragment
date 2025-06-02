@@ -9,7 +9,7 @@ export default function ({ cwd, config }) {
 		const modules = plugin.registerModules?.() ?? [];
 
 		modules.forEach((m) => {
-			const moduleFilepath = path.join(cwd, m.component);
+			const moduleFilepath = path.resolve(m.component);
 			const moduleName = m.name;
 			const moduleAlias = `${moduleName}ConfigModule`;
 			const moduleImport = `import ${moduleAlias} from '${moduleFilepath}';\n`;

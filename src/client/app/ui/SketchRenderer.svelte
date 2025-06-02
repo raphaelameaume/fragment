@@ -141,7 +141,7 @@
 	{/if}
 </div>
 
-<KeyBinding type="down" key="r" onTrigger={checkForRefresh} />
+<!-- <KeyBinding type="down" key="r" onTrigger={checkForRefresh} /> -->
 <KeyBinding type="down" key=" " onTrigger={checkForPause} />
 <KeyBinding type="down" key="s" onTrigger={checkForScreenshot} />
 <KeyBinding type="down" key="S" onTrigger={checkForRecord} />

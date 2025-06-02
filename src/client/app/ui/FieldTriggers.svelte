@@ -19,7 +19,7 @@
 	}
 
 	function handleClickAdd() {
-		triggers.push(new Trigger());
+		triggers.push(new Trigger().toJSON()); // make sure to create a proxy object
 	}
 </script>
 
