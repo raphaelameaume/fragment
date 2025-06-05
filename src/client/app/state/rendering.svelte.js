@@ -406,7 +406,6 @@ export class Render {
 					const trigger = new Trigger({
 						...propTrigger,
 						fn: createOnTriggerCallback(prop, key),
-						enabled: true,
 					});
 
 					triggers.push(trigger);

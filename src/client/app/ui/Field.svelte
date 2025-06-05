@@ -146,7 +146,10 @@
 						class="field__action field__action--triggers"
 						class:active={triggersActive}
 					>
-						<IconTriggers />
+						<IconTriggers
+							setup={triggersActive}
+							active={triggers.some((t) => t.enabled)}
+						/>
 					</button>
 				{/if}
 				{#if fieldType === fieldTypes.VEC && !disabled}
@@ -242,7 +245,7 @@
 
 		position: relative;
 
-		width: 16px;
+		width: 8px;
 		height: 16px;
 
 		background-color: transparent;
@@ -250,7 +253,7 @@
 	}
 
 	.field__action--triggers:not(.active) {
-		display: none;
+		opacity: 0.3;
 	}
 
 	.field__action {

@@ -48,12 +48,7 @@
 		index = 0,
 		controllable = false,
 		triggerable = false,
-		context,
-		onTypeChange,
-		onchange = () => {},
-		onTrigger = () => {},
 		onDelete = () => {},
-		params = $bindable({}),
 	} = $props();
 
 	let validInputs = $derived.by(() =>
@@ -86,7 +81,7 @@
 		})),
 	]);
 
-	let enabled = $state(false);
+	let enabled = $derived(trigger.enabled);
 	let inputType = $derived(trigger.inputType);
 	let eventName = $derived(trigger.eventName);
 
@@ -110,10 +105,6 @@
 
 	function handleClickDelete() {
 		onDelete(index);
-	}
-
-	function toggleTrigger(value) {
-		enabled = value;
 	}
 
 	const FieldTriggerComponents = {
@@ -166,13 +157,16 @@
 					{triggerable}
 				/>
 			{/if}
-			<!-- {#if trigger}
+			{#if trigger && trigger.eventName}
 				<Field
 					key="enabled"
-					value={trigger?.enabled}
-					onchange={toggleTrigger}
+					value={enabled}
+					onchange={() => {
+						trigger.enabled = !trigger.enabled;
+						console.log(trigger.enabled);
+					}}
 				/>
-			{/if} -->
+			{/if}
 		</FieldGroup>
 	</FieldInputRow>
 </div>

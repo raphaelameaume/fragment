@@ -1,5 +1,3 @@
-import { Inputs } from '../inputs';
-import Trigger from '../triggers/Trigger';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
@@ -450,6 +448,12 @@ class Sketch {
 				prop.hidden = prop.__hidden();
 				// sync disabled state
 				prop.disabled = prop.__disabled();
+				// sync group
+				prop.group = instanceProp.group;
+
+				if (!this.propsGroups.includes(prop.group)) {
+					this.propsGroups.push(prop.group);
+				}
 
 				// sync params
 				if (instanceProp.params) {

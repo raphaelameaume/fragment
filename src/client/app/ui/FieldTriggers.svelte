@@ -19,7 +19,11 @@
 	}
 
 	function handleClickAdd() {
-		triggers.push(new Trigger().toJSON()); // make sure to create a proxy object
+		triggers.push(
+			new Trigger({
+				enabled: false,
+			}).toJSON(),
+		); // make sure to create a proxy object
 	}
 </script>
 
@@ -38,6 +42,7 @@
 					{controllable}
 					{triggerable}
 					onchange={(index, trigger) => {
+						console.log('onchange');
 						if (triggers[index]) {
 							console.log(triggers[index]);
 							// triggers[index].destroy();

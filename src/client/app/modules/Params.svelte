@@ -28,7 +28,9 @@
 	let sketchGroupOptions = $derived(
 		[
 			{ value: '', label: 'all ' },
-			sketchPropsGroups.length > 0 && output
+			sketchPropsGroups.length > 0 &&
+			output &&
+			!sketchPropsGroups.includes('output')
 				? { value: 'output', label: 'output' }
 				: undefined,
 			...sketchPropsGroups.map((group) => ({

@@ -73,6 +73,8 @@ class Input {
 			triggers = triggers.filter(filter);
 		}
 
+		triggers = triggers.filter((t) => t.enabled);
+
 		triggers.forEach((trigger) => {
 			trigger.run(onRun ? onRun(trigger, event) : event);
 		});

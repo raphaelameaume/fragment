@@ -46,7 +46,7 @@
 	}
 
 	.field__section.nameless {
-		grid-template-columns: 1fr;
+		grid-template-columns: 8px 1fr;
 	}
 
 	:global(body:not(.fragment-dragging))
