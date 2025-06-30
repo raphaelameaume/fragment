@@ -12,6 +12,8 @@
 
 	// handlers
 	function handleMouseDown(event) {
+		if (disabled) return;
+
 		document.body.classList.add('fragment-dragging');
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseup', handleMouseUp);
@@ -104,17 +106,22 @@
 		box-shadow: inset 0 0 0 1px var(--color-border-input);
 
 		background: var(--color-background-input);
-		cursor: ew-resize;
+
 		container-type: size;
 		outline: 0;
 	}
 
-	:global(body:not(.fragment-dragging)) .progress:hover {
+	.progress:not(.disabled) {
+		cursor: ew-resize;
+	}
+
+	:global(body:not(.fragment-dragging)) .progress:not(.disabled):hover {
 		box-shadow: inset 0 0 0 1px var(--color-active);
 	}
 
 	.progress.dragging,
-	:global(body:not(.fragment-dragging)) .progress:focus-visible {
+	:global(body:not(.fragment-dragging))
+		.progress:not(.disabled):focus-visible {
 		box-shadow: 0 0 0 2px var(--color-active);
 	}
 
