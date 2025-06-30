@@ -2,10 +2,11 @@ import p5 from 'p5';
 
 let previews = [];
 
-export let onMountPreview = ({ id, width, height }) => {
+export let onMountPreview = ({ id, container, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			sketch.createCanvas(width, height);
+			const canvas = sketch.createCanvas(width, height);
+			canvas.parent(container);
 		};
 	});
 

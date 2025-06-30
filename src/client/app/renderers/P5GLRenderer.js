@@ -36,10 +36,11 @@ let previews = [];
  * @param {number} params.pixelRatio
  * @returns {MountParamsP5GLRenderer}
  */
-export let onMountPreview = ({ id, width, height }) => {
+export let onMountPreview = ({ id, container, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			sketch.createCanvas(width, height, 'webgl');
+			const canvas = sketch.createCanvas(width, height, 'webgl');
+			canvas.parent(container);
 		};
 	});
 
