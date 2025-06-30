@@ -48,10 +48,7 @@ class Sketch {
 
 	reset() {
 		Object.keys(this.props).forEach((key) => {
-			this.updateProp(
-				key,
-				$state.snapshot(this.props[key].__initialValue),
-			);
+			this.updateProp(key, this.props[key].__initialValue);
 		});
 
 		this.propsFolders.forEach((fieldgroup) => {
