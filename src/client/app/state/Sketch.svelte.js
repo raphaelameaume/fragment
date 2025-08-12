@@ -540,10 +540,6 @@ class Sketch {
 			),
 		};
 	}
-
-	get backgroundColor() {
-		return this.instance.backgroundColor;
-	}
 }
 
 export default Sketch;
