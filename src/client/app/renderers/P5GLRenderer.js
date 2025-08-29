@@ -36,13 +36,12 @@ let previews = [];
  * @param {number} params.pixelRatio
  * @returns {MountParamsP5GLRenderer}
  */
-export let onMountPreview = ({ id, container, width, height }) => {
+export let onMountPreview = ({ id, container, canvas, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			const canvas = sketch.createCanvas(width, height, 'webgl');
-			canvas.parent(container);
+			sketch.createCanvas(width, height, 'webgl', canvas);
 		};
-	});
+	}, container);
 
 	/** @type {PreviewP5GLRenderer} */
 	const preview = {
@@ -54,7 +53,7 @@ export let onMountPreview = ({ id, container, width, height }) => {
 	previews.push(preview);
 
 	return {
-		canvas: p.canvas,
+		canvas,
 		p,
 	};
 };
@@ -186,7 +185,6 @@ if (import.meta.hot) {
 
 client.on('shader-update', (shaderUpdates) => {
 	previews.forEach(({ p }) => {
-		console.log('clear error', p._renderer.GL.__uuid);
 		clearError(p._renderer.GL.__uuid);
 	});
 
