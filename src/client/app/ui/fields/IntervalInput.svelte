@@ -78,9 +78,6 @@
 					: Math.max(dragValue, value[1]),
 			];
 
-			value[0] = newValues[0];
-			value[1] = newValues[1];
-
 			onchange(newValues);
 		}
 	}
