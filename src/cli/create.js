@@ -152,7 +152,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 
 				let filename = path.basename(filepath);
 
-				log.warn(`${filename} already exists in ${dirname}.\n`);
+				log.warn(`${filename} already exists.\n`);
 
 				let override = await p.confirm({
 					message: `Override ${filename}?`,
@@ -236,9 +236,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 		if (typescript) {
 			let dest = path.join(cwd, `tsconfig.json`);
 
-			log.info(
-				`Creating tsconfig.json to ${path.relative(cwd, dest)}...`,
-			);
+			log.info(`Creating tsconfig.json in ${dest}...`);
 
 			dest = await checkForFileExistence(dest, true);
 
@@ -258,9 +256,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 
 				await writeFile(dest, tsConfigCode);
 
-				log.success(
-					`Created tsconfig.json to ${path.relative(cwd, dest)}\n`,
-				);
+				log.success(`Created tsconfig.json in ${dest}\n`);
 			}
 		}
 
@@ -278,7 +274,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 			nextSteps += `${dim(`${i++}. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
 		}
 
-		const regex = new RegExp(`.*\/${filename}\.(js|ts)$`);
+		const regex = new RegExp(`${filename}\.(js|ts)$`);
 		const newIndexFile = newFiles.findLast((file) => regex.test(file));
 
 		nextSteps += `${dim(`${i++}. Start Fragment`)}\n${bold(cyan(`fragment ${path.relative(cwd, newIndexFile ?? entry)}`))}`;
