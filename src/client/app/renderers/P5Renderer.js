@@ -25,12 +25,12 @@ let previews = [];
  * @param {number} params.pixelRatio
  * @returns {MountParamsP5Renderer}
  */
-export let onMountPreview = ({ id, width, height }) => {
+export let onMountPreview = ({ id, container, canvas, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			sketch.createCanvas(width, height);
+			sketch.createCanvas(width, height, canvas);
 		};
-	});
+	}, container);
 
 	previews.push({
 		id,
@@ -38,7 +38,7 @@ export let onMountPreview = ({ id, width, height }) => {
 	});
 
 	return {
-		canvas: p.canvas,
+		canvas,
 		p,
 	};
 };

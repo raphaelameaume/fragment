@@ -29,12 +29,12 @@ let previews = [];
  * @param {number} params.pixelRatio
  * @returns {MountParamsP5GLRenderer}
  */
-export let onMountPreview = ({ id, width, height }) => {
+export let onMountPreview = ({ id, container, canvas, width, height }) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			sketch.createCanvas(width, height, 'webgl');
+			sketch.createCanvas(width, height, 'webgl', canvas);
 		};
-	});
+	}, container);
 
 	previews.push({
 		id,
@@ -43,7 +43,7 @@ export let onMountPreview = ({ id, width, height }) => {
 	});
 
 	return {
-		canvas: p.canvas,
+		canvas,
 		p,
 	};
 };
@@ -189,7 +189,6 @@ if (import.meta.hot) {
 
 client.on('shader-update', (shaderUpdates) => {
 	previews.forEach(({ p }) => {
-		console.log('clear error', p._renderer.GL.__uuid);
 		clearError(p._renderer.GL.__uuid);
 	});
 
