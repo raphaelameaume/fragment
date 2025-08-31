@@ -5,11 +5,7 @@ import { defineProps } from '@fragment/types/utils';
 
 import fragmentShader from './fragment.fs';
 
-export const props = defineProps({
-	backgroundColor: {
-		value: 'rgb(255, 0, 0)',
-	},
-});
+export const props = defineProps({});
 
 let shader: Shader;
 
@@ -27,8 +23,7 @@ varying vec2 vUv;
 void main() {
     vUv = aTexCoord;
 
-	vec3 transformed = aPosition;
-    transformed.xy = transformed.xy - 1.;
+	vec3 transformed = (aPosition - 0.5) * 2.;
 
     gl_Position = vec4(transformed, 1.);
 }
@@ -38,8 +33,6 @@ void main() {
 };
 
 export const draw: Update<'p5-webgl'> = ({ p, width, height, time }) => {
-	p.background(props.backgroundColor.value);
-
 	p.shader(shader);
 
 	shader.setUniform('uTime', time / 1000);

@@ -26,7 +26,7 @@ export const setup = ({ p, width, height }) => {};
  * @param {number} params.playcount
  */
 export const draw = ({ p }) => {
-	p.background(255, 0, 0);
+	p.background(0, 255, 0);
 };
 
 export const rendering = 'p5';

@@ -24,7 +24,8 @@ export const init = ({ canvas, context, width, height }) => {};
  * @param {number} params.playcount
  */
 export const update = ({ context, width, height, pixelRatio }) => {
-	context.clearRect(0, 0, width * pixelRatio, height * pixelRatio);
+	context.fillStyle = 'rgb(0, 255, 0)';
+	context.fillRect(0, 0, width * pixelRatio, height * pixelRatio);
 };
 
 /**
