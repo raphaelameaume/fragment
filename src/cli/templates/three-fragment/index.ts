@@ -4,13 +4,15 @@ import { Init, Rendering, Resize, Update } from '@fragment/types';
 
 import fragmentShader from './fragment.fs';
 
+let scene: THREE.Scene;
 let camera: THREE.OrthographicCamera;
-const uniforms = {
+let uniforms = {
 	uResolution: { value: new THREE.Vector2() },
 	uTime: { value: 0 },
 };
 
-export const init: Init<'three'> = ({ scene }) => {
+export const init: Init<'three'> = () => {
+	scene = new THREE.Scene();
 	camera = new THREE.OrthographicCamera(1, 1, 1, 1, 1, 1000);
 
 	const geometry = new THREE.BufferGeometry();
@@ -45,7 +47,7 @@ export const init: Init<'three'> = ({ scene }) => {
 	scene.add(mesh);
 };
 
-export const update: Update<'three'> = ({ renderer, scene, time }) => {
+export const update: Update<'three'> = ({ renderer, time }) => {
 	uniforms.uTime.value = time;
 
 	renderer.render(scene, camera);

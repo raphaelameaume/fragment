@@ -8,7 +8,7 @@ export const props = defineProps({});
 export const setup: Init<'p5'> = ({}) => {};
 
 export const draw: Update<'p5'> = ({ p }) => {
-	p.background(255, 0, 0);
+	p.background(0, 255, 0);
 };
 
 export const rendering: Rendering = 'p5';

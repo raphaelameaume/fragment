@@ -2,11 +2,7 @@ import p5 from 'p5';
 
 import fragmentShader from './fragment.fs';
 
-export let props = {
-	backgroundColor: {
-		value: 'rgb(255, 0, 0)',
-	},
-};
+export let props = {};
 
 let shader;
 
@@ -32,8 +28,7 @@ varying vec2 vUv;
 void main() {
     vUv = aTexCoord;
 
-	vec3 transformed = aPosition;
-    transformed.xy = transformed.xy - 1.;
+	vec3 transformed = (aPosition - 0.5) * 2.;
 
     gl_Position = vec4(transformed, 1.);
 }
@@ -56,8 +51,6 @@ void main() {
  * @param {number} params.playcount
  */
 export const draw = ({ p, width, height, time }) => {
-	p.background(props.backgroundColor.value);
-
 	p.shader(shader);
 
 	shader.setUniform('uTime', time / 1000);
