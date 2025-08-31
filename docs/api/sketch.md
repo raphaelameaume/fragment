@@ -161,8 +161,8 @@ The callback is also returning the sketch current props so you can use their val
 Example:
 
 ```js
-export let filenamePattern = ({ filename, suffix, props }) => {
-  return `${filename}.${suffix}.radius=${props.radius.value}`;
+export let filenamePattern = ({ filename, timestamp, props }) => {
+  return `${filename}.${timestamp}.radius=${props.radius.value}`;
 }
 ```
 

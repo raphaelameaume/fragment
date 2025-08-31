@@ -14,6 +14,7 @@
 - Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
 - Interactive sketches using _triggers_
 - Static build for production deployment
+- TypeScript support
 
 ## Installation
 
@@ -44,15 +45,18 @@ npx fragment sketch.js --new
 
 ## Usage
 
-```
-# create a new directory for your sketches
+```bash
+# Create a new directory for your sketches
 mkdir sketches
 
-# move into that folder
+# Move into that folder
 cd sketches
 
-# create a sketch from a template
-npx fragment-tools ./sketch.js --new --template=2d
+# Create a sketch from a template
+npx fragment ./sketch.js --new --template=2d
+
+# or with TypeScript
+npx fragment ./sketch.ts --new --template=2d --typescript
 ```
 
 Learn more about the available flag options in the [CLI docs](./docs/api/CLI.md).
@@ -97,14 +101,14 @@ Feel free to reach out on [Twitter](https://twitter.com/raphaelameaume) if you w
 
 ## Running it locally
 
-```
-# clone or fork the project
+```bash
+# Clone or fork the project
 git clone https://github.com/raphaelameaume/fragment.git
 
-# move to the root of the repository
+# Move to the root of the repository
 cd fragment
 
-# run the command line locally
+# Run the command line locally
 node ./bin/index.js examples/shape-2d.js --dev
 
 # or from your sketch folder
@@ -122,7 +126,7 @@ npm link
 
 You should be able the command as before, only this time it will point to the repository instead of the globally installed package.
 
-```
+```bash
 fragment sketch.js
 ```
 

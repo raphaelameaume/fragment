@@ -8,7 +8,7 @@ class Texture {
 	constructor(
 		gl,
 		{
-			image,
+			image = null,
 			name = '',
 			target = gl.TEXTURE_2D,
 			type = gl.UNSIGNED_BYTE,

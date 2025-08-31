@@ -7,6 +7,9 @@ import { log } from './log.js';
 /** @type {string} */
 export const packageManager = getPackageManager() || 'npm';
 
+/** @type {string} */
+export const __dirname = file('../..');
+
 /**
  * From https://github.com/sveltejs/kit/blob/main/packages/create-svelte/utils.js#L56
  */

@@ -11,7 +11,7 @@ let uniforms = {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ frag }) => {
+export const init = ({ frag }) => {
 	frag.uniforms = uniforms;
 	frag.shader = fragmentShader;
 };
@@ -28,10 +28,10 @@ export let init = ({ frag }) => {
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ frag, deltaTime }) => {
+export const update = ({ frag, deltaTime }) => {
 	uniforms.uTime.value += deltaTime;
 
 	frag.render();
 };
 
-export let rendering = 'fragment';
+export const rendering = 'fragment';

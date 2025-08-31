@@ -4,23 +4,16 @@ import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
 /**
- * @typedef {object} PreviewP5GLRenderer
- * @property {number} id
- * @property {p5} p
- * @property {boolean} rendered
- */
-
-/**
  * @typedef {object} MountParamsP5GLRenderer
  * @property {HTMLCanvasElement} canvas
  * @property {p5} p
  */
 
 /**
- * @typedef {object} PreviewParamsP5GLRenderer
- * @property {number} params.id
- * @property {HTMLDivElement} params.container
- * @property {HTMLCanvasElement} params.canvas
+ * @typedef {object} PreviewP5GLRenderer
+ * @property {number} id
+ * @property {p5} p
+ * @property {boolean} rendered
  */
 
 /** @type {PreviewP5GLRenderer[]} */
@@ -43,14 +36,11 @@ export let onMountPreview = ({ id, container, canvas, width, height }) => {
 		};
 	}, container);
 
-	/** @type {PreviewP5GLRenderer} */
-	const preview = {
+	previews.push({
 		id,
 		p,
 		rendered: false,
-	};
-
-	previews.push(preview);
+	});
 
 	return {
 		canvas,
@@ -59,7 +49,10 @@ export let onMountPreview = ({ id, container, canvas, width, height }) => {
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {MountParamsP5GLRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
  */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -72,7 +65,10 @@ export let onBeforeUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {MountParamsP5GLRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
  */
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -90,7 +86,12 @@ export let onAfterUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {MountParamsP5GLRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
  */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -102,7 +103,10 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {MountParamsP5GLRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLElement} params.container
  */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((preview) => preview.id === id);

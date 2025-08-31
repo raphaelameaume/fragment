@@ -1,13 +1,14 @@
 /**
  * @typedef {object} MountParams2DRenderer
+ * @property {HTMLCanvasElement} canvas
  * @property {CanvasRenderingContext2D} context
  */
 
 /**
  * @param {object} params
  * @param {number} params.id
- * @param {HTMLDivElement} params.container
  * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLElement} params.container
  * @param {number} params.width
  * @param {number} params.height
  * @param {number} params.pixelRatio
@@ -21,13 +22,15 @@ export let onMountPreview = ({ canvas }) => {
 };
 
 /**
- * @param {object} params
+ * @param {MountParams2DRenderer} params
+ * @param {number} params.id
  * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLElement} params.container
  * @param {number} params.width
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let onResizePreview = ({ canvas, width, height, pixelRatio }) => {
+export let onResizePreview = ({ id, canvas, width, height, pixelRatio }) => {
 	canvas.width = width * pixelRatio;
 	canvas.height = height * pixelRatio;
 	canvas.style.width = `${width}px`;

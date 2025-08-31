@@ -39,6 +39,8 @@ export async function getEntries(
 
 		const entryPath = path.join(cwd, entry);
 
+		const allowedExtensions = ['.js', '.ts'];
+
 		if (fs.existsSync(entryPath)) {
 			const stats = await lstat(entryPath);
 
@@ -47,7 +49,9 @@ export async function getEntries(
 			} else if (stats.isDirectory()) {
 				const files = await readdir(entryPath);
 				const sketchFiles = files
-					.filter((file) => path.extname(file) === '.js')
+					.filter((file) =>
+						allowedExtensions.includes(path.extname(file)),
+					)
 					.map((file) => path.join(entryPath, file));
 
 				if (sketchFiles.length > 0) {
@@ -63,10 +67,14 @@ export async function getEntries(
 		} else {
 			onError(`${path.join(cwd, entry)} does not exist.\n`);
 
-			const entryWithExt = addExtension(entry, '.js');
-			const fileExists = fs.existsSync(path.join(cwd, entryWithExt));
+			const entriesWithExt = allowedExtensions.map((ext) =>
+				addExtension(entry, ext),
+			);
+			const entryWithExt = entriesWithExt.find((entryWithExt) =>
+				fs.existsSync(path.join(cwd, entryWithExt)),
+			);
 
-			if (fileExists) {
+			if (typeof entryWithExt !== 'undefined') {
 				log.message(`Did you mean to type?\n`);
 
 				displayCommand(`fragment ${entryWithExt}`);
@@ -74,7 +82,7 @@ export async function getEntries(
 				log.message(
 					`Run the following command to start a new sketch:\n`,
 				);
-				displayCommand(`fragment ${entryWithExt} --new`);
+				displayCommand(`fragment ${entriesWithExt[0]} --new`);
 			}
 		}
 
