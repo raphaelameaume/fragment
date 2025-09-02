@@ -7,7 +7,10 @@
     "fragment": "bin/index.js"
   },
   "scripts": {
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "changeset:add": "changeset add",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish"
   },
   "type": "module",
   "repository": {
@@ -38,6 +41,8 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.6",
+    "@svitejs/changesets-changelog-github-compact": "^1.2.0",
     "@types/p5": "^1.7.6",
     "@types/three": "^0.174.0",
     "prettier": "^3.2.5",
