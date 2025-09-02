@@ -166,11 +166,11 @@
 	}
 
 	.column:not(:last-child) {
-		border-right: 0.5px solid var(--color-lightblack);
+		border-right: 0.5px solid var(--fragment-color-lightblack);
 	}
 
 	.column:not(:first-child) {
-		border-left: 0.5px solid var(--color-lightblack);
+		border-left: 0.5px solid var(--fragment-color-lightblack);
 	}
 
 	.row {
@@ -181,14 +181,14 @@
 		width: 100%;
 		height: 100%;
 
-		background-color: var(--color-background);
+		background-color: var(--fragment-background-color);
 	}
 
 	.row:not(:first-child) {
-		border-top: 0.5px solid var(--color-lightblack);
+		border-top: 0.5px solid var(--fragment-color-lightblack);
 	}
 
 	.row:not(:last-child) {
-		border-bottom: 0.5px solid var(--color-lightblack);
+		border-bottom: 0.5px solid var(--fragment-color-lightblack);
 	}
 </style>

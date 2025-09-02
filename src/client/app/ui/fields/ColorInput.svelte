@@ -188,16 +188,16 @@
 		right: 1px;
 		bottom: 1px;
 
-		border-radius: calc(var(--border-radius-input) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
 	}
 
 	.mirror {
 		position: relative;
 
-		height: var(--height-input);
+		height: var(--fragment-input-height);
 
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 	}
 
 	.mirror:after {
@@ -212,7 +212,7 @@
 		bottom: var(--gap);
 
 		background-color: var(--currentColor);
-		border-radius: calc(var(--border-radius-input) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
 		opacity: var(--opacity, 1);
 		pointer-events: none;
 	}
@@ -220,11 +220,13 @@
 	:global(body:not(.fragment-dragging))
 		.color-input:not(.disabled)
 		.mirror:hover {
-		box-shadow: inset 0 0 0 1px var(--box-shadow-color, var(--color-active));
+		box-shadow: inset 0 0 0 1px
+			var(--box-shadow-color, var(--fragment-accent-color));
 	}
 
 	.mirror:focus-within {
-		box-shadow: 0 0 0 2px var(--box-shadow-color, var(--color-active));
+		box-shadow: 0 0 0 2px
+			var(--box-shadow-color, var(--fragment-accent-color));
 	}
 
 	.input {

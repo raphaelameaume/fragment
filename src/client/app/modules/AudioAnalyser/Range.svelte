@@ -64,7 +64,7 @@
 		bottom: 0;
 		width: 1px;
 
-		background-color: var(--color-border-input);
+		background-color: var(--fragment-input-border-color);
 	}
 
 	.row {
@@ -83,7 +83,7 @@
 		width: 100%;
 		height: 100%;
 
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 		opacity: var(--opacity, 0);
 		border-radius: 2px;
 	}

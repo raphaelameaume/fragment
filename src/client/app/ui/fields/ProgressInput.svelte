@@ -101,11 +101,11 @@
 	.progress {
 		position: relative;
 
-		height: var(--height-input);
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		height: var(--fragment-input-height);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 
-		background: var(--color-background-input);
+		background: var(--fragment-input-background-color);
 
 		container-type: size;
 		outline: 0;
@@ -116,13 +116,13 @@
 	}
 
 	:global(body:not(.fragment-dragging)) .progress:not(.disabled):hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	.progress.dragging,
 	:global(body:not(.fragment-dragging))
 		.progress:not(.disabled):focus-visible {
-		box-shadow: 0 0 0 2px var(--color-active);
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.fill {
@@ -145,14 +145,14 @@
 
 		background: grey;
 		transform-origin: 0 50%;
-		border-radius: calc(var(--border-radius-input) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
 
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 
 		transform: translate3d(var(--tx), 0px, 0px);
 	}
 
 	.progress.disabled .fill {
-		background-color: var(--color-active-disabled);
+		background-color: var(--fragment-color-disabled);
 	}
 </style>

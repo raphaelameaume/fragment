@@ -155,7 +155,10 @@
 		justify-content: center;
 		align-items: center;
 
-		background-color: var(--background-color, var(--color-lightblack));
+		background-color: var(
+			--background-color,
+			var(--fragment-color-lightblack)
+		);
 
 		container-type: size;
 	}

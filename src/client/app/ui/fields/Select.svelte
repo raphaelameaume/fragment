@@ -86,33 +86,33 @@
 	.select-input {
 		width: 100%;
 
-		color: var(--color-text-input);
+		color: var(--fragment-input-text-color);
 	}
 
 	.select-input.disabled {
-		color: var(--color-text-input-disabled);
+		color: var(--fragment-input-disabled-text-color);
 	}
 
 	.container {
 		position: relative;
 
 		display: flex;
-		height: var(--height-input);
+		height: var(--fragment-input-height);
 		margin: 2px 0;
 
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
-		border-radius: var(--border-radius-input);
-		background-color: var(--color-background-input);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
+		border-radius: var(--fragment-input-border-radius);
+		background-color: var(--fragment-input-background-color);
 	}
 
 	:global(body:not(.fragment-dragging))
 		.select-input:not(.disabled)
 		.container:hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	.container:focus-within {
-		box-shadow: 0 0 0 2px var(--color-active);
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.select {
@@ -121,7 +121,7 @@
 		width: 100%;
 
 		color: inherit;
-		font-size: var(--font-size-input);
+		font-size: var(--fragment-input-font-size);
 
 		outline: 0;
 		background-color: transparent;
@@ -133,10 +133,10 @@
 	}
 
 	.select-input .select option {
-		background-color: var(--color-background);
+		background-color: var(--fragment-background-color);
 	}
 
 	.select-input:not(.disabled) .select:focus {
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 	}
 </style>
