@@ -79,7 +79,7 @@
 		flex-shrink: 0;
 		align-items: center;
 
-		background-color: var(--color-lightblack);
+		background-color: var(--fragment-color-lightblack);
 	}
 
 	.slot {
@@ -114,7 +114,7 @@
 	.module__container {
 		position: relative;
 
-		background-color: var(--color-background);
+		background-color: var(--fragment-background-color);
 	}
 
 	.module.scrollable .module__container {
@@ -135,7 +135,9 @@
 	}
 
 	.module__container::-webkit-scrollbar-thumb {
-		background-color: var(--color-active); /* color of the scroll thumb */
+		background-color: var(
+			--fragment-accent-color
+		); /* color of the scroll thumb */
 		border-radius: 20px; /*       roundness of the scroll thumb*/
 	}
 
@@ -144,6 +146,6 @@
 	}
 
 	.footer {
-		height: var(--height-input);
+		height: var(--fragment-input-height);
 	}
 </style>

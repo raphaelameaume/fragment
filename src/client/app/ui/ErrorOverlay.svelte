@@ -111,9 +111,9 @@
 		justify-content: stretch;
 		color: #2a0000;
 		padding: 12px 0;
-		font-size: var(--font-size-input);
+		font-size: var(--fragment-input-font-size);
 		background-color: #ff8081;
-		border-radius: var(--border-radius-input);
+		border-radius: var(--fragment-input-border-radius);
 		overflow-x: auto;
 	}
 
@@ -126,8 +126,8 @@
 	}
 
 	.extract::-webkit-scrollbar-thumb {
-		background-color: #f0f0f0; /* color of the scroll thumb */
-		border-radius: 20px; /* roundness of the scroll thumb */
+		background-color: var(--fragment-color-white);
+		border-radius: 20px;
 	}
 
 	.extract-line {
@@ -143,6 +143,6 @@
 	}
 
 	.console {
-		font-size: var(--font-size-input);
+		font-size: var(--fragment-input-font-size);
 	}
 </style>

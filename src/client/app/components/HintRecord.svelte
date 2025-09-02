@@ -25,10 +25,10 @@
 		height: 16px;
 		padding: 0 2px;
 
-		color: var(--color-red);
+		color: var(--fragment-color-red);
 		font-size: 10px;
 
-		border: 1px solid var(--color-red);
+		border: 1px solid var(--fragment-color-red);
 		border-radius: 2px;
 	}
 
@@ -40,7 +40,7 @@
 		height: var(--size);
 		margin: 0 3px 0 1px;
 
-		background-color: var(--color-red);
+		background-color: var(--fragment-color-red);
 		border-radius: 50%;
 
 		animation: fade 1s ease-in-out infinite;

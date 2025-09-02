@@ -64,9 +64,9 @@
 						label="Delete"
 						showLabel={false}
 						onclick={onDelete}
-						--color-text="white"
-						--background-color="var(--color-red)"
-						--box-shadow-color-active="var(--color-lightred)"
+						--fragment-text-color="white"
+						--background-color="var(--fragment-color-red)"
+						--box-shadow-color-active="var(--fragment-color-lightred)"
 					>
 						<IconCross />
 					</ButtonInput>
@@ -156,7 +156,7 @@
 		width: 1px;
 		height: var(--size);
 
-		background-color: var(--color-border-input);
+		background-color: var(--fragment-input-border-color);
 	}
 
 	.content.vertical .separator:after {
@@ -174,8 +174,8 @@
 		display: flex;
 		align-items: center;
 		padding: 6px;
-		border-radius: var(--border-radius-input);
-		background-color: var(--color-background);
+		border-radius: var(--fragment-input-border-radius);
+		background-color: var(--fragment-background-color);
 		border: 1px solid #555;
 		/* background: rgba(0, 0, 0, 0.8); */
 

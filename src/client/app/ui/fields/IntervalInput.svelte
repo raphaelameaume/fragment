@@ -180,21 +180,21 @@
 		);
 		--tx-max-1: calc(100cqw - var(--padding-h) * 1 - var(--width));
 
-		height: var(--height-input);
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		height: var(--fragment-input-height);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 
-		background: var(--color-background-input);
+		background: var(--fragment-input-background-color);
 		cursor: ew-resize;
 		container-type: size;
 	}
 
 	:global(body:not(.fragment-dragging)) .range:hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	.range.dragging {
-		box-shadow: 0 0 0 2px var(--color-active);
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.handler {
@@ -212,9 +212,9 @@
 
 		background: grey;
 		transform-origin: 0 50%;
-		border-radius: calc(var(--border-radius-input) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
 
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 
 		transform: translate3d(var(--tx), 0px, 0px);
 	}
@@ -230,7 +230,7 @@
 	}
 
 	.interval-input.disabled .handler {
-		background-color: var(--color-active-disabled);
+		background-color: var(--fragment-color-disabled);
 	}
 
 	.filler {
@@ -249,14 +249,14 @@
 				var(--size)
 		);
 		bottom: 3px;
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 		opacity: 0.5;
 
 		transform-origin: 0px 50%;
 	}
 
 	.interval-input.disabled .filler {
-		background-color: var(--color-active-disabled);
+		background-color: var(--fragment-color-disabled);
 	}
 
 	.numbers {

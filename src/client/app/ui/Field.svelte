@@ -185,7 +185,7 @@
 		width: 100%;
 
 		padding: 3px 6px 3px 12px;
-		border-bottom: 1px solid var(--color-spacing);
+		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
 	.field.changed:before {
@@ -205,8 +205,8 @@
 
 		background: repeating-linear-gradient(
 			45deg,
-			var(--color-active) calc(0px + var(--stripes-offset)),
-			var(--color-active) calc(2px + var(--stripes-offset)),
+			var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
+			var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
 			transparent calc(2px + var(--stripes-offset)),
 			transparent calc(4px + var(--stripes-offset))
 		);
@@ -218,7 +218,7 @@
 	}
 
 	:global(.field__input .field:last-child) {
-		border-bottom: 0px solid #323233 !important;
+		border-bottom-width: 0px !important;
 		padding-bottom: 0px !important;
 	}
 
@@ -256,7 +256,7 @@
 	}
 
 	.field__action {
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 
 		opacity: 0.6;
 		background-color: transparent;

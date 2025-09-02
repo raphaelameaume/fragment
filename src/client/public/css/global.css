@@ -12,28 +12,27 @@
 }
 
 :root {
-	--font-mono: 'Jetbrains Mono', monospace;
+	--fragment-font-family: 'Jetbrains Mono', monospace;
 
-	--color-lightred: #ffaeae;
-	--color-red: #ff4444;
-	--color-green: #9af49f;
-	--color-lightblack: #0e0e0e;
+	--fragment-color-lightred: #ffaeae;
+	--fragment-color-red: #ff4444;
+	--fragment-color-green: #9af49f;
+	--fragment-color-lightblack: #0e0e0e;
+	--fragment-color-white: #f0f0f0;
 
-	--color-background: #242425;
-	--color-active: #177bd0;
-	--color-active-disabled: #214366;
-	--color-text: #f0f0f0;
-	--color-border: var(--color-lightblack);
-	--color-border-input: #000000;
-	--color-text-input: #989899;
-	--color-text-input-disabled: #535354;
-	--color-background-input: #1d1d1e;
-	--color-spacing: #323233;
+	--fragment-background-color: #242425;
+	--fragment-accent-color: #177bd0;
+	--fragment-color-disabled: #214366;
+	--fragment-text-color: var(--fragment-color-white);
+	--fragment-spacing-color: #323233;
 
-	--height-input: 20px;
-	--height-topbar: 24px;
-	--border-radius-input: 3px;
-	--font-size-input: 11px;
+	--fragment-input-border-color: #000000;
+	--fragment-input-text-color: #989899;
+	--fragment-input-disabled-text-color: #535354;
+	--fragment-input-height: 20px;
+	--fragment-input-border-radius: 3px;
+	--fragment-input-font-size: 11px;
+	--fragment-input-background-color: #1d1d1e;
 }
 
 html {
@@ -48,9 +47,9 @@ body {
 
 	margin: 0;
 	padding: 0;
-	font-family: var(--font-mono);
+	font-family: var(--fragment-font-family);
 
-	background-color: var(--color-lightblack);
+	background-color: var(--fragment-color-lightblack);
 	overscroll-behavior: none;
 }
 
@@ -90,7 +89,7 @@ ol {
 * {
 	box-sizing: border-box;
 	scrollbar-width: thin;
-	scrollbar-color: var(--color-active) transparent;
+	scrollbar-color: var(--fragment-accent-color) transparent;
 }
 
 input,
@@ -100,7 +99,7 @@ button {
 	padding: 0;
 	margin: 0;
 	border: none;
-	font-family: var(--font-mono);
+	font-family: var(--fragment-font-family);
 }
 
 h1,
@@ -123,7 +122,7 @@ h5 {
 }
 
 .loading {
-	color: #f0f0f0;
+	color: var(--fragment-text-color);
 	padding: 18px;
 }
 
