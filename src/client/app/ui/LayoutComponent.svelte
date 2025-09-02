@@ -142,7 +142,7 @@
 {#if !isRoot}
 	<Resizer
 		direction={isColumn ? 'vertical' : 'horizontal'}
-		{current}
+		bind:current
 		disabled={!resizable}
 	/>
 {/if}
