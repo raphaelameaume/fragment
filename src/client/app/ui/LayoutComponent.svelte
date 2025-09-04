@@ -106,7 +106,7 @@
 >
 	{#if isRoot && layout.previewing}
 		<Preview />
-	{:else if childComponents.length > 0}
+	{:else if childComponents.length > 0 && layout.persistent}
 		{#each childComponents as child (child.id)}
 			{#if child.type === 'column' || child.type === 'row'}
 				<LayoutComponent
