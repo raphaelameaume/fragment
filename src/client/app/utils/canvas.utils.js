@@ -3,13 +3,16 @@ https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad84
 */
 
 import { VIDEO_FORMATS } from '../state/exports.svelte';
-import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
-import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
+// import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
+import WebMRecorder from '../lib/canvas-recorder/WebMBunnyRecorder';
+// import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
+import MP4Recorder from '../lib/canvas-recorder/MediaBunnyRecorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
 import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
+import MediaBunnyRecorder from '../lib/canvas-recorder/MediaBunnyRecorder';
 
 function getFilenameParams() {
 	const now = new Date();
@@ -101,28 +104,21 @@ export async function screenshotCanvas(
 	}
 }
 
-function recordCanvasWebM(canvas, options) {
-	let recorder = new WebMRecorder(canvas, options);
+function record(canvas, options) {
+	let recorder = new MediaBunnyRecorder(canvas, options);
 	recorder.start();
 
 	return recorder;
 }
 
-function recordCanvasMp4(canvas, options) {
-	let recorder = new MP4Recorder(canvas, options);
-	recorder.start();
-
-	return recorder;
-}
-
-function recordCanvasGIF(canvas, options) {
+function recordGIF(canvas, options) {
 	let recorder = new GIFRecorder(canvas, options);
 	recorder.start();
 
 	return recorder;
 }
 
-function recordCanvasFrames(canvas, options) {
+function recordFrames(canvas, options) {
 	let recorder = new FrameRecorder(canvas, options);
 	recorder.start();
 
@@ -138,6 +134,7 @@ export function recordCanvas(
 		duration = Infinity,
 		quality = 100,
 		pattern = defaultFilenamePattern,
+		codec,
 		exportDir,
 		imageEncoding,
 		onStart = () => {},
@@ -189,6 +186,7 @@ export function recordCanvas(
 
 	const options = {
 		framerate,
+		format,
 		duration,
 		quality,
 		onStart,
@@ -198,14 +196,22 @@ export function recordCanvas(
 
 	let recorder;
 
-	if (format === VIDEO_FORMATS.WEBM) {
-		recorder = recordCanvasWebM(canvas, options);
-	} else if (format === VIDEO_FORMATS.MP4) {
-		recorder = recordCanvasMp4(canvas, options);
+	if (
+		[
+			VIDEO_FORMATS.MKV,
+			VIDEO_FORMATS.MOV,
+			VIDEO_FORMATS.MP4,
+			VIDEO_FORMATS.WEBM,
+		].includes(format)
+	) {
+		recorder = record(canvas, {
+			...options,
+			codec,
+		});
 	} else if (format === VIDEO_FORMATS.GIF) {
-		recorder = recordCanvasGIF(canvas, options);
+		recorder = recordGIF(canvas, options);
 	} else if (format === VIDEO_FORMATS.FRAMES) {
-		recorder = recordCanvasFrames(canvas, {
+		recorder = recordFrames(canvas, {
 			...options,
 			imageEncoding,
 		});

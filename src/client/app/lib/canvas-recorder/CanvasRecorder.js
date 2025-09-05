@@ -7,6 +7,7 @@ class CanvasRecorder {
 			duration = Infinity,
 			framerate = 25,
 			quality = 100,
+			format,
 			onStart = noop,
 			onTick = noop,
 			onComplete = noop,
@@ -16,6 +17,7 @@ class CanvasRecorder {
 		this.framerate = framerate;
 		this.duration = duration;
 		this.quality = quality;
+		this.format = format;
 		this.onStart = onStart;
 		this.onTick = onTick;
 		this.onComplete = onComplete;
