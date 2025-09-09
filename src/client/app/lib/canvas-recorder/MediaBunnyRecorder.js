@@ -45,7 +45,16 @@ class MediaBunnyRecorder extends CanvasRecorder {
 		const { BITRATES } = MediaBunnyRecorder;
 
 		const bitrate =
-			BITRATES[map(this.quality, 1, 100, 0, BITRATES.length - 1)];
+			BITRATES[
+				Math.floor(map(this.quality, 1, 100, 0, BITRATES.length - 1))
+			];
+
+		console.log(
+			this.quality,
+			Math.floor(map(this.quality, 1, 100, 0, BITRATES.length - 1)),
+			bitrate,
+			BITRATES,
+		);
 
 		/** @type {CanvasSource} */
 		this.videoSource = new CanvasSource(this.canvas, {
@@ -72,13 +81,15 @@ class MediaBunnyRecorder extends CanvasRecorder {
 		await this.output.finalize();
 		const { buffer } = this.output.target;
 
-		const types = new Map();
-		types.set('mp4', 'mp4');
-		types.set('mov', 'quicktime');
-		types.set('mkv', 'x-matroska');
-		types.set('webm', 'webm');
+		const mimetypes = new Map();
+		mimetypes.set('mp4', 'video/mp4');
+		mimetypes.set('mov', 'video/quicktime');
+		mimetypes.set('mkv', 'video/x-matroska');
+		mimetypes.set('webm', 'video/webm');
 
-		this.result = new Blob([buffer], { type: `video/${type}` });
+		const type = mimetypes.get(this.format);
+
+		this.result = new Blob([buffer], { type });
 
 		super.end();
 	}
