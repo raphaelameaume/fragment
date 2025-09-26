@@ -110,7 +110,11 @@
 
 	let backgroundColor = $derived.by(() => {
 		if (layout.previewing) {
-			return sketch?.buildConfig?.backgroundColor ?? 'inherit';
+			return (
+				sketch?.buildConfig?.backgroundColor ??
+				sketch?.backgroundColor ??
+				'inherit'
+			);
 		}
 
 		return sketch?.backgroundColor ?? 'inherit';
