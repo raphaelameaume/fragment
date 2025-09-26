@@ -100,7 +100,7 @@
 		transition: opacity 0.1s ease;
 	}
 
-	button.field__label {
+	button.field__label:not(:disabled) {
 		cursor: pointer;
 	}
 
