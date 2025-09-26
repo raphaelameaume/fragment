@@ -108,10 +108,13 @@
 			key="quality"
 			value={exports.videoQuality}
 			params={{
-				min: 1,
-				max: 100,
-				step: 1,
-				suffix: '%',
+				options: [
+					{ value: 100, label: 'very high' },
+					{ value: 80, label: 'high' },
+					{ value: 60, label: 'medium' },
+					{ value: 40, label: 'low' },
+					{ value: 20, label: 'very low' },
+				],
 				triggerable: false,
 			}}
 			onchange={(value) => {

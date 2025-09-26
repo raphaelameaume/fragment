@@ -9,7 +9,7 @@ class GIFRecorder extends CanvasRecorder {
 		this.tmpCanvas = document.createElement('canvas');
 		this.tmpContext = this.tmpCanvas.getContext('2d');
 
-		this.maxColors = Math.floor(map(this.quality, 1, 100, 1, 256));
+		this.maxColors = Math.floor(map(this.quality, 20, 100, 32, 256));
 
 		super.start();
 	}

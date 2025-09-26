@@ -3,6 +3,9 @@ import CanvasRecorder from './CanvasRecorder.js';
 import {
 	Output,
 	Mp4OutputFormat,
+	MkvOutputFormat,
+	MovOutputFormat,
+	WebMInputFormat,
 	BufferTarget,
 	CanvasSource,
 	Quality,
@@ -11,8 +14,10 @@ import {
 	QUALITY_MEDIUM,
 	QUALITY_HIGH,
 	QUALITY_VERY_HIGH,
+	WebMOutputFormat,
 } from 'mediabunny';
 import { map } from '@fragment/utils/math.utils.js';
+import { VIDEO_FORMATS } from '@fragment/state/exports.svelte.js';
 
 class MediaBunnyRecorder extends CanvasRecorder {
 	/** @type Quality[] */
@@ -36,9 +41,17 @@ class MediaBunnyRecorder extends CanvasRecorder {
 		/** @type {string} */
 		this.codec = codec;
 
+		const outputFormats = new Map();
+		outputFormats.set(VIDEO_FORMATS.MKV, MkvOutputFormat);
+		outputFormats.set(VIDEO_FORMATS.MP4, Mp4OutputFormat);
+		outputFormats.set(VIDEO_FORMATS.MOV, MovOutputFormat);
+		outputFormats.set(VIDEO_FORMATS.WEBM, WebMOutputFormat);
+
+		const outputFormat = outputFormats.get(this.format);
+
 		/** @type {Output} */
 		this.output = new Output({
-			format: new Mp4OutputFormat(),
+			format: new outputFormat(),
 			target: new BufferTarget(),
 		});
 
@@ -48,13 +61,6 @@ class MediaBunnyRecorder extends CanvasRecorder {
 			BITRATES[
 				Math.floor(map(this.quality, 1, 100, 0, BITRATES.length - 1))
 			];
-
-		console.log(
-			this.quality,
-			Math.floor(map(this.quality, 1, 100, 0, BITRATES.length - 1)),
-			bitrate,
-			BITRATES,
-		);
 
 		/** @type {CanvasSource} */
 		this.videoSource = new CanvasSource(this.canvas, {
@@ -79,17 +85,11 @@ class MediaBunnyRecorder extends CanvasRecorder {
 
 	async end() {
 		await this.output.finalize();
+
+		const { mimeType } = this.output.format;
 		const { buffer } = this.output.target;
 
-		const mimetypes = new Map();
-		mimetypes.set('mp4', 'video/mp4');
-		mimetypes.set('mov', 'video/quicktime');
-		mimetypes.set('mkv', 'video/x-matroska');
-		mimetypes.set('webm', 'video/webm');
-
-		const type = mimetypes.get(this.format);
-
-		this.result = new Blob([buffer], { type });
+		this.result = new Blob([buffer], { type: mimeType });
 
 		super.end();
 	}

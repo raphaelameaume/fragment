@@ -46,7 +46,7 @@ export function getCodecsForFormat(format) {
 
 class Exports {
 	imageEncoding = $state(IMAGE_ENCODINGS[0]);
-	videoFormat = $state(Object.values(VIDEO_FORMATS)[0]);
+	videoFormat = $state(VIDEO_FORMATS.MP4);
 	pixelsPerInch = $state(72);
 	framerate = $state(60);
 	useDuration = $state(true);
@@ -54,7 +54,7 @@ class Exports {
 	loopCount = $state(1);
 	imageQuality = $state(100);
 	videoQuality = $state(100);
-	videoCodec = $state(undefined);
+	videoCodec = $state(VIDEO_CODECS.HEVC);
 	imageCount = $state(1);
 	recording = $state(false);
 	capturing = $state(false);
@@ -64,8 +64,6 @@ class Exports {
 	constructor() {
 		this.key = `exports`;
 		$effect.root(() => {
-			$inspect(this.videoCodec);
-
 			$effect(() => {
 				if (!__BUILD__) {
 					persist(this.key, {
@@ -78,6 +76,7 @@ class Exports {
 						loopCount: this.loopCount,
 						imageQuality: this.imageQuality,
 						videoQuality: this.videoQuality,
+						videoCodec: this.videoCodec,
 						imageCount: this.imageCount,
 						videoCollapsed: this.videoCollapsed,
 						imageCollapsed: this.imageCollapsed,
@@ -142,6 +141,7 @@ class Exports {
 			format = this.videoFormat,
 			imageEncoding = this.imageEncoding,
 			quality = this.videoQuality,
+			codec = this.videoCodec,
 			duration,
 			filename,
 			pattern,
@@ -170,6 +170,7 @@ class Exports {
 			onTick,
 			framerate,
 			format,
+			codec,
 			imageEncoding,
 			quality,
 			duration: duration * this.loopCount,
