@@ -67,10 +67,14 @@
 			value(event);
 			onclick(event);
 		},
-		download: (event) => {
-			let [data, filename] = value(event);
+		download: async (event) => {
+			try {
+				let [data, filename] = await value(event);
 
-			download(data, filename);
+				download(data, filename);
+			} catch (error) {
+				console.error(`Error while trying to download:`, error);
+			}
 		},
 		number: (event = {}) => {
 			const isValueInRange = event.value >= 0 && event.value <= 1;
