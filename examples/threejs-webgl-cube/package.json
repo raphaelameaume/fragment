@@ -6,6 +6,7 @@
   "author": "Raphaël Améaume",
   "license": "MIT",
   "dependencies": {
+    "milliparsec": "^5.1.0",
     "three": "^0.179.1"
   }
 }
