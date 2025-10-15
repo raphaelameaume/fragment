@@ -116,7 +116,7 @@
 	}
 
 	.select {
-		padding: 0 var(--padding, 6px) 0 var(--padding, 6px);
+		padding: 0 18px 0 var(--padding, 6px);
 
 		width: 100%;
 
@@ -126,6 +126,7 @@
 		outline: 0;
 		background-color: transparent;
 		opacity: 1;
+		text-overflow: ellipsis;
 	}
 
 	.select-input:not(.disabled) .select {
