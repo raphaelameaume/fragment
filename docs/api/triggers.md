@@ -1,7 +1,5 @@
 # Triggers
 
-Mouse triggers are called when the event happens on the `<canvas>` used for your sketch.
-
 ## Mouse
 
 ### `onClick`
@@ -66,11 +64,6 @@ export let init = () => {
 
 ## Keyboard
 
-Keyboard triggers are called when the event happens on `window`.
-A `key` argument can be optionnaly passed to call the listener only when a specific key is typed. If a single function is provided, the listener will be called for every key typed. The `key` argument can also be an array, in this case it will be called for every key typed in the array.
-
-> ⚠ The `key` argument is case sensitive, so `onKeyPress('a', () =>)` and `onKeyPress('A', () =>)` is not the same thing
-
 ### `onKeyPress`
 - Type: `(key?: (string|string[]), listener: (event:KeyboardEvent) => void) => void`
 
@@ -133,26 +126,78 @@ export let init = () => {
 MIDI triggers are called when using a MIDI device after authorizing usage of the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API).
 
 ### `onNoteOn`
-- Type: `(note?:(string|string[]), listener: (event:MIDIEvent) => void) => void`
+- Type: (note?: Note | Note[], listener: (event: MIDIEvent) => void) => void
+- Where `Note` = `"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"`
 
-Register a listener called when `note` is played on. Notes: `["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]`.
+Registers a listener triggered on a MIDI `noteon` event for the specified note or notes (fired when the key is pressed down).
+
+```js
+import { onNoteOn } from "@fragment/triggers";
+
+export let init = () => {
+	onNoteOn('C', () => {
+		console.log("C pressed");
+	});
+};
+```
 
 ### `onNoteOff`
-- Type: `(note?:(string|string[]), listener: (event:MIDIEvent) => void) => void`
+- Type: (note?: Note | Note[], listener: (event: MIDIEvent) => void) => void
+- Where `Note` = `"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"`
 
-Register a listener called when `note` is played off. Notes: `["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]`.
+Registers a listener triggered on a MIDI `noteoff` event for the specified note or notes (fired when the key is released).
+
+```js
+import { onNoteOff } from "@fragment/triggers";
+
+export let init = () => {
+	onNoteOff(['D', "D#"], () => {
+		console.log("D or D# released");
+	});
+};
+```
 
 ### `onNumberOn`
-- Type: `(noteNumber?:(number|number[], listener: (event:MIDIEvent) => void) => void`
+- Type: `(noteNumber?: number | number[], listener: (event: MIDIEvent) => void) => void`
 
-Register a listener called when `noteNumber` is played on.
+Registers a listener triggered on a MIDI `noteon` event for the specified note number or numbers (fired when the key is pressed down).
+
+```js
+import { onNumberOn } from "@fragment/triggers";
+
+export let init = () => {
+  onNumberOn([60, 62], () => {
+    console.log("Note numbers 60 or 62 pressed down");
+  });
+};
+```
 
 ### `onNumberOff`
-- Type: `(noteNumber?:(number|number[], listener: (event:MIDIEvent) => void) => void`
+- Type: `(noteNumber?: number | number[], listener: (event: MIDIEvent) => void) => void`
 
-Register a listener called when `noteNumber` is played off.
+Registers a listener triggered on a MIDI `noteoff` event for the specified note number or numbers (fired when the key is released).
+
+```js
+import { onNumberOff } from "@fragment/triggers";
+
+export let init = () => {
+  onNumberOff([60, 62], () => {
+    console.log("Note numbers 60 or 62 released");
+  });
+};
+```
 
 ### `onControlChange`
-- Type: `(control?:(number|number[]), listener: (event:MIDIEvent) => void) => void`
+- Type: `(control?: number | number[], listener: (event: MIDIEvent) => void) => void`
 
-Register a listener called when `control` changes.
+Registers a listener triggered on a MIDI `controlchange` event for the specified controls.
+
+```js
+import { onControlChange } from "@fragment/triggers";
+
+export let init = () => {
+  onControlChange([1, 7], (event) => {
+    console.log("Control 1 or 7 changed", event.value);
+  });
+};
+```
