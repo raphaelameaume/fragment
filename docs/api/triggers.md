@@ -126,7 +126,7 @@ export let init = () => {
 MIDI triggers are called when using a MIDI device after authorizing usage of the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API).
 
 ### `onNoteOn`
-- Type: (note?: Note | Note[], listener: (event: MIDIEvent) => void) => void
+- Type: `(note?: Note | Note[], listener: (event: MIDIEvent) => void) => void`
 - Where `Note` = `"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"`
 
 Registers a listener triggered on a MIDI `noteon` event for the specified note or notes (fired when the key is pressed down).
@@ -142,7 +142,7 @@ export let init = () => {
 ```
 
 ### `onNoteOff`
-- Type: (note?: Note | Note[], listener: (event: MIDIEvent) => void) => void
+- Type: `(note?: Note | Note[], listener: (event: MIDIEvent) => void) => void`
 - Where `Note` = `"C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"`
 
 Registers a listener triggered on a MIDI `noteoff` event for the specified note or notes (fired when the key is released).
