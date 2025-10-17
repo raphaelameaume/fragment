@@ -6,7 +6,7 @@ Triggers are functions you can call imperatively from your sketch file to make i
 
 Instead of setting up the listener manually:
 ```js
-export let init = ({ canvas }) => {
+export let init = ({ canvas }) => {
     canvas.addEventListener('click', (event) => {
 		console.log("canvas clicked");
 	});
@@ -17,7 +17,7 @@ You can import and use them in your sketch:
 ```js
 import { onClick } from "@fragment/triggers";
 
-export let init = ({ canvas }) => {
+export let init = ({ canvas }) => {
 	onClick((event) => {
 		console.log("canvas clicked");
 	});

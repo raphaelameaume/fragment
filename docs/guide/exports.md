@@ -14,7 +14,7 @@ You can change `encoding`, `quality` and `pixelsPerInch` in the Exports module s
 
 The size of the image used when exporting will be the current one used for display. If you want to create hi-res exports, make sure to change the `dimensions` or `pixelRatio` of the canvas before doing so.
 
-> ⚠️ `pixelsPerInch` doesn't actually changed the resolution of the final exports, it only changes file metadata so it doesn't appear as a 72dpi file when opened in other softwares.
+> `pixelsPerInch` doesn't actually changed the resolution of the final exports, it only changes file metadata so it doesn't appear as a 72dpi file when opened in other softwares.
 
 If you need to export a sketch for impression, set `canvasSize` in Params to `preset`. Select the size you want in the new `preset` dropdown and set `pixelsPerInch` to `300` before exporting.
 
@@ -51,7 +51,7 @@ If `useDuration` is `true` and a sketch exports a [duration](../api/sketch.md#du
 
 If `loopCount` is greater than 1, recording will stop once Fragment has enough frames. The total number of frames equals to `sketchDuration*loopCount`. This can be useful to export loop-based sketchs with variations between loops.
 
-> ⚠️ The `framerate` used for recording can be different from the [sketch framerate](../api/sketch.md#duration).
+> The `framerate` used for recording can be different from the [sketch framerate](../api/sketch.md#duration).
 
 ## Export a live version
 
