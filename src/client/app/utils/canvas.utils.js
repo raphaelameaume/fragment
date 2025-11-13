@@ -3,16 +3,12 @@ https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad84
 */
 
 import { VIDEO_FORMATS } from '../state/exports.svelte';
-// import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
-import WebMRecorder from '../lib/canvas-recorder/WebMBunnyRecorder';
-// import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
-import MP4Recorder from '../lib/canvas-recorder/MediaBunnyRecorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
 import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
+import MediaBunnyRecorder from '../lib/canvas-recorder/MediaBunnyRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
-import MediaBunnyRecorder from '../lib/canvas-recorder/MediaBunnyRecorder';
 
 function getFilenameParams() {
 	const now = new Date();

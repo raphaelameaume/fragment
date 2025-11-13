@@ -1,4 +1,3 @@
-import loadMP4Module, { isWebCodecsSupported } from './mp4.js';
 import CanvasRecorder from './CanvasRecorder.js';
 import {
 	Output,
