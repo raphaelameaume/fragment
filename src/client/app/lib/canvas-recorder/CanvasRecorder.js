@@ -26,7 +26,7 @@ class CanvasRecorder {
 		this.deltaTime = 1000 / this.framerate;
 
 		this.frameDuration = 1000 / this.framerate;
-		this.frameTotal = isFinite(duration)
+		this.frameTotal = isFinite(this.duration)
 			? this.duration * this.framerate
 			: Infinity;
 		this.started = false;
