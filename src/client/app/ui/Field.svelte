@@ -98,7 +98,8 @@
 			((fieldType === fieldTypes.NUMBER &&
 				isFinite(params.min) &&
 				isFinite(params.max)) ||
-				fieldType === fieldTypes.BUTTON),
+				fieldType === fieldTypes.BUTTON ||
+				fieldType === fieldTypes.CHECKBOX),
 	);
 	let triggersActive = $derived(triggers.length > 0);
 
