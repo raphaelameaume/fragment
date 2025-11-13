@@ -65,11 +65,9 @@ export let props = {
 			cube.position.z = value;
 		},
 		displayName: 'Cube Position Z',
-		disabled: true,
 	},
 	animatePosition: {
 		value: false,
-		// disabled: true,
 	},
 	lightSettings: {
 		value: () => {
