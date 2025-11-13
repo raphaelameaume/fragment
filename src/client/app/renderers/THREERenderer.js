@@ -3,6 +3,15 @@ import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
+/**
+ * @typedef {Object} Preview
+ * @property {number} id
+ * @property {Scene} scene - An empty Scene
+ * @property {WebGLRenderer} renderer - The WebGLRenderer instance
+ * @property {boolean} rendered - Indicates whether the preview was rendered or not
+ */
+
+/** @type {Preview[]} */
 let previews = [];
 
 export let onMountPreview = ({ id, canvas }) => {
@@ -37,8 +46,9 @@ export let onDestroyPreview = ({ id }) => {
 	const preview = previews[previewIndex];
 
 	if (preview) {
-		const { renderer } = preview;
+		const { renderer, scene } = preview;
 		clearError(renderer.getContext().__uuid);
+		scene.clear();
 		renderer.dispose();
 		previews.splice(previewIndex, 1);
 	}
