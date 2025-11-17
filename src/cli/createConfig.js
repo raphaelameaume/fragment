@@ -110,7 +110,7 @@ export async function createConfig(
 				__DEV__: !build,
 			},
 			optimizeDeps: {
-				include: ['convert-length', 'webm-writer', 'changedpi'],
+				include: ['convert-length', 'changedpi'],
 			},
 		}),
 		config.vite ?? {},
