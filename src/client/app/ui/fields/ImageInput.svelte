@@ -4,7 +4,13 @@
 	import FieldInputRow from './FieldInputRow.svelte';
 	import TextInput from './TextInput.svelte';
 
-	let { value, context = null, key = '', disabled = false } = $props();
+	let {
+		value,
+		context = null,
+		key = '',
+		onchange,
+		disabled = false,
+	} = $props();
 
 	/** @type {HTMLImageElement} */
 	let img;
@@ -24,7 +30,7 @@
 	}
 
 	let reader = new FileReader();
-	let dragover = false;
+	let dragover = $state(false);
 
 	function handleUpload(event) {
 		event.preventDefault();
@@ -44,6 +50,7 @@
 			reader.onload = null;
 
 			value = e.target.result;
+			onchange(value);
 		};
 		reader.readAsDataURL(file);
 
@@ -67,33 +74,31 @@
 
 <div
 	class="img-container"
+	role="group"
+	aria-label="Drop an image here to upload"
 	class:dragover
-	on:dragover={handleDragover}
-	on:dragleave={handleDragleave}
-	on:drop={handleUpload}
+	ondragover={handleDragover}
+	ondragleave={handleDragleave}
+	ondrop={handleUpload}
 >
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div class="row">
-			<div class="preview" on:click={handleClick}>
+			<div class="preview">
 				<img class="img" src="" alt="" bind:this={img} />
+				<button class="preview-button" onclick={handleClick}>
+					<span class="visually-hidden">Upload</span>
+				</button>
 				<input
 					class="input"
 					type="file"
 					bind:this={input}
-					on:change={handleUpload}
+					onchange={handleUpload}
 					disabled={disabled ? 'disabled' : null}
 				/>
 			</div>
 			<TextInput disabled value={displayUrl} />
 		</div>
-		<ButtonInput
-			label="change"
-			on:click={handleClick}
-			on:dragover={handleDragover}
-			on:dragleave={handleDragleave}
-			on:drop={handleUpload}
-			{disabled}
-		/>
+		<ButtonInput label="change" onclick={handleClick} {disabled} />
 	</FieldInputRow>
 </div>
 
@@ -103,6 +108,8 @@
 	}
 
 	.preview {
+		position: relative;
+
 		width: calc(var(--fragment-input-height) * 1);
 		height: calc(var(--fragment-input-height) * 1);
 		display: grid;
@@ -114,6 +121,17 @@
 
 		cursor: copy;
 		overflow: hidden;
+	}
+
+	.preview-button {
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		width: 100%;
+		height: 100%;
+
+		opacity: 0;
 	}
 
 	.row {
