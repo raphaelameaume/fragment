@@ -62,9 +62,10 @@ export async function run(entry, options = {}) {
 			);
 		}
 
+		const hasTSFiles = entries.some((entry) => entry.endsWith('ts'));
 		const tsConfigDirpath = path.join(cwd, FRAGMENT_DIRECTORY);
 		const tsConfigFilepath = path.join(tsConfigDirpath, 'tsconfig.json');
-		if (!fs.existsSync(tsConfigFilepath)) {
+		if (!fs.existsSync(tsConfigFilepath) && hasTSFiles) {
 			await createTsConfigFile(cwd);
 		}
 
