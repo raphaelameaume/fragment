@@ -1,5 +1,27 @@
 # Getting started
 
+## Installation
+
+Fragment can be installed via the `fragment-tools` package.
+
+```bash
+npm install fragment-tools
+```
+
+You can also install Fragment globally so it's available from anywhere on your machine with the `--global` flag.
+
+## Usage
+
+If you installed Fragment locally, you will need to use [npx](https://docs.npmjs.com/cli/v9/commands/npx) as a prefix to run the `fragment` command.
+
+```bash
+# if installed locally
+npx fragment [cmd]
+
+# if installed globally
+fragment [cmd]
+```
+
 ## Create a sketch
 
 In your terminal, type the following command to create a new sketch based on the 2D template.
