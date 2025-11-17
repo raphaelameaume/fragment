@@ -25,11 +25,37 @@ type NumberProp = BaseProp<
 	{ disabled?: boolean; step?: number } | { min: number; max: number },
 	'number'
 >;
-type VecProp = BaseProp<
+
+type VecArray =
 	| [number, number]
 	| [number, number, number]
-	| [number, number, number, number],
-	{ locked?: boolean },
+	| [number, number, number, number];
+
+type VecObject = Record<string, number> & { [key: number]: never };
+
+type VecValue = VecArray | VecObject;
+
+type VecArrayParams<V extends VecArray> = {
+	min: { [K in keyof V]: number };
+	max: { [K in keyof V]: number };
+	step?: { [K in keyof V]: number };
+};
+
+type VecObjectParams<V extends VecObject> = {
+	min: { [K in keyof V]: number };
+	max: { [K in keyof V]: number };
+	step?: { [K in keyof V]: number };
+};
+
+type VecParams<V extends VecValue> = V extends readonly number[]
+	? VecArrayParams<V>
+	: V extends Record<string, number>
+		? VecObjectParams<V>
+		: never;
+
+type VecProp<V extends VecValue = VecValue> = BaseProp<
+	V,
+	{ locked?: boolean } | VecParams<V>,
 	'vec'
 >;
 type CheckboxProp = BaseProp<boolean, never, 'checkbox'>;
@@ -50,7 +76,8 @@ type ImageProp = BaseProp<string, never, 'image'>;
 type Prop =
 	| SelectProp
 	| NumberProp
-	| VecProp
+	| VecProp<VecObject>
+	| VecProp<VecArray>
 	| CheckboxProp
 	| TextProp
 	| ListProp
