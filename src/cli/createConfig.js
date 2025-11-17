@@ -8,21 +8,41 @@ import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
 
+/**
+ *
+ * @param {{ cwd: string, filepath: string | undefined }} params
+ * @returns {Promise<import('../types/config.js').Config>}
+ */
 export async function loadConfig({ cwd, filepath }) {
 	try {
-		let filename = `fragment.config.js`;
-		let configFile = filepath ? filepath : filename;
 		let configRoot = cwd;
-		let resolvedPath = path.resolve(cwd, configFile);
+		let filenames = [`fragment.config.js`, `fragment.config.ts`];
 
-		if (!fs.existsSync(resolvedPath)) {
-			if (filepath) {
-				log.error(`Config file not found: ${resolvedPath}`);
-			}
+		if (filepath) {
+			filenames = [filepath, ...filenames];
+		}
+
+		let filepaths = filenames.map((filename) => {
+			return path.resolve(configRoot, filename);
+		});
+
+		let resolvedIndex = filepaths.findIndex((filepath) =>
+			fs.existsSync(filepath),
+		);
+		/** @type {string|undefined} */
+		let resolvedPath = filepaths[resolvedIndex];
+
+		if (filepath && resolvedIndex !== 0) {
+			log.error(`Config file not found: ${filepath}`);
+		}
+
+		if (!resolvedPath) {
 			return {};
 		}
 
-		log.info(`Extending configuration from ${resolvedPath}`);
+		let configFile = path.relative(cwd, resolvedPath);
+
+		log.info(`Extending configuration from ${configFile}`);
 
 		const { config } = await loadConfigFromFile(
 			{
@@ -43,9 +63,10 @@ export async function loadConfig({ cwd, filepath }) {
 /**
  * Create Vite config from entries
  * @param {string[]} entries
- * @param {options} options
+ * @param {object} [options]
  * @param {boolean} [options.dev=false]
  * @param {boolean} [options.build=false]
+ * @param {string} [configFilepath]
  * @param {string} [cwd=process.cwd()]
  * @returns {import('vite').UserConfig}
  */
@@ -63,8 +84,8 @@ export async function createConfig(
 	log.info(`Creating Vite configuration...`);
 
 	const config = await loadConfig({
-		filepath: configFilepath,
 		cwd,
+		filepath: configFilepath,
 	});
 
 	return mergeConfig(
