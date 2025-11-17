@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
-import bodyParser from 'body-parser';
+import { json } from 'milliparsec';
 import { log, green, red } from '../log.js';
 import { mkdirp } from '../utils.js';
 
@@ -50,7 +50,12 @@ export default function screenshot({
 	return {
 		name: 'save',
 		configureServer(server) {
-			server.middlewares.use(bodyParser.json({ limit: '100mb' }));
+			const payloadLimit = 100 * 1024 * 1024; // 100mb
+			server.middlewares.use(
+				json({
+					payloadLimit,
+				}),
+			);
 			server.middlewares.use('/save', async (req, res, next) => {
 				if (req.method === 'POST') {
 					const { files } = req.body;
