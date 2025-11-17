@@ -556,7 +556,7 @@ export class Render {
 	}
 
 	async screenshot({
-		filename = this.sketch.name ?? this.sketch.key,
+		filename = this.sketch.key,
 		pattern = this.sketch.filenamePattern,
 		exportDir = this.sketch.exportDir,
 	} = {}) {
