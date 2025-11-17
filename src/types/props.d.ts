@@ -3,7 +3,7 @@ type BaseProp<Value, Params, Type> = {
 	params?: Params;
 	type?: Type;
 	hidden?: boolean;
-	displayName?: string;
+	displayName?: string | null;
 	folder?: string;
 	group?: string;
 	onChange?: PropOnChange<Value, Params>;
