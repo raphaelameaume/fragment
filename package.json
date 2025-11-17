@@ -6,6 +6,10 @@
   "bin": {
     "fragment": "bin/index.js"
   },
+  "exports": {
+    ".": "./src/client/app",
+    "./config": "./src/cli/config.js"
+  },
   "scripts": {
     "format": "prettier . --write",
     "changeset:add": "changeset add",
