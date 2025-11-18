@@ -1,5 +1,6 @@
 import { UserConfig } from 'vite';
 
-export type Config = {
-	vite: UserConfig;
-};
+export interface Config {
+	vite?: UserConfig;
+	[key: string]: any;
+}

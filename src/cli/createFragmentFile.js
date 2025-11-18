@@ -50,7 +50,6 @@ export async function createTsConfigFile(cwd = process.cwd()) {
 
 		/* Paths */
 		"paths": {
-			"@fragment/config": ["${path.join(fragmentPath, 'src/cli/config.js')}"],
 			"@fragment/types": ["${path.join(fragmentPath, 'src/types')}"],
 			"@fragment/types/*": ["${path.join(fragmentPath, 'src/types')}/*"],
 			"@fragment/*": ["${path.join(fragmentPath, 'src/client/app')}/*"]

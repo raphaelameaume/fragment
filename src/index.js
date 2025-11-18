@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../types/config').Config} Config
+ * @typedef {import('./types/config').Config} Config
  */
 
 /**
