@@ -1,5 +1,6 @@
 export type * from './renderers';
 export type * from './sketch';
+export type * from './config';
 export type * from './props';
 export type * from './helpers';
 export type * from './hooks';

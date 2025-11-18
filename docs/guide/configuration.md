@@ -34,7 +34,7 @@ Fragment ships with Typescript typings so you can leverage your IDE's intellisen
 
 ```js
 /**
- * @type {import('@fragment/config').Config}
+ * @type {import('fragment-tools').Config}
  */
  export default {
  
@@ -44,7 +44,7 @@ Fragment ships with Typescript typings so you can leverage your IDE's intellisen
  You can also use the `defineConfig` helper which will provide intellisense without the need for JSDoc annotations:
  
  ```js
- import { defineConfig } from '@fragment/config'
+ import { defineConfig } from 'fragment-tools';
  
  export default defineConfig({
    // ...

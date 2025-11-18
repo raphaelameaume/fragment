@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import url from 'node:url';
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
@@ -44,14 +45,11 @@ export async function loadConfig({ cwd, filepath }) {
 
 		log.info(`Extending configuration from ${configFile}`);
 
-		const { config } = await loadConfigFromFile(
-			{
-				command: 'build',
-				mode: 'dev',
-			},
-			configFile,
-			configRoot,
-		);
+		const config = (
+			await import(
+				`${url.pathToFileURL(configFile).href}?ts=${Date.now()}`
+			)
+		).default;
 
 		return config;
 	} catch (error) {
