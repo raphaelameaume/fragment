@@ -26,17 +26,23 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  */
 export async function run(entry, options = {}) {
 	let fragmentServer;
+	/** @type {import('node:fs').FSWatcher} */
+	let watcher;
 
 	const cwd = process.cwd();
 	const command = `run`;
 	const prefix = log.prefix(command);
+
+	const stop = () => {
+		fragmentServer?.close();
+		watcher?.close();
+	};
+
 	const exit = () => {
 		process.off('SIGTERM', exit);
 		process.off('exit', exit);
 
-		if (fragmentServer) {
-			fragmentServer.close();
-		}
+		stop();
 
 		console.log();
 	};
@@ -107,6 +113,22 @@ export async function run(entry, options = {}) {
 				],
 			}),
 		);
+
+		watcher = fs.watch(cwd, (eventType, filename) => {
+			if (
+				['fragment.config.js', 'fragment.config.ts'].includes(
+					filename,
+				) ||
+				options.configFilepath.includes(filename)
+			) {
+				log.warn(`${filename} has changed. Restarting...`);
+				console.log();
+				server.close();
+				stop();
+				run(entry, options);
+			}
+		});
+
 		await server.listen();
 
 		// line break after logs
@@ -131,8 +153,6 @@ export async function run(entry, options = {}) {
 
 		// line break before fragment logs
 		log.message();
-
-		return server;
 	} catch (error) {
 		// line break before error
 		log.message();
