@@ -1,6 +1,6 @@
 # Shortcuts
 
-Fragment provides a set of **keyboard shortcuts** to help you navigate and control your sketches more efficiently.
+Fragment includes a set of **keyboard shortcuts** for easier navigation and control of sketches.
 
 | Shortcut | Action |
 |---|---|

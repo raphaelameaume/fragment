@@ -1,9 +1,9 @@
 # Using existing p5.js sketches
 
-In case you already have a few sketches around, you can port them to Fragment in a few steps with very little changes and then enjoy the features Fragment provides such as video and images exports, using MIDI inputs to trigger functions or deploy something online.
+Existing sketches can be brought into Fragment with a few small changes, making it possible to benefit from features such as video and image exports, triggering functions via MIDI input, or deploying sketches online.
 
 1. Install Fragment following the [Installation](../../README.md#installation) instructions
-2. Create a new JavaScript file and paste the code from your existing sketch. Let's use the following code for example:
+2. Create a new JavaScript file and paste the code from the existing sketch. For example:
 
 ```js
 // From https://p5js.org/examples/form-triangle-strip.html
@@ -42,13 +42,13 @@ function draw() {
 }
 ```
 
-3. Install `p5` in the same folder with the package manager of your choice:
+3. Install `p5` in the same folder using any preferred package manager:
 
 ```bash
 npm install p5
 ```
 
-4. Fragment use the `export` [keyword in JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) to identify which functions [it should run and when](../api/sketch.md#lifecycle). Let's add them in front of `setup()` and  `draw()`.
+4. Fragment detects lifecycle functions based on the [`export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) keyword in JavaScript. Add it in front of setup() and draw():
 
 ```js
 // From https://p5js.org/examples/form-triangle-strip.html
@@ -87,7 +87,7 @@ export function draw() {
 }
 ```
 
-5. Fragment handles the width and height of a canvas by itself so you can remove the call to `createCanvas()` and get `width` and `height` from `setup()` arguments.
+5. Fragment manages the canvas dimensions automatically. Remove the call to `createCanvas()` and get `width` and `height` from `setup()` arguments.
 
 ```js
 // before
@@ -106,7 +106,7 @@ export function setup({ width, height }) {
 }
 ```
 
-6. Fragment is running p5.js in [instance mode](https://github.com/processing/p5.js/wiki/Global-and-instance-mode) so the functions available in the global scope have to be accessed through the `p` argument in `setup()` or `draw()`.
+6. Fragment runs p5.js in [instance mode](https://github.com/processing/p5.js/wiki/Global-and-instance-mode). Global p5 functions must therefore be accessed via the `p` argument:
 
 ```js
 // before
@@ -124,7 +124,7 @@ export function setup({ p, width, height }) {
 }
 ```
 
-7. Let's do it for all the p5.js functions used in the sketch:
+7. Apply this approach across the entire sketch:
 
 ```js
 // From https://p5js.org/examples/form-triangle-strip.html
@@ -162,27 +162,27 @@ export function draw({ p, width, height }) {
 }
 ```
 
-8. Great! Now let's tell Fragment that we are using p5.js. Add this line at the end of the file:
+8. Finally, notify Fragment that p5.js is being used by adding at the end of the file:
 
 ```js
 export let rendering = "p5";
 ```
 
-If you are using p5 in WebGL mode, you want to tell Fragment to use the P5GLRenderer instead:
+For WebGL mode:
 
 ```js
 export let rendering = "p5-webgl";
 ```
 
-9. You can now start Fragment from the command line:
+9. Launch Fragment:
 
 ```bash
 fragment sketch.js
 ```
 
-You should see your sketch inside Fragment interface. You can update the width and the height under the "Parameters" section.
+The sketch should now appear inside the Fragment interface, with editable width and height parameters.
 
-10. Let's create a slider for the two existing variables at the top of our sketch `outsideRadius` and `insideRadius`. You can do so by adding a new export in the sketch file called `props`:
+10. To add user-adjustable sliders for `outsideRadius` and `insideRadius`, declare `props`:
 
 ```js
 export let props = {
@@ -195,7 +195,7 @@ export let props = {
 };
 ```
 
-And replace the references in the code with props:
+Then update the sketch to reference these values:
 
 ```js
 // comment or remove the variable declarations
@@ -228,9 +228,7 @@ export function draw({ p, width, height }) {
 }
 ```
 
-You should be able to edit the values in the new available inputs under the Parameters module.
-
-11. Let's ask Fragment to create sliders so it's easier to play with values. On the `props` declaration, let's add a new `params` to each prop with min and max values like this:
+11. To create sliders with defined ranges, add `params`:
 
 ```js
 export let props = {
@@ -251,4 +249,4 @@ export let props = {
 };
 ```
 
-You should now be able to play with sliders under the Parameters and see your changes live on the canvas.
+Sliders will now appear in the Parameters panel, allowing live interaction with the sketch's behavior.

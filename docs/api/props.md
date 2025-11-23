@@ -1,13 +1,13 @@
 # Props
 
-Props are interactive parameters you can define in your sketch to create GUI controls and dynamically update your sketch values.
+Props are interactive parameters defined in a sketch to create GUI controls and dynamically update sketch values.
 Fragment automatically infers the appropriate control type from the provided value and parameters.
 
 ## Prop
 
 ### `value`
 
-- Type: `number | number[] | string | function | boolean | undefined`
+- Type: `number | number[] | string | function | boolean | object | undefined`
 
 ```js
 export let props = {
@@ -172,3 +172,5 @@ Fragment will automatically choose the correct control type based on `value` and
 | `function` | `{ label?: string, type: "import", accept?: string }` | `<ImportInput>`|
 | `number[]` | `{ locked?: boolean }` | `<VectorInput>`|
 | `number[2]` | `{ min: number, max: number, step?: number }` | `<IntervalInput>`|
+| `boolean` | `none` | `<CheckboxInput>`|
+| `{ x: number, y: number, z?: number, w?: number }` | `{ min: { x: number, y: number, z?: number, w?: number }, max: { x: number, y: number, z?: number, w?: number }, step?: { x: number, y: number, z?: number, w?: number } }` | `<VectorInput>`|

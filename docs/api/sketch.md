@@ -1,12 +1,12 @@
 # Sketch
 
-A **sketch** in Fragment is the entry point of your project. Its API is simple, supports multiple rendering types, and can grow in complexity as needed.
+A **sketch** in Fragment is the entry point of a project. Its API is simple, supports multiple rendering types, and can grow in complexity as needed.
 
 A sketch is composed of lifecycle functions, exports, and optional props, which enable both rendering and interactivity.
 
 ## Lifecycle
 
-Each time your sketch is saved, the previous instance is destroyed and a new **lifecycle** begins. Internally, Fragment calls available [exports](./#exports) in the following order:
+Each time a sketch is saved, the previous instance is destroyed and a new **lifecycle** begins. Internally, Fragment calls available [exports](./#exports) in the following order:
 
 ```js
 await sketch.load();
@@ -26,7 +26,7 @@ sketch.update();
 
 ## Exports
 
-Fragment uses [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export). You can export multiple properties from your sketch entry point, and they will be automatically picked up at runtime.
+Fragment uses [named ESM exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export). Multiple properties can be exported from the sketch entry point, and they will be automatically picked up at runtime.
 
 ### `load`
 
@@ -43,7 +43,7 @@ export let load = ({ publicPath }) => {
 ### `init`
 - Type: `({ canvas: HTMLCanvasElement, width: number, height: number, pixelRatio: number, publicPath: string, ...params: {...InitParams, ...MountParams }}) => void`
 
-Called once after load(). Used to initialize resources or context for your sketch. Returned parameters are spread into all lifecycle functions.
+Called once after load(). Used to initialize resources or context for a sketch. Returned parameters are spread into all lifecycle functions.
 
 > Notice the spread operator `...` before `params`, this means that the rest of the object will be "collected" into a single object called `params`. The values defined here are available directly if you want:
 
@@ -51,15 +51,19 @@ Called once after load(). Used to initialize resources or context for your sketc
 | name | type | description |
 |---|---|---|
 | `context` | `CanvasRenderingContext2D` | The context of the canvas |
-#### `rendering = "p5"`
-| name | type | description |
-|---|---|---|
-| `p` | `p5Instance` | The p5 instance |
 #### `rendering = "three"`
 | name | type | description |
 |---|---|---|
 | `renderer` | `THREE.WebGLRenderer` | The three.js WebGLRenderer |
 | `scene` | `THREE.Scene` | A instance of THREE.Scene |
+#### `rendering = "p5"`
+| name | type | description |
+|---|---|---|
+| `p` | `p5Instance` | The p5 instance |
+#### `rendering = "p5-webgl"`
+| name | type | description |
+|---|---|---|
+| `p` | `p5Instance` | The p5 instance |
 #### `rendering = "fragment"`
 | name | type | description |
 |---|---|---|
@@ -95,7 +99,7 @@ Called when the canvas size or pixel ratio changes.
 See [Props](/docs/api/props.md) for details.
 
 ### `rendering`
-- Type: `'2d' | 'three' | 'p5' | 'fragment'`
+- Type: `'2d' | 'three' | 'p5' | 'p5-webgl' | 'fragment'`
 - Default: `undefined`
 
 Selects one of Fragment's built-in rendering engines.
@@ -115,7 +119,7 @@ Can be imported directly or dynamically using a function.
 export let renderer = () => import('./custom-renderer.js');
 ```
 
-> Use `renderer` when you want to **define or import your own rendering** system (for example, an SVG or custom WebGL renderer). This is different from rendering, which only references built-in renderers by name and is used internally by Fragment for caching and retrieval.
+> `renderer` is used to define or import a custom rendering system (e.g., SVG or WebGL). This differs from `rendering`, which references built-in renderers and is used internally for caching.
 
 ### `duration`
 - Type: `number`
@@ -129,11 +133,11 @@ Setting a duration to a sketch will compute correct values for `playhead` and `p
 
 Controls how often update() is called per second.
 
-By default, Fragment synchronizes with your monitor's refresh rate using `requestAnimationFrame`, ensuring smooth playback regardless of the display (commonly 60 FPS, but may vary on high-refresh monitors).
+By default, Fragment synchronizes with the monitor's refresh rate using `requestAnimationFrame`, ensuring smooth playback regardless of the display (commonly 60 FPS, but may vary on high-refresh monitors).
 
 Setting a custom value (e.g. `30`) will decouple the sketch's update rate from the display's refresh rate and call `update()` at that fixed interval instead.
 
-If you set it to `0`, Fragment will only call `update()` once at the end of the lifecycle and whenever `props` change.
+Setting it to `0` calls `update()` only once at the end of the lifecycle and whenever `props` change.
 
 ### `name`
 - Type: `string`
@@ -145,7 +149,7 @@ Change the value used for display in the monitor dropdown.
 - Type: `string`
 - Default: `process.cwd()`
 
-Directory for exports. Can be relative or absolute.
+Directory for exports, relative or absolute.
 
 ```js
 // relative path
@@ -154,15 +158,13 @@ export let exportDir = './exports';
 export let exportDir = '/Users/raphaelameaume/Downloads';
 ```
 
-> This will be ignored if fragment is started with the `--exportDir` flag on the command line.
+> This is ignored if Fragment is started with the `--exportDir` CLI flag.
 
 ### `filenamePattern`
 - Type: `({ filename: string, timestamp: string, year:string, month:string, day:string, hours:string, minutes:string, seconds:string, props: SketchProps }) => string`
 - Default: `({ filename, timestamp }) => ${filename}.${timestamp}`
 
-Customize filenames of exports.
-
-Props are available for dynamic patterns.
+Customize filenames of exports. Props are available for dynamic patterns.
 
 ```js
 export let filenamePattern = ({ filename, timestamp, props }) => {

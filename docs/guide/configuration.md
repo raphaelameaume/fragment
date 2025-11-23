@@ -1,14 +1,15 @@
 # Configuration
 
-Fragment will automatically try to resolve a config file named `fragment.config.js` at the root. This configuration file is optional.
+Fragment will automatically try to resolve a config file named `fragment.config.js` at the root of the current working directory. This configuration file is optional.
 
 ```js
+// fragment.config.js
 export default {
 
 }
 ```
 
-You can specify another filepath for configuration with the `--config` flag on the command line such as:
+A different configuration file path can be provided using the `--config` flag on the command line:
 
 ```bash
 fragment sketch.js --config custom/path/to/config.js
@@ -16,7 +17,7 @@ fragment sketch.js --config custom/path/to/config.js
 
 ## Extending Vite
 
-You might want to extend Vite's configuration. You can do so by adding Vite config options under the `vite` property.
+Vite's configuration can be extended by adding Vite options under the `vite` property in the config file.
 
 ```js
 export default {
@@ -26,29 +27,31 @@ export default {
 }
 ```
 
-You can refer to [Vite's documentation](https://vitejs.dev/config/) to see the available options. The resolved configuration is merged with Fragment's own Vite configuration following the `mergeConfig` [strategy](https://vitejs.dev/guide/api-javascript.html#mergeconfig).
+Refer to [Vite's documentation](https://vitejs.dev/config/) for available configuration options. The final configuration is merged with Fragment's Vite setup using the `mergeConfig` [strategy](https://vitejs.dev/guide/api-javascript.html#mergeconfig).
 
 ## Config Intellisense
 
-Fragment ships with Typescript typings so you can leverage your IDE's intellisense with JSDoc type hints:
+Fragment includes TypeScript typings, allowing IDEs to provide Intellisense when using JSDoc type annotations:
 
 ```js
 /**
  * @type {import('fragment-tools').Config}
  */
  export default {
- 
+
  }
  ```
- 
- You can also use the `defineConfig` helper which will provide intellisense without the need for JSDoc annotations:
- 
+
+ The `defineConfig` helper can also be used to enable Intellisense support without JSDoc annotations:
+
  ```js
  import { defineConfig } from 'fragment-tools';
- 
+
  export default defineConfig({
    // ...
  })
  ```
- 
+
+ ## TypeScript support
+
  Fragment also supports TypeScript config files with `fragment.config.ts`.

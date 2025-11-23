@@ -16,7 +16,7 @@ fragment create [filename]
 
 | Flag | Description |
 |---|---|
-|`--template, -t`| Pre-populate template choice (default: `2d`)(`string`) |
+|`--template, -t`| Pre-populate template choice (default: `2d`)(`string`). Check out [Templates](/docs/api/templates.md) for available options |
 |`--typescript`| Pre-populate TypeScript support choice (default: `false`)(`boolean`)|
 
 #### Example

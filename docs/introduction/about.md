@@ -1,4 +1,4 @@
-# Why Fragment
+# About
 
 Fragment started as an idea in 2017 when I did a VJ performance based on [three.js](https://threejs.org/) visuals with a friend. We had a couple of different scenes that could react to audio beats and MIDI inputs. All scenes were made at different times, with different stacks and MIDI inputs had to be programmed and reminded beforehand.
 

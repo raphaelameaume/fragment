@@ -22,15 +22,30 @@ npx fragment [cmd]
 fragment [cmd]
 ```
 
+or you can setup NPM scripts to run the command
+
+```js
+{
+  "name": "sketches",
+  "description": "A web development environment for creative coding",
+  "scripts": {
+    "dev": "fragment run sketch.js",
+  },
+  "devDependencies": {
+    "fragment-tools": "0.2.10"
+  }
+}
+```
+
 ## Create a sketch
 
 In your terminal, type the following command to create a new sketch based on the 2D template.
 
 ```bash
-fragment ./sketch.js --new --template=2d
+fragment sketch.js --new --template=2d
 ```
 
-Check [Templates docs](../api/CLI.md#templates) to see which templates are also available.
+Check [Templates docs](../api/templates.md) to see which templates are also available.
 
 Open `sketch.js` recently created in your favorite code editor. The file should looks like this:
 
@@ -130,5 +145,6 @@ If you want to know more about `props` and what can be done with it, check out t
 
 ## Next steps
 
-- [Using triggers](./using-triggers.md)
-- [Exporting a sketch](./exports.md)
+- [Exporting a sketch](../guide/exporting-a-sketch.md)
+- [Building a sketch](../guide/building-a-sketch.md)
+- [Using triggers](../guide/using-triggers.md)
