@@ -145,3 +145,6 @@ export function draw({ p, width, height, pixelRatio, playhead, time }) {
 export let rendering = 'p5';
 // export let fps = 0;
 export let duration = 2;
+export let buildConfig = {
+	canvasSize: 'window',
+};

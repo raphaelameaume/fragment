@@ -61,7 +61,5 @@ export let rendering = '2d';
 export let fps = 0;
 export let name = 'Canvas2D Shape';
 export let buildConfig = {
-	layout: {
-		headless: true,
-	},
+	canvasSize: 'window',
 };

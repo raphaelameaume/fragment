@@ -246,7 +246,5 @@ export let rendering = 'three';
 export let name = 'THREE.js Cube Example';
 
 export let buildConfig = {
-	layout: {
-		headless: true,
-	},
+	canvasSize: 'window',
 };
