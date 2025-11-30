@@ -87,3 +87,6 @@ export function draw({ p, width, height, deltaTime }) {
 }
 
 export let rendering = 'p5-webgl';
+export let buildConfig = {
+	canvasSize: 'window',
+};
