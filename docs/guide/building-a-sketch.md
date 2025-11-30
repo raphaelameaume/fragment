@@ -6,7 +6,7 @@ A sketch can be compiled into standalone static files (HTML, JavaScript, and CSS
 fragment build [filename]
 ```
 
-Additional configuration options are documented in the [CLI reference](../api/CLI#build).
+Additional configuration options are documented in the [CLI reference](../api/CLI.md#build).
 
 ## Previewing a build
 
@@ -24,13 +24,14 @@ fragment build --prompts=false
 
 When prompts are disabled, all required choices must be provided through CLI flags. This allows the build to run without user interaction, making it appropriate for deployment pipelines and automated exports triggered by commits or build hooks.
 
-Refer to the [CLI documentation](../api/CLI#build) for the full list of available flags that can replace interactive selections.
+Refer to the [CLI documentation](../api/CLI.md#build) for the full list of available flags that can replace interactive selections.
 
 ## Build configuration
 
 Build behavior can be customized directly from the sketch by exporting a `buildConfig` object. This makes it possible to adjust visual appearance, layout, rendering dimensions, and GUI behaviour.
 
 ```js
+// sketch.js
 export let buildConfig = {
 	backgroundColor: "red",
 	dimensions: [256, 256],
