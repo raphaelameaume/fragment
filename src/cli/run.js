@@ -119,7 +119,7 @@ export async function run(entry, options = {}) {
 				['fragment.config.js', 'fragment.config.ts'].includes(
 					filename,
 				) ||
-				options.configFilepath.includes(filename)
+				options.configFilepath?.includes(filename)
 			) {
 				log.warn(`${filename} has changed. Restarting...`);
 				console.log();
