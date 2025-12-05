@@ -35,6 +35,7 @@
 	import frameDebounce from '../lib/helpers/frameDebounce.js';
 	import { inferFieldType } from '../utils/fields.utils.js';
 	import IconTriggers from '../components/IconTriggers.svelte';
+	import IconRestore from '../components/IconRestore.svelte';
 	import IconLocked from '../components/IconLocked.svelte';
 	import ImportInput from './fields/ImportInput.svelte';
 	import { deepEqual } from '../state/utils.svelte';
@@ -52,6 +53,7 @@
 		onchange,
 		onclick = () => {},
 		children,
+		trackChanges = false,
 		triggers = $bindable([]),
 	} = $props();
 
@@ -105,7 +107,7 @@
 				fieldType === fieldTypes.BUTTON),
 	);
 	let triggersActive = $derived(triggers.length > 0);
-	let changed = $derived(!deepEqual(value, initialValue));
+	let changed = $derived(trackChanges && !deepEqual(value, initialValue));
 
 	function toggleTriggers(event) {
 		event.preventDefault();
@@ -144,6 +146,17 @@
 	>
 		{#snippet infos()}
 			<div class="field__actions">
+				{#if changed}
+					<button
+						class="field__action field__action--reset"
+						onclick={resetValue}
+					>
+						<span class="visually-hidden"
+							>Restore initial value</span
+						>
+						<IconRestore />
+					</button>
+				{/if}
 				{#if triggerable && !disabled}
 					<button
 						onclick={toggleTriggers}
@@ -166,11 +179,7 @@
 		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
-	{#if changed}
-		<button class="field-changed" onclick={resetValue}>
-			<span class="visually-hidden">Reset value</span>
-		</button>
-	{/if}
+
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
@@ -197,7 +206,8 @@
 		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
-	.field-changed {
+	.field.changed:before {
+		content: '';
 		position: absolute;
 		top: 0px;
 		left: 0px;
