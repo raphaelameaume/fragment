@@ -16,6 +16,7 @@
 	class="field__section"
 	class:visible
 	class:secondary
+	class:disabled
 	class:nameless={displayName === null}
 >
 	<div class="field__infos">
@@ -48,8 +49,10 @@
 		grid-template-columns: 1fr;
 	}
 
-	:global(body:not(.fragment-dragging)) .field__section:hover .field__label,
-	.field__section:focus-within .field__label {
+	:global(body:not(.fragment-dragging))
+		.field__section:not(.disabled):hover
+		.field__label,
+	.field__section:not(.disabled):focus-within .field__label {
 		opacity: 1;
 	}
 
@@ -74,7 +77,7 @@
 		width: 1px;
 		height: var(--margin);
 
-		background-color: var(--color-spacing);
+		background-color: var(--fragment-spacing-color);
 	}
 
 	.field__infos {
@@ -84,12 +87,12 @@
 		align-items: center;
 		justify-content: space-between;
 
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 	}
 
 	.field__label {
 		color: inherit;
-		font-size: var(--font-size-input);
+		font-size: var(--fragment-input-font-size);
 		user-select: none;
 
 		opacity: 0.6;
@@ -97,12 +100,12 @@
 		transition: opacity 0.1s ease;
 	}
 
-	button.field__label {
+	button.field__label:not(:disabled) {
 		cursor: pointer;
 	}
 
 	.field__label:focus-visible {
-		outline: 2px var(--color-active) solid;
+		outline: 2px var(--fragment-accent-color) solid;
 		outline-offset: 2px;
 		border-radius: 1px;
 	}
@@ -120,7 +123,7 @@
 
 		padding-left: 5px;
 
-		background-color: #242425;
+		background-color: var(--fragment-background-color);
 	}
 
 	.field__input {
@@ -129,11 +132,11 @@
 		justify-content: center;
 		align-items: flex-start;
 
-		min-height: calc(var(--height-input) + 4px);
+		min-height: calc(var(--fragment-input-height) + 4px);
 	}
 
 	.field__section.secondary .field__input {
 		padding: var(--column-gap);
-		border: 1px solid var(--color-spacing);
+		border: 1px solid var(--fragment-spacing-color);
 	}
 </style>

@@ -20,7 +20,7 @@ export default function checkDependencies({
 	build,
 } = {}) {
 	const regex =
-		/\bexport[\s]*\b(let|const)[\s]*\brendering\b[\s]*=[\s]*["'](.*?)["']/;
+		/\bexport\s+\b(let|const)\s+\brendering\b\s*(?::\s*\w+)?\s*=\s*["'](.*?)["']/;
 
 	const dependenciesMap = new Map();
 	dependenciesMap.set('three', ['three']);

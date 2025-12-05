@@ -63,6 +63,14 @@
 		};
 	});
 
+	$effect(() => {
+		if (exports.recording && !render?.recording) {
+			render.startRecording();
+		} else if (render?.recording && !exports.recording) {
+			render.stopRecording();
+		}
+	});
+
 	function checkForRefresh(event) {
 		if (!event.metaKey && !event.ctrlKey) {
 			event.preventDefault();
@@ -97,18 +105,16 @@
 	function checkForRecord(event) {
 		if (event.shiftKey) {
 			exports.recording = !exports.recording;
-
-			if (exports.recording && !render.recording) {
-				render.startRecording();
-			} else if (render.recording && !exports.recording) {
-				render.stopRecording();
-			}
 		}
 	}
 
 	let backgroundColor = $derived.by(() => {
 		if (layout.previewing) {
-			return sketch?.buildConfig?.backgroundColor ?? 'inherit';
+			return (
+				sketch?.buildConfig?.backgroundColor ??
+				sketch?.backgroundColor ??
+				'inherit'
+			);
 		}
 
 		return sketch?.backgroundColor ?? 'inherit';
@@ -153,7 +159,10 @@
 		justify-content: center;
 		align-items: center;
 
-		background-color: var(--background-color, var(--color-lightblack));
+		background-color: var(
+			--background-color,
+			var(--fragment-color-lightblack)
+		);
 
 		container-type: size;
 	}

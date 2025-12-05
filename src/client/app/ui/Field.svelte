@@ -52,7 +52,7 @@
 		onchange,
 		onclick = () => {},
 		children,
-		triggers = [],
+		triggers = $bindable([]),
 	} = $props();
 
 	let showTriggers = $state(false);
@@ -67,10 +67,14 @@
 			value(event);
 			onclick(event);
 		},
-		download: (event) => {
-			let [data, filename] = value(event);
+		download: async (event) => {
+			try {
+				let [data, filename] = await value(event);
 
-			download(data, filename);
+				download(data, filename);
+			} catch (error) {
+				console.error(`Error while trying to download:`, error);
+			}
 		},
 		number: (event = {}) => {
 			const isValueInRange = event.value >= 0 && event.value <= 1;
@@ -170,7 +174,7 @@
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
-				{triggers}
+				bind:triggers
 				{onTrigger}
 				{context}
 				triggerable={fieldType === fieldTypes.BUTTON}
@@ -190,7 +194,7 @@
 		width: 100%;
 
 		padding: 3px 6px 3px 12px;
-		border-bottom: 1px solid var(--color-spacing);
+		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
 	.field-changed {
@@ -208,8 +212,8 @@
 
 		background: repeating-linear-gradient(
 			45deg,
-			var(--color-active) calc(0px + var(--stripes-offset)),
-			var(--color-active) calc(2px + var(--stripes-offset)),
+			var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
+			var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
 			transparent calc(2px + var(--stripes-offset)),
 			transparent calc(4px + var(--stripes-offset))
 		);
@@ -221,12 +225,8 @@
 	}
 
 	:global(.field__input .field:last-child) {
-		border-bottom: 0px solid #323233 !important;
+		border-bottom-width: 0px !important;
 		padding-bottom: 0px !important;
-	}
-
-	.field.disabled {
-		pointer-events: none;
 	}
 
 	.field__actions {
@@ -263,7 +263,7 @@
 	}
 
 	.field__action {
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 
 		opacity: 0.6;
 		background-color: transparent;

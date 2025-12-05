@@ -1,13 +1,10 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → Hooks</sup>
-<br>
-
 # Hooks
 
 Hooks provide a way to trigger functions in your sketch on specific features from `fragment`. They need to be declared in `init()` or `setup()` functions of your sketchs otherwise you might need to handle the subscriptions manually (not recommended).
 
 ## Usage
 
-Hooks can be imported through the special alias `@fragment/hooks`.
+Hooks can be imported through a special alias `@fragment/hooks`.
 
 ```js
 import { onAfterCapture } from '@fragment/hooks';
@@ -25,7 +22,7 @@ export let update = () => {
 };
 ```
 
-`fragment` takes care of removing the subscriptions between each change of the sketch so you don't need to, as long as they are declared inside `init`.
+Fragment takes care of removing the subscriptions between each change of the sketch so you don't need to, as long as they are declared inside `init()`.
 
 #### `onBeforeCapture`
 - Type: `(callback({ encoding: string, quality: number, count: number, index: number, pixelsPerInch: number }): function) => function`

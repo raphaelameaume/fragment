@@ -51,7 +51,7 @@
 		onchange = () => {},
 		onTrigger = () => {},
 		onDelete = () => {},
-		params = { key: [] },
+		params = $bindable({ key: [] }),
 	} = $props();
 
 	let validInputs = $derived.by(() =>
@@ -202,11 +202,11 @@
 			/>
 		{/if}
 		{#if inputType === 'Keyboard'}
-			<TextInput value={key} label="key" oninput={onTextChange} />
+			<TextInput bind:value={key} label="key" oninput={onTextChange} />
 		{/if}
 		{#if inputType === 'MIDI'}
 			<TextInput
-				value={key}
+				bind:value={key}
 				label={['onNoteOn', 'onNoteOff'].includes(eventName)
 					? 'note'
 					: 'number'}
@@ -217,9 +217,9 @@
 			label="delete"
 			showLabel={false}
 			onclick={handleClickDelete}
-			--color-text="white"
-			--background-color="var(--color-red)"
-			--box-shadow-color-active="var(--color-lightred)"
+			--text-color="white"
+			--background-color="var(--fragment-color-red)"
+			--box-shadow-color-active="var(--fragment-color-lightred)"
 		>
 			<IconCross />
 		</ButtonInput>
@@ -228,7 +228,7 @@
 
 <style>
 	.field-trigger {
-		--width-delete: var(--height-input);
+		--width-delete: var(--fragment-input-height);
 		--width-input: 90px;
 		--width-activity: 16px;
 		--width-cols: 1fr;
@@ -264,11 +264,11 @@
 	}
 
 	.activity.valid.enabled {
-		--background-color: var(--color-green);
+		--background-color: var(--fragment-color-green);
 	}
 
 	.activity.valid.disabled {
-		--background-color: var(--color-red);
+		--background-color: var(--fragment-color-red);
 	}
 
 	.field-trigger.mouse {

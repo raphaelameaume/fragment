@@ -11,7 +11,7 @@
 	} = $props();
 </script>
 
-<div class="button-container" class:disabled>
+<div class="button-input" class:disabled>
 	<button
 		class="button"
 		{disabled}
@@ -26,7 +26,7 @@
 </div>
 
 <style>
-	.button-container {
+	.button-input {
 		display: flex;
 		width: 100%;
 	}
@@ -34,39 +34,39 @@
 	.button {
 		display: flex;
 		width: 100%;
-		min-width: var(--height-input);
-		height: var(--height-input);
+		min-width: var(--fragment-input-height);
+		height: var(--fragment-input-height);
 		justify-content: center;
 		align-items: center;
 		padding: 0 4px;
 
-		color: var(--color-text-input);
-		font-size: var(--font-size-input);
+		color: var(--text-color, var(--fragment-input-text-color));
+		font-size: var(--fragment-input-font-size);
 
-		border-radius: var(--border-radius-input);
+		border-radius: var(--fragment-input-border-radius);
 		background-color: var(
 			--background-color,
-			var(--color-background-input)
+			var(--fragment-input-background-color)
 		);
 		box-shadow: inset 0 0 0 1px
-			var(--box-shadow-color, var(--color-border-input));
+			var(--box-shadow-color, var(--fragment-input-border-color));
 		outline: 0;
 	}
 
 	.button:disabled {
-		color: var(--color-text-input-disabled);
+		color: var(--fragment-input-disabled-text-color);
 	}
 
-	:global(body:not(.fragment-dragging)) .button:hover {
-		color: var(--color-text);
+	:global(body:not(.fragment-dragging)) .button:not(:disabled):hover {
+		color: var(--text-color, var(--fragment-text-color));
 
 		box-shadow: inset 0 0 0 1px
-			var(--box-shadow-color-active, var(--color-active));
+			var(--box-shadow-color-active, var(--fragment-accent-color));
 	}
 
-	:global(body:not(.fragment-dragging)) .button:active,
-	:global(body:not(.fragment-dragging)) .button:focus-visible {
+	:global(body:not(.fragment-dragging)) .button:not(:disabled):active,
+	:global(body:not(.fragment-dragging)) .button:not(:disabled):focus-visible {
 		box-shadow: 0 0 0 2px
-			var(--box-shadow-color-active, var(--color-active));
+			var(--box-shadow-color-active, var(--fragment-accent-color));
 	}
 </style>

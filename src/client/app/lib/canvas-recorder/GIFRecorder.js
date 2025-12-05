@@ -9,7 +9,17 @@ class GIFRecorder extends CanvasRecorder {
 		this.tmpCanvas = document.createElement('canvas');
 		this.tmpContext = this.tmpCanvas.getContext('2d');
 
-		this.maxColors = Math.floor(map(this.quality, 1, 100, 1, 256));
+		this.maxColors = Math.floor(map(this.quality, 20, 100, 32, 256));
+
+		if (this.framerate > 50) {
+			console.warn(`GIFRecorder :: recording was capped at 50fps.`);
+			this.framerate = 50;
+			this.deltaTime = 1000 / this.framerate;
+			this.frameDuration = 1000 / this.framerate;
+			this.frameTotal = isFinite(this.duration)
+				? this.duration * this.framerate
+				: Infinity;
+		}
 
 		super.start();
 	}

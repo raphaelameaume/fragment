@@ -1,6 +1,7 @@
+import { sketches as all } from 'virtual:sketches';
+
 import { createStore } from './utils.js';
 import { displayError } from '../stores/errors';
-import { sketches as all } from '@fragment/sketches';
 
 export const sketches = createStore('sketches', {});
 export const sketchesKeys = createStore('sketchesKeys', Object.keys(all));

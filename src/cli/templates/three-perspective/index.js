@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 
+/** @type {THREE.Scene} */
+let scene;
+/** @type {THREE.OrthographicCamera} */
 let camera;
 
 /**
@@ -11,7 +14,10 @@ let camera;
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ scene, width, height }) => {
+export const init = ({ width, height }) => {
+	scene = new THREE.Scene();
+	scene.background = new THREE.Color(0x00ff00);
+
 	camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 	camera.position.z = 10;
 	camera.lookAt(new THREE.Vector3());
@@ -31,7 +37,7 @@ export let init = ({ scene, width, height }) => {
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ renderer, scene, time, deltaTime }) => {
+export const update = ({ renderer, time, deltaTime }) => {
 	renderer.render(scene, camera);
 };
 
@@ -44,9 +50,9 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height }) => {
+export const resize = ({ width, height }) => {
 	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
 };
 
-export let rendering = 'three';
+export const rendering = 'three';

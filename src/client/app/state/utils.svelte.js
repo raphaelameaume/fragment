@@ -81,8 +81,15 @@ export function deepClone(value) {
 	}
 
 	if (isObject(value)) {
-		const clone = structuredClone(value);
-		return clone;
+		try {
+			const clone = structuredClone(
+				Array.isArray(value) ? [...value] : { ...value },
+			);
+			return clone;
+		} catch (error) {
+			console.error(error);
+			return value;
+		}
 	}
 
 	return value;

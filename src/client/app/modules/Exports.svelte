@@ -7,6 +7,7 @@
 		IMAGE_ENCODINGS,
 		VIDEO_FORMATS,
 		exports,
+		getCodecsForFormat,
 	} from '../state/exports.svelte';
 
 	let { id = layout.getID(), headless = false } = $props();
@@ -81,16 +82,39 @@
 			params={{ options: Object.values(VIDEO_FORMATS) }}
 			onchange={(value) => {
 				exports.videoFormat = value;
+
+				if (
+					!getCodecsForFormat(exports.videoFormat).includes(
+						exports.videoCodec,
+					)
+				) {
+					exports.videoCodec = getCodecsForFormat(
+						exports.videoFormat,
+					)?.[0];
+				}
 			}}
 		/>
+		{#if [VIDEO_FORMATS.MKV, VIDEO_FORMATS.MP4, VIDEO_FORMATS.WEBM, VIDEO_FORMATS.MOV].includes(exports.videoFormat)}
+			<Field
+				key="codec"
+				value={exports.videoCodec}
+				params={{ options: getCodecsForFormat(exports.videoFormat) }}
+				onchange={(value) => {
+					exports.videoCodec = value;
+				}}
+			/>
+		{/if}
 		<Field
 			key="quality"
 			value={exports.videoQuality}
 			params={{
-				min: 1,
-				max: 100,
-				step: 1,
-				suffix: '%',
+				options: [
+					{ value: 100, label: 'very high' },
+					{ value: 80, label: 'high' },
+					{ value: 60, label: 'medium' },
+					{ value: 40, label: 'low' },
+					{ value: 20, label: 'very low' },
+				],
 				triggerable: false,
 			}}
 			onchange={(value) => {

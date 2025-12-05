@@ -6,13 +6,47 @@ export const IMAGE_ENCODINGS = ['png', 'jpeg', 'webp'];
 export const VIDEO_FORMATS = {
 	FRAMES: 'frames',
 	MP4: 'mp4',
-	GIF: 'gif',
 	WEBM: 'webm',
+	GIF: 'gif',
+	MKV: 'mkv',
+	MOV: 'mov',
 };
+
+export const VIDEO_CODECS = {
+	AVC: 'avc',
+	HEVC: 'hevc',
+	VP8: 'vp8',
+	VP9: 'vp9',
+	AV1: 'av1',
+};
+
+export const VIDEO_CODECS_FORMATS = new Map();
+VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.AVC, ['mp4', 'mkv', 'mov']);
+VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.HEVC, ['mp4', 'mkv', 'mov']);
+VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.VP8, ['webm', 'mkv']);
+VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.VP9, ['webm', 'mkv']);
+VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.AV1, ['webm', 'mkv']);
+
+/**
+ * List valid codecs based on format
+ * @param {string} format
+ * @return {string[]}
+ */
+export function getCodecsForFormat(format) {
+	const codecs = [];
+
+	for (const [codec, formats] of VIDEO_CODECS_FORMATS) {
+		if (formats.includes(format)) {
+			codecs.push(codec);
+		}
+	}
+
+	return codecs;
+}
 
 class Exports {
 	imageEncoding = $state(IMAGE_ENCODINGS[0]);
-	videoFormat = $state(Object.values(VIDEO_FORMATS)[0]);
+	videoFormat = $state(VIDEO_FORMATS.MP4);
 	pixelsPerInch = $state(72);
 	framerate = $state(60);
 	useDuration = $state(true);
@@ -20,6 +54,7 @@ class Exports {
 	loopCount = $state(1);
 	imageQuality = $state(100);
 	videoQuality = $state(100);
+	videoCodec = $state(VIDEO_CODECS.HEVC);
 	imageCount = $state(1);
 	recording = $state(false);
 	capturing = $state(false);
@@ -41,6 +76,7 @@ class Exports {
 						loopCount: this.loopCount,
 						imageQuality: this.imageQuality,
 						videoQuality: this.videoQuality,
+						videoCodec: this.videoCodec,
 						imageCount: this.imageCount,
 						videoCollapsed: this.videoCollapsed,
 						imageCollapsed: this.imageCollapsed,
@@ -105,6 +141,7 @@ class Exports {
 			format = this.videoFormat,
 			imageEncoding = this.imageEncoding,
 			quality = this.videoQuality,
+			codec = this.videoCodec,
 			duration,
 			filename,
 			pattern,
@@ -133,6 +170,7 @@ class Exports {
 			onTick,
 			framerate,
 			format,
+			codec,
 			imageEncoding,
 			quality,
 			duration: duration * this.loopCount,

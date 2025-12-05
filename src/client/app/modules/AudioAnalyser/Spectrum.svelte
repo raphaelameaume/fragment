@@ -25,8 +25,8 @@
 		grid-template-columns: repeat(10, 1fr);
 		padding: 0 3px;
 
-		border-radius: var(--border-radius-input);
-		background-color: var(--color-background-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		border-radius: var(--fragment-input-border-radius);
+		background-color: var(--fragment-input-background-color);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 	}
 </style>

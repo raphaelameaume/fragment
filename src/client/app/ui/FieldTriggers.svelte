@@ -31,17 +31,15 @@
 		{#each triggers as trigger, index}
 			<FieldTrigger
 				{index}
+				bind:triggers
 				inputType={trigger.inputType}
 				eventName={trigger.eventName}
-				params={trigger.params}
+				bind:params={trigger.params}
 				enabled={trigger.enabled}
 				{onTrigger}
 				{context}
 				{controllable}
 				{triggerable}
-				onchange={(index, trigger) => {
-					triggers[index] = trigger;
-				}}
 				onDelete={onTriggerDelete}
 			/>
 		{/each}

@@ -8,7 +8,7 @@ class Renderer {
 		premultipliedAlpha = false,
 		pixelRatio = window.devicePixelRatio,
 		webgl = 2,
-	}) {
+	} = {}) {
 		let gl;
 		let attributes = {
 			depth,

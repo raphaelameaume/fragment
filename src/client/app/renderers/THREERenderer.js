@@ -3,8 +3,34 @@ import { client } from '@fragment/client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
+/**
+ * @typedef {object} MountParamsThreeRenderer
+ * @property {HTMLCanvasElement} canvas
+ * @property {THREE.Scene} scene
+ * @property {THREE.WebGLRenderer} renderer
+ */
+
+/**
+ * @typedef {object} PreviewThreeRenderer
+ * @property {number} id
+ * @property {THREE.Scene} scene
+ * @property {THREE.renderer} renderer
+ * @property {rendered} boolean
+ */
+
+/** @type {PreviewThreeRenderer[]} */
 let previews = [];
 
+/**
+ * @param {object} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ * @returns {MountParamsThreeRenderer}
+ */
 export let onMountPreview = ({ id, canvas }) => {
 	let renderer = new WebGLRenderer({ antialias: true, canvas });
 
@@ -32,18 +58,12 @@ export let onMountPreview = ({ id, canvas }) => {
 	};
 };
 
-export let onDestroyPreview = ({ id }) => {
-	const previewIndex = previews.findIndex((p) => p.id === id);
-	const preview = previews[previewIndex];
-
-	if (preview) {
-		const { renderer } = preview;
-		clearError(renderer.getContext().__uuid);
-		renderer.dispose();
-		previews.splice(previewIndex, 1);
-	}
-};
-
+/**
+ * @param {MountParamsThreeRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
+ */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -52,6 +72,12 @@ export let onBeforeUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {MountParamsThreeRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLDivElement} params.container
+ */
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -67,6 +93,14 @@ export let onAfterUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {MountParamsThreeRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {number} params.width
+ * @param {number} params.height
+ * @param {number} params.pixelRatio
+ */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -74,6 +108,24 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 		const { renderer } = preview;
 		renderer.setPixelRatio(pixelRatio);
 		renderer.setSize(width, height);
+	}
+};
+
+/**
+ * @param {MountParamsThreeRenderer} params
+ * @param {number} params.id
+ * @param {HTMLCanvasElement} params.canvas
+ * @param {HTMLElement} params.container
+ */
+export let onDestroyPreview = ({ id }) => {
+	const previewIndex = previews.findIndex((p) => p.id === id);
+	const preview = previews[previewIndex];
+
+	if (preview) {
+		const { renderer } = preview;
+		clearError(renderer.getContext().__uuid);
+		renderer.dispose();
+		previews.splice(previewIndex, 1);
 	}
 };
 

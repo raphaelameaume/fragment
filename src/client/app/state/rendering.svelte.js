@@ -128,15 +128,15 @@ class Rendering {
 			const params =
 				instance.init?.({
 					canvas: document.createElement('canvas'),
-					pixelRatio: this.pixelRatio,
 					width: this.width,
 					height: this.height,
+					pixelRatio: this.pixelRatio,
 				}) ?? {};
 
 			instance.resize?.({
-				pixelRatio: this.pixelRatio,
 				width: this.width,
 				height: this.height,
+				pixelRatio: this.pixelRatio,
 				...params,
 			});
 
@@ -150,7 +150,7 @@ class Rendering {
 	}
 
 	findRenderer({ renderingMode }) {
-		return this.renderers[renderingMode].instance;
+		return this.renderers[renderingMode]?.instance;
 	}
 
 	override(config) {
@@ -556,7 +556,7 @@ export class Render {
 	}
 
 	async screenshot({
-		filename = this.sketch.name ?? this.sketch.key,
+		filename = this.sketch.key,
 		pattern = this.sketch.filenamePattern,
 		exportDir = this.sketch.exportDir,
 	} = {}) {
@@ -605,7 +605,7 @@ export class Render {
 			return;
 		}
 
-		this.record = await exports.record(this.canvas, {
+		this.record = exports.record(this.canvas, {
 			filename: sketch.key,
 			pattern: sketch.filenamePattern,
 			exportDir: sketch.exportDir,
@@ -627,6 +627,8 @@ export class Render {
 			onComplete: (params) => {
 				sketch.afterRecord.forEach((fn) => fn(params));
 				this.record = null;
+				this.paused = false;
+				this.recording = false;
 			},
 		});
 	}
@@ -647,7 +649,8 @@ export class Render {
 			this.sketch.instance?.dispose?.();
 			this.sketch.reset();
 
-			this.init();
+			this.loading = false;
+			this.loaded = false;
 		} catch (error) {
 			console.error(error);
 			displayError(error, this.sketch.key);

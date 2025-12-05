@@ -1,15 +1,12 @@
-#### <sup>[fragment](../../README.md) → [Documentation](../README.md) → [API](../README.md#apis) → CLI</sup>
-<br>
+# Command Line Interface
 
-# CLI
+## Initialisation
 
-Once `fragment` is properly [installed](../../README.md#installation), you can launch it and create sketches from the command line.
-
-## Usage
-
-### Create
+### `fragment create`
 
 Create a new sketch.
+
+#### Usage
 
 ```bash
 fragment create [filename]
@@ -17,9 +14,10 @@ fragment create [filename]
 
 #### Options
 
-| Flag | Shortcut | Description | Default |
-|---|---|---|---|
-|`--template`| `-t` | Prepopulate template choice | `2d` |
+| Flag | Description |
+|---|---|
+|`--template, -t`| Pre-populate template choice (default: `2d`)(`string`). Check out [Templates](/docs/api/templates.md) for available options |
+|`--typescript`| Pre-populate TypeScript support choice (default: `false`)(`boolean`)|
 
 #### Example
 
@@ -27,37 +25,41 @@ fragment create [filename]
 fragment create sketch.js
 ```
 
-### Run
+## Development
+
+### `fragment (run)`
 
 Run an existing sketch.
 
-```bash
-fragment run [filename]
-```
-The command `run` can be omitted since it's the default command
+#### Usage
 
 ```bash
 fragment [filename]
+fragment run [filename]
 ```
 
 #### Options
 
-| Flag | Shortcut | Description | Default |
-|---|---|---|---|
-|`--port`| `-p` | Specify the server port.  | `3000` |
-|`--exportDir`| none | Override directory used for exports  | `undefined` |
-|`--new`| `-n` | Redirect to create prompts | `false` |
-|`--template`| `-t` | Pre-populate template choice in create prompts | `2d` |
-|`--build`| `-b` | Redirect to build prompts  | `false` |
-|`--outDir`| none | Pre-populate outDir in build prompts  | `[/[sketch-name]` |
-|`--emptyOutDir`| none | Pre-populate emptyOutDir in build prompts  | `false` |
-|`--base`| none | Pre-populate base path in build prompts | `undefined` |
-|`--development`| none | Run Fragment in development mode  | `false` |
-|`--prompts`| none | Enable interactive prompts in build prompts  | `true` |
+| Flag |  Description |
+|---|---|
+|`--port, -p`| Specify the server port. (default: `3000`)(`number`) |
+|`--exportDir`| Override directory used for exports (default: `undefined`)(`string`)|
+|`--new, -n`| Redirect to create workflow (default: `false`)(`boolean`) |
+|`--template, -t`| Pre-populate template choice in create prompts (default: `2d`)(`string`)|
+|`--build, -b`| Redirect to build workflow (default: `false`)(`boolean`) |
+|`--outDir`| Pre-populate outDir in build prompts  (default: `[/[sketch-name]`)(`string`)|
+|`--emptyOutDir`| Pre-populate emptyOutDir in build prompts (default: `false`)(`boolean`)|
+|`--base`| Pre-populate base path in build prompts (default: `undefined`)(`string`) |
+|`--development`| Run Fragment in development mode (default: `false`)(`boolean`) |
+|`--prompts`| Toggle interactive prompts in build prompts (default: `true`)(`boolean`) |
 
-### Build
+## Build
+
+### `fragment build`
 
 Build a sketch into static files for production.
+
+#### Usage
 
 ```bash
 fragment build [filename]
@@ -65,17 +67,19 @@ fragment build [filename]
 
 #### Options
 
-| Flag | Shortcut | Description | Default |
-|---|---|---|---|
-|`--outDir`| none | Pre-populate out directory  | `[/[sketch-name]` |
-|`--emptyOutDir`| none | Empty outDir before static build  | `false` |
-|`--base`| none | Base public path when served in production  | `undefined` |
-|`--development`| none | Run Fragment in development mode  | `false` |
-|`--prompts`| none | Enable interactive prompts  | `true` |
+| Flag | Description |
+|---|---|
+|`--outDir`| Pre-populate out directory (default: `[/[sketch-name]`)(`string`)|
+|`--emptyOutDir`| Empty outDir before static build (default: `false`)(`boolean`)|
+|`--base`| Base public path when served in production (default: `undefined`)(`string`)|
+|`--development`| Run Fragment in development mode (default: `false`)(`boolean`)|
+|`--prompts`| Enable interactive prompts (default: `true`)(`boolean`)|
 
-### Preview
+### `fragment preview`
 
 Start a local server to preview a sketch built locally with `fragment build`.
+
+#### Usage
 
 ```bash
 fragment preview [directory]
@@ -84,11 +88,11 @@ fragment preview [directory]
 ## Templates
 
 `fragment` currently has the following templates:
-- [blank](../../src/cli/templates/blank/index.js)
-- [2d](../../src/cli/templates/default/index.js)
-- [fragment](../../src/cli/templates/fragment-gl/index.js)
-- [three/fragment](../../src/cli/templates/three-fragment/index.js)
-- [three/orthographic](../../src/cli/templates/three-orthographic/index.js)
-- [three/perspective](../../src/cli/templates/three-perspective/index.js)
-- [p5](../../src/cli/templates/p5/index.js)
-- [p5-webgl](../../src/cli/templates/p5-webgl/index.js)
+- [blank](../../src/cli/templates/blank)
+- [2d](../../src/cli/templates/default)
+- [fragment](../../src/cli/templates/fragment-gl)
+- [three/fragment](../../src/cli/templates/three-fragment)
+- [three/orthographic](../../src/cli/templates/three-orthographic)
+- [three/perspective](../../src/cli/templates/three-perspective)
+- [p5](../../src/cli/templates/p5)
+- [p5-webgl](../../src/cli/templates/p5-webgl)

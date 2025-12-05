@@ -1,4 +1,4 @@
-export let props = {};
+export const props = {};
 
 /**
  * @param {object} params
@@ -7,7 +7,7 @@ export let props = {};
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ canvas, width, height, pixelRatio }) => {};
+export const init = ({ canvas, width, height, pixelRatio }) => {};
 
 /**
  * @param {object} params
@@ -21,7 +21,7 @@ export let init = ({ canvas, width, height, pixelRatio }) => {};
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ width, height, time, deltaTime }) => {};
+export const update = ({ width, height, time, deltaTime }) => {};
 
 /**
  * @param {object} params
@@ -30,7 +30,7 @@ export let update = ({ width, height, time, deltaTime }) => {};
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ canvas, width, height, pixelRatio }) => {
+export const resize = ({ canvas, width, height, pixelRatio }) => {
 	canvas.width = width * pixelRatio;
 	canvas.height = height * pixelRatio;
 	canvas.style.width = `${width}px`;

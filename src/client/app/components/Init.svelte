@@ -1,7 +1,7 @@
 <script>
 	import { assignSketchFiles } from '../triggers/shared.js';
 	import { sketchesManager } from '../state/sketches.svelte.js';
-	import { onSketchReload } from '@fragment/sketches';
+	import { onSketchReload } from 'virtual:sketches';
 	import { getFilename } from '../utils/file.utils.js';
 	import '../utils/glslErrors.js';
 

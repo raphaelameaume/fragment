@@ -9,7 +9,7 @@ export function fragment({
 	canvas = document.createElement('canvas'),
 	shader = defaultFragment,
 	uniforms = {},
-}) {
+} = {}) {
 	let _fragmentShader = shader;
 	let _vertexShader = defaultVertex;
 	let _uniforms = uniforms;
@@ -30,7 +30,7 @@ export function fragment({
 
 	let w, h, pr;
 
-	function resize({ width = w, height = h, pixelRatio = pr }) {
+	function resize({ width = w, height = h, pixelRatio = pr } = {}) {
 		renderer.setPixelRatio(pixelRatio);
 		renderer.setSize({ width, height });
 

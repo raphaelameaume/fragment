@@ -1,21 +1,25 @@
-#### <sup>[fragment](../README.md) → [Documentation](./README.md)</sup>
-<br>
+### Introduction
 
-## Guide
-- [About](./guide/about.md)
-- [Getting started](./guide/getting-started.md)
-- [Export a sketch](./guide/exports.md)
-- [Using external dependencies](./guide/external-dependencies.md)
-- [Using existing p5.js sketches](./guide/using-existing-p5js-sketches.md)
+- [Getting started](./introduction/getting-started.md)
+- [Principles & Intent](./introduction/principles-and-intent.md)
+- [About](./introduction/about.md)
+
+### Guide
+- [Configuration](./guide/configuration.md)
+- [Exporting a sketch](./guide/exporting-a-sketch.md)
+- [Building a sketch](./guide/building-a-sketch.md)
+- [Organizing props](./guide/organizing-props.md)
+- [Reactive props](./guide/reactive-props.md)
 - [Using triggers](./guide/using-triggers.md)
+- [Using existing p5.js sketches](./guide/using-existing-p5js-sketches.md)
 - [Hot Shader Replacement](./guide/hot-shader-replacement.md)
 - [Custom renderers](./guide/custom-renderers.md)
-- [Reactive props](./guide/reactive-props.md)
-- [Configuring Fragment](./guide/configuring-fragment.md)
 - [Shortcuts](./guide/shortcuts.md)
 
-## APIs
+### API
 - [CLI](./api/CLI.md)
+- [Templates](./api/templates.md)
 - [Sketch](./api/sketch.md)
+- [Props](./api/props.md)
 - [Renderers](./api/renderers.md)
 - [Triggers](./api/triggers.md)
