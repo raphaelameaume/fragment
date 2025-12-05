@@ -87,6 +87,7 @@ export function draw({ p, width, height, deltaTime }) {
 }
 
 export let rendering = 'p5-webgl';
+export let name = 'p5.js Shader Example';
 export let buildConfig = {
-	canvasSize: 'window',
+	resizing: 'window',
 };

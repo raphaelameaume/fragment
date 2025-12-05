@@ -145,6 +145,7 @@ export function draw({ p, width, height, pixelRatio, playhead, time }) {
 export let rendering = 'p5';
 // export let fps = 0;
 export let duration = 2;
+export let name = 'p5.js Grid Example';
 export let buildConfig = {
-	canvasSize: 'window',
+	resizing: 'window',
 };
