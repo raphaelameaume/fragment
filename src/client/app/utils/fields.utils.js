@@ -124,7 +124,17 @@ export function parseFolder(folder) {
 				? Object.fromEntries(
 						match.groups.attributes
 							.split(', ')
-							.map((attr) => attr.split('=')),
+							.map((attr) =>
+								attr
+									.split('=')
+									.map((v) =>
+										v === 'false'
+											? false
+											: v === 'true'
+												? true
+												: v,
+									),
+							),
 					)
 				: {},
 		};
