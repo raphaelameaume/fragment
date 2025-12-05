@@ -1,7 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import glslify from 'glslify';
 import { log, dim, green, yellow } from '../log.js';
 
 /**
@@ -231,10 +230,6 @@ ${keyword}${shaderParts[1]}
 			shaderSource,
 			shaderPath,
 		);
-
-		code = glslify(code, {
-			basedir: process.cwd(),
-		});
 
 		if (server) {
 			code = addShaderFilepath(code, shaderPath);
