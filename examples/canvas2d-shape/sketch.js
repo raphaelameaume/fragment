@@ -59,7 +59,7 @@ export let update = ({ context, width, height, pixelRatio }) => {
 
 export let rendering = '2d';
 export let fps = 0;
-export let name = 'Canvas2D Shape';
+export let name = 'Canvas2D Shape Example';
 export let buildConfig = {
-	canvasSize: 'window',
+	resizing: 'window',
 };

@@ -243,8 +243,7 @@ export let resize = ({ width, height }) => {
 };
 
 export let rendering = 'three';
-export let name = 'THREE.js Cube Example';
-
+export let name = 'three.js WebGL Cube Example';
 export let buildConfig = {
-	canvasSize: 'window',
+	resizing: 'window',
 };
