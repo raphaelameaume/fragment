@@ -157,15 +157,6 @@
 	>
 		{#snippet infos()}
 			<div class="field__actions">
-				{#if fieldType === fieldTypes.VEC && !disabled}
-					<button
-						class="field__action field__action--lock"
-						onclick={() => (params.locked = !params.locked)}
-					>
-						<IconLocked locked={params.locked} />
-					</button>
-				{/if}
-
 				{#if triggerable && !disabled}
 					<button
 						onclick={toggleTriggers}
@@ -173,6 +164,14 @@
 						class:active={triggersActive}
 					>
 						<IconTriggers />
+					</button>
+				{/if}
+				{#if fieldType === fieldTypes.VEC && !disabled}
+					<button
+						class="field__action field__action--lock"
+						onclick={() => (params.locked = !params.locked)}
+					>
+						<IconLocked locked={params.locked} />
 					</button>
 				{/if}
 			</div>
