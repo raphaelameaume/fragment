@@ -69,6 +69,11 @@
 		} else if (render?.recording && !exports.recording) {
 			render.stopRecording();
 		}
+
+		if (exports.capturing) {
+			render.screenshot();
+			exports.capturing = false;
+		}
 	});
 
 	function checkForRefresh(event) {
