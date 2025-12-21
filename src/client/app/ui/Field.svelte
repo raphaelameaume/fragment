@@ -35,7 +35,6 @@
 	import frameDebounce from '../lib/helpers/frameDebounce.js';
 	import { inferFieldType } from '../utils/fields.utils.js';
 	import IconTriggers from '../components/IconTriggers.svelte';
-	import IconRestore from '../components/IconRestore.svelte';
 	import IconLocked from '../components/IconLocked.svelte';
 	import ImportInput from './fields/ImportInput.svelte';
 	import { deepEqual } from '../state/utils.svelte';
@@ -65,10 +64,18 @@
 
 			onchange(value);
 		},
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
 		button: (event) => {
 			value(event);
 			onclick(event);
 		},
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
 		download: async (event) => {
 			try {
 				let [data, filename] = await value(event);
@@ -109,6 +116,10 @@
 	let triggersActive = $derived(triggers.length > 0);
 	let changed = $derived(trackChanges && !deepEqual(value, initialValue));
 
+	/**
+	 *
+	 * @param {MouseEvent} event
+	 */
 	function toggleTriggers(event) {
 		event.preventDefault();
 
@@ -126,7 +137,7 @@
 		};
 	}
 
-	function resetValue() {
+	function restoreInitialValue() {
 		onchange(initialValue);
 	}
 </script>
@@ -146,17 +157,15 @@
 	>
 		{#snippet infos()}
 			<div class="field__actions">
-				{#if changed}
+				{#if fieldType === fieldTypes.VEC && !disabled}
 					<button
-						class="field__action field__action--reset"
-						onclick={resetValue}
+						class="field__action field__action--lock"
+						onclick={() => (params.locked = !params.locked)}
 					>
-						<span class="visually-hidden"
-							>Restore initial value</span
-						>
-						<IconRestore />
+						<IconLocked locked={params.locked} />
 					</button>
 				{/if}
+
 				{#if triggerable && !disabled}
 					<button
 						onclick={toggleTriggers}
@@ -166,20 +175,20 @@
 						<IconTriggers />
 					</button>
 				{/if}
-				{#if fieldType === fieldTypes.VEC && !disabled}
-					<button
-						class="field__action field__action--lock"
-						onclick={() => (params.locked = !params.locked)}
-					>
-						<IconLocked locked={params.locked} />
-					</button>
-				{/if}
 			</div>
 		{/snippet}
 		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
-
+	{#if changed}
+		<button
+			class="field__changed"
+			onclick={restoreInitialValue}
+			title="Restore initial value"
+		>
+			<span class="visually-hidden">Restore initial value</span>
+		</button>
+	{/if}
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
@@ -206,27 +215,45 @@
 		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
-	.field.changed:before {
-		content: '';
+	.field__changed {
 		position: absolute;
 		top: 0px;
 		left: 0px;
 		bottom: 0px;
 		z-index: 1;
 
-		width: 4px;
+		width: 13px;
 		/* height: 4px; */
 		/* border-radius: 2px; */
 
-		--stripes-offset: calc(var(--index) * 1.9px);
+		background: transparent;
+		cursor: pointer;
 
-		background: repeating-linear-gradient(
-			45deg,
-			var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
-			var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
-			transparent calc(2px + var(--stripes-offset)),
-			transparent calc(4px + var(--stripes-offset))
-		);
+		&:before {
+			content: '';
+
+			position: absolute;
+			top: 0;
+			left: 0;
+
+			display: block;
+			width: 4px;
+			height: 100%;
+
+			--stripes-offset: calc(var(--index) * 1.9px);
+
+			background: repeating-linear-gradient(
+				45deg,
+				var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
+				var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
+				transparent calc(2px + var(--stripes-offset)),
+				transparent calc(4px + var(--stripes-offset))
+			);
+		}
+
+		&:hover:before {
+			width: 7px;
+		}
 	}
 
 	:global(.field__input .field) {
@@ -242,6 +269,7 @@
 	.field__actions {
 		display: flex;
 		align-items: center;
+		gap: var(--column-gap);
 	}
 
 	.field__action {
