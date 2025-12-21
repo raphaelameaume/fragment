@@ -151,6 +151,7 @@
 						{disabled}
 						bind:params={sketchProps[key].params}
 						bind:triggers={prop.triggers}
+						trackChanges
 						onclick={(event) => {
 							sketch.version++;
 							// value(event, sketch.params);

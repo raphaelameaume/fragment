@@ -52,6 +52,7 @@
 		onchange,
 		onclick = () => {},
 		children,
+		trackChanges = false,
 		triggers = $bindable([]),
 	} = $props();
 
@@ -63,10 +64,18 @@
 
 			onchange(value);
 		},
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
 		button: (event) => {
 			value(event);
 			onclick(event);
 		},
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
 		download: async (event) => {
 			try {
 				let [data, filename] = await value(event);
@@ -105,7 +114,12 @@
 				fieldType === fieldTypes.BUTTON),
 	);
 	let triggersActive = $derived(triggers.length > 0);
+	let changed = $derived(trackChanges && !deepEqual(value, initialValue));
 
+	/**
+	 *
+	 * @param {MouseEvent} event
+	 */
 	function toggleTriggers(event) {
 		event.preventDefault();
 
@@ -123,16 +137,15 @@
 		};
 	}
 
-	function hasChanged(current, next) {
-		const changed = !deepEqual(current, next);
-		return changed;
+	function restoreInitialValue() {
+		onchange(initialValue);
 	}
 </script>
 
 <div
 	class="field"
 	class:disabled
-	class:changed={!disabled && hasChanged(value, initialValue)}
+	class:changed={!disabled && changed}
 	style="--index: {index};"
 >
 	<FieldSection
@@ -166,6 +179,15 @@
 		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
+	{#if changed}
+		<button
+			class="field__changed"
+			onclick={restoreInitialValue}
+			title="Restore initial value"
+		>
+			<span class="visually-hidden">Restore initial value</span>
+		</button>
+	{/if}
 	{#if triggerable}
 		<FieldSection {key} visible={showTriggers} secondary>
 			<FieldTriggers
@@ -192,28 +214,45 @@
 		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
-	.field.changed:before {
-		content: '';
-
+	.field__changed {
 		position: absolute;
 		top: 0px;
 		left: 0px;
 		bottom: 0px;
 		z-index: 1;
 
-		width: 4px;
+		width: 13px;
 		/* height: 4px; */
 		/* border-radius: 2px; */
 
-		--stripes-offset: calc(var(--index) * 1.9px);
+		background: transparent;
+		cursor: pointer;
 
-		background: repeating-linear-gradient(
-			45deg,
-			var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
-			var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
-			transparent calc(2px + var(--stripes-offset)),
-			transparent calc(4px + var(--stripes-offset))
-		);
+		&:before {
+			content: '';
+
+			position: absolute;
+			top: 0;
+			left: 0;
+
+			display: block;
+			width: 4px;
+			height: 100%;
+
+			--stripes-offset: calc(var(--index) * 1.9px);
+
+			background: repeating-linear-gradient(
+				45deg,
+				var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
+				var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
+				transparent calc(2px + var(--stripes-offset)),
+				transparent calc(4px + var(--stripes-offset))
+			);
+		}
+
+		&:hover:before {
+			width: 7px;
+		}
 	}
 
 	:global(.field__input .field) {
@@ -229,6 +268,7 @@
 	.field__actions {
 		display: flex;
 		align-items: center;
+		gap: var(--column-gap);
 	}
 
 	.field__action {
