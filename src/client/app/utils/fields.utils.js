@@ -6,6 +6,7 @@ export const fieldTypes = {
 	VEC: 'vec',
 	CHECKBOX: 'checkbox',
 	TEXT: 'text',
+	TEXTAREA: 'textarea',
 	LIST: 'list',
 	COLOR: 'color',
 	BUTTON: 'button',
