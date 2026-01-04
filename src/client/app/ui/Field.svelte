@@ -4,6 +4,7 @@
 	import CheckboxInput from './fields/CheckboxInput.svelte';
 	import VectorInput from './fields/VectorInput.svelte';
 	import TextInput from './fields/TextInput.svelte';
+	import TextareaInput from './fields/TextareaInput.svelte';
 	import ColorInput from './fields/ColorInput.svelte';
 	import ListInput from './fields/ListInput.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
@@ -17,6 +18,7 @@
 		[`${fieldTypes.VEC}`]: VectorInput,
 		[`${fieldTypes.CHECKBOX}`]: CheckboxInput,
 		[`${fieldTypes.TEXT}`]: TextInput,
+		[`${fieldTypes.TEXTAREA}`]: TextareaInput,
 		[`${fieldTypes.LIST}`]: ListInput,
 		[`${fieldTypes.COLOR}`]: ColorInput,
 		[`${fieldTypes.BUTTON}`]: ButtonInput,

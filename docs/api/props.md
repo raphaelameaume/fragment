@@ -153,7 +153,7 @@ Set the group of the prop. Check out [Organizing props](/docs/guide/organizing-p
 
 ### `type`
 
-- Type: `"select" | "number" | "vec" | "checkbox" | "text" | "list" | "color" | "button" | "download" | "import" | "image" | "interval"`
+- Type: `"select" | "number" | "vec" | "checkbox" | "text" | "textarea" | "list" | "color" | "button" | "download" | "import" | "image" | "interval"`
 
 Forces the GUI control type, overriding automatic inference.
 
@@ -167,6 +167,7 @@ Fragment will automatically choose the correct control type based on `value` and
 | `number` | `{ min: number, max: number, step?: number }` | `<ProgressInput>` + `<NumberInput>` |
 | `number` | `{ options: number[] \| { label?: string, value: number }[] }` | `<SelectInput>`|
 | `string` | `{ label?: string }` | `<TextInput>`|
+| `string` | `{ type: "textarea", height?: string }` | `<TextareaInput>`|
 | `string` | `{ options: string[] \| { label?: string, value: string }[] }` | `<SelectInput>`|
 | `function` | `{ label?: string }` | `<ButtonInput>`|
 | `function` | `{ label?: string, type: "import", accept?: string }` | `<ImportInput>`|
