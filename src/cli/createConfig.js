@@ -9,6 +9,19 @@ import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
 
+/** @type import('../types/config.js').Config */
+export const DEFAULT_CONFIG = {
+	typescript: false,
+	base: undefined,
+	outDir: undefined,
+	emptyOutDir: true,
+	exportDir: undefined,
+	port: 3000,
+	open: false,
+	prompts: true,
+	vite: {},
+};
+
 /**
  *
  * @param {{ cwd: string, filepath: string | undefined }} params
@@ -43,7 +56,7 @@ export async function loadConfig({ cwd, filepath }) {
 
 		let configFile = path.relative(cwd, resolvedPath);
 
-		log.info(`Extending configuration from ${configFile}`);
+		log.info(`Loading configuration from ${configFile}`);
 
 		const config = (
 			await import(
@@ -51,7 +64,7 @@ export async function loadConfig({ cwd, filepath }) {
 			)
 		).default;
 
-		return config;
+		return Object.assign({}, DEFAULT_CONFIG, config);
 	} catch (error) {
 		log.error(error);
 		return {};
@@ -64,14 +77,14 @@ export async function loadConfig({ cwd, filepath }) {
  * @param {object} [options]
  * @param {boolean} [options.dev=false]
  * @param {boolean} [options.build=false]
- * @param {string} [configFilepath]
+ * @param {import('vite').UserConfig} [config]
  * @param {string} [cwd=process.cwd()]
  * @returns {import('vite').UserConfig}
  */
 export async function createConfig(
 	entries,
 	{ dev = false, build = false } = {},
-	configFilepath,
+	config = {},
 	cwd = process.cwd(),
 ) {
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
@@ -80,11 +93,6 @@ export async function createConfig(
 	const app = path.join(root, 'app');
 
 	log.info(`Creating Vite configuration...`);
-
-	const config = await loadConfig({
-		cwd,
-		filepath: configFilepath,
-	});
 
 	return mergeConfig(
 		defineConfig({
@@ -132,6 +140,6 @@ export async function createConfig(
 				include: ['convert-length', 'changedpi'],
 			},
 		}),
-		config.vite ?? {},
+		config,
 	);
 }

@@ -11,7 +11,7 @@
 - Multiple rendering modes: [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/), [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader)
 - Built-in GUI from sketch files
 - Export `<canvas>` to images (.png, .webm, .jpg) or videos (.mp4, .webm, .gif) on the fly
-- Hot shader reloading & [glslify](https://github.com/glslify/glslify) support
+- Hot shader reloading
 - Interactive sketches using _triggers_
 - Static build for production deployment
 - TypeScript support

@@ -1,16 +1,20 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { preview as vitePreview } from 'vite';
+import { loadConfig } from './createConfig.js';
 import { bold, cyan, log, magenta } from './log.js';
 import * as p from './prompts.js';
 
 /**
  * Preview a sketch
  * @param {string} dir
- * @param {object} [options]
- * @param {boolean} [options.open=false]
+ * @param {object} [options={}]
+ * @param {number} options.port
+ * @param {boolean} options.open
+ * @param {string} options.configFilepath
+ * @returns {Promise<void>}
  */
-export async function preview(dir, options = {}) {
+export async function preview(dir, { port, open, configFilepath } = {}) {
 	const cwd = process.cwd();
 	const prefix = log.prefix('preview');
 
@@ -25,13 +29,22 @@ export async function preview(dir, options = {}) {
 
 		log.message(`${magenta(outDir)}\n`, prefix);
 
+		const fragmentConfig = await loadConfig({
+			cwd,
+			filepath: configFilepath,
+		});
+
+		port = port ?? fragmentConfig.port;
+		open = open ?? fragmentConfig.open;
+
 		const previewServer = await vitePreview({
 			build: {
 				outDir,
 			},
 			preview: {
 				host: true,
-				open: options.open,
+				port,
+				open,
 			},
 		});
 

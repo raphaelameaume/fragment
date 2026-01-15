@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { mergeConfig, build as viteBuild } from 'vite';
-import { createConfig } from './createConfig.js';
+import { loadConfig, createConfig } from './createConfig.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta } from './log.js';
 import * as p from './prompts.js';
@@ -11,20 +11,19 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 /**
  * Build a sketch for production
  * @param {string} entry
- * @param {object} options
+ * @param {object} [options={}]
  * @param {string} options.base
  * @param {string} options.outDir
  * @param {boolean} options.emptyOutDir
  * @param {boolean} options.development
+ * @param {boolean} options.prompts
  * @param {string} options.configFilepath
- * @param {boolean} [options.prompts=true]
+ * @returns {Promise<void>}
  */
-export async function build(entry, options) {
+export async function build(entry, { base, outDir, emptyOutDir, development, prompts, configFilepath } = {}) {
 	const cwd = process.cwd();
 	const command = 'build';
 	const prefix = log.prefix(command);
-
-	const { prompts = true } = options;
 
 	try {
 		const entries = await getEntries(entry, cwd, command, prefix);
@@ -33,8 +32,14 @@ export async function build(entry, options) {
 
 		log.message(`${magenta(entry)}\n`, prefix);
 
-		let outDir =
-			options.outDir ?? entries[0].split(path.extname(entries[0]))[0];
+		const fragmentConfig = await loadConfig({
+			cwd,
+			filepath: configFilepath,
+		});
+
+		base = base ?? fragmentConfig.base;
+		outDir = outDir ?? fragmentConfig.outDir ?? entries[0].split(path.extname(entries[0]))[0];
+		emptyOutDir = emptyOutDir ?? fragmentConfig.emptyOutDir;
 
 		if (prompts) {
 			outDir = await p.text({
@@ -58,8 +63,6 @@ export async function build(entry, options) {
 
 		const files = await readdir(outDirPath);
 
-		let emptyOutDir = options.emptyOutDir ?? true;
-
 		if (files.length > 0) {
 			log.warn(`${outDirPath} is not an empty folder.\n`);
 
@@ -74,8 +77,6 @@ export async function build(entry, options) {
 				handleCancelledPrompt(emptyOutDir, prefix);
 			}
 		}
-
-		let base = options.base;
 
 		if (prompts) {
 			base = await p.text({
@@ -97,10 +98,10 @@ export async function build(entry, options) {
 			const config = await createConfig(
 				entries,
 				{
-					dev: options.development,
+					dev: development,
 					build: true,
 				},
-				options.configFilepath,
+				fragmentConfig.vite,
 				cwd,
 			);
 
@@ -120,7 +121,7 @@ export async function build(entry, options) {
 					base,
 					build: {
 						outDir: outDirPath,
-						emptyOutDir,
+						emptyOutDir: emptyOutDir,
 					},
 					plugins: [hotShaderReplacement({ cwd })],
 				}),
