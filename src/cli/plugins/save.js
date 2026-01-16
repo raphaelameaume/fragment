@@ -28,24 +28,18 @@ export default function screenshot({
 
 		if (inlineExportDir) {
 			if (!inlineExportDirPath) {
-				inlineExportDirPath = resolveDirectory(inlineExportDir);
+				inlineExportDirPath = resolveDirectory(inlineExportDir, '');
 			}
 
 			directory = inlineExportDirPath;
-
-			if (exportDir) {
-				log.warning(
-					`'exportDir' configuration from sketch has been overridden by --exportDir.`,
-				);
-			}
 		} else if (exportDir) {
 			directory = resolveDirectory(exportDir, dirname);
 		} else if (configExportDir) {
 			if (!configExportDirPath) {
-				configExportDirPath = resolveDirectory(configExportDir);
+				configExportDirPath = resolveDirectory(configExportDir, '');
 			}
 
-			directory = inlineExportDirPath;
+			directory = configExportDirPath;
 		} else {
 			directory = cwd;
 		}
