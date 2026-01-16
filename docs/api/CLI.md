@@ -42,16 +42,19 @@ fragment run [filename]
 
 | Flag |  Description |
 |---|---|
-|`--port, -p`| Specify the server port. (default: `3000`)(`number`) |
-|`--exportDir`| Override directory used for exports (default: `undefined`)(`string`)|
 |`--new, -n`| Redirect to create workflow (default: `false`)(`boolean`) |
 |`--template, -t`| Pre-populate template choice in create prompts (default: `2d`)(`string`)|
+|`--typescript`| Pre-populate TypeScript support choice in create prompts (default: `false`)(`boolean`)|
 |`--build, -b`| Redirect to build workflow (default: `false`)(`boolean`) |
-|`--outDir`| Pre-populate outDir in build prompts  (default: `[/[sketch-name]`)(`string`)|
-|`--emptyOutDir`| Pre-populate emptyOutDir in build prompts (default: `false`)(`boolean`)|
-|`--base`| Pre-populate base path in build prompts (default: `undefined`)(`string`) |
-|`--development`| Run Fragment in development mode (default: `false`)(`boolean`) |
+|`--development, -dev`| Run Fragment in development mode (default: `false`)(`boolean`) |
+|`--outDir`| Pre-populate out directory in build prompts (default: `[/[sketch-name]`)(`string`)|
+|`--emptyOutDir`| Pre-populate flag to empty outDir before static build in build prompts (default: `true`)(`boolean`)|
+|`--base`| Pre-populate base public path in build prompts (default: `undefined`)(`string`) |
 |`--prompts`| Toggle interactive prompts in build prompts (default: `true`)(`boolean`) |
+|`--port, -p`| Specify the server port. (default: `3000`)(`number`) |
+|`--open, -o`| Flag to open the application in the browser when the server starts. (default: `false`)(`boolean`) |
+|`--exportDir`| Override directory used for exports (default: `undefined`)(`string`)|
+|`--config`| Path to Fragment config file (default: `undefined`)(`string`) |
 
 ## Build
 
@@ -69,10 +72,10 @@ fragment build [filename]
 
 | Flag | Description |
 |---|---|
-|`--outDir`| Pre-populate out directory (default: `[/[sketch-name]`)(`string`)|
-|`--emptyOutDir`| Empty outDir before static build (default: `false`)(`boolean`)|
-|`--base`| Base public path when served in production (default: `undefined`)(`string`)|
 |`--development`| Run Fragment in development mode (default: `false`)(`boolean`)|
+|`--outDir`| Pre-populate out directory (default: `[/[sketch-name]`)(`string`)|
+|`--emptyOutDir`| Pre-populate flag to empty outDir before static build (default: `false`)(`boolean`)|
+|`--base`| Pre-populate base public path (default: `undefined`)(`string`)|
 |`--prompts`| Enable interactive prompts (default: `true`)(`boolean`)|
 
 ### `fragment preview`

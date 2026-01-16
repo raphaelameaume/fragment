@@ -12,15 +12,15 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * Build a sketch for production
  * @param {string} entry
  * @param {object} [options={}]
- * @param {string} options.base
+ * @param {boolean} options.development
  * @param {string} options.outDir
  * @param {boolean} options.emptyOutDir
- * @param {boolean} options.development
+ * @param {string} options.base
  * @param {boolean} options.prompts
  * @param {string} options.configFilepath
  * @returns {Promise<void>}
  */
-export async function build(entry, { base, outDir, emptyOutDir, development, prompts, configFilepath } = {}) {
+export async function build(entry, { development, outDir, emptyOutDir, base, prompts, configFilepath } = {}) {
 	const cwd = process.cwd();
 	const command = 'build';
 	const prefix = log.prefix(command);

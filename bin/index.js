@@ -18,19 +18,19 @@ const prog = sade('fragment');
 prog.version(`${version}`);
 
 prog.command('run [entry]', '', { default: true })
-	.describe('Run a dev environment for fragment')
-	.option('-n, --new', 'Create a new sketch', false)
-	.option('-t, --template', 'Specify template to create the file from', '2d')
-	.option('--typescript', 'Specify TypeScript support')
-	.option('-b, --build', 'Build sketch for production', false)
-	.option('--base', 'Base public path when served in production')
-	.option('--outDir', 'Build output directory')
-	.option('--emptyOutDir', 'Empty outDir before static build')
-	.option('--exportDir', 'Directory used for exports')
-	.option('-dev, --development', 'Enable development mode', false)
-	.option('-p, --port', 'Port to bind')
-	.option('-o, --open', 'Open in browser')
-	.option('--prompts', 'Enable interactive prompts')
+	.describe('Run an existing sketch')
+	.option('-n, --new', 'Redirect to create workflow', false)
+	.option('-t, --template', 'Pre-populate template choice in create prompts', '2d')
+	.option('--typescript', 'Pre-populate TypeScript support choice in create prompts')
+	.option('-b, --build', 'Redirect to build workflow', false)
+	.option('-dev, --development', 'Run Fragment in development mode', false)
+	.option('--outDir', 'Pre-populate outDir in build prompts')
+	.option('--emptyOutDir', 'Pre-populate emptyOutDir in build prompts')
+	.option('--base', 'Pre-populate base path in build prompts')
+	.option('--prompts', 'Toggle interactive prompts in build prompts')
+	.option('-p, --port', 'Specify the server port')
+	.option('-o, --open', 'Flag to open the application in the browser when the server starts')
+	.option('--exportDir', 'Override directory used for exports')
 	.option('--config', 'Path to Fragment config file')
 	.action((entry, options) => {
 		if (options.new) {
@@ -43,28 +43,28 @@ prog.command('run [entry]', '', { default: true })
 
 		if (options.build) {
 			return build(entry, {
-				base: options.base,
+				development: options.development,
 				outDir: options.outDir,
 				emptyOutDir: options.emptyOutDir,
-				development: options.development,
+				base: options.base,
 				prompts: options.prompts,
 				configFilepath: options.config,
 			});
 		}
 
 		run(entry, {
-			exportDir: options.exportDir,
 			development: options.development,
 			port: options.port,
 			open: options.open,
+			exportDir: options.exportDir,
 			configFilepath: options.config,
 		});
 	});
 
 prog.command('create [entry]')
 	.describe('Create a new sketch')
-	.option('-t, --template', 'Specify template to create the file from', '2d')
-	.option('--typescript', 'Specify TypeScript support')
+	.option('-t, --template', 'Pre-populate template choice', '2d')
+	.option('--typescript', 'Pre-populate TypeScript support choice')
 	.option('--config', 'Path to Fragment config file')
 	.action((entry = '', options) => {
 		create(entry, {
@@ -75,19 +75,19 @@ prog.command('create [entry]')
 	});
 
 prog.command('build [entry]')
-	.describe('Build a sketch')
-	.option('--base', 'Base public path')
-	.option('--outDir', 'Output folder')
-	.option('--emptyOutDir', 'Empty outDir before building for production')
+	.describe('Build a sketch into static files for production')
 	.option('-dev, --development', 'Enable development mode', false)
-	.option('--prompts', 'Enable interactive prompts')
+	.option('--outDir', 'Pre-populate out directory')
+	.option('--emptyOutDir', 'Pre-populate flag to empty outDir before static build')
+	.option('--base', 'Base public path when served in production')
+	.option('--prompts', 'Toggle interactive prompts')
 	.option('--config', 'Path to Fragment config file')
 	.action((entry, options) => {
 		build(entry, {
-			base: options.base,
+			development: options.development,
 			outDir: options.outDir,
 			emptyOutDir: options.emptyOutDir,
-			development: options.development,
+			base: options.base,
 			prompts: options.prompts,
 			configFilepath: options.config,
 		});
@@ -95,8 +95,8 @@ prog.command('build [entry]')
 
 prog.command('preview [directory]')
 	.describe('Preview a sketch')
-	.option('-p, --port', 'Port to bind')
-	.option('-o, --open', 'Open in browser')
+	.option('-p, --port', 'Specify the server port')
+	.option('-o, --open', 'Flag to open the application in the browser when the server starts')
 	.option('--config', 'Path to Fragment config file')
 	.action((dir, options) => {
 		preview(dir, {

@@ -22,56 +22,56 @@ fragment sketch.js --config custom/path/to/config.js
 - Type: `boolean`
 - Default: `false`
 
-Specify TypeScript support for new sketch creation.
-
-### base
-
-- Type: `string`
-- Default: `undefined`
-
-Base public path when served in production.
+Pre-populate TypeScript support choice in create prompts.
 
 ### outDir
 
 - Type: `string`
 - Default: `undefined`
 
-Build output directory.
+Pre-populate out directory in build prompts.
 
 ### emptyOutDir
 
 - Type: `boolean`
 - Default: `true`
 
-Empty outDir before static build.
+Pre-populate flag to empty outDir before static build in build prompts.
 
-### exportDir
+### base
 
 - Type: `string`
 - Default: `undefined`
 
-Directory used for exports.
-
-### port
-
-- Type: `number`
-- Default: `3000`
-
-Port to bind.
-
-### open
-
-- Type: `boolean`
-- Default: `false`
-
-Open in browser.
+Pre-populate base public path in build prompts.
 
 ### prompts
 
 - Type: `boolean`
 - Default: `true`
 
-Enable interactive prompts.
+Toggle interactive prompts in build prompts.
+
+### port
+
+- Type: `number`
+- Default: `3000`
+
+Specify the server port.
+
+### open
+
+- Type: `boolean`
+- Default: `false`
+
+Flag to open the application in the browser when the server starts.
+
+### exportDir
+
+- Type: `string`
+- Default: `undefined`
+
+Override directory used for exports.
 
 ### Extending Vite
 

@@ -19,14 +19,14 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * Run a sketch
  * @param {string} entry
  * @param {object} [options={}]
- * @param {number} options.exportDir
  * @param {boolean} options.development
+ * @param {number} options.exportDir
  * @param {number} options.port
  * @param {boolean} options.open
  * @param {string} options.configFilepath
  * @returns {Promise<void>}
  */
-export async function run(entry, { exportDir, development, port, open, configFilepath } = {}) {
+export async function run(entry, { development, exportDir, port, open, configFilepath } = {}) {
 	let fragmentServer;
 	/** @type {import('node:fs').FSWatcher} */
 	let watcher;

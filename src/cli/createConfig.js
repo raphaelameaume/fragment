@@ -12,13 +12,13 @@ import sketches from './plugins/sketches.js';
 /** @type import('../types/config.js').Config */
 export const DEFAULT_CONFIG = {
 	typescript: false,
-	base: undefined,
 	outDir: undefined,
 	emptyOutDir: true,
+	base: undefined,
+	prompts: true,
 	exportDir: undefined,
 	port: 3000,
 	open: false,
-	prompts: true,
 	vite: {},
 };
 
