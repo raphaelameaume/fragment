@@ -101,7 +101,7 @@
 		}}
 	/>
 {/if}
-<!-- {#if rendering.resizing === SIZES.PRESET}
+{#if rendering.resizing === SIZES.PRESET}
 	<Field key="preset">
 		<FieldInputRow --grid-template-columns="1fr 1fr">
 			<Select
@@ -123,18 +123,20 @@
 			/>
 		</FieldInputRow>
 	</Field>
-{/if} -->
-
+{/if}
 {#if rendering.resizing !== SIZES.PRESET}
 	<Field
 		key="pixelRatio"
 		value={Number(rendering.pixelRatio)}
-		onchange={(pixelRatio) => (rendering.pixelRatio = pixelRatio)}
+		onchange={(pixelRatio) => {
+			rendering.pixelRatio = pixelRatio;
+		}}
 		params={{
 			step: 0.1,
 		}}
 	/>
 {/if}
+
 <!-- {#if $sketchesCount > 1 && $monitors.length > 1}
 	<ParamsMultisampling />
 {/if} -->
