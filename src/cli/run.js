@@ -77,7 +77,6 @@ export async function run(entry, { exportDir, development, port, open, configFil
 			filepath: configFilepath,
 		});
 
-		exportDir = exportDir ?? fragmentConfig.exportDir;
 		port = port ?? fragmentConfig.port;
 		open = open ?? fragmentConfig.open;
 
@@ -121,7 +120,7 @@ export async function run(entry, { exportDir, development, port, open, configFil
 				plugins: [
 					hotSketchReload({ cwd, }),
 					hotShaderReplacement({ cwd, wss: fragmentServer }),
-					save({ cwd, inlineExportDir: exportDir }),
+					save({ cwd, inlineExportDir: exportDir, configExportDir: fragmentConfig.exportDir }),
 				],
 			}),
 		);
