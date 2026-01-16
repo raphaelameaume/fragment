@@ -1,3 +1,5 @@
+let resolution = { x: 0, y: 0 };
+
 export const props = {};
 
 /**
@@ -24,8 +26,11 @@ export const init = ({ canvas, context, width, height }) => {};
  * @param {number} params.playcount
  */
 export const update = ({ context, width, height, pixelRatio }) => {
+	const w = width * pixelRatio;
+	const h = height * pixelRatio;
+
 	context.fillStyle = 'rgb(0, 255, 0)';
-	context.fillRect(0, 0, width * pixelRatio, height * pixelRatio);
+	context.fillRect(0, 0, w, h);
 };
 
 /**
@@ -35,6 +40,9 @@ export const update = ({ context, width, height, pixelRatio }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export const resize = ({ width, height }) => {};
+export const resize = ({ width, height, pixelRatio }) => {
+	resolution.x = width * pixelRatio;
+	resolution.y = height * pixelRatio;
+};
 
 export const rendering = '2d';

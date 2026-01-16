@@ -4,6 +4,8 @@ import * as THREE from 'three';
 let scene;
 /** @type {THREE.OrthographicCamera} */
 let camera;
+/** @type {THREE.Vector2} */
+let resolution = new THREE.Vector2();
 
 /**
  * @param {object} params
@@ -49,7 +51,10 @@ export const update = ({ renderer, time, deltaTime }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export const resize = ({ width, height }) => {
+export const resize = ({ width, height, pixelRatio }) => {
+	resolution.x = width * pixelRatio;
+	resolution.y = height * pixelRatio;
+
 	camera.left = -width * 0.5;
 	camera.right = width * 0.5;
 	camera.top = height * 0.5;

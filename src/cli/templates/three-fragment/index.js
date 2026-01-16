@@ -6,9 +6,11 @@ import fragmentShader from './fragment.fs';
 let scene;
 /** @type {THREE.OrthographicCamera} */
 let camera;
+/** @type {THREE.Vector2} */
+let resolution = new THREE.Vector2();
 
 let uniforms = {
-	uResolution: { value: new THREE.Vector2() },
+	uResolution: { value: resolution },
 	uTime: { value: 0 },
 };
 
@@ -87,8 +89,8 @@ export const update = ({ renderer, time, deltaTime }) => {
  * @param {number} params.pixelRatio
  */
 export const resize = ({ width, height, pixelRatio }) => {
-	uniforms.uResolution.value.x = width * pixelRatio;
-	uniforms.uResolution.value.y = height * pixelRatio;
+	resolution.x = width * pixelRatio;
+	resolution.y = height * pixelRatio;
 
 	camera.left = -width * 0.5;
 	camera.right = width * 0.5;

@@ -11,8 +11,11 @@ export const update: Update<'2d'> = ({
 	height,
 	pixelRatio,
 }) => {
+	const w = width * pixelRatio;
+	const h = height * pixelRatio;
+
 	context.fillStyle = 'rgb(0, 255, 0)';
-	context.fillRect(0, 0, width * pixelRatio, height * pixelRatio);
+	context.fillRect(0, 0, w, h);
 };
 
 export const resize: Resize<'2d'> = ({}) => {};

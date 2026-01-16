@@ -4,6 +4,7 @@ import { Init, Rendering, Resize, Update } from '@fragment/types';
 
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
+let resolution = new THREE.Vector2();
 
 export const init: Init<'three'> = ({}) => {
 	scene = new THREE.Scene();
@@ -18,7 +19,10 @@ export const update: Update<'three'> = ({ renderer }) => {
 	renderer.render(scene, camera);
 };
 
-export const resize: Resize<'three'> = ({ width, height }) => {
+export const resize: Resize<'three'> = ({ width, height, pixelRatio }) => {
+	resolution.x = width * pixelRatio;
+	resolution.y = height * pixelRatio;
+
 	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
 };
