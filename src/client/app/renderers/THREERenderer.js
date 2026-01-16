@@ -32,7 +32,7 @@ let previews = [];
  * @returns {MountParamsThreeRenderer}
  */
 export let onMountPreview = ({ id, canvas }) => {
-	let renderer = new WebGLRenderer({ antialias: true, canvas });
+	let renderer = new WebGLRenderer({ antialias: true });
 
 	const render = renderer.render;
 
