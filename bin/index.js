@@ -94,7 +94,7 @@ prog.command('build [entry]')
 	});
 
 prog.command('preview [directory]')
-	.describe('Preview a sketch')
+	.describe('Start a local server to preview a sketch built locally with `fragment build`')
 	.option('-p, --port', 'Specify the server port')
 	.option('-o, --open', 'Flag to open the application in the browser when the server starts')
 	.option('--config', 'Path to Fragment config file')
