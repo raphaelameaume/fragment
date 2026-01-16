@@ -14,7 +14,7 @@ import { clearError } from '../state/errors.svelte';
  * @typedef {object} PreviewThreeRenderer
  * @property {number} id
  * @property {THREE.Scene} scene
- * @property {THREE.renderer} renderer
+ * @property {THREE.WebGLrenderer} renderer
  * @property {rendered} boolean
  */
 
@@ -125,6 +125,7 @@ export let onDestroyPreview = ({ id }) => {
 		const { renderer } = preview;
 		clearError(renderer.getContext().__uuid);
 		renderer.dispose();
+		renderer.forceContextLoss();
 		previews.splice(previewIndex, 1);
 	}
 };
