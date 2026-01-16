@@ -2,6 +2,7 @@ type BaseProp<Value, Params, Type> = {
 	value: Value;
 	params?: Params;
 	type?: Type;
+	disabled?: boolean;
 	hidden?: boolean;
 	displayName?: string | null;
 	folder?: string;
