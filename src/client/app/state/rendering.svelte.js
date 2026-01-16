@@ -94,6 +94,10 @@ class Rendering {
 		this.estimateRefreshRate();
 	}
 
+	/**
+	 *
+	 * @param {string} renderingMode
+	 */
 	loadRenderer(renderingMode) {
 		if (__THREE_RENDERER__ && renderingMode === 'three') {
 			return import('../renderers/THREERenderer.js');
@@ -321,7 +325,8 @@ export class Render {
 		this.time = 0;
 		this.recording = false;
 
-		let resizeTimeout;
+		/** @type {number|null} */
+		let resizeTimeout = null;
 
 		$effect.pre(() => {
 			const { width, height, pixelRatio } = rendering;
@@ -330,7 +335,10 @@ export class Render {
 				if (resizeTimeout) clearTimeout(resizeTimeout);
 
 				resizeTimeout = setTimeout(() => {
-					clearTimeout(resizeTimeout);
+					if (resizeTimeout) {
+						clearTimeout(resizeTimeout);
+					}
+
 					resizeTimeout = null;
 
 					this.resize(width, height, pixelRatio);
@@ -399,6 +407,7 @@ export class Render {
 		this.then = performance.now();
 
 		this.playhead = 0;
+		this.playheadLast = 0;
 		this.playcount = 0;
 		this.frame = 0;
 
@@ -443,24 +452,23 @@ export class Render {
 				return;
 			}
 
-			let playhead = time / 1000 / duration;
-			playhead %= 1;
-			let playcount = 0;
+			let totalPlayhead = time / 1000 / duration;
+			let playhead = fps === 0 ? 0 : totalPlayhead % 1;
+
+			if (playhead < this.playheadLast) {
+				this.playcount++;
+			}
+			this.playheadLast = playhead;
+
 			if (isFinite(interval)) {
 				// round values for low framerates
 				playhead = Math.floor(playhead / interval) * interval;
 			}
-			if (isFinite(duration)) {
-				playcount = Math.floor(this.timeTotal / 1000 / duration);
-			}
-			if (fps === 0) {
-				playhead = 0;
-			}
+
 			const now = performance.now();
 			const deltaTime = now - this.thenLoop;
 
 			this.playhead = playhead;
-			this.playcount = playcount;
 			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 			if (
 				this.elapsed === 0 ||
@@ -499,6 +507,9 @@ export class Render {
 
 				this.raf = requestAnimationFrame(() => {
 					this.time = new Date().getTime() - rendering.today;
+					this.initialTime = this.time;
+					this.playheadLast = 0;
+					this.playcount = 0;
 					this.then = this.time;
 					this.thenLoop = performance.now();
 					this.update(this.time);
@@ -522,6 +533,14 @@ export class Render {
 		});
 	}
 
+	/**
+	 *
+	 * @param {Object} params
+	 * @param {HTMLElement} params.container
+	 * @param {HTMLCanvasElement} [params.canvas]
+	 * @param {string} params.context
+	 * @returns
+	 */
 	createCanvas({
 		container,
 		canvas = document.createElement('canvas'),
@@ -543,6 +562,10 @@ export class Render {
 		return canvas;
 	}
 
+	/**
+	 *
+	 * @param {HTMLCanvasElement} canvas
+	 */
 	destroyCanvas(canvas) {
 		if (canvas) {
 			this.observer.disconnect();
@@ -551,7 +574,6 @@ export class Render {
 			canvas.onmousemove = null;
 			canvas.onmouseup = null;
 			canvas.onclick = null;
-			canvas = null;
 		}
 	}
 
@@ -616,6 +638,8 @@ export class Render {
 			onStart: (params) => {
 				this.time = 0;
 				this.elapsed = 0;
+				this.playcount = 0;
+				this.playheadLast = 0;
 				this.thenLoop = performance.now();
 
 				sketch.beforeRecord.forEach((fn) => fn(params));
@@ -686,6 +710,10 @@ export class Render {
 		}
 	}
 
+	/**
+	 *
+	 * @param {number} time
+	 */
 	update(time) {
 		if (!this.paused) {
 			const deltaTime = time - this.then;
@@ -705,6 +733,8 @@ export class Render {
 	invalidate() {
 		this.time = 0;
 		this.elapsed = 0;
+		this.playcount = 0;
+		this.playheadLast = 0;
 	}
 
 	dispose() {
