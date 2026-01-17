@@ -23,7 +23,10 @@ type SelectProp = BaseProp<
 >;
 type NumberProp = BaseProp<
 	number,
-	{ disabled?: boolean; step?: number } | { min: number; max: number },
+	(
+		| { min?: never; max?: never }
+		| { min: number; max: number }
+	) & { step?: number; suffix?: string },
 	'number'
 >;
 
@@ -56,12 +59,12 @@ type VecParams<V extends VecValue> = V extends readonly number[]
 
 type VecProp<V extends VecValue = VecValue> = BaseProp<
 	V,
-	{ locked?: boolean } | VecParams<V>,
+	{ locked?: boolean; suffix?: string } & VecParams<V>,
 	'vec'
 >;
 type CheckboxProp = BaseProp<boolean, never, 'checkbox'>;
-type TextProp = BaseProp<string, { disabled?: boolean }, 'text'>;
-type ListProp = BaseProp<any[], { disabled?: boolean }, 'list'>;
+type TextProp = BaseProp<string, never, 'text'>;
+type ListProp = BaseProp<any[], never, 'list'>;
 type ColorProp = BaseProp<
 	string | THREE.Color | { r: number; g: number; b: string; a?: number },
 	never,
@@ -69,7 +72,7 @@ type ColorProp = BaseProp<
 >;
 type ButtonProp = BaseProp<
 	() => void,
-	{ disabled?: boolean; label?: string },
+	{ label?: string },
 	'button' | 'download'
 >;
 type ImageProp = BaseProp<string, never, 'image'>;

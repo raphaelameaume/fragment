@@ -163,7 +163,7 @@ Fragment will automatically choose the correct control type based on `value` and
 
 | value type | params | control |
 |---|---|---|
-| `number` | `{ step?: number }` | `<NumberInput>` |
+| `number` | `{ step?: number; suffix?: string }` | `<NumberInput>` |
 | `number` | `{ min: number, max: number, step?: number }` | `<ProgressInput>` + `<NumberInput>` |
 | `number` | `{ options: number[] \| { label?: string, value: number }[] }` | `<SelectInput>`|
 | `string` | `{ label?: string }` | `<TextInput>`|
@@ -171,7 +171,7 @@ Fragment will automatically choose the correct control type based on `value` and
 | `string` | `{ options: string[] \| { label?: string, value: string }[] }` | `<SelectInput>`|
 | `function` | `{ label?: string }` | `<ButtonInput>`|
 | `function` | `{ label?: string, type: "import", accept?: string }` | `<ImportInput>`|
-| `number[]` | `{ locked?: boolean }` | `<VectorInput>`|
+| `number[]` | `{ locked?: boolean; suffix?: string }` | `<VectorInput>`|
 | `number[2]` | `{ min: number, max: number, step?: number }` | `<IntervalInput>`|
 | `boolean` | `none` | `<CheckboxInput>`|
 | `{ x: number, y: number, z?: number, w?: number }` | `{ min: { x: number, y: number, z?: number, w?: number }, max: { x: number, y: number, z?: number, w?: number }, step?: { x: number, y: number, z?: number, w?: number } }` | `<VectorInput>`|
