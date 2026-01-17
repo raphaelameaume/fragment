@@ -102,7 +102,7 @@
 	/>
 {/if}
 {#if rendering.resizing === SIZES.PRESET}
-	<Field key="preset">
+	<Field key="preset" type="wrapper" value={`${rendering.preset}-${rendering.presetOrientation}`}>
 		<FieldInputRow --grid-template-columns="1fr 1fr">
 			<Select
 				value={rendering.preset}

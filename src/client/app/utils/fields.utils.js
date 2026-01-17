@@ -14,6 +14,7 @@ export const fieldTypes = {
 	IMPORT: 'import',
 	IMAGE: 'image',
 	INTERVAL: 'interval',
+	WRAPPER: 'wrapper',
 };
 
 /** @type string[] */
