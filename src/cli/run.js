@@ -77,8 +77,8 @@ export async function run(entry, { development, exportDir, port, open, configFil
 			filepath: configFilepath,
 		});
 
-		port = port ?? fragmentConfig.port;
-		open = open ?? fragmentConfig.open;
+		port = port ?? fragmentConfig.server?.port;
+		open = open ?? fragmentConfig.server?.open;
 
 		const hasTSFiles = entries.some((entry) => entry.endsWith('ts'));
 		const tsConfigDirpath = path.join(cwd, FRAGMENT_DIRECTORY);

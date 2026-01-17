@@ -37,9 +37,10 @@ export async function build(entry, { development, outDir, emptyOutDir, base, pro
 			filepath: configFilepath,
 		});
 
-		base = base ?? fragmentConfig.base;
-		outDir = outDir ?? fragmentConfig.outDir ?? entries[0].split(path.extname(entries[0]))[0];
-		emptyOutDir = emptyOutDir ?? fragmentConfig.emptyOutDir;
+		outDir = outDir ?? fragmentConfig.build?.outDir ?? entries[0].split(path.extname(entries[0]))[0];
+		emptyOutDir = emptyOutDir ?? fragmentConfig.build?.emptyOutDir;
+		base = base ?? fragmentConfig.build?.base;
+		prompts = prompts ?? fragmentConfig.build?.prompts;
 
 		if (prompts) {
 			outDir = await p.text({

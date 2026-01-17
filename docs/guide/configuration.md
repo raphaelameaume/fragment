@@ -24,48 +24,6 @@ fragment sketch.js --config custom/path/to/config.js
 
 Pre-populate TypeScript support choice in create prompts.
 
-### outDir
-
-- Type: `string`
-- Default: `undefined`
-
-Pre-populate out directory in build prompts.
-
-### emptyOutDir
-
-- Type: `boolean`
-- Default: `true`
-
-Pre-populate flag to empty outDir before static build in build prompts.
-
-### base
-
-- Type: `string`
-- Default: `undefined`
-
-Pre-populate base public path in build prompts.
-
-### prompts
-
-- Type: `boolean`
-- Default: `true`
-
-Toggle interactive prompts in build prompts.
-
-### port
-
-- Type: `number`
-- Default: `3000`
-
-Specify the server port.
-
-### open
-
-- Type: `boolean`
-- Default: `false`
-
-Flag to open the application in the browser when the server starts.
-
 ### exportDir
 
 - Type: `string`
@@ -73,7 +31,63 @@ Flag to open the application in the browser when the server starts.
 
 Override directory used for exports.
 
-### Extending Vite
+### server.port
+
+- Type: `number`
+- Default: `3000`
+
+Specify the server port.
+
+### server.open
+
+- Type: `boolean`
+- Default: `false`
+
+Flag to open the application in the browser when the server starts.
+
+### build.outDir
+
+- Type: `string`
+- Default: `undefined`
+
+Pre-populate out directory in build prompts.
+
+### build.emptyOutDir
+
+- Type: `boolean`
+- Default: `true`
+
+Pre-populate flag to empty outDir before static build in build prompts.
+
+### build.base
+
+- Type: `string`
+- Default: `undefined`
+
+Pre-populate base public path in build prompts.
+
+### build.prompts
+
+- Type: `boolean`
+- Default: `true`
+
+Toggle interactive prompts in build prompts.
+
+### preview.port
+
+- Type: `number`
+- Default: `3000`
+
+Specify the preview server port.
+
+### preview.open
+
+- Type: `boolean`
+- Default: `false`
+
+Flag to open the application in the browser when the preview server starts.
+
+### vite
 
 Vite's configuration can be extended by adding Vite options under the `vite` property in the config file.
 
