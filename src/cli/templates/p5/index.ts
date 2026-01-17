@@ -1,6 +1,6 @@
 import p5 from 'p5';
 
-import { Init, Rendering, Update } from '@fragment/types';
+import type { Init, Rendering, Update } from '@fragment/types';
 import { defineProps } from '@fragment/types/utils';
 
 export const props = defineProps({});

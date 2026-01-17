@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { Init, Rendering, Resize, Update } from '@fragment/types';
+import type { Init, Rendering, Resize, Update } from '@fragment/types';
 
 let scene: THREE.Scene;
 let camera: THREE.OrthographicCamera;
