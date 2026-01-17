@@ -72,7 +72,7 @@ export async function loadConfig({ cwd, filepath }) {
 			)
 		).default;
 
-		return Object.assign({}, DEFAULT_CONFIG, config);
+		return mergeConfig(DEFAULT_CONFIG, config, false);
 	} catch (error) {
 		log.error(error);
 		return {};
