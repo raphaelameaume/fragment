@@ -1,6 +1,6 @@
 import p5, { type Shader } from 'p5';
 
-import { Init, Rendering, Update } from '@fragment/types';
+import type { Init, Rendering, Update } from '@fragment/types';
 import { defineProps } from '@fragment/types/utils';
 
 import fragmentShader from './fragment.fs';
