@@ -2,13 +2,13 @@
 	let {
 		key,
 		visible = true,
-		secondary,
-		interactive,
+		secondary = false,
+		interactive = false,
 		displayName = undefined,
 		disabled = false,
 		children,
-		infos,
-		onclick,
+		infos = undefined,
+		onclick = () => {},
 	} = $props();
 </script>
 
