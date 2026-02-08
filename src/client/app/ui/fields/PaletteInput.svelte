@@ -59,7 +59,8 @@
 		palette.push('#ffffff');
 
 		onchange(palette);
-		selected = -1;
+
+		selected = palette.length - 1;
 	}
 
 	function handleClickDelete() {
@@ -97,11 +98,11 @@
 			{/if}
 		{/each}
 	</div>
-	{#if value[selected]}
+	{#if value[selected] && editable}
 		<div class="palette-editor">
 			<ColorInput value={value[selected]} onchange={handleColorChange} />
 		</div>
-		{#if editable && extensible}
+		{#if extensible}
 			<div class="palette-delete">
 				<ButtonInput label="delete" onclick={handleClickDelete} />
 			</div>
