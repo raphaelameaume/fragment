@@ -22,9 +22,8 @@
 		});
 	});
 
-	$inspect(hexValues);
-
 	$effect(() => {
+		// handle value length changes when a color is selected
 		if (selected >= hexValues.length) {
 			selected = hexValues.length - 1;
 		}
@@ -44,6 +43,10 @@
 		}
 	}
 
+	/**
+	 *
+	 * @param {string} color
+	 */
 	function handleColorChange(color) {
 		let palette = value.map((v) => v);
 		palette[selected] = color;
@@ -51,7 +54,7 @@
 		onchange(palette);
 	}
 
-	function handleClickAdd(event) {
+	function handleClickAdd() {
 		let palette = value.map((v) => v);
 		palette.push('#ffffff');
 
@@ -59,7 +62,7 @@
 		selected = -1;
 	}
 
-	function handleClickDelete(event) {
+	function handleClickDelete() {
 		let index = selected;
 		let palette = value.map((v) => v);
 		palette.splice(index, 1);
