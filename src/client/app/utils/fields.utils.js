@@ -14,6 +14,7 @@ export const fieldTypes = {
 	IMPORT: 'import',
 	IMAGE: 'image',
 	INTERVAL: 'interval',
+	PALETTE: 'palette',
 };
 
 /** @type string[] */
@@ -82,6 +83,8 @@ export function inferFieldType({ type, value, params, key }) {
 			typeof params.max === 'number'
 		) {
 			return fieldTypes.INTERVAL;
+		} else if (isArray && values.every((v) => isColor(v))) {
+			return fieldTypes.PALETTE;
 		} else if (isColor(value)) {
 			return fieldTypes.COLOR;
 		} else if (typeof value === 'number') {
