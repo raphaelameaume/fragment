@@ -167,11 +167,25 @@ Fragment will automatically choose the correct control type based on `value` and
 | `number` | `{ min: number, max: number, step?: number }` | `<ProgressInput>` + `<NumberInput>` |
 | `number` | `{ options: number[] \| { label?: string, value: number }[] }` | `<SelectInput>`|
 | `string` | `{ label?: string }` | `<TextInput>`|
-| `string` | `{ type: "textarea", height?: string }` | `<TextareaInput>`|
+| `string` | `{ height?: string }` | `<TextareaInput>` (with `type: "textarea"`)|
+| `string` | — | `<ImageInput>` (with `type: "image"`)|
 | `string` | `{ options: string[] \| { label?: string, value: string }[] }` | `<SelectInput>`|
 | `function` | `{ label?: string }` | `<ButtonInput>`|
-| `function` | `{ label?: string, type: "import", accept?: string }` | `<ImportInput>`|
+| `() => [content: any, filename: string]` | `{ label?: string }` | `<DownloadInput>` (with `type: "download"`)|
+| `(event: ProgressEvent) => void` | `{ label?: string, accept?: string }` | `<ImportInput>` (with `type: "import"`)|
 | `number[]` | `{ locked?: boolean; suffix?: string }` | `<VectorInput>`|
 | `number[2]` | `{ min: number, max: number, step?: number }` | `<IntervalInput>`|
-| `boolean` | `none` | `<CheckboxInput>`|
+| `boolean` | — | `<CheckboxInput>`|
 | `{ x: number, y: number, z?: number, w?: number }` | `{ min: { x: number, y: number, z?: number, w?: number }, max: { x: number, y: number, z?: number, w?: number }, step?: { x: number, y: number, z?: number, w?: number } }` | `<VectorInput>`|
+| `ColorRepresentation: string \| THREE.Color \| { r, g, b, a? }` | — | `<ColorInput>`|
+| `ColorRepresentation[]` | `{ extensible?: boolean; editable?: boolean }` | `<PaletteInput>`|
+| `any[]` | — | `<ListInput>`|
+
+Some controls require an explicit `type` field (as a property alongside `value` and `params`) because automatic inference is ambiguous. For example:
+```js
+imageURL: {
+  value: "https://...",  // inferred as string
+  type: "image"          // override to use ImageInput
+}
+```
+Without the `type` override, a `string` defaults to `<TextInput>`, and a `function` defaults to `<ButtonInput>`. Use `type: "image"`, `type: "textarea"`, `type: "download"`, or `type: "import"` to specify other controls.
