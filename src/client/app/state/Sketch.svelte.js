@@ -243,7 +243,13 @@ class Sketch {
 
 		if (instanceProp) {
 			if (!deepEqual(instanceProp.value, newValue)) {
-				if (isObject(instanceProp.value) && isObject(newValue)) {
+				if (
+					Array.isArray(instanceProp.value) &&
+					Array.isArray(newValue)
+				) {
+					instanceProp.value.length = 0;
+					instanceProp.value.push(...newValue);
+				} else if (isObject(instanceProp.value) && isObject(newValue)) {
 					deepAssign(instanceProp.value, newValue);
 				} else {
 					instanceProp.value = newValue;
@@ -481,7 +487,7 @@ class Sketch {
 		fieldgroups.forEach((fieldgroup) => {
 			const hasAllFieldsHidden = fieldgroup.children
 				.filter((child) => child.type === 'field')
-				.every((child) => this.props[child.key].__hidden());
+				.every((child) => this.props[child.key]?.__hidden());
 			const hasAllFieldgroupsHidden = fieldgroup.children
 				.filter((child) => child.type === 'fieldgroup')
 				.every((child) => child.hidden);

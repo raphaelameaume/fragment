@@ -10,6 +10,7 @@
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import ImageInput from './fields/ImageInput.svelte';
 	import IntervalInput from './fields/IntervalInput.svelte';
+	import PaletteInput from './fields/PaletteInput.svelte';
 	import { fieldTypes } from '../utils/fields.utils.js';
 
 	const fields = {
@@ -21,6 +22,7 @@
 		[`${fieldTypes.TEXTAREA}`]: TextareaInput,
 		[`${fieldTypes.LIST}`]: ListInput,
 		[`${fieldTypes.COLOR}`]: ColorInput,
+		[`${fieldTypes.PALETTE}`]: PaletteInput,
 		[`${fieldTypes.BUTTON}`]: ButtonInput,
 		[`${fieldTypes.DOWNLOAD}`]: ButtonInput,
 		[`${fieldTypes.IMPORT}`]: ImportInput,
