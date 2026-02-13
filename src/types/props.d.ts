@@ -23,10 +23,10 @@ type SelectProp = BaseProp<
 >;
 type NumberProp = BaseProp<
 	number,
-	(
-		| { min?: never; max?: never }
-		| { min: number; max: number }
-	) & { step?: number; suffix?: string },
+	({ min?: never; max?: never } | { min: number; max: number }) & {
+		step?: number;
+		suffix?: string;
+	},
 	'number'
 >;
 
@@ -63,17 +63,29 @@ type VecProp<V extends VecValue = VecValue> = BaseProp<
 	'vec'
 >;
 type CheckboxProp = BaseProp<boolean, never, 'checkbox'>;
-type TextProp = BaseProp<string, never, 'text'>;
+type TextProp = BaseProp<string, { label?: string }, 'text'>;
+type TextareaProp = BaseProp<string, { height?: string }, 'textarea'>;
 type ListProp = BaseProp<any[], never, 'list'>;
-type ColorProp = BaseProp<
-	string | THREE.Color | { r: number; g: number; b: string; a?: number },
-	never,
-	'color'
+type ColorRepresentation =
+	| string
+	| THREE.Color
+	| { r: number; g: number; b: string; a?: number };
+type ColorProp = BaseProp<ColorRepresentation, never, 'color'>;
+type PaletteProp = BaseProp<
+	ColorRepresentation[],
+	{ extensible?: boolean; editable?: boolean },
+	'palette'
 >;
-type ButtonProp = BaseProp<
-	() => void,
+type ButtonProp = BaseProp<() => void, { label?: string }, 'button'>;
+type ImportProp = BaseProp<
+	(event: ProgressEvent) => void,
+	{ label?: string; accept?: string },
+	'import'
+>;
+type DownloadProp = BaseProp<
+	() => [any, string],
 	{ label?: string },
-	'button' | 'download'
+	'download'
 >;
 type ImageProp = BaseProp<string, never, 'image'>;
 
@@ -84,8 +96,12 @@ type Prop =
 	| VecProp<VecArray>
 	| CheckboxProp
 	| TextProp
+	| TextareaProp
 	| ListProp
 	| ColorProp
+	| PaletteProp
+	| ImportProp
+	| DownloadProp
 	| ButtonProp
 	| ImageProp;
 
