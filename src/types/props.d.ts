@@ -11,13 +11,14 @@ type BaseProp<Value, Params, Type> = {
 };
 
 type SelectProp = BaseProp<
-	number | string,
+	number | string | undefined,
 	{
 		options?:
 			| number[]
 			| string[]
+			| undefined[]
 			| Array<{ label?: string; value: number }>
-			| Array<{ label?: string; value: string }>;
+			| Array<{ label?: string; value: string | undefined }>;
 	},
 	'select'
 >;
