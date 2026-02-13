@@ -28,6 +28,7 @@
 		[`${fieldTypes.IMPORT}`]: ImportInput,
 		[`${fieldTypes.IMAGE}`]: ImageInput,
 		[`${fieldTypes.INTERVAL}`]: IntervalInput,
+		[`${fieldTypes.WRAPPER}`]: null,
 	};
 </script>
 
