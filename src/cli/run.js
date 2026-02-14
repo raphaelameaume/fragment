@@ -20,13 +20,16 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * @param {string} entry
  * @param {object} [options={}]
  * @param {boolean} options.development
- * @param {number} options.exportDir
  * @param {number} options.port
  * @param {boolean} options.open
+ * @param {number} options.exportDir
  * @param {string} options.configFilepath
  * @returns {Promise<void>}
  */
-export async function run(entry, { development, exportDir, port, open, configFilepath } = {}) {
+export async function run(
+	entry,
+	{ development, port, open, exportDir, configFilepath } = {},
+) {
 	let fragmentServer;
 	/** @type {import('node:fs').FSWatcher} */
 	let watcher;
@@ -77,8 +80,8 @@ export async function run(entry, { development, exportDir, port, open, configFil
 			filepath: configFilepath,
 		});
 
-		port = port ?? fragmentConfig.server?.port;
-		open = open ?? fragmentConfig.server?.open;
+		port = port ?? fragmentConfig.port;
+		open = open ?? fragmentConfig.open;
 
 		const hasTSFiles = entries.some((entry) => entry.endsWith('ts'));
 		const tsConfigDirpath = path.join(cwd, FRAGMENT_DIRECTORY);
@@ -118,9 +121,13 @@ export async function run(entry, { development, exportDir, port, open, configFil
 					__FRAGMENT_PORT__: fragmentServer.port,
 				},
 				plugins: [
-					hotSketchReload({ cwd, }),
+					hotSketchReload({ cwd }),
 					hotShaderReplacement({ cwd, wss: fragmentServer }),
-					save({ cwd, inlineExportDir: exportDir, configExportDir: fragmentConfig.exportDir }),
+					save({
+						cwd,
+						inlineExportDir: exportDir,
+						configExportDir: fragmentConfig.exportDir,
+					}),
 				],
 			}),
 		);

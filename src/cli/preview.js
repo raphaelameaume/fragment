@@ -34,8 +34,8 @@ export async function preview(dir, { port, open, configFilepath } = {}) {
 			filepath: configFilepath,
 		});
 
-		port = port ?? fragmentConfig.preview?.port ?? fragmentConfig.server?.port;
-		open = open ?? fragmentConfig.preview?.open ?? fragmentConfig.server?.open;
+		port = port ?? fragmentConfig.preview?.port ?? fragmentConfig.port;
+		open = open ?? fragmentConfig.preview?.open ?? fragmentConfig.open;
 
 		const previewServer = await vitePreview({
 			build: {

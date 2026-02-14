@@ -1,11 +1,22 @@
 import type { UserConfig } from 'vite';
 
+export type TemplateName =
+	| 'blank'
+	| 'default'
+	| 'fragment-gl'
+	| 'p5'
+	| 'p5-gl'
+	| 'three-fragment'
+	| 'three-orthographic'
+	| 'three-perspective';
+
 export interface Config {
-	typescript?: boolean;
+	port?: number;
+	open?: boolean;
 	exportDir?: string;
-	server?: {
-		port?: number;
-		open?: boolean;
+	create?: {
+		template?: TemplateName;
+		typescript?: boolean;
 	};
 	build?: {
 		outDir?: string;

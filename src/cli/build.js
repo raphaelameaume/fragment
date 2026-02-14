@@ -20,7 +20,10 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * @param {string} options.configFilepath
  * @returns {Promise<void>}
  */
-export async function build(entry, { development, outDir, emptyOutDir, base, prompts, configFilepath } = {}) {
+export async function build(
+	entry,
+	{ development, outDir, emptyOutDir, base, prompts, configFilepath } = {},
+) {
 	const cwd = process.cwd();
 	const command = 'build';
 	const prefix = log.prefix(command);
@@ -37,7 +40,10 @@ export async function build(entry, { development, outDir, emptyOutDir, base, pro
 			filepath: configFilepath,
 		});
 
-		outDir = outDir ?? fragmentConfig.build?.outDir ?? entries[0].split(path.extname(entries[0]))[0];
+		outDir =
+			outDir ??
+			fragmentConfig.build?.outDir ??
+			entries[0].split(path.extname(entries[0]))[0];
 		emptyOutDir = emptyOutDir ?? fragmentConfig.build?.emptyOutDir;
 		base = base ?? fragmentConfig.build?.base;
 		prompts = prompts ?? fragmentConfig.build?.prompts;

@@ -24,7 +24,10 @@ import {
  * @param {string} options.configFilepath
  * @returns {Promise<void>}
  */
-export async function create(entry, { templateName, typescript, configFilepath } = {}) {
+export async function create(
+	entry,
+	{ templateName, typescript, configFilepath } = {},
+) {
 	const cwd = process.cwd();
 	const prefix = log.prefix('create');
 
@@ -36,7 +39,8 @@ export async function create(entry, { templateName, typescript, configFilepath }
 			filepath: configFilepath,
 		});
 
-		typescript = typescript ?? fragmentConfig.typescript;
+		templateName = templateName ?? fragmentConfig.create?.template;
+		typescript = typescript ?? fragmentConfig.create?.typescript;
 
 		let dir, name;
 
