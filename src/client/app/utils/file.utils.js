@@ -1,9 +1,11 @@
 /**
  * @typedef {Object} File
- * @property {string} filepath
- * @property {string} exportDir
+ * @property {string} filename
  * @property {string} data
+ * @property {string} [exportDir]
  * @property {string} [encoding]
+ * @property {Blob} [blob]
+ * @property {number} [size]
  */
 
 /**
@@ -20,7 +22,12 @@ export async function createDataURLFromBlob(blob) {
 		};
 
 		reader.onload = (e) => {
-			resolve(e.target.result);
+			const result = e.target?.result;
+			if (typeof result === 'string') {
+				resolve(result);
+			} else {
+				reject(new Error('Failed to read blob as data URL'));
+			}
 		};
 
 		reader.readAsDataURL(blob);
@@ -30,7 +37,7 @@ export async function createDataURLFromBlob(blob) {
 /**
  * Transform a Data URL into a blob
  * @param {string} dataURL
- * @returns {Blob}
+ * @returns {Promise<Blob>}
  */
 export function createBlobFromDataURL(dataURL) {
 	return new Promise((resolve, reject) => {
@@ -60,15 +67,24 @@ export function createBlobFromDataURL(dataURL) {
 	});
 }
 
+/**
+ * Download data as a file
+ * @param {string | object} data - The data to download
+ * @param {string} filename - The filename for the download
+ * @returns {void}
+ */
 export function download(data, filename) {
 	let extension = getFileExtension(filename);
 
-	if (typeof data === 'object' && ['json', 'txt'].includes(extension)) {
-		data = JSON.stringify(data, undefined, 4);
+	let content;
+	if (typeof data === 'object') {
+		content = JSON.stringify(data, undefined, 4);
+	} else {
+		content = data;
 	}
 
 	let type = getMimeType(extension);
-	let blob = new Blob([data], { type });
+	let blob = new Blob([content], { type });
 
 	downloadBlob(blob, { filename });
 }
@@ -78,6 +94,7 @@ export function download(data, filename) {
  * @param {Blob} blob
  * @param {object} [options]
  * @param {string} [options.filename="untitled"]
+ * @returns {void}
  */
 export function downloadBlob(blob, { filename = 'untitled' } = {}) {
 	let a = document.createElement('a');
@@ -91,7 +108,7 @@ export function downloadBlob(blob, { filename = 'untitled' } = {}) {
 	a.onclick = () => {
 		a.onclick = () => {};
 		setTimeout(() => {
-			window.URL.revokeObjectURL(blob);
+			window.URL.revokeObjectURL(a.href);
 			if (a.parentElement) a.parentElement.removeChild(a);
 			a.removeAttribute('href');
 		});
@@ -106,7 +123,7 @@ export function downloadBlob(blob, { filename = 'untitled' } = {}) {
  * @returns {string} filename
  */
 export function getFilename(path) {
-	return path.split(/[\\/]/).pop();
+	return path.split(/[\\/]/).pop() || path;
 }
 
 /**
@@ -119,29 +136,39 @@ export function estimateFileSize(data) {
 	return (base64Length * (3 / 4) - 2) / 1024 / 1024;
 }
 
+/**
+ * Extract file extension from a path
+ * @param {string} path - The file path
+ * @returns {string} The file extension or undefined if not found
+ */
 export function getFileExtension(path) {
 	const match = path.match(/[^\\/]\.([^.\\/]+)$/);
 
 	if (match && match.length > 1) {
 		return match[1];
 	}
+
+	return '';
 }
 
 /**
- *
- * @param {string} extension
- * @returns {string}
+ * Get MIME type from file extension
+ * @param {string} extension - The file extension
+ * @returns {string} The MIME type or 'application/octet-stream' if not recognized
  */
 export function getMimeType(extension) {
 	if (extension === 'json') return 'application/json';
 	if (extension === 'txt') return 'text';
 	if (extension === 'png') return 'image/png';
 	if (extension === 'jpeg' || extension === 'jpg') return 'image/jpeg';
+
+	return 'application/octet-stream';
 }
 
 /**
- *
- * @param {File|File[]} files
+ * Save file(s) in the browser using download
+ * @param {File | File[]} files - Single file or array of files to save
+ * @returns {Promise<void>}
  */
 export async function saveInBrowser(files) {
 	/**
@@ -152,11 +179,11 @@ export async function saveInBrowser(files) {
 			blob = await createBlobFromDataURL(data);
 		}
 
-		await downloadBlob(blob, { filename });
+		downloadBlob(blob, { filename });
 	}
 
 	if (Array.isArray(files)) {
-		return Promise.all(files.map((file) => saveFile(file)));
+		await Promise.all(files.map((file) => saveFile(file)));
 	} else {
 		await saveFile(files);
 	}
@@ -164,8 +191,9 @@ export async function saveInBrowser(files) {
 
 /**
  * Save files to disk by sending them to Fragment save plugin. Fallback to saveInBrowser if fails
- * @param {File[]} files
- * @returns {Promise<string[]>}
+ * @param {File[]} [files=[]]
+ * @param {string[]} [out=[]]
+ * @returns {Promise<string[] | void>}
  */
 export async function saveFiles(files = [], out = []) {
 	if (__DEV__) {
@@ -176,6 +204,7 @@ export async function saveFiles(files = [], out = []) {
 		});
 
 		const limitInMb = 100;
+		/** @type {{ files: File[] }} */
 		const body = {
 			files: [],
 		};
@@ -186,7 +215,7 @@ export async function saveFiles(files = [], out = []) {
 			const file = files[i];
 			if (size < limitInMb) {
 				body.files.push(file);
-				size += file.size;
+				size += file.size || 0;
 			} else {
 				break;
 			}
@@ -222,6 +251,7 @@ export async function saveFiles(files = [], out = []) {
 			return out;
 		} else {
 			console.error(`[fragment] Error while saving files on disk.`);
+			console.error(error);
 			await saveInBrowser(files);
 		}
 	} else {
@@ -233,7 +263,9 @@ export async function saveFiles(files = [], out = []) {
  * Save a blob on disk
  * @param {Blob} blob
  * @param {object} options
- * @returns {Promise<string[]>}
+ * @param {string} options.filename
+ * @param {string} options.exportDir
+ * @returns {Promise<string[] | void>}
  */
 export async function saveBlob(blob, { filename, exportDir }) {
 	const data = await createDataURLFromBlob(blob);
