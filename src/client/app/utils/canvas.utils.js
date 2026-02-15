@@ -10,6 +10,62 @@ import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
 
+/**
+ * @typedef {Object} FilenameParams
+ * @property {string} year - Four-digit year
+ * @property {string} month - Two-digit month
+ * @property {string} day - Two-digit day
+ * @property {string} hours - Two-digit hours
+ * @property {string} minutes - Two-digit minutes
+ * @property {string} seconds - Two-digit seconds
+ * @property {string} timestamp - Full timestamp string
+ */
+
+/**
+ * @typedef {Object} ScreenshotOptions
+ * @property {string} [filename='Screenshot'] - Base filename
+ * @property {number} [index] - Optional frame index
+ * @property {FilenamePattern} [pattern] - Filename pattern function
+ * @property {string} [exportDir] - Export directory path
+ * @property {Record<string, any>} [params={}] - Additional parameters for pattern
+ * @property {string} [encoding='png'] - Image encoding format
+ * @property {number} [quality=100] - Image quality (1-100)
+ * @property {number} [pixelsPerInch=72] - Image DPI
+ */
+
+/**
+ * @typedef {Object} RecordCanvasOptions
+ * @property {string} [filename='output'] - Base filename for output
+ * @property {string} [format='mp4'] - Output format
+ * @property {number} [framerate=25] - Frames per second
+ * @property {number} [duration=Infinity] - Recording duration in seconds
+ * @property {number} [quality=100] - Recording quality (1-100)
+ * @property {FilenamePattern} [pattern] - Filename pattern function
+ * @property {import('../lib/canvas-recorder/MediaBunnyRecorder').VideoCodec} [codec] - Video codec
+ * @property {string} [exportDir] - Export directory path
+ * @property {string} [imageEncoding] - Image encoding for frame exports
+ * @property {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderStartCallback} [onStart] - Callback when recording starts
+ * @property {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderTickCallback} [onTick] - Callback on each frame
+ * @property {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderCompleteCallback} [onComplete] - Callback when recording completes
+ * @property {Record<string, any>} [params={}] - Additional parameters
+ */
+/**
+ * @typedef {Object} PatternParams
+ * @property {number} [index] - Frame or sequence index
+ * @property {string} filename - Base filename
+ * @property {string} timestamp - Timestamp string
+ */
+
+/**
+ * @callback FilenamePattern
+ * @param {PatternParams & Record<string, any>} params - Pattern parameters
+ * @returns {string} Generated filename
+ */
+
+/**
+ * Get current date/time parameters for filename generation
+ * @returns {FilenameParams}
+ */
 function getFilenameParams() {
 	const now = new Date();
 
@@ -43,10 +99,14 @@ function getFilenameParams() {
 	};
 }
 
+/**
+ * Default filename pattern generator
+ * @type {FilenamePattern}
+ */
 export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 	let name = `${filename}.${timestamp}`;
 
-	if (!isNaN(index)) {
+	if (typeof index === 'number' && !isNaN(index)) {
 		name += `-${index}`;
 	}
 
@@ -54,12 +114,10 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 };
 
 /**
- *
- * @param {HTMLCanvasElement} canvas
- * @param {string} sketchKey
- * @param {Sketch} sketch
- * @param {number} [index]
- * @param {Promise<string[]>}
+ * Capture and save a screenshot of a canvas
+ * @param {HTMLCanvasElement} canvas - The canvas to capture
+ * @param {ScreenshotOptions} [options={}] - Screenshot options
+ * @returns {Promise<void>}
  */
 export async function screenshotCanvas(
 	canvas,
@@ -100,6 +158,12 @@ export async function screenshotCanvas(
 	}
 }
 
+/**
+ * Record video using MediaBunny recorder
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {import('../lib/canvas-recorder/MediaBunnyRecorder').MediaBunnyRecorderOptions} options - Recording options
+ * @returns {MediaBunnyRecorder}
+ */
 function record(canvas, options) {
 	let recorder = new MediaBunnyRecorder(canvas, options);
 	recorder.start();
@@ -107,6 +171,12 @@ function record(canvas, options) {
 	return recorder;
 }
 
+/**
+ * Record GIF animation
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderOptions} options - Recording options
+ * @returns {GIFRecorder}
+ */
 function recordGIF(canvas, options) {
 	let recorder = new GIFRecorder(canvas, options);
 	recorder.start();
@@ -114,6 +184,12 @@ function recordGIF(canvas, options) {
 	return recorder;
 }
 
+/**
+ * Record individual frames
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {import('../lib/canvas-recorder/FrameRecorder').FrameRecorderOptions} options - Recording options
+ * @returns {FrameRecorder}
+ */
 function recordFrames(canvas, options) {
 	let recorder = new FrameRecorder(canvas, options);
 	recorder.start();
@@ -121,6 +197,12 @@ function recordFrames(canvas, options) {
 	return recorder;
 }
 
+/**
+ * Start recording canvas output
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {RecordCanvasOptions} [options={}] - Recording options
+ * @returns {MediaBunnyRecorder | GIFRecorder | FrameRecorder | undefined}
+ */
 export function recordCanvas(
 	canvas,
 	{
@@ -130,18 +212,22 @@ export function recordCanvas(
 		duration = Infinity,
 		quality = 100,
 		pattern = defaultFilenamePattern,
-		codec,
+		codec = 'avc',
 		exportDir,
 		imageEncoding,
 		onStart = () => {},
 		onTick = () => {},
 		onComplete = () => {},
-		params = {},
 	} = {},
 ) {
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, ...patternParams });
 
+	/**
+	 * Handle recording completion
+	 * @param {Blob | Blob[] | null} result - Recording result (blob or array of blobs)
+	 * @returns {Promise<void>}
+	 */
 	async function complete(result) {
 		const files = [];
 
@@ -163,7 +249,7 @@ export function recordCanvas(
 					encoding: 'base64',
 				});
 			}
-		} else {
+		} else if (result) {
 			const blob = result;
 			const data = await createDataURLFromBlob(blob);
 
@@ -177,7 +263,7 @@ export function recordCanvas(
 		}
 
 		await saveFiles(files);
-		onComplete();
+		onComplete(result);
 	}
 
 	const options = {
