@@ -8,12 +8,14 @@ import { mkdirp } from '../utils.js';
  *
  * @param {object} [params]
  * @param {string} [cwd=process.cwd()] - Current working directory
- * @param {string} [inlineExportDir] - Directory path used for exports
+ * @param {string} [inlineExportDir] - Directory path used for exports from inline command
+ * @param {string} [configExportDir] - Directory path used for exports from config file
  * @returns {import('vite').Plugin}
  */
 export default function screenshot({
 	cwd = process.cwd(),
 	inlineExportDir,
+	configExportDir,
 } = {}) {
 	function resolveDirectory(directoryPath, dirname) {
 		return path.isAbsolute(directoryPath)
@@ -26,18 +28,18 @@ export default function screenshot({
 
 		if (inlineExportDir) {
 			if (!inlineExportDirPath) {
-				inlineExportDirPath = resolveDirectory(inlineExportDir);
+				inlineExportDirPath = resolveDirectory(inlineExportDir, '');
 			}
 
 			directory = inlineExportDirPath;
-
-			if (exportDir) {
-				log.warning(
-					`'exportDir' configuration from sketch has been overridden by --exportDir.`,
-				);
-			}
 		} else if (exportDir) {
 			directory = resolveDirectory(exportDir, dirname);
+		} else if (configExportDir) {
+			if (!configExportDirPath) {
+				configExportDirPath = resolveDirectory(configExportDir, '');
+			}
+
+			directory = configExportDirPath;
 		} else {
 			directory = cwd;
 		}
@@ -46,6 +48,7 @@ export default function screenshot({
 	}
 
 	let inlineExportDirPath;
+	let configExportDirPath;
 
 	return {
 		name: 'save',

@@ -1,14 +1,28 @@
 declare module '@fragment/hooks' {
-	type Listener = (params: {
+	type Parameters = {
+		name: string;
+		exportDir: string;
+		params: Record<string, any>;
+	};
+	type CaptureParameters = Parameters & {
 		encoding: string;
 		quality: number;
 		count: number;
 		index: number;
 		pixelsPerInch: number;
-	}) => Function | void;
+	};
+	type RecordParameters = Parameters & {
+		encoding: string;
+		quality: number;
+		framerate: number;
+	};
 
-	function onBeforeCapture(listener: Listener, context?: string): void;
-	function onAfterCapture(listener: Listener, context?: string): void;
-	function onBeforeRecord(listener: Listener, context?: string): void;
-	function onAfterRecord(listener: Listener, context?: string): void;
+	type Listener<P extends Parameters> = (parameters: P) => Function | void;
+	type CaptureListener = Listener<CaptureParameters>;
+	type RecordListener = Listener<RecordParameters>;
+
+	function onBeforeCapture(listener: CaptureListener, context?: string): void;
+	function onAfterCapture(listener: CaptureListener, context?: string): void;
+	function onBeforeRecord(listener: RecordListener, context?: string): void;
+	function onAfterRecord(listener: RecordListener, context?: string): void;
 }

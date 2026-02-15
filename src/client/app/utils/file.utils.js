@@ -1,6 +1,6 @@
 /**
  * @typedef {Object} File
- * @property {string} filepath
+ * @property {string} filename
  * @property {string} exportDir
  * @property {string} data
  * @property {string} [encoding]
@@ -138,6 +138,49 @@ export function getMimeType(extension) {
 	if (extension === 'png') return 'image/png';
 	if (extension === 'jpeg' || extension === 'jpg') return 'image/jpeg';
 }
+
+export function getFilenameParams() {
+	const now = new Date();
+
+	const year = now.toLocaleString('default', { year: 'numeric' });
+	const month = now
+		.toLocaleString('default', { month: 'numeric' })
+		.padStart(2, `0`);
+	const day = now
+		.toLocaleString('default', { day: 'numeric' })
+		.padStart(2, '0');
+	const hours = now
+		.toLocaleString('default', { hour: 'numeric', hour12: false })
+		.split(' ')[0];
+	const minutes = now
+		.toLocaleString('default', { minute: 'numeric' })
+		.padStart(2, `0`);
+	const seconds = now
+		.toLocaleString('default', { second: 'numeric' })
+		.padStart(2, `0`);
+
+	const timestamp = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
+
+	return {
+		year,
+		month,
+		day,
+		hours,
+		minutes,
+		seconds,
+		timestamp,
+	};
+}
+
+export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
+	let name = `${filename}.${timestamp}`;
+
+	if (!isNaN(index)) {
+		name += `-${index}`;
+	}
+
+	return name;
+};
 
 /**
  *

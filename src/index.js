@@ -3,7 +3,7 @@
  */
 
 /**
- * Type helper to make it easier to use fragment.config.js
+ * Declare config with full type inference support
  * @param {Config} config
  * @returns {Config}
  */

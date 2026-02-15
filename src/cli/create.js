@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { createTsConfigFile } from './createFragmentFile.js';
+import { loadConfig } from './createConfig.js';
 import { log, magenta, bold, cyan, dim } from './log.js';
 import * as p from './prompts.js';
 import {
@@ -17,22 +18,30 @@ import {
 /**
  * Create a new sketch
  * @param {string} entry
- * @param {object} options
+ * @param {object} [options={}]
  * @param {string} options.templateName
  * @param {boolean} options.typescript
+ * @param {string} options.configFilepath
+ * @returns {Promise<void>}
  */
-export async function create(entry, { templateName, typescript } = {}) {
+export async function create(entry, { templateName, typescript, configFilepath } = {}) {
 	const cwd = process.cwd();
 	const prefix = log.prefix('create');
 
 	try {
 		log.message(`${magenta(entry)}\n`, prefix);
 
+		const fragmentConfig = await loadConfig({
+			cwd,
+			filepath: configFilepath,
+		});
+
+		typescript = typescript ?? fragmentConfig.typescript;
+
 		let dir, name;
 
 		if (entry) {
 			const { dir: entryDir, base: entryBase } = path.parse(entry);
-
 			dir = entryDir;
 			name = entryBase;
 		}

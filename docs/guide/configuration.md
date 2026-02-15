@@ -15,7 +15,65 @@ A different configuration file path can be provided using the `--config` flag on
 fragment sketch.js --config custom/path/to/config.js
 ```
 
-## Extending Vite
+## Config options
+
+### typescript
+
+- Type: `boolean`
+- Default: `false`
+
+Pre-populate TypeScript support choice in create prompts.
+
+### outDir
+
+- Type: `string`
+- Default: `undefined`
+
+Pre-populate out directory in build prompts.
+
+### emptyOutDir
+
+- Type: `boolean`
+- Default: `true`
+
+Pre-populate flag to empty outDir before static build in build prompts.
+
+### base
+
+- Type: `string`
+- Default: `undefined`
+
+Pre-populate base public path in build prompts.
+
+### prompts
+
+- Type: `boolean`
+- Default: `true`
+
+Toggle interactive prompts in build prompts.
+
+### port
+
+- Type: `number`
+- Default: `3000`
+
+Specify the server port.
+
+### open
+
+- Type: `boolean`
+- Default: `false`
+
+Flag to open the application in the browser when the server starts.
+
+### exportDir
+
+- Type: `string`
+- Default: `undefined`
+
+Override directory used for exports.
+
+### Extending Vite
 
 Vite's configuration can be extended by adding Vite options under the `vite` property in the config file.
 

@@ -75,8 +75,16 @@ This behavior can be customized via the [`filenamePattern`](../api/sketch.md#fil
 
 ## Changing the directory of exports
 
-By default, exports are saved to the working directory from which Fragment was launched. A custom directory can be defined by setting `exportDir` in your sketch file:
+By default, exports are saved to the working directory from which Fragment was launched. A custom directory can be defined by setting `exportDir` in your config file or in your sketch file:
 
 ```js
+// fragment.config.js
+export default {
+  exportDir: "/path/to/custom/directory"
+}
+```
+
+```js
+// sketch.js
 export let exportDir = "/path/to/custom/directory";
 ```

@@ -1,3 +1,4 @@
+import { getFilenameParams, defaultFilenamePattern } from '../utils/file.utils';
 import { screenshotCanvas, recordCanvas } from '../utils/canvas.utils';
 import { hydrate, persist } from './utils.svelte';
 
@@ -96,7 +97,7 @@ class Exports {
 			quality = this.imageQuality,
 			pixelsPerInch = this.pixelsPerInch,
 			filename,
-			pattern,
+			pattern = defaultFilenamePattern,
 			exportDir,
 			params = {},
 			onStart = () => {},
@@ -105,11 +106,17 @@ class Exports {
 			onAfterCapture = () => {},
 		} = {},
 	) {
+		const patternParams = getFilenameParams();
+		const name = pattern({ filename, ...patternParams });
+
 		const captureParams = {
+			count,
 			encoding,
 			quality,
 			pixelsPerInch,
-			count,
+			name,
+			exportDir,
+			params,
 		};
 
 		onStart(captureParams);
@@ -118,14 +125,13 @@ class Exports {
 			onBeforeCapture(captureParams);
 
 			await screenshotCanvas(canvas, {
-				filename,
-				pattern,
-				exportDir,
 				index: count > 1 ? i : undefined,
-				params,
 				encoding,
 				quality,
 				pixelsPerInch,
+				name,
+				exportDir,
+				params,
 			});
 
 			onAfterCapture(captureParams);
@@ -137,14 +143,14 @@ class Exports {
 	record(
 		canvas,
 		{
-			framerate = this.framerate,
 			format = this.videoFormat,
-			imageEncoding = this.imageEncoding,
+			framerate = this.framerate,
+			duration,
 			quality = this.videoQuality,
 			codec = this.videoCodec,
-			duration,
+			imageEncoding = this.imageEncoding,
 			filename,
-			pattern,
+			pattern = defaultFilenamePattern,
 			exportDir,
 			params = {},
 			onStart = () => {},
@@ -154,30 +160,37 @@ class Exports {
 			onAfterRecord = () => {},
 		},
 	) {
+		const patternParams = getFilenameParams();
+		const name = pattern({ filename, ...patternParams });
+
 		const recordParams = {
-			framerate,
 			format,
-			imageEncoding,
-			quality,
+			framerate,
 			duration,
+			quality,
+			codec,
+			imageEncoding,
+			name,
+			exportDir,
+			params,
 		};
 
 		return recordCanvas(canvas, {
-			params,
+			format,
+			framerate,
+			duration: duration * this.loopCount,
+			quality,
+			codec,
+			imageEncoding,
 			filename,
 			exportDir,
 			pattern,
-			onTick,
-			framerate,
-			format,
-			codec,
-			imageEncoding,
-			quality,
-			duration: duration * this.loopCount,
+			params,
 			onStart: () => {
 				onStart(recordParams);
 				onBeforeRecord(recordParams);
 			},
+			onTick,
 			onComplete: () => {
 				this.recording = false;
 				onAfterRecord(recordParams);

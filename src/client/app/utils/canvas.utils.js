@@ -10,68 +10,29 @@ import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
 
-function getFilenameParams() {
-	const now = new Date();
-
-	const year = now.toLocaleString('default', { year: 'numeric' });
-	const month = now
-		.toLocaleString('default', { month: 'numeric' })
-		.padStart(2, `0`);
-	const day = now
-		.toLocaleString('default', { day: 'numeric' })
-		.padStart(2, '0');
-	const hours = now
-		.toLocaleString('default', { hour: 'numeric', hour12: false })
-		.split(' ')[0];
-	const minutes = now
-		.toLocaleString('default', { minute: 'numeric' })
-		.padStart(2, `0`);
-	const seconds = now
-		.toLocaleString('default', { second: 'numeric' })
-		.padStart(2, `0`);
-
-	const timestamp = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
-
-	return {
-		year,
-		month,
-		day,
-		hours,
-		minutes,
-		seconds,
-		timestamp,
-	};
-}
-
-export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
-	let name = `${filename}.${timestamp}`;
-
-	if (!isNaN(index)) {
-		name += `-${index}`;
-	}
-
-	return name;
-};
-
 /**
  *
  * @param {HTMLCanvasElement} canvas
- * @param {string} sketchKey
- * @param {Sketch} sketch
- * @param {number} [index]
+ * @param {object} options
+ * @param {number} [options.index]
+ * @param {string} [options.encoding='png']
+ * @param {number} [options.quality=100]
+ * @param {number} [options.pixelsPerInch=72]
+ * @param {string} [options.name='Screenshot']
+ * @param {string} [options.exportDir]
+ * @param {object} [options.params={}]
  * @param {Promise<string[]>}
  */
 export async function screenshotCanvas(
 	canvas,
 	{
-		filename = 'Screenshot',
 		index,
-		pattern = defaultFilenamePattern,
-		exportDir,
-		params = {},
 		encoding = 'png',
 		quality = 100,
 		pixelsPerInch = 72,
+		name = 'Screenshot',
+		exportDir,
+		params = {},
 	} = {},
 ) {
 	let { extension, dataURL } = exportCanvas(canvas, {
@@ -79,9 +40,6 @@ export async function screenshotCanvas(
 		encodingQuality: map(quality, 1, 100, 0, 1),
 		pixelsPerInch,
 	});
-
-	let patternParams = getFilenameParams();
-	let name = pattern({ filename, index, ...params, ...patternParams });
 
 	const files = [
 		{
@@ -121,27 +79,41 @@ function recordFrames(canvas, options) {
 	return recorder;
 }
 
+/**
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {object} options
+ * @param {string} [options.format='mp4']
+ * @param {number} [options.framerate=25]
+ * @param {number} [options.duration=Infinity]
+ * @param {number} [options.quality=100]
+ * @param {string} [options.codec]
+ * @param {string} [options.imageEncoding]
+ * @param {string} [options.name='Record']
+ * @param {string} [options.exportDir]
+ * @param {object} [options.params={}]
+ * @param {function} [options.onStart]
+ * @param {function} [options.onTick]
+ * @param {function} [options.onComplete]
+ * @param {Promise<string[]>}
+ */
 export function recordCanvas(
 	canvas,
 	{
-		filename = 'output',
 		format = 'mp4',
 		framerate = 25,
 		duration = Infinity,
 		quality = 100,
-		pattern = defaultFilenamePattern,
 		codec,
-		exportDir,
 		imageEncoding,
+		name = 'Record',
+		exportDir,
+		params = {},
 		onStart = () => {},
 		onTick = () => {},
 		onComplete = () => {},
-		params = {},
 	} = {},
 ) {
-	let patternParams = getFilenameParams();
-	let name = pattern({ filename, ...patternParams });
-
 	async function complete(result) {
 		const files = [];
 

@@ -23,7 +23,7 @@ export const onAfterRecord = (listener, context = getContext()) => {
  * @param {object} options
  * @param {string} [options.filename]
  * @param {function} [options.pattern]
- * @param {exportDir} [options.pattern]
+ * @param {string} [options.exportDir]
  */
 export async function screenshot({ filename, pattern, exportDir } = {}) {
 	const context = getContext();
