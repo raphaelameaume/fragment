@@ -119,10 +119,12 @@ export function inferFieldType({ type, value, params, key }) {
  * @param {string} folder
  */
 export function parseFolder(folder) {
-	const regex = /(?<name>[\w ]+)(?:\[(?<attributes>[^\]]+)\])?/g;
-	const matches = [...folder.matchAll(regex)];
+	const segments = folder.split('.');
+	const regex = /(?<name>[^\[]+)(?:\[(?<attributes>[^\]]+)\])?/;
 
-	const results = matches.map((match) => {
+	const results = segments.map((segment) => {
+		const match = segment.match(regex);
+
 		return {
 			name: match.groups.name,
 			attributes: match.groups.attributes
