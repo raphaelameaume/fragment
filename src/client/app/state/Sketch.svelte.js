@@ -208,7 +208,11 @@ class Sketch {
 		}
 
 		if (folder) {
-			this.createPropFolder(folder, propsFoldersCollection, key);
+			// this prevent breaking references with Proxies
+			const propsFoldersCollectionCopy = [...propsFoldersCollection];
+			this.createPropFolder(folder, propsFoldersCollectionCopy, key);
+			propsFoldersCollection.length = 0;
+			propsFoldersCollection.push(...propsFoldersCollectionCopy);
 		}
 
 		let prop = {
@@ -415,7 +419,7 @@ class Sketch {
 							if (fieldgroup.children.length === 0) {
 								const currentFolderIndex =
 									this.propsFolders.findIndex(
-										(c) => c === fieldgroup,
+										(c) => c.id === fieldgroup.id,
 									);
 								this.propsFolders.splice(currentFolderIndex, 1);
 
@@ -436,11 +440,14 @@ class Sketch {
 					}
 
 					if (instanceProp.folder) {
+						// this prevent references breaking with Proxies
+						const propsFoldersCopy = [...this.propsFolders];
 						this.createPropFolder(
 							instanceProp.folder,
-							this.propsFolders,
+							propsFoldersCopy,
 							key,
 						);
+						this.propsFolders = propsFoldersCopy;
 						prop.folder = instanceProp.folder;
 					} else {
 						prop.folder = undefined;
