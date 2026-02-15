@@ -208,7 +208,7 @@ class Sketch {
 		}
 
 		if (folder) {
-			// this prevent breaking references with Proxies
+			// this prevent references from breaking when using Proxies
 			const propsFoldersCollectionCopy = [...propsFoldersCollection];
 			this.createPropFolder(folder, propsFoldersCollectionCopy, key);
 			propsFoldersCollection.length = 0;
@@ -440,7 +440,7 @@ class Sketch {
 					}
 
 					if (instanceProp.folder) {
-						// this prevent references breaking with Proxies
+						// this prevent references from breaking when using Proxies
 						const propsFoldersCopy = [...this.propsFolders];
 						this.createPropFolder(
 							instanceProp.folder,
