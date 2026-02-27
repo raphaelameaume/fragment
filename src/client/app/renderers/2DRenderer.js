@@ -5,32 +5,36 @@
  */
 
 /**
- * @param {object} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLElement} params.container
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @typedef {object} PreviewParams
+ * @property {number} id
+ * @property {HTMLCanvasElement} canvas
+ * @property {HTMLElement} container
+ * @property {number} width
+ * @property {number} height
+ * @property {number} pixelRatio
+ */
+
+/**
+ * @param {PreviewParams} params
  * @returns {MountParams2DRenderer}
  */
 export let onMountPreview = ({ canvas }) => {
+	const context = canvas.getContext('2d');
+
+	if (!context) {
+		throw new Error(`Cannot get CanvasRenderingContext2D from canvas`);
+	}
+
 	return {
 		canvas,
-		context: canvas.getContext('2d'),
+		context,
 	};
 };
 
 /**
- * @param {MountParams2DRenderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLElement} params.container
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @param {MountParams2DRenderer & PreviewParams} params
  */
-export let onResizePreview = ({ id, canvas, width, height, pixelRatio }) => {
+export let onResizePreview = ({ canvas, width, height, pixelRatio }) => {
 	canvas.width = width * pixelRatio;
 	canvas.height = height * pixelRatio;
 	canvas.style.width = `${width}px`;
