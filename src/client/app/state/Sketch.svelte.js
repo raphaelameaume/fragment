@@ -1,3 +1,4 @@
+import { isColor } from '@fragment/utils/color.utils';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
@@ -5,6 +6,7 @@ import {
 	deepClone,
 	deepEqual,
 	hydrate,
+	isDataURL,
 	isFunction,
 	isObject,
 	persist,
@@ -528,8 +530,22 @@ class Sketch {
 	}
 
 	toJSON() {
+		const props = {};
+
+		for (const key in this.props) {
+			const prop = this.props[key];
+
+			props[key] = {
+				value: isDataURL(prop.value) ? prop.__initialValue : prop.value,
+				params: prop.params,
+				triggers: prop.triggers,
+				__initialValue: prop.__initialValue,
+				__currentValue: prop.__currentValue,
+			};
+		}
+
 		return {
-			props: this.props,
+			props,
 			propsFolders: this.propsFolders.map(
 				({
 					id,

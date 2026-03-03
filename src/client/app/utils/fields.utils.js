@@ -22,7 +22,10 @@ export const fieldTypes = {
 const types = Object.values(fieldTypes);
 
 function isImageURL(url) {
-	return url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null;
+	return (
+		url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null ||
+		url.startsWith('data:image')
+	);
 }
 
 function isImage(value) {
