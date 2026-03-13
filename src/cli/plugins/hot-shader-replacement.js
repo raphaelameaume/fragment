@@ -291,7 +291,7 @@ ${keyword}${shaderParts[1]}
 		name: 'fragment-plugin-hsr',
 		config: () => ({
 			optimizeDeps: {
-				esbuildOptions: {
+				rolldownOptions: {
 					loader: {
 						'.frag': 'text',
 						'.vert': 'text',
