@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/raphaelameaume/fragment#readme",
   "dependencies": {
-    "@clack/core": "^0.4.2",
-    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@clack/core": "^1.1.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "changedpi": "^1.0.4",
     "convert-length": "^1.0.1",
     "get-port": "^7.1.0",
@@ -36,7 +36,7 @@
     "milliparsec": "^5.1.0",
     "sade": "^1.7.4",
     "svelte": "^5.19.0",
-    "vite": "^6.3.5",
+    "vite": "^8.0.0",
     "ws": "^8.2.3"
   },
   "devDependencies": {

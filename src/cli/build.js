@@ -83,6 +83,7 @@ export async function build(entry, options) {
 				placeholder: `/`,
 				hint: '(Hit Enter to validate)',
 				initialValue: base,
+				defaultValue: '/',
 			});
 
 			handleCancelledPrompt(base, prefix);
