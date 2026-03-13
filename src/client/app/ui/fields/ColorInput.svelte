@@ -224,7 +224,9 @@
 			var(--box-shadow-color, var(--fragment-accent-color));
 	}
 
-	.mirror:focus-within {
+	:global(body:not(.fragment-dragging))
+		.color-input:not(.disabled)
+		.mirror:focus-within {
 		box-shadow: 0 0 0 2px
 			var(--box-shadow-color, var(--fragment-accent-color));
 	}
