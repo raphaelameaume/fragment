@@ -167,7 +167,7 @@ export async function saveInBrowser(files) {
  * @param {File[]} files
  * @returns {Promise<string[]>}
  */
-export async function saveFiles(files = [], out = []) {
+export async function saveFiles(files = [], { commit = false } = {}) {
 	if (__DEV__) {
 		files.forEach((file) => {
 			if (!file.size) {
@@ -178,6 +178,7 @@ export async function saveFiles(files = [], out = []) {
 		const limitInMb = 100;
 		const body = {
 			files: [],
+			commit,
 		};
 
 		let size = 0;
@@ -203,6 +204,7 @@ export async function saveFiles(files = [], out = []) {
 		const { filepaths, error } = await response.json();
 
 		if (response.ok && filepaths?.length) {
+			const out = [];
 			out.push(...filepaths);
 
 			if (body.files.length < files.length) {

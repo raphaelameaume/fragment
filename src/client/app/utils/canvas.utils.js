@@ -10,7 +10,7 @@ import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
 
-function getFilenameParams() {
+export function getFilenameParams() {
 	const now = new Date();
 
 	const year = now.toLocaleString('default', { year: 'numeric' });

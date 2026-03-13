@@ -1,8 +1,12 @@
 import path from 'node:path';
+import util from 'node:util';
+import { exec as execSync } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { json } from 'milliparsec';
-import { log, green, red } from '../log.js';
+import { log, green, red, yellow } from '../log.js';
 import { mkdirp } from '../utils.js';
+
+const exec = util.promisify(execSync);
 
 /**
  *
@@ -45,6 +49,33 @@ export default function screenshot({
 		return directory;
 	}
 
+	/**
+	 * Check if a directory is within a git repository
+	 * @param {string} dir - Directory to check
+	 * @returns {Promise<boolean>}
+	 */
+	async function isGitRepository(directory) {
+		try {
+			await exec('git status --porcelain');
+			return true;
+		} catch (error) {
+			log.error(`Not a git repository`);
+			return false;
+		}
+	}
+
+	async function commitChanges() {
+		const message = `fragment-auto-commit`;
+
+		try {
+			log.message(`${yellow(`git`)} Committing latest changes...`);
+			await exec(`git add . && git commit -m ${message}`);
+			log.message(`${green(`git`)} Committed latest changes.`);
+		} catch (error) {
+			log.error(error);
+		}
+	}
+
 	let inlineExportDirPath;
 
 	return {
@@ -58,9 +89,15 @@ export default function screenshot({
 			);
 			server.middlewares.use('/save', async (req, res, next) => {
 				if (req.method === 'POST') {
-					const { files } = req.body;
+					const { files, commit } = req.body;
 
 					try {
+						let shouldCommit = false;
+
+						if (commit) {
+							shouldCommit = await isGitRepository();
+						}
+
 						const filepaths = [];
 
 						for (let i = 0; i < files.length; i++) {
@@ -89,6 +126,10 @@ export default function screenshot({
 
 							log.message(`${green(`export`)} Saved ${filepath}`);
 							filepaths.push(filepath);
+						}
+
+						if (shouldCommit) {
+							await commitChanges();
 						}
 
 						res.writeHead(200, {

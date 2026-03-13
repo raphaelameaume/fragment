@@ -58,6 +58,7 @@ class Exports {
 	imageCount = $state(1);
 	recording = $state(false);
 	capturing = $state(false);
+	committing = $state(false);
 	imageCollapsed = $state(false);
 	videoCollapsed = $state(false);
 
