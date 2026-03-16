@@ -17,20 +17,6 @@ fragment sketch.js --config custom/path/to/config.js
 
 ## Config options
 
-### typescript
-
-- Type: `boolean`
-- Default: `false`
-
-Pre-populate TypeScript support choice in create prompts.
-
-### exportDir
-
-- Type: `string`
-- Default: `undefined`
-
-Override directory used for exports.
-
 ### server.port
 
 - Type: `number`
@@ -44,6 +30,27 @@ Specify the server port.
 - Default: `false`
 
 Flag to open the application in the browser when the server starts.
+
+### exportDir
+
+- Type: `string`
+- Default: `undefined`
+
+Override directory used for exports.
+
+### create.template
+
+- Type: `'blank' | 'default' | 'fragment-gl' | 'p5' | 'p5-gl' | 'three-fragment' | 'three-orthographic' | 'three-perspective'`
+- Default: `'default'`
+
+Pre-populate template choice in create prompts.
+
+### create.typescript
+
+- Type: `boolean`
+- Default: `false`
+
+Pre-populate TypeScript support choice in create prompts.
 
 ### build.outDir
 
