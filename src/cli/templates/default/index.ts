@@ -1,4 +1,4 @@
-import { Init, Rendering, Resize, Update } from '@fragment/types';
+import type { Init, Rendering, Resize, Update } from '@fragment/types';
 import { defineProps } from '@fragment/types/utils';
 
 export const props = defineProps({});

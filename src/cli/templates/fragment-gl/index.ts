@@ -1,4 +1,4 @@
-import { Init, Rendering, Update } from '@fragment/types';
+import type { Init, Rendering, Update } from '@fragment/types';
 
 import fragmentShader from './fragment.fs';
 

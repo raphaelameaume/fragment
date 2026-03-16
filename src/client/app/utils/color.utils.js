@@ -470,19 +470,19 @@ export function isRGBString(value, isString = typeof value === 'string') {
 }
 
 export function isHSLAString(value, isString = typeof value === 'string') {
-	return isString && value.includes('hsla');
+	return isString && value.startsWith('hsla');
 }
 
 export function isHSLString(value, isString = typeof value === 'string') {
-	return isString && value.includes('hsl');
+	return isString && value.startsWith('hsl');
 }
 
 export function isVec3String(value, isString = typeof value === 'string') {
-	return isString && value.includes('vec3(');
+	return isString && value.startsWith('vec3(');
 }
 
 export function isVec4String(value, isString = typeof value === 'string') {
-	return isString && value.includes('vec4(');
+	return isString && value.startsWith('vec4(');
 }
 
 export function isRGBAObject(value) {

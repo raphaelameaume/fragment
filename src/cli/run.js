@@ -7,7 +7,7 @@ import {
 	FRAGMENT_DIRECTORY,
 } from './createFragmentFile.js';
 import { getEntries } from './getEntries.js';
-import { log, magenta, bold, cyan, red } from './log.js';
+import { log, magenta, bold, cyan } from './log.js';
 import save from './plugins/save.js';
 import * as p from './prompts.js';
 import { prettifyTime } from './utils.js';
@@ -19,26 +19,26 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * Run a sketch
  * @param {string} entry
  * @param {object} [options={}]
- * @param {boolean} options.development
- * @param {number} options.port
- * @param {boolean} options.open
- * @param {number} options.exportDir
- * @param {string} options.configFilepath
+ * @param {boolean} [options.development]
+ * @param {number} [options.port]
+ * @param {boolean} [options.open]
+ * @param {string} [options.exportDir]
+ * @param {string} [options.configFilepath]
  * @returns {Promise<void>}
  */
 export async function run(
 	entry,
 	{ development, port, open, exportDir, configFilepath } = {},
 ) {
-	let fragmentServer;
-	/** @type {import('node:fs').FSWatcher} */
-	let watcher;
-
 	const cwd = process.cwd();
-	const command = `run`;
+	const command = 'run';
 	const prefix = log.prefix(command);
 
 	const options = { exportDir, development, port, open, configFilepath };
+
+	let fragmentServer;
+	/** @type {import('node:fs').FSWatcher} */
+	let watcher;
 
 	const stop = () => {
 		fragmentServer?.close();

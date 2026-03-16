@@ -1,3 +1,4 @@
+import { isColor } from '@fragment/utils/color.utils';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
@@ -5,6 +6,7 @@ import {
 	deepClone,
 	deepEqual,
 	hydrate,
+	isDataURL,
 	isFunction,
 	isObject,
 	persist,
@@ -208,7 +210,11 @@ class Sketch {
 		}
 
 		if (folder) {
-			this.createPropFolder(folder, propsFoldersCollection, key);
+			// this prevent references from breaking when using Proxies
+			const propsFoldersCollectionCopy = [...propsFoldersCollection];
+			this.createPropFolder(folder, propsFoldersCollectionCopy, key);
+			propsFoldersCollection.length = 0;
+			propsFoldersCollection.push(...propsFoldersCollectionCopy);
 		}
 
 		let prop = {
@@ -243,7 +249,13 @@ class Sketch {
 
 		if (instanceProp) {
 			if (!deepEqual(instanceProp.value, newValue)) {
-				if (isObject(instanceProp.value) && isObject(newValue)) {
+				if (
+					Array.isArray(instanceProp.value) &&
+					Array.isArray(newValue)
+				) {
+					instanceProp.value.length = 0;
+					instanceProp.value.push(...newValue);
+				} else if (isObject(instanceProp.value) && isObject(newValue)) {
 					deepAssign(instanceProp.value, newValue);
 				} else {
 					instanceProp.value = newValue;
@@ -409,7 +421,7 @@ class Sketch {
 							if (fieldgroup.children.length === 0) {
 								const currentFolderIndex =
 									this.propsFolders.findIndex(
-										(c) => c === fieldgroup,
+										(c) => c.id === fieldgroup.id,
 									);
 								this.propsFolders.splice(currentFolderIndex, 1);
 
@@ -430,11 +442,14 @@ class Sketch {
 					}
 
 					if (instanceProp.folder) {
+						// this prevent references from breaking when using Proxies
+						const propsFoldersCopy = [...this.propsFolders];
 						this.createPropFolder(
 							instanceProp.folder,
-							this.propsFolders,
+							propsFoldersCopy,
 							key,
 						);
+						this.propsFolders = propsFoldersCopy;
 						prop.folder = instanceProp.folder;
 					} else {
 						prop.folder = undefined;
@@ -481,7 +496,7 @@ class Sketch {
 		fieldgroups.forEach((fieldgroup) => {
 			const hasAllFieldsHidden = fieldgroup.children
 				.filter((child) => child.type === 'field')
-				.every((child) => this.props[child.key].__hidden());
+				.every((child) => this.props[child.key]?.__hidden());
 			const hasAllFieldgroupsHidden = fieldgroup.children
 				.filter((child) => child.type === 'fieldgroup')
 				.every((child) => child.hidden);
@@ -515,8 +530,22 @@ class Sketch {
 	}
 
 	toJSON() {
+		const props = {};
+
+		for (const key in this.props) {
+			const prop = this.props[key];
+
+			props[key] = {
+				value: isDataURL(prop.value) ? prop.__initialValue : prop.value,
+				params: prop.params,
+				triggers: prop.triggers,
+				__initialValue: prop.__initialValue,
+				__currentValue: prop.__currentValue,
+			};
+		}
+
 		return {
-			props: this.props,
+			props,
 			propsFolders: this.propsFolders.map(
 				({
 					id,

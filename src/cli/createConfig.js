@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import url from 'node:url';
-import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite';
+import { defineConfig, mergeConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 import checkDependencies from './plugins/check-dependencies.js';
@@ -88,7 +88,7 @@ export async function loadConfig({ cwd, filepath }) {
  * @param {boolean} [options.build=false]
  * @param {import('vite').UserConfig} [config]
  * @param {string} [cwd=process.cwd()]
- * @returns {import('vite').UserConfig}
+ * @returns {Promise<import('vite').UserConfig>}
  */
 export async function createConfig(
 	entries,

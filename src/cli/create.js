@@ -19,9 +19,9 @@ import {
  * Create a new sketch
  * @param {string} entry
  * @param {object} [options={}]
- * @param {string} options.templateName
- * @param {boolean} options.typescript
- * @param {string} options.configFilepath
+ * @param {string} [options.templateName]
+ * @param {boolean} [options.typescript]
+ * @param {string} [options.configFilepath]
  * @returns {Promise<void>}
  */
 export async function create(
@@ -29,7 +29,8 @@ export async function create(
 	{ templateName, typescript, configFilepath } = {},
 ) {
 	const cwd = process.cwd();
-	const prefix = log.prefix('create');
+	const command = 'create';
+	const prefix = log.prefix(command);
 
 	try {
 		log.message(`${magenta(entry)}\n`, prefix);
@@ -42,7 +43,10 @@ export async function create(
 		templateName = templateName ?? fragmentConfig.create?.template;
 		typescript = typescript ?? fragmentConfig.create?.typescript;
 
-		let dir, name;
+		/** @type {string|undefined} */
+		let dir;
+		/** @type {string|undefined} */
+		let name;
 
 		if (entry) {
 			const { dir: entryDir, base: entryBase } = path.parse(entry);
@@ -55,6 +59,7 @@ export async function create(
 			placeholder: '.',
 			hint: '(hit Enter to use current directory)',
 			initialValue: dir,
+			defaultValue: '.',
 		});
 
 		handleCancelledPrompt(dir, prefix);
@@ -69,7 +74,9 @@ export async function create(
 			hint: '(hit Enter to validate)',
 			initialValue: name,
 			validate: (value) => {
-				if (value.length === 0) return `A name is required.`;
+				if (!value || value.length === 0) return `A name is required.`;
+
+				return undefined;
 			},
 		});
 
@@ -77,6 +84,18 @@ export async function create(
 
 		name = name.replace(/\s/g, '-');
 
+		/**
+		 * @typedef TemplateOption
+		 * @property {string} name
+		 * @property {string} description
+		 * @property {string} path
+		 * @property {string} label
+		 * @property {string} hint
+		 * @property {string} value
+		 * @property {boolean} [isDefault=false]
+		 */
+
+		/** @type {TemplateOption[]} */
 		let templatesOptions = fs
 			.readdirSync(file('./templates'))
 			.map((dir) => {

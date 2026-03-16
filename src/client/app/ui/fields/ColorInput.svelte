@@ -212,7 +212,7 @@
 		bottom: var(--gap);
 
 		background-color: var(--currentColor);
-		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) - var(--gap));
 		opacity: var(--opacity, 1);
 		pointer-events: none;
 	}

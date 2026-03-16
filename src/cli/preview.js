@@ -9,14 +9,15 @@ import * as p from './prompts.js';
  * Preview a sketch
  * @param {string} dir
  * @param {object} [options={}]
- * @param {number} options.port
- * @param {boolean} options.open
- * @param {string} options.configFilepath
+ * @param {number} [options.port]
+ * @param {boolean} [options.open]
+ * @param {string} [options.configFilepath]
  * @returns {Promise<void>}
  */
 export async function preview(dir, { port, open, configFilepath } = {}) {
 	const cwd = process.cwd();
-	const prefix = log.prefix('preview');
+	const command = 'preview';
+	const prefix = log.prefix(command);
 
 	const outDir = path.join(cwd, dir);
 

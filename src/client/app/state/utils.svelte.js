@@ -39,6 +39,15 @@ export function isFunction(item) {
 	return item && typeof item === 'function';
 }
 
+/**
+ * Returns true if the given cache key contains the data:image scheme.
+ * @param {any} url
+ * @return {boolean} Whether the given cache url contains the blob: scheme or not.
+ */
+export function isDataURL(value) {
+	return typeof value === 'string' && value.startsWith('data:image/');
+}
+
 export function deepAssign(target, source) {
 	for (const key in source) {
 		if (isObject(source[key]) && isObject(target[key])) {

@@ -12,12 +12,12 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
  * Build a sketch for production
  * @param {string} entry
  * @param {object} [options={}]
- * @param {boolean} options.development
- * @param {string} options.outDir
- * @param {boolean} options.emptyOutDir
- * @param {string} options.base
- * @param {boolean} options.prompts
- * @param {string} options.configFilepath
+ * @param {boolean} [options.development]
+ * @param {string} [options.outDir]
+ * @param {boolean} [options.emptyOutDir]
+ * @param {string} [options.base]
+ * @param {boolean} [options.prompts]
+ * @param {string} [options.configFilepath]
  * @returns {Promise<void>}
  */
 export async function build(
@@ -91,6 +91,7 @@ export async function build(
 				placeholder: `/`,
 				hint: '(Hit Enter to validate)',
 				initialValue: base,
+				defaultValue: '/',
 			});
 
 			handleCancelledPrompt(base, prefix);
