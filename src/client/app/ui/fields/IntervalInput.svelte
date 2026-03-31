@@ -2,6 +2,7 @@
 	import FieldInputRow from './FieldInputRow.svelte';
 	import NumberInput from './NumberInput.svelte';
 	import { map, clamp, roundToStep } from '../../utils/math.utils';
+	import { draggable } from '../../attachments/draggable.js';
 
 	let {
 		value = null,
@@ -21,51 +22,49 @@
 	/** @type {DOMRect}*/
 	let rect;
 	/** @type {boolean}*/
-	let isDragging = $state(false);
+	let dragging = $state(false);
 
 	let proximityIndex = -1;
 
 	/**
 	 *
 	 * @param {MouseEvent} event
+	 * @param {DOMRect}
 	 */
-	function handleMouseDown(event) {
-		document.body.classList.add('fragment-dragging');
-
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
-
-		rect = node.getBoundingClientRect();
-
-		isDragging = true;
-
-		let dragValue = computeDrag(event);
-
-		let abs0 = Math.abs(dragValue - value[0]);
-		let abs1 = Math.abs(dragValue - value[1]);
-
-		proximityIndex = abs0 < abs1 ? 0 : 1;
-
-		onDrag(event);
-	}
-
-	function computeDrag(event) {
+	function computeDrag(event, rect) {
 		let dragValue = clamp(
 			map(event.clientX, rect.left, rect.right, min, max),
 			min,
 			max,
 		);
 		dragValue = roundToStep(dragValue, step);
+
 		return dragValue;
 	}
 
-	function handleMouseMove(event) {
-		onDrag(event);
+	/**
+	 *
+	 * @param {MouseEvent} event
+	 * @param {object} params
+	 * @param {DOMRect | undefined} params.rect
+	 */
+	function onDragStart(event, params) {
+		if (params.rect) {
+			let dragValue = computeDrag(event, params.rect);
+
+			let abs0 = Math.abs(dragValue - value[0]);
+			let abs1 = Math.abs(dragValue - value[1]);
+
+			proximityIndex = abs0 < abs1 ? 0 : 1;
+
+			onDrag(event, params);
+		}
 	}
 
-	function onDrag(event) {
-		let dragValue = computeDrag(event);
+	function onDrag(event, params) {
+		dragging = params.isDragging;
 
+		let dragValue = computeDrag(event, params.rect);
 		let prevValue = value[proximityIndex];
 
 		if (dragValue !== prevValue) {
@@ -82,13 +81,6 @@
 		}
 	}
 
-	function handleMouseUp() {
-		document.body.classList.remove('fragment-dragging');
-		document.removeEventListener('mousemove', handleMouseMove);
-		document.removeEventListener('mouseup', handleMouseUp);
-
-		isDragging = false;
-	}
 
 	function handleValueChange(index, newValue) {
 		let newValues = [...value];
@@ -119,9 +111,9 @@
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div
 			class="range"
-			class:dragging={isDragging}
+			class:dragging={dragging}
 			bind:this={node}
-			onmousedown={handleMouseDown}
+			{@attach draggable({ onDragStart, onDrag })}
 		>
 			<div class="handler" style="--position: {p1};" />
 			<div class="filler" style="--p1: {p1}; --p2: {p2};"></div>

@@ -1,7 +1,9 @@
 <script>
+	import { draggable } from '@fragment/attachments/draggable';
 	import ButtonInput from './ButtonInput.svelte';
 	import ColorInput from './ColorInput.svelte';
 	import NumberInput from './NumberInput.svelte';
+	import { map, clamp, roundToStep } from '../../utils/math.utils';
 
 	let { value, disabled = false, onchange } = $props();
 
@@ -29,6 +31,61 @@
 		return `linear-gradient(in oklab 90deg, ${stops})`;
 	});
 
+	/** @type {DOMRect | undefined} */
+	let parentRect;
+	let positionStart = -1;
+	let coordStart = -1;
+
+	/**
+	 *
+	 * @param {GradientStop} stop
+	 * @param {MouseEvent} event
+	 * @param {object} params
+	 * @param {HTMLElement} params.node
+	 */
+	function onGradientDragStart(stop, event, { rect, node }) {
+		const { parentElement } = node;
+
+		if (parentElement) {
+			parentRect = parentElement.getBoundingClientRect();
+			positionStart = stop.position;
+			coordStart = event.clientX;
+		}
+	}
+
+	function onGradientDrag(stop, event) {
+		console.log(`onDrag`);
+		let position = clamp(
+			map(event.clientX, parentRect.left, parentRect.right, 0, 1),
+			0,
+			1,
+		);
+
+		stop.position = position;
+	}
+
+	/**
+	 *
+	 * @param {PointerEvent} event
+	 */
+	function addStop(event) {
+		console.log(event);
+
+		if (event.pointerType === 'mouse') {
+		} else {
+			let position = 0;
+
+			if (value.length === 2) {
+				let prevPosition = value[0]?.position ?? 0;
+				let nextPosition = value[1].position;
+				position = (nextPosition - prevPosition) * 0.5 + prevPosition;
+			}
+
+			sortedStops.push({ position, color: '#ff0000' });
+			handleChange();
+		}
+	}
+
 	function handleChange() {
 		let stops = sortedStops.map((stop) => ({
 			position: stop.position,
@@ -42,38 +99,32 @@
 <div class="gradient-input">
 	<div class="input-container">
 		<div class="gradient-container" class:disabled>
-			<div
+			<button
 				class="gradient"
 				style="--fragment-gradient-bkg-color: {gradient}"
-			></div>
+				onclick={addStop}
+			></button>
 			{#each value as stop}
 				<button
 					class="gradient-grab"
 					style="--x: {stop.position *
 						100}; --fragment-gradient-grab-bkg-color: {stop.color}"
+					{@attach draggable({
+						onDragStart: (event, params) => {
+							onGradientDragStart(stop, event, params);
+						},
+						onDrag: (event, params) => {
+							onGradientDrag(stop, event, params);
+						},
+					})}
 				>
-					<span class="visually-hidden"></span>
+					<span class="visually-hidden">Drag</span>
 				</button>
 			{/each}
 		</div>
-		<div class="gradient-stop-add">
-			<ButtonInput
-				label="+"
-				onclick={() => {
-					let position = 0;
-
-					if (value.length === 2) {
-						let prevPosition = value[0]?.position ?? 0;
-						let nextPosition = value[1].position;
-						position =
-							(nextPosition - prevPosition) * 0.5 + prevPosition;
-					}
-
-					sortedStops.push({ position, color: '#ff0000' });
-					handleChange();
-				}}
-			/>
-		</div>
+	</div>
+	<div class="gradient-stop-add">
+		<ButtonInput label="+" onclick={addStop} />
 	</div>
 	<div class="gradient-stops">
 		{#each sortedStops as stop, index}
@@ -115,6 +166,8 @@
 
 <style>
 	.gradient-input {
+		--grab-height: 20px;
+
 		position: relative;
 		width: 100%;
 
@@ -134,10 +187,17 @@
 		position: relative;
 
 		display: flex;
-		height: var(--fragment-input-height);
+		padding: calc(var(--padding) * 2 + var(--grab-height))
+			calc(var(--padding) * 2) var(--padding);
+
 		margin: 2px 0;
 
 		gap: var(--column-gap);
+
+		border-radius: var(--fragment-input-border-radius);
+		background: var(--fragment-input-background-color);
+
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 
 		container-type: inline-size;
 	}
@@ -145,28 +205,27 @@
 	.gradient {
 		position: relative;
 		width: 100%;
-		height: 100%;
-		border-radius: var(--fragment-input-border-radius);
-		background: var(--fragment-gradient-bkg-color);
-		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
-		border-radius: calc(var(--fragment-input-border-radius) - 1px);
+		height: var(--fragment-input-height);
+
 		cursor: cell;
+		background: var(--fragment-gradient-bkg-color);
+		border-radius: calc(var(--fragment-input-border-radius) - 1px);
 	}
 
 	.gradient-grab {
-		--size: 4px;
+		--size: 12px;
 		--flow: 1px;
 		position: absolute;
-		top: calc(var(--flow) * -1);
+		top: var(--padding);
 		left: calc(var(--size) * -0.5);
-		left: -1px;
+		/*left: -1px;*/
 
 		width: var(--size);
-		height: calc(100% + var(--flow) * 2);
+		height: var(--grab-height);
 
 		background-color: var(--fragment-gradient-grab-bkg-color);
 
-		transform: translateX(max(0px, calc(var(--x) * (1cqw) - 2px)));
+		transform: translateX(calc(var(--x) * (1cqw) - 2px));
 		border-radius: var(--fragment-input-border-radius);
 
 		cursor: grab;
