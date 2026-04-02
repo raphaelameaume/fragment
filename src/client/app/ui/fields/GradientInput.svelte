@@ -3,13 +3,17 @@
 	import ButtonInput from './ButtonInput.svelte';
 	import ColorInput from './ColorInput.svelte';
 	import NumberInput from './NumberInput.svelte';
+
 	import { map, clamp, roundToStep } from '../../utils/math.utils';
+	import SelectChevrons from '../SelectChevrons.svelte';
 
 	let { value, disabled = false, onchange } = $props();
 
 	/** @type {HTMLCanvasElement | undefined} */
 	let canvas = $state();
 	let stopIndex = $state(0);
+	let isOpen = $state(true);
+	let gradientLabel = $derived(isOpen ? 'Add new stop' : 'Edit gradient');
 
 	/** @typedef GradientStop
 	 * @property {number} position
@@ -71,19 +75,16 @@
 	function addStop(event) {
 		console.log(event);
 
-		if (event.pointerType === 'mouse') {
-		} else {
-			let position = 0;
+		let position = 0;
 
-			if (value.length === 2) {
-				let prevPosition = value[0]?.position ?? 0;
-				let nextPosition = value[1].position;
-				position = (nextPosition - prevPosition) * 0.5 + prevPosition;
-			}
-
-			sortedStops.push({ position, color: '#ff0000' });
-			handleChange();
+		if (value.length === 2) {
+			let prevPosition = value[0]?.position ?? 0;
+			let nextPosition = value[1].position;
+			position = (nextPosition - prevPosition) * 0.5 + prevPosition;
 		}
+
+		sortedStops.push({ position, color: '#ff0000' });
+		handleChange();
 	}
 
 	function handleChange() {
@@ -94,79 +95,107 @@
 
 		onchange(stops);
 	}
+
+	function handleClickGradient(event) {
+		event.preventDefault();
+
+		if (!isOpen) {
+			isOpen = true;
+		} else {
+			addStop(event);
+		}
+	}
 </script>
 
-<div class="gradient-input">
+<div class="gradient-input" class:extended={isOpen}>
 	<div class="input-container">
 		<div class="gradient-container" class:disabled>
 			<button
 				class="gradient"
+				class:opened={isOpen}
 				style="--fragment-gradient-bkg-color: {gradient}"
-				onclick={addStop}
-			></button>
-			{#each value as stop}
-				<button
-					class="gradient-grab"
-					style="--x: {stop.position *
-						100}; --fragment-gradient-grab-bkg-color: {stop.color}"
-					{@attach draggable({
-						onDragStart: (event, params) => {
-							onGradientDragStart(stop, event, params);
-						},
-						onDrag: (event, params) => {
-							onGradientDrag(stop, event, params);
-						},
-					})}
-				>
-					<span class="visually-hidden">Drag</span>
-				</button>
-			{/each}
+				onclick={handleClickGradient}
+			>
+				<span class="visually-hidden">{gradientLabel}</span>
+			</button>
+			{#if isOpen}
+				{#each value as stop}
+					<button
+						class="gradient-grab"
+						style="--x: {stop.position}; --fragment-gradient-grab-bkg-color: {stop.color}"
+						{@attach draggable({
+							onDragStart: (event, params) => {
+								onGradientDragStart(stop, event, params);
+							},
+							onDrag: (event, params) => {
+								onGradientDrag(stop, event, params);
+							},
+						})}
+					>
+						<span class="visually-hidden">Drag</span>
+					</button>
+				{/each}
+			{/if}
+		</div>
+		<div class="gradient-edit">
+			<ButtonInput
+				label="open"
+				showLabel={false}
+				onclick={(event) => {
+					event.preventDefault();
+					isOpen = !isOpen;
+				}}
+			>
+				<SelectChevrons width={20} />
+			</ButtonInput>
 		</div>
 	</div>
-	<div class="gradient-stop-add">
-		<ButtonInput label="+" onclick={addStop} />
-	</div>
-	<div class="gradient-stops">
-		{#each sortedStops as stop, index}
-			<div class="gradient-stop">
-				<NumberInput
-					value={stop.position * 100}
-					suffix="%"
-					step={1}
-					onchange={(v) => (stop.position = v / 100)}
-				/>
-				<ColorInput
-					value={stop.color}
-					onchange={(c) => {
-						stop.color = c;
-						stopIndex = index;
-					}}
-				/>
-				<div class="gradient-stop-delete">
-					<ButtonInput
-						label="-"
-						disabled={value.length === 1}
-						onclick={() => {
-							if (value.length > index) {
-								stopIndex = index;
-							} else {
-								stopIndex = 0;
-							}
-
-							sortedStops.splice(index, 1);
-
-							handleChange();
+	{#if isOpen}
+		<div class="gradient-stop-add">
+			<ButtonInput label="+" onclick={addStop} />
+		</div>
+		<div class="gradient-stops">
+			{#each sortedStops as stop, index}
+				<div class="gradient-stop">
+					<NumberInput
+						value={stop.position * 100}
+						suffix="%"
+						step={1}
+						onchange={(v) => (stop.position = v / 100)}
+					/>
+					<ColorInput
+						value={stop.color}
+						onchange={(c) => {
+							stop.color = c;
+							stopIndex = index;
 						}}
 					/>
+					<div class="gradient-stop-delete">
+						<ButtonInput
+							label="-"
+							disabled={value.length === 1}
+							onclick={() => {
+								if (value.length > index) {
+									stopIndex = index;
+								} else {
+									stopIndex = 0;
+								}
+
+								sortedStops.splice(index, 1);
+
+								handleChange();
+							}}
+						/>
+					</div>
 				</div>
-			</div>
-		{/each}
-	</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
 	.gradient-input {
-		--grab-height: 20px;
+		--grab-height: 16px;
 
 		position: relative;
 		width: 100%;
@@ -180,25 +209,18 @@
 		display: grid;
 		grid-template-columns: 1fr auto;
 		gap: var(--column-gap);
-		align-items: center;
+		align-items: start;
+		margin: 2px 0;
 	}
 
 	.gradient-container {
 		position: relative;
 
 		display: flex;
-		padding: calc(var(--padding) * 2 + var(--grab-height))
-			calc(var(--padding) * 2) var(--padding);
-
-		margin: 2px 0;
 
 		gap: var(--column-gap);
 
 		border-radius: var(--fragment-input-border-radius);
-		background: var(--fragment-input-background-color);
-
-		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
-
 		container-type: inline-size;
 	}
 
@@ -207,17 +229,29 @@
 		width: 100%;
 		height: var(--fragment-input-height);
 
-		cursor: cell;
+		cursor: pointer;
 		background: var(--fragment-gradient-bkg-color);
-		border-radius: calc(var(--fragment-input-border-radius) - 1px);
+		border-radius: calc(var(--fragment-input-border-radius));
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
+	}
+
+	.gradient-input.extended {
+		.gradient {
+			cursor: cell;
+		}
+	}
+
+	.gradient-input:not(.extended) .gradient-edit :global(svg) {
+		transform: rotate(-90deg);
 	}
 
 	.gradient-grab {
-		--size: 12px;
+		--size: 8px;
 		--flow: 1px;
+		--container-width: calc(100 * 1cqw - 1px);
 		position: absolute;
-		top: var(--padding);
-		left: calc(var(--size) * -0.5);
+		top: calc(var(--fragment-input-height) + var(--column-gap) - 1px);
+		left: calc(1px - var(--size) * 0.5);
 		/*left: -1px;*/
 
 		width: var(--size);
@@ -225,7 +259,7 @@
 
 		background-color: var(--fragment-gradient-grab-bkg-color);
 
-		transform: translateX(calc(var(--x) * (1cqw) - 2px));
+		transform: translateX(calc(var(--x) * (var(--container-width))));
 		border-radius: var(--fragment-input-border-radius);
 
 		cursor: grab;
@@ -248,6 +282,10 @@
 	:global(body:not(.fragment-dragging))
 		.gradient-grab:not(.disabled):focus-within {
 		box-shadow: 0 0 0 2px var(--fragment-accent-color);
+	}
+
+	.gradient-input.extended .gradient-stop-add {
+		margin-top: calc(var(--grab-height));
 	}
 
 	.gradient-stop {
