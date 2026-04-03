@@ -8,6 +8,12 @@
 	import SelectChevrons from '../SelectChevrons.svelte';
 	import KeyBinding from '@fragment/components/KeyBinding.svelte';
 	import Keyboard from '@fragment/inputs/Keyboard';
+	import Layout from '../Layout.svelte';
+	import {
+		componentsToFormat,
+		getColorFormat,
+		toComponents,
+	} from '@fragment/utils/color.utils';
 
 	let { value, disabled = false, onchange } = $props();
 
@@ -23,6 +29,7 @@
 	let dragging = $state(false);
 	/** @type {number} */
 	let draggingStopIndex = $state(-1);
+	let lastStopIndex = $state(0);
 
 	/** @typedef GradientStop
 	 * @property {number} position
@@ -50,7 +57,7 @@
 			})
 			.join(',');
 
-		return `linear-gradient(in oklab 90deg, ${stops})`;
+		return `linear-gradient( 90deg, ${stops})`;
 	});
 
 	/** @type {DOMRect | undefined} */
@@ -66,6 +73,7 @@
 	function onGradientDragStart(event, { rect, node }, stopIndex) {
 		dragging = true;
 		draggingStopIndex = stopIndex;
+		lastStopIndex = stopIndex;
 
 		const { parentElement } = node;
 
@@ -105,26 +113,76 @@
 	function addStop(event) {
 		let position = 0;
 
-		if (value.length === 2) {
-			let prevPosition = value[0]?.position ?? 0;
-			let nextPosition = value[1].position;
-			position = (nextPosition - prevPosition) * 0.5 + prevPosition;
+		if (event.pointerType === 'mouse') {
+			const rect = event.target.getBoundingClientRect();
+			const t = map(event.clientX, rect.left, rect.right, 0, 1);
+			position = t;
+
+			value.push({ position, color: '#ff0000' });
+			handleChange();
+		} else {
+			addStopFromLast();
+		}
+	}
+
+	function getColorAt(position, colorStart, colorEnd) {
+		const [r0, g0, b0] = toComponents(colorStart);
+		const [r1, g1, b1] = toComponents(colorEnd);
+
+		const r = map(position, 0, 1, r0, r1);
+		const g = map(position, 0, 1, g0, g1);
+		const b = map(position, 0, 1, b0, b1);
+
+		const format = getColorFormat(colorStart);
+		const color = componentsToFormat([r, g, b], format);
+		console.log([r0, g0, b0], [r1, g1, b1], [r, g, b], format, color);
+
+		return color;
+	}
+
+	function addStopFromLast() {
+		let position = 0;
+		let color = '#ff0000';
+
+		if (lastStopIndex >= 0) {
+			let lastStop = value[lastStopIndex];
+			let lastPosition = lastStop.position;
+			let lastSortedStopIndex = sortedStops.findIndex(
+				(s) => s === lastStop,
+			);
+
+			if (sortedStops.length === 1) {
+				position = lastPosition < 0.5 ? 1 : 0;
+			}
+
+			if (sortedStops.length >= 2) {
+				let prevIndex =
+					sortedStops.length === 2
+						? 0
+						: lastSortedStopIndex < sortedStops.length - 1
+							? lastSortedStopIndex
+							: lastSortedStopIndex - 1;
+				let nextIndex = prevIndex + 1;
+
+				let prevStop = sortedStops[prevIndex];
+				let nextStop = sortedStops[nextIndex];
+				let prevPosition = prevStop.position;
+				let nextPosition = nextStop.position;
+				position = (nextPosition - prevPosition) * 0.5 + prevPosition;
+				color = getColorAt(
+					map(position, prevPosition, nextPosition, 0, 1),
+					prevStop.color,
+					nextStop.color,
+				);
+			}
 		}
 
-		value.push({ position, color: '#ff0000' });
+		value.push({ position, color });
 		handleChange();
 	}
 
 	function handleChange() {
 		onchange($state.snapshot(value));
-	}
-
-	function onGradientGrabFocus(event, stopIndex) {
-		activeStopIndex = stopIndex;
-	}
-
-	function onGradientGrabBlur(event) {
-		activeStopIndex = -1;
 	}
 
 	/**
@@ -169,7 +227,7 @@
 				<span class="visually-hidden">{gradientLabel}</span>
 			</button>
 			{#if isOpen}
-				{#each sortedStops as stop (stopToOriginalIndex.get(stop))}
+				{#each sortedStops as stop, sortedStopIndex (stopToOriginalIndex.get(stop))}
 					{@const stopIndex = stopToOriginalIndex.get(stop)}
 
 					<button
@@ -177,9 +235,13 @@
 						class:dragging={dragging &&
 							draggingStopIndex === stopIndex}
 						style="--x: {stop.position}; --fragment-gradient-grab-bkg-color: {stop.color}"
-						onfocus={(event) =>
-							onGradientGrabFocus(event, stopIndex)}
-						onblur={(event) => onGradientGrabBlur(event)}
+						onfocus={() => {
+							activeStopIndex = stopIndex;
+							lastStopIndex = stopIndex;
+						}}
+						onblur={() => {
+							activeStopIndex = -1;
+						}}
 						{@attach draggable({
 							onDragStart: (event, params) => {
 								onGradientDragStart(event, params, stopIndex);
@@ -212,7 +274,7 @@
 	</div>
 	{#if isOpen}
 		<div class="gradient-stop-add">
-			<ButtonInput label="+" onclick={addStop} />
+			<ButtonInput label="+" onclick={addStopFromLast} />
 		</div>
 		<div class="gradient-stops">
 			{#each sortedStops as stop, stopIndex}

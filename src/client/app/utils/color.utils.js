@@ -585,16 +585,18 @@ export function getColorFormat(value) {
 }
 
 export function componentsToFormat(components, format) {
-	const [r, g, b, a] = components;
+	const [r, g, b, a = 1] = components;
 
 	switch (format) {
+		case FORMATS.HEX_STRING:
+			return componentsToHex([r, g, b, a]);
 		case FORMATS.RGB_STRING:
-			return componentsToRGBString(components);
+			return componentsToRGBString([r, g, b, a]);
 		case FORMATS.RGBA_STRING:
 			return componentsToRGBAString([r, g, b, a]);
 		case FORMATS.VEC3_STRING:
-			return componentsToVec3String(components);
+			return componentsToVec3String([r, g, b, a]);
 		case FORMATS.VEC4_STRING:
-			return componentsToVec4String(components);
+			return componentsToVec4String([r, g, b, a]);
 	}
 }
