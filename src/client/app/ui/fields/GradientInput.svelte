@@ -112,13 +112,22 @@
 	 */
 	function addStop(event) {
 		let position = 0;
+		let color = '#ff000';
 
 		if (event.pointerType === 'mouse') {
 			const rect = event.target.getBoundingClientRect();
 			const t = map(event.clientX, rect.left, rect.right, 0, 1);
 			position = t;
 
-			value.push({ position, color: '#ff0000' });
+			let [prevStop, nextStop] = getStopsAt(position);
+
+			color = getColorAt(
+				map(position, prevStop.position, nextStop.position, 0, 1),
+				prevStop.color,
+				nextStop.color,
+			);
+
+			value.push({ position, color });
 			handleChange();
 		} else {
 			addStopFromLast();
@@ -138,6 +147,28 @@
 		console.log([r0, g0, b0], [r1, g1, b1], [r, g, b], format, color);
 
 		return color;
+	}
+
+	/**
+	 *
+	 * @param {number} position
+	 * @returns {[GradientStop, GradientStop]}
+	 */
+	function getStopsAt(position) {
+		let prevStopIndex = 0;
+
+		if (sortedStops.length > 1) {
+			for (let i = 1; i < sortedStops.length; i++) {
+				if (position > sortedStops[i].position) {
+					prevStopIndex = i;
+				}
+			}
+		}
+
+		let prevStop = sortedStops[prevStopIndex];
+		let nextStop = sortedStops[prevStopIndex + 1] ?? prevStop;
+
+		return [prevStop, nextStop];
 	}
 
 	function addStopFromLast() {
@@ -165,7 +196,7 @@
 				let nextIndex = prevIndex + 1;
 
 				let prevStop = sortedStops[prevIndex];
-				let nextStop = sortedStops[nextIndex];
+				let nextStop = sortedStops[nextIndex] ?? prevStop;
 				let prevPosition = prevStop.position;
 				let nextPosition = nextStop.position;
 				position = (nextPosition - prevPosition) * 0.5 + prevPosition;
@@ -277,7 +308,8 @@
 			<ButtonInput label="+" onclick={addStopFromLast} />
 		</div>
 		<div class="gradient-stops">
-			{#each sortedStops as stop, stopIndex}
+			{#each sortedStops as stop, sortedStopIndex}
+				{@const stopIndex = stopToOriginalIndex.get(stop)}
 				<div class="gradient-stop">
 					<NumberInput
 						value={stop.position * 100}
@@ -286,6 +318,7 @@
 						onchange={(v) => {
 							stop.position = v / 100;
 							stop.position = clamp(stop.position, 0, 1);
+							lastStopIndex = stopIndex;
 							handleChange();
 						}}
 					/>
@@ -293,7 +326,7 @@
 						value={stop.color}
 						onchange={(c) => {
 							stop.color = c;
-							activeStopIndex = stopIndex;
+							lastStopIndex = stopIndex;
 							handleChange();
 						}}
 					/>
@@ -302,16 +335,11 @@
 							label="-"
 							disabled={value.length === 1}
 							onclick={() => {
-								if (value.length > stopIndex) {
-									activeStopIndex = stopIndex;
-								} else {
-									activeStopIndex = 0;
+								if (lastStopIndex === value.length - 1) {
+									lastStopIndex -= 1;
 								}
 
-								const index = value.indexOf(stop);
-
-								value.splice(index, 1);
-
+								value.splice(stopIndex, 1);
 								handleChange();
 							}}
 						/>
