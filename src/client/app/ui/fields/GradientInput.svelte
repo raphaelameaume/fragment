@@ -6,14 +6,23 @@
 
 	import { map, clamp, roundToStep } from '../../utils/math.utils';
 	import SelectChevrons from '../SelectChevrons.svelte';
+	import KeyBinding from '@fragment/components/KeyBinding.svelte';
+	import Keyboard from '@fragment/inputs/Keyboard';
 
 	let { value, disabled = false, onchange } = $props();
 
 	/** @type {HTMLCanvasElement | undefined} */
 	let canvas = $state();
-	let stopIndex = $state(0);
+	/** @type {GradientStop | undefined} */
+	let activeStopIndex = $state(-1);
+	/** @type {boolean} */
 	let isOpen = $state(true);
+	/** @type {string} */
 	let gradientLabel = $derived(isOpen ? 'Add new stop' : 'Edit gradient');
+	/** @type {boolean} */
+	let dragging = $state(false);
+	/** @type {number} */
+	let draggingStopIndex = $state(-1);
 
 	/** @typedef GradientStop
 	 * @property {number} position
@@ -24,6 +33,15 @@
 	let sortedStops = $derived(
 		[...value].sort((a, b) => (a.position < b.position ? -1 : 1)),
 	);
+
+	/** @type {Map<GradientStop, number>} */
+	let stopToOriginalIndex = $derived.by(() => {
+		const map = new Map();
+		value.forEach((stop, index) => {
+			map.set(stop, index);
+		});
+		return map;
+	});
 
 	let gradient = $derived.by(() => {
 		let stops = sortedStops
@@ -37,35 +55,47 @@
 
 	/** @type {DOMRect | undefined} */
 	let parentRect;
-	let positionStart = -1;
-	let coordStart = -1;
 
 	/**
 	 *
-	 * @param {GradientStop} stop
 	 * @param {MouseEvent} event
 	 * @param {object} params
+	 * @param {GradientStop} stop
 	 * @param {HTMLElement} params.node
 	 */
-	function onGradientDragStart(stop, event, { rect, node }) {
+	function onGradientDragStart(event, { rect, node }, stopIndex) {
+		dragging = true;
+		draggingStopIndex = stopIndex;
+
 		const { parentElement } = node;
 
 		if (parentElement) {
 			parentRect = parentElement.getBoundingClientRect();
-			positionStart = stop.position;
-			coordStart = event.clientX;
 		}
 	}
 
-	function onGradientDrag(stop, event) {
-		console.log(`onDrag`);
+	/**
+	 *
+	 * @param {MouseEvent} event
+	 * @param {object} params
+	 * @param {GradientStop} stop
+	 */
+	function onGradientDrag(event, params, stopIndex) {
 		let position = clamp(
 			map(event.clientX, parentRect.left, parentRect.right, 0, 1),
 			0,
 			1,
 		);
 
+		let stop = value[stopIndex];
 		stop.position = position;
+		handleChange();
+	}
+
+	function onGradientDragEnd() {
+		dragging = false;
+		draggingStopIndex = -1;
+		handleChange();
 	}
 
 	/**
@@ -73,8 +103,6 @@
 	 * @param {PointerEvent} event
 	 */
 	function addStop(event) {
-		console.log(event);
-
 		let position = 0;
 
 		if (value.length === 2) {
@@ -83,17 +111,39 @@
 			position = (nextPosition - prevPosition) * 0.5 + prevPosition;
 		}
 
-		sortedStops.push({ position, color: '#ff0000' });
+		value.push({ position, color: '#ff0000' });
 		handleChange();
 	}
 
 	function handleChange() {
-		let stops = sortedStops.map((stop) => ({
-			position: stop.position,
-			color: stop.color,
-		}));
+		onchange($state.snapshot(value));
+	}
 
-		onchange(stops);
+	function onGradientGrabFocus(event, stopIndex) {
+		activeStopIndex = stopIndex;
+	}
+
+	function onGradientGrabBlur(event) {
+		activeStopIndex = -1;
+	}
+
+	/**
+	 *
+	 * @param {KeyboardEvent} event
+	 * @param {number} direction
+	 */
+	function onKeyDown(event, direction) {
+		if (activeStopIndex >= 0) {
+			const diff = Keyboard.getStepFromEvent(event);
+			let stop = value[activeStopIndex];
+			let position = clamp(
+				stop.position + (diff * direction) / 100,
+				0,
+				1,
+			);
+			stop.position = position;
+			handleChange();
+		}
 	}
 
 	function handleClickGradient(event) {
@@ -119,16 +169,26 @@
 				<span class="visually-hidden">{gradientLabel}</span>
 			</button>
 			{#if isOpen}
-				{#each value as stop}
+				{#each sortedStops as stop (stopToOriginalIndex.get(stop))}
+					{@const stopIndex = stopToOriginalIndex.get(stop)}
+
 					<button
 						class="gradient-grab"
+						class:dragging={dragging &&
+							draggingStopIndex === stopIndex}
 						style="--x: {stop.position}; --fragment-gradient-grab-bkg-color: {stop.color}"
+						onfocus={(event) =>
+							onGradientGrabFocus(event, stopIndex)}
+						onblur={(event) => onGradientGrabBlur(event)}
 						{@attach draggable({
 							onDragStart: (event, params) => {
-								onGradientDragStart(stop, event, params);
+								onGradientDragStart(event, params, stopIndex);
 							},
 							onDrag: (event, params) => {
-								onGradientDrag(stop, event, params);
+								onGradientDrag(event, params, stopIndex);
+							},
+							onDragEnd: () => {
+								onGradientDragEnd();
 							},
 						})}
 					>
@@ -155,19 +215,24 @@
 			<ButtonInput label="+" onclick={addStop} />
 		</div>
 		<div class="gradient-stops">
-			{#each sortedStops as stop, index}
+			{#each sortedStops as stop, stopIndex}
 				<div class="gradient-stop">
 					<NumberInput
 						value={stop.position * 100}
 						suffix="%"
 						step={1}
-						onchange={(v) => (stop.position = v / 100)}
+						onchange={(v) => {
+							stop.position = v / 100;
+							stop.position = clamp(stop.position, 0, 1);
+							handleChange();
+						}}
 					/>
 					<ColorInput
 						value={stop.color}
 						onchange={(c) => {
 							stop.color = c;
-							stopIndex = index;
+							activeStopIndex = stopIndex;
+							handleChange();
 						}}
 					/>
 					<div class="gradient-stop-delete">
@@ -175,13 +240,15 @@
 							label="-"
 							disabled={value.length === 1}
 							onclick={() => {
-								if (value.length > index) {
-									stopIndex = index;
+								if (value.length > stopIndex) {
+									activeStopIndex = stopIndex;
 								} else {
-									stopIndex = 0;
+									activeStopIndex = 0;
 								}
 
-								sortedStops.splice(index, 1);
+								const index = value.indexOf(stop);
+
+								value.splice(index, 1);
 
 								handleChange();
 							}}
@@ -192,6 +259,26 @@
 		</div>
 	{/if}
 </div>
+<KeyBinding
+	key="ArrowLeft"
+	type="down"
+	onTrigger={(event) => onKeyDown(event, -1)}
+/>
+<KeyBinding
+	key="ArrowUp"
+	type="down"
+	onTrigger={(event) => onKeyDown(event, 1)}
+/>
+<KeyBinding
+	key="ArrowDown"
+	type="down"
+	onTrigger={(event) => onKeyDown(event, -1)}
+/>
+<KeyBinding
+	key="ArrowRight"
+	type="down"
+	onTrigger={(event) => onKeyDown(event, 1)}
+/>
 
 <style>
 	.gradient-input {
@@ -233,6 +320,11 @@
 		background: var(--fragment-gradient-bkg-color);
 		border-radius: calc(var(--fragment-input-border-radius));
 		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
+		outline: 0;
+	}
+
+	.gradient:focus-visible {
+		box-shadow: inset 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.gradient-input.extended {
@@ -264,6 +356,7 @@
 
 		cursor: grab;
 		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
+		outline: 0;
 		/*border: 2px solid var(--fragment-accent-color);*/
 
 		/*&:before {
@@ -279,8 +372,9 @@
 		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
+	.gradient-grab.dragging,
 	:global(body:not(.fragment-dragging))
-		.gradient-grab:not(.disabled):focus-within {
+		.gradient-grab:not(.disabled):focus-visible {
 		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
