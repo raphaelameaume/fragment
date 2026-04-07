@@ -37,18 +37,20 @@
 	 */
 
 	/** @type {GradientStop[]} */
-	let sortedStops = $derived(
-		[...value].sort((a, b) => (a.position < b.position ? -1 : 1)),
+	let stopsWithIndices = $derived(
+		[...value]
+			.map((stop, originalIndex) => ({ stop, stopIndex: originalIndex }))
+			.sort((a, b) => {
+				// Sort by position
+				if (a.stop.position !== b.stop.position) {
+					return a.stop.position - b.stop.position;
+				}
+				// maintain original order if positions are equal
+				return a.stopIndex - b.stopIndex;
+			}),
 	);
 
-	/** @type {Map<GradientStop, number>} */
-	let stopToOriginalIndex = $derived.by(() => {
-		const map = new Map();
-		value.forEach((stop, index) => {
-			map.set(stop, index);
-		});
-		return map;
-	});
+	let sortedStops = $derived(stopsWithIndices.map(({ stop }) => stop));
 
 	let gradient = $derived.by(() => {
 		let stops = sortedStops
@@ -144,7 +146,6 @@
 
 		const format = getColorFormat(colorStart);
 		const color = componentsToFormat([r, g, b], format);
-		console.log([r0, g0, b0], [r1, g1, b1], [r, g, b], format, color);
 
 		return color;
 	}
@@ -222,7 +223,11 @@
 	 * @param {number} direction
 	 */
 	function onKeyDown(event, direction) {
-		if (activeStopIndex >= 0) {
+		if (
+			event.target?.classList?.contains('gradient-grab') &&
+			activeStopIndex >= 0 &&
+			activeStopIndex < value.length
+		) {
 			const diff = Keyboard.getStepFromEvent(event);
 			let stop = value[activeStopIndex];
 			let position = clamp(
@@ -258,9 +263,7 @@
 				<span class="visually-hidden">{gradientLabel}</span>
 			</button>
 			{#if isOpen}
-				{#each sortedStops as stop, sortedStopIndex (stopToOriginalIndex.get(stop))}
-					{@const stopIndex = stopToOriginalIndex.get(stop)}
-
+				{#each stopsWithIndices as { stop, stopIndex }, i (stopIndex)}
 					<button
 						class="gradient-grab"
 						class:dragging={dragging &&
@@ -308,17 +311,17 @@
 			<ButtonInput label="+" onclick={addStopFromLast} />
 		</div>
 		<div class="gradient-stops">
-			{#each sortedStops as stop, sortedStopIndex}
-				{@const stopIndex = stopToOriginalIndex.get(stop)}
+			{#each stopsWithIndices as { stop, stopIndex }, i (stopIndex)}
 				<div class="gradient-stop">
 					<NumberInput
 						value={stop.position * 100}
 						suffix="%"
 						step={1}
 						onchange={(v) => {
-							stop.position = v / 100;
-							stop.position = clamp(stop.position, 0, 1);
+							const position = clamp(v / 100, 0, 1);
+							stop.position = position;
 							lastStopIndex = stopIndex;
+
 							handleChange();
 						}}
 					/>
@@ -349,6 +352,7 @@
 		</div>
 	{/if}
 </div>
+
 <KeyBinding
 	key="ArrowLeft"
 	type="down"
