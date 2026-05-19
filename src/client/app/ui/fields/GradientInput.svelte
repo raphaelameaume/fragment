@@ -53,21 +53,13 @@
 
 	/** @type {GradientStop[]} */
 	let sortedStops = $derived.by(() => {
-		return g.map((stop, index) => {
+		return value.map((stop, index) => {
 			const { position, color } = stop;
-
-
-			if (!keys.has(stop)) {
-				keys.set(stop, Symbol(stop.color))
-			}
-
-			let key = keys.get(stop);
 
 			return {
 				position,
 				color,
 				index,
-				key,
 			}
 		}).sort((a, b) => {
 			// Sort by position
@@ -163,12 +155,12 @@
 			let [prevStop, nextStop] = getStopsAt(position);
 
 			color = getColorAt(
-				map(position, prevStop.position, nextStop.position, 0, 1),
+				clamp(map(position, prevStop.position, nextStop.position, 0, 1), 0, 1),
 				prevStop.color,
 				nextStop.color,
 			);
 
-			sortedStops.push({ position, color });
+			sortedStops.push({ position, color, index: sortedStops.length });
 			handleChange();
 		} else {
 			addStopFromLast();
@@ -178,6 +170,7 @@
 	function getColorAt(position, colorStart, colorEnd) {
 		const [r0, g0, b0] = toComponents(colorStart);
 		const [r1, g1, b1] = toComponents(colorEnd);
+
 
 		const r = map(position, 0, 1, r0, r1);
 		const g = map(position, 0, 1, g0, g1);
@@ -248,12 +241,21 @@
 			}
 		}
 
-		sortedStops.push({ position, color });
+		sortedStops.push({ position, color, index: sortedStops.length });
 		handleChange();
 	}
 
 	function handleChange() {
-		onchange($state.snapshot(g));
+		sortedStops.forEach((s) => {
+			if (!value[s.index]) {
+				value[s.index] = {};
+			}
+
+			value[s.index].position = s.position;
+			value[s.index].color = s.color;
+		});
+
+		onchange($state.snapshot(value));
 	}
 
 	/**
@@ -302,7 +304,7 @@
 				<span class="visually-hidden">{gradientLabel}</span>
 			</button>
 			{#if isOpen}
-				{#each sortedStops as { position, color, index, id, key }, i}
+				{#each sortedStops as { position, color, index, id, key }, i (index)}
 					<button
 						class="gradient-grab"
 						class:dragging={dragging &&
@@ -350,17 +352,18 @@
 			<ButtonInput label="+" onclick={addStopFromLast} />
 		</div>
 		<div class="gradient-stops">
-			{#each sortedStops as stop, i (stop.key)}
+			{#each sortedStops as stop, i (stop.sortIndex)}
 				{@const { position, color, index, id, sortIndex } = stop}
 				<div class="gradient-stop">
 					<NumberInput
-						bind:node={inputs[index]}
+						bind:node={inputs[sortIndex]}
 						value={position * 100}
 						suffix="%"
 						step={1}
 						shouldFocus={focusedKey === stop.key}
 						onchange={(v) => {
 							const position = clamp(v / 100, 0, 1);
+							const prevPosition = stop.position;
 
 							const currentSortIndex = sortIndex;
 							const clone = sortedStops.map((s) => {
@@ -386,26 +389,27 @@
 							});
 
 							const newSortIndex = newSorted.find((s) => s.index === index).sortIndex;
-							const orderIsChanging = currentSortIndex !== newSortIndex
+							const orderIsChanging = currentSortIndex !== newSortIndex && prevPosition !== position;
+
+								stop.position = position;
 
 							if (orderIsChanging) {
 								tick().then(() => {
-									inputs[index].focus();
+									inputs[newSortIndex].focus();
 								});
 							}
 
-							lastStopIndex = index;
+							handleChange();
 
-							g[stop.index].position = position;
-							handleChange()
+							lastStopIndex = index;
 						}}
 					/>
 					<ColorInput
 						value={color}
 						onchange={(c) => {
-							g[stop.index].color = c;
+							stop.color = c;
 							lastStopIndex = index;
-							// handleChange();
+							handleChange();
 						}}
 					/>
 					<div class="gradient-stop-delete">
@@ -417,7 +421,8 @@
 									lastStopIndex -= 1;
 								}
 
-								mapIds.delete(id);
+								const baseIndex = stop.index;
+								value.splice(baseIndex, 1);
 
 								const index = sortedStops.indexOf(stop);
 
