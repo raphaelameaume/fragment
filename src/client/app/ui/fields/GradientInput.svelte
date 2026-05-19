@@ -390,11 +390,9 @@
 							});
 
 							clone.sort((a, b) => {
-								// Sort by position
 								if (a.position !== b.position) {
 									return a.position - b.position;
 								}
-								// maintain original order if positions are equal
 								return a.index - b.index;
 							})
 
@@ -407,7 +405,7 @@
 							const newSortIndex = newSorted.find((s) => s.index === index).sortIndex;
 							const orderIsChanging = currentSortIndex !== newSortIndex && prevPosition !== position;
 
-								stop.position = position;
+							stop.position = position;
 
 							if (orderIsChanging) {
 								tick().then(() => {
@@ -584,8 +582,9 @@
 
 	.gradient-actions {
 		display: grid;
-  grid-template-columns: subgrid;
-  grid-column: 1 / -1; /* spans all 3 columns */
+		grid-template-columns: subgrid;
+		grid-column: 1 / -1;
+		padding-bottom: 3px;
 	}
 
 	.gradient-stop-add {
@@ -594,9 +593,9 @@
 
 	.gradient-stop {
 		display: grid;
-	  grid-template-columns: subgrid;
-  align-items: center;
-	  grid-column: 1 / -1;
+		grid-template-columns: subgrid;
+		align-items: center;
+		grid-column: 1 / -1;
 	}
 
 	:global(body:not(.fragment-dragging)) .gradient:not(.disabled):hover {
