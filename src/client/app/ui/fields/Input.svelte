@@ -8,10 +8,8 @@
 		onkeydown,
 		onfocus,
 		onblur,
+		node = $bindable(),
 	} = $props();
-
-	/** @type {HTMLInputElement} */
-	let node;
 
 	function onKeyPress(event) {
 		if (event.key === 'Enter') {
