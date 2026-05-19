@@ -4,6 +4,7 @@
 	import ButtonInput from './ButtonInput.svelte';
 	import ColorInput from './ColorInput.svelte';
 	import NumberInput from './NumberInput.svelte';
+	import IconFlip from '@fragment/components/IconFlip.svelte';
 
 	import { map, clamp, roundToStep } from '../../utils/math.utils';
 	import SelectChevrons from '../SelectChevrons.svelte';
@@ -290,6 +291,16 @@
 			addStop(event);
 		}
 	}
+
+	function flip(event) {
+		event.preventDefault();
+
+		value.forEach((stop) => {
+			stop.position = 1 - stop.position;
+		});
+
+		onchange($state.snapshot(value));
+	}
 </script>
 
 <div class="gradient-input" class:extended={isOpen}>
@@ -348,10 +359,15 @@
 		</div>
 	</div>
 	{#if isOpen}
-		<div class="gradient-stop-add">
-			<ButtonInput label="+" onclick={addStopFromLast} />
+		<div class="subgrid">
+		<div class="gradient-actions">
+			<ButtonInput label="flip" onclick={flip} showLabel={false}>
+				<IconFlip angle="90deg"/>
+			</ButtonInput>
+			<div class="gradient-stop-add">
+				<ButtonInput label="+" onclick={addStopFromLast}  />
+			</div>
 		</div>
-		<div class="gradient-stops">
 			{#each sortedStops as stop, i (stop.sortIndex)}
 				{@const { position, color, index, id, sortIndex } = stop}
 				<div class="gradient-stop">
@@ -556,15 +572,31 @@
 		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
-	.gradient-input.extended .gradient-stop-add {
+	.gradient-input.extended .gradient-actions {
 		margin-top: calc(var(--grab-height));
+	}
+
+	.subgrid {
+		display: grid;
+		grid-template-columns: 1fr 4fr auto;
+		column-gap: var(--column-gap);
+	}
+
+	.gradient-actions {
+		display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1; /* spans all 3 columns */
+	}
+
+	.gradient-stop-add {
+		grid-column: 2 / -1;
 	}
 
 	.gradient-stop {
 		display: grid;
-		grid-template-columns: 1fr 4fr auto;
-		align-items: center;
-		column-gap: var(--column-gap);
+	  grid-template-columns: subgrid;
+  align-items: center;
+	  grid-column: 1 / -1;
 	}
 
 	:global(body:not(.fragment-dragging)) .gradient:not(.disabled):hover {

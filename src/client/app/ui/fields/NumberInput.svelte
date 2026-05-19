@@ -79,8 +79,6 @@
 			const sanitizedValue =
 				sanitize(event.currentTarget.value, suffix) + direction * diff;
 
-			console.log('onKeyDown', sanitizedValue, event.currentTarget.value);
-
 			onchange(sanitizedValue, false);
 		}
 	}
