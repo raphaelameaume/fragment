@@ -145,7 +145,7 @@
 	}
 
 	function restoreInitialValue() {
-		onchange(initialValue);
+		onchange($state.snapshot(initialValue));
 	}
 </script>
 
