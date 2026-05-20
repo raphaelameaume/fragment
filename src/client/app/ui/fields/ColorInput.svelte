@@ -21,6 +21,7 @@
 			color.FORMATS.VEC4_STRING,
 			color.FORMATS.VEC4_ARRAY,
 			color.FORMATS.RGBA_OBJECT,
+			color.FORMATS.RGBA_OBJECT_STRING,
 			color.FORMATS.HSLA_STRING,
 		].includes(format),
 	);

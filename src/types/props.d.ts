@@ -90,6 +90,10 @@ type DownloadProp = BaseProp<
 >;
 type ImageProp = BaseProp<string, never, 'image'>;
 
+type GradientStop = { color: ColorRepresentation; position: number };
+
+type GradientProp = BaseProp<GradientStop[], never, 'gradient'>;
+
 type Prop =
 	| SelectProp
 	| NumberProp
@@ -104,7 +108,8 @@ type Prop =
 	| ImportProp
 	| DownloadProp
 	| ButtonProp
-	| ImageProp;
+	| ImageProp
+	| GradientProp;
 
 export type Props = Record<string, Prop>;
 

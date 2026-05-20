@@ -15,6 +15,7 @@
 		componentsToFormat,
 		getColorFormat,
 		toComponents,
+		toHex,
 	} from '@fragment/utils/color.utils';
 	import { SvelteMap } from 'svelte/reactivity';
 
@@ -84,11 +85,11 @@
 	let gradient = $derived.by(() => {
 		let stops = sortedStops
 			.map(({ position, color }) => {
-				return `${color} ${position * 100}%`;
+				return `${toHex(color)} ${position * 100}%`;
 			})
 			.join(',');
 
-		return `linear-gradient( 90deg, ${stops})`;
+		return `linear-gradient(90deg, ${stops})`;
 	});
 
 	/** @type {DOMRect | undefined} */
@@ -146,7 +147,6 @@
 	 */
 	function addStop(event) {
 		let position = 0;
-		let color = '#ff000';
 
 		if (event.pointerType === 'mouse') {
 			const rect = event.target.getBoundingClientRect();
@@ -155,7 +155,7 @@
 
 			let [prevStop, nextStop] = getStopsAt(position);
 
-			color = getColorAt(
+			let color = getColorAt(
 				clamp(map(position, prevStop.position, nextStop.position, 0, 1), 0, 1),
 				prevStop.color,
 				nextStop.color,
@@ -320,7 +320,7 @@
 						class="gradient-grab"
 						class:dragging={dragging &&
 							draggingStopIndex === index}
-						style="--x: {position}; --fragment-gradient-grab-bkg-color: {color}"
+						style="--x: {position}; --fragment-gradient-grab-bkg-color: {toHex(color)}"
 						onfocus={() => {
 							activeStopIndex = index;
 							lastStopIndex = index;
@@ -594,8 +594,11 @@
 	.gradient-stop {
 		display: grid;
 		grid-template-columns: subgrid;
-		align-items: center;
 		grid-column: 1 / -1;
+	}
+
+	.gradient-stop-delete {
+		margin-top: 2px;
 	}
 
 	:global(body:not(.fragment-dragging)) .gradient:not(.disabled):hover {
