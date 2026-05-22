@@ -56,12 +56,17 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 /**
  *
  * @param {HTMLCanvasElement} canvas
- * @param {string} sketchKey
- * @param {Sketch} sketch
- * @param {number} [index]
- * @param {Promise<string[]>}
+ * @param {object} options
+ * @param {string} options.filename
+ * @param {number} options.index
+ * @param {string} options.exportDir
+ * @param {string} options.encoding
+ * @param {number} options.quality
+ * @param {number} options.pixelsPerInch
+ * @param {({ index: number, filename: string, timestamp: string }) => string} options.pattern
+ * @returns {{ filename: string, exportDir: string, data: string, encoding: string }}
  */
-export async function screenshotCanvas(
+export function screenshotCanvas(
 	canvas,
 	{
 		filename = 'Screenshot',
@@ -83,21 +88,12 @@ export async function screenshotCanvas(
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, index, ...params, ...patternParams });
 
-	const files = [
-		{
-			filename: `${name}${extension}`,
-			exportDir,
-			data: dataURL,
-			encoding: 'base64',
-		},
-	];
-
-	try {
-		await saveFiles(files);
-	} catch (error) {
-		console.error(`[fragment] Error while saving screenshot.`);
-		console.log(error);
-	}
+	return {
+		filename: `${name}${extension}`,
+		exportDir,
+		data: dataURL,
+		encoding: 'base64',
+	};
 }
 
 function record(canvas, options) {

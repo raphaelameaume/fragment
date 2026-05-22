@@ -1,3 +1,4 @@
+import { saveFiles } from '@fragment/utils/file.utils';
 import { screenshotCanvas, recordCanvas } from '../utils/canvas.utils';
 import { hydrate, persist } from './utils.svelte';
 
@@ -97,6 +98,8 @@ class Exports {
 			quality = this.imageQuality,
 			pixelsPerInch = this.pixelsPerInch,
 			filename,
+			files = [],
+			commit = false,
 			pattern,
 			exportDir,
 			params = {},
@@ -118,7 +121,7 @@ class Exports {
 		for (let i = 0; i < count; i++) {
 			onBeforeCapture(captureParams);
 
-			await screenshotCanvas(canvas, {
+			const file = screenshotCanvas(canvas, {
 				filename,
 				pattern,
 				exportDir,
@@ -129,10 +132,19 @@ class Exports {
 				pixelsPerInch,
 			});
 
+			files.push(file);
+
 			onAfterCapture(captureParams);
 		}
 
 		onComplete(captureParams);
+
+		try {
+			await saveFiles(files, [], { commit });
+		} catch (error) {
+			console.error(`[fragment] Error while saving screenshot.`);
+			console.log(error);
+		}
 	}
 
 	record(

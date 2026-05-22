@@ -59,7 +59,6 @@ export default function screenshot({
 			await exec('git status --porcelain');
 			return true;
 		} catch (error) {
-			log.error(`Not a git repository`);
 			return false;
 		}
 	}
@@ -85,64 +84,83 @@ export default function screenshot({
 			server.middlewares.use(
 				json({
 					payloadLimit,
+					payloadLimitErrorFn: (payloadLimit) => {},
 				}),
 			);
 			server.middlewares.use('/save', async (req, res, next) => {
 				if (req.method === 'POST') {
-					const { files, commit } = req.body;
-
 					try {
-						let shouldCommit = false;
+						if (req.body) {
+							const { files, commit: shouldCommit = false } =
+								req.body;
 
-						if (commit) {
-							shouldCommit = await isGitRepository();
+							let canCommit = false;
+
+							if (shouldCommit) {
+								canCommit = await isGitRepository();
+							}
+
+							const filepaths = [];
+							const warnings = [];
+
+							for (let i = 0; i < files.length; i++) {
+								const { filename, data, encoding, exportDir } =
+									files[i];
+
+								let directory = resolveExportDirectory(
+									exportDir,
+									path.dirname(filename),
+								);
+								mkdirp(directory);
+
+								let filepath = path.join(
+									directory,
+									path.basename(filename),
+								);
+
+								let buffer = Buffer.from(
+									encoding === 'base64'
+										? data.split(',')[1]
+										: data,
+									encoding,
+								);
+
+								await writeFile(filepath, buffer);
+
+								log.message(
+									`${green(`export`)} Saved ${filepath}`,
+								);
+								filepaths.push(filepath);
+							}
+
+							if (shouldCommit && canCommit) {
+								await commitChanges();
+							} else if (shouldCommit) {
+								const warning = `Auto-commit failed because the current folder is not a Git repository.`;
+								log.warn(warning);
+								warnings.push(warning);
+							}
+
+							res.writeHead(200, {
+								'Content-Type': 'application/json',
+							});
+							res.end(JSON.stringify({ filepaths, warnings }));
+						} else {
+							throw new Error(`Payload is too big.`);
 						}
-
-						const filepaths = [];
-
-						for (let i = 0; i < files.length; i++) {
-							const { filename, data, encoding, exportDir } =
-								files[i];
-
-							let directory = resolveExportDirectory(
-								exportDir,
-								path.dirname(filename),
-							);
-							mkdirp(directory);
-
-							let filepath = path.join(
-								directory,
-								path.basename(filename),
-							);
-
-							let buffer = Buffer.from(
-								encoding === 'base64'
-									? data.split(',')[1]
-									: data,
-								encoding,
-							);
-
-							await writeFile(filepath, buffer);
-
-							log.message(`${green(`export`)} Saved ${filepath}`);
-							filepaths.push(filepath);
-						}
-
-						if (shouldCommit) {
-							await commitChanges();
-						}
-
-						res.writeHead(200, {
-							'Content-Type': 'application/json',
-						});
-						res.end(JSON.stringify({ filepaths }));
 					} catch (error) {
-						log.message(`${red(`export`)} Error`);
+						const errorMessage = `Error while trying to save files on disk.`;
+
+						log.message(`${red(`export`)} ${errorMessage}`);
 						console.error(error);
 						res.writeHead(500, {
 							'Content-Type': 'application/json',
 						});
-						res.end(JSON.stringify({ error }));
+						res.end(
+							JSON.stringify({
+								errors: [errorMessage],
+							}),
+						);
 					}
 				} else {
 					next();

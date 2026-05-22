@@ -586,6 +586,8 @@ export class Render {
 		filename = this.sketch.key,
 		pattern = this.sketch.filenamePattern,
 		exportDir = this.sketch.exportDir,
+		files = [],
+		commit = false,
 	} = {}) {
 		const { sketch } = this;
 
@@ -596,6 +598,8 @@ export class Render {
 			params: {
 				props: sketch.props,
 			},
+			files,
+			commit,
 			onBeforeCapture: (params) => {
 				sketch.beforeCapture.forEach((fn) => fn(params));
 				this.renderSketch();
@@ -621,8 +625,6 @@ export class Render {
 			data[key] = { value: props[key].value };
 		}
 
-		await this.screenshot({ filename, pattern, exportDir });
-
 		let patternParams = getFilenameParams();
 		let name = pattern({
 			filename,
@@ -630,16 +632,21 @@ export class Render {
 			...patternParams,
 		});
 
-		await saveFiles(
-			[
-				{
-					filename: `${name}.props.json`,
-					exportDir,
-					data: JSON.stringify(data),
-				},
-			],
-			{ commit: true },
-		);
+		let files = [
+			{
+				filename: `${name}.props.json`,
+				exportDir,
+				data: JSON.stringify(data),
+			},
+		];
+
+		await this.screenshot({
+			filename,
+			pattern,
+			exportDir,
+			files,
+			commit: true,
+		});
 	}
 
 	get params() {
