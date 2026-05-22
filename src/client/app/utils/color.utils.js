@@ -5,7 +5,9 @@ export const FORMATS = {
 	HSL_STRING: 'hsl-string',
 	HSLA_STRING: 'hsla-string',
 	RGB_OBJECT: 'rgb-object',
+	RGB_OBJECT_STRING: 'rgb-object-string',
 	RGBA_OBJECT: 'rgba-object',
+	RGBA_OBJECT_STRING: 'rgba-object-string',
 	VEC3_STRING: 'vec3-string',
 	VEC4_STRING: 'vec4-string',
 	VEC3_ARRAY: 'vec3-array',
@@ -32,6 +34,11 @@ export function toHex(color, format = getColorFormat(color)) {
 	if (format === FORMATS.VEC3_ARRAY || format === FORMATS.VEC4_ARRAY)
 		return vecArrayToHex(color);
 	if (format === FORMATS.CSS_COLOR) return nameToHex(color);
+	if (
+		format === FORMATS.RGB_OBJECT_STRING ||
+		format === FORMATS.RGBA_OBJECT_STRING
+	)
+		return objectStringToHex(color);
 }
 
 export function toComponents(color, format = getColorFormat(color)) {
@@ -50,6 +57,11 @@ export function toComponents(color, format = getColorFormat(color)) {
 	if (format === FORMATS.VEC3_STRING || format === FORMATS.VEC4_STRING)
 		return vecStringToComponents(color);
 	if (format === FORMATS.CSS_COLOR) return nameToComponents(color);
+	if (
+		format === FORMATS.RGB_OBJECT_STRING ||
+		format === FORMATS.RGBA_OBJECT_STRING
+	)
+		return objectStringToComponents(color);
 }
 
 export function toString(color, format = getColorFormat(color)) {
@@ -61,6 +73,8 @@ export function toString(color, format = getColorFormat(color)) {
 		format === FORMATS.HEX_STRING ||
 		format === FORMATS.RGB_STRING ||
 		format === FORMATS.RGBA_STRING ||
+		format === FORMATS.RGB_OBJECT_STRING ||
+		format === FORMATS.RGBA_OBJECT_STRING ||
 		format === FORMATS.HSL_STRING ||
 		format === FORMATS.HSLA_STRING ||
 		format === FORMATS.VEC3_STRING ||
@@ -74,9 +88,9 @@ export function toString(color, format = getColorFormat(color)) {
 		return componentsToRGBAString(vecArrayToComponents(color));
 	if (format === FORMATS.THREE) return threeToHex(color);
 	if (format === FORMATS.RGB_OBJECT)
-		return componentsToRGBStringObject([color.r, color.g, color.b]);
+		return componentsToRGBObjectString([color.r, color.g, color.b]);
 	if (format === FORMATS.RGBA_OBJECT)
-		return componentsToRGBAStringObject([
+		return componentsToRGBAObjectString([
 			color.r,
 			color.g,
 			color.b,
@@ -278,12 +292,12 @@ export function toVec3String(color) {
 	return componentsToVec3String(toComponents(color));
 }
 
-export function toRGBStringObject(color) {
-	return componentsToRGBStringObject(toComponents(color));
+export function toRGBObjectString(color) {
+	return componentsToRGBObjectString(toComponents(color));
 }
 
-export function toRGBAStringObject(color) {
-	return componentsToRGBAStringObject(toComponents(color));
+export function toRGBAObjectString(color) {
+	return componentsToRGBAObjectString(toComponents(color));
 }
 
 export function toVec4String(color) {
@@ -312,7 +326,19 @@ export function componentsToVec3String(components = []) {
 	return `vec3(${rn}, ${gn}, ${bn})`;
 }
 
-export function componentsToRGBStringObject(components) {
+export function componentsToRGBObject(components) {
+	const [r = 0, g = 0, b = 0] = components;
+
+	return { r, g, b };
+}
+
+export function componentsToRGBAObject(components) {
+	const [r = 0, g = 0, b = 0, a = 1] = components;
+
+	return { r, g, b, a };
+}
+
+export function componentsToRGBObjectString(components) {
 	const [r = 0, g = 0, b = 0] = components;
 
 	let rn = `${Math.round(r * 1000) / 1000}`;
@@ -322,14 +348,15 @@ export function componentsToRGBStringObject(components) {
 	return `{ r: ${rn}, g: ${gn}, b: ${bn} }`;
 }
 
-export function componentsToRGBAStringObject(components) {
+export function componentsToRGBAObjectString(components) {
 	const [r = 0, g = 0, b = 0, a = 1] = components;
 
 	let rn = `${Math.round(r * 1000) / 1000}`;
 	let gn = `${Math.round(g * 1000) / 1000}`;
 	let bn = `${Math.round(b * 1000) / 1000}`;
+	let an = `${Math.round(a * 1000) / 1000}`;
 
-	return `{ r: ${rn}, g: ${gn}, b: ${bn}, a: ${a} }`;
+	return `{ r: ${rn}, g: ${gn}, b: ${bn}, a: ${an} }`;
 }
 
 export function componentsToVec4String(components = []) {
@@ -450,6 +477,14 @@ export function componentsToHex(components = []) {
 	return `#${hex}`;
 }
 
+export function objectStringToComponents(value) {
+	const parsable = value.replace(/([{,]\s*)([a-z]+)(\s*:)/g, '$1"$2"$3');
+
+	const { r, g, b, a = 1 } = JSON.parse(parsable);
+
+	return [r, g, b, a];
+}
+
 export function isHexString(value, isString = typeof value === 'string') {
 	return isString && /^#([a-f0-9]{3,4}){1,2}$/i.test(value);
 }
@@ -516,6 +551,16 @@ export function isRGBObject(value) {
 	return false;
 }
 
+export function isRGBObjectString(value) {
+	const parsable = value.replace(/([{,]\s*)([a-z]+)(\s*:)/g, '$1"$2"$3');
+	return typeof value === 'string' && isRGBObject(JSON.parse(parsable));
+}
+
+export function isRGBAObjectString(value) {
+	const parsable = value.replace(/([{,]\s*)([a-z]+)(\s*:)/g, '$1"$2"$3');
+	return typeof value === 'string' && isRGBAObject(JSON.parse(parsable));
+}
+
 export function isVec3Array(value) {
 	if (Array.isArray(value)) {
 		return value.length == 3 && value.every((c) => c >= 0 && c <= 1);
@@ -575,6 +620,8 @@ export function getColorFormat(value) {
 	if (isRGBString(value)) return FORMATS.RGB_STRING;
 	if (isRGBObject(value)) return FORMATS.RGB_OBJECT;
 	if (isRGBAObject(value)) return FORMATS.RGBA_OBJECT;
+	if (isRGBObjectString(value)) return FORMATS.RGB_OBJECT_STRING;
+	if (isRGBAObjectString(value)) return FORMATS.RGBA_OBJECT_STRING;
 	if (isVec3String(value)) return FORMATS.VEC3_STRING;
 	if (isVec4String(value)) return FORMATS.VEC4_STRING;
 	if (isVec3Array(value)) return FORMATS.VEC3_ARRAY;
@@ -585,16 +632,26 @@ export function getColorFormat(value) {
 }
 
 export function componentsToFormat(components, format) {
-	const [r, g, b, a] = components;
+	const [r, g, b, a = 1] = components;
 
 	switch (format) {
+		case FORMATS.HEX_STRING:
+			return componentsToHex([r, g, b, a]);
 		case FORMATS.RGB_STRING:
-			return componentsToRGBString(components);
+			return componentsToRGBString([r, g, b, a]);
 		case FORMATS.RGBA_STRING:
 			return componentsToRGBAString([r, g, b, a]);
 		case FORMATS.VEC3_STRING:
-			return componentsToVec3String(components);
+			return componentsToVec3String([r, g, b, a]);
 		case FORMATS.VEC4_STRING:
-			return componentsToVec4String(components);
+			return componentsToVec4String([r, g, b, a]);
+		case FORMATS.RGB_OBJECT:
+			return componentsToRGBObject([r, g, b, a]);
+		case FORMATS.RGBA_OBJECT:
+			return componentsToRGBAObject([r, g, b, a]);
+		case FORMATS.RGB_OBJECT_STRING:
+			return componentsToRGBObjectString([r, g, b, a]);
+		case FORMATS.RGBA_OBJECT_STRING:
+			return componentsToRGBAObjectString([r, g, b, a]);
 	}
 }

@@ -179,6 +179,7 @@ Fragment will automatically choose the correct control type based on `value` and
 | `{ x: number, y: number, z?: number, w?: number }` | `{ min: { x: number, y: number, z?: number, w?: number }, max: { x: number, y: number, z?: number, w?: number }, step?: { x: number, y: number, z?: number, w?: number } }` | `<VectorInput>`|
 | `ColorRepresentation: string \| THREE.Color \| { r, g, b, a? }` | — | `<ColorInput>`|
 | `ColorRepresentation[]` | `{ extensible?: boolean; editable?: boolean }` | `<PaletteInput>`|
+| `{ color: ColorRepresentation, position: number }[]` | — | `<GradientInput>`|
 | `any[]` | — | `<ListInput>`|
 
 Some controls require an explicit `type` field (as a property alongside `value` and `params`) because automatic inference is ambiguous. For example:
