@@ -114,9 +114,9 @@ export function getFilename(path) {
  * @param {string} data
  * @returns {number}
  */
-export function estimateFileSize(data) {
+export function estimateFileSize(data, errorMargin = 1) {
 	const base64Length = data.length - (data.indexOf(',') + 1);
-	return (base64Length * (3 / 4) - 2) / 1024 / 1024;
+	return ((base64Length * (3 / 4) - 2) / 1024 / 1024) * errorMargin;
 }
 
 export function getFileExtension(path) {
@@ -167,11 +167,12 @@ export async function saveInBrowser(files) {
  * @param {File[]} files
  * @returns {Promise<string[]>}
  */
-export async function saveFiles(files = [], out = []) {
+export async function saveFiles(files = [], out = [], { commit = false } = {}) {
 	if (__DEV__) {
 		files.forEach((file) => {
 			if (!file.size) {
-				file.size = estimateFileSize(file.data);
+				const errorMargin = 1.3;
+				file.size = estimateFileSize(file.data, errorMargin);
 			}
 		});
 
@@ -184,12 +185,19 @@ export async function saveFiles(files = [], out = []) {
 
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
-			if (size < limitInMb) {
+
+			if (size + file.size < limitInMb) {
 				body.files.push(file);
 				size += file.size;
 			} else {
 				break;
 			}
+		}
+
+		const isLastBatch = body.files.length - files.length === 0;
+
+		if (isLastBatch) {
+			body.commit = commit;
 		}
 
 		const response = await fetch('/save', {
@@ -200,13 +208,20 @@ export async function saveFiles(files = [], out = []) {
 				'Content-Type': 'application/json',
 			},
 		});
-		const { filepaths, error } = await response.json();
+		const { filepaths, warnings, errors } = await response.json();
 
-		if (response.ok && filepaths?.length) {
+		if (errors?.length > 0) {
+			errors.forEach((error) => {
+				console.error(`[fragment] ${error}`);
+			});
+			await saveInBrowser(files);
+		} else if (response.ok && filepaths?.length) {
 			out.push(...filepaths);
 
 			if (body.files.length < files.length) {
-				return saveFiles(files.slice(body.files.length), out);
+				return saveFiles(files.slice(body.files.length), out, {
+					commit,
+				});
 			}
 
 			if (out.length < 15) {
@@ -219,10 +234,17 @@ export async function saveFiles(files = [], out = []) {
 				});
 			}
 
+			if (warnings?.length > 0) {
+				warnings.forEach((warning) => {
+					console.warn(`[fragment] ${warning}`);
+				});
+			} else {
+				if (commit) {
+					console.log(`[fragment] Committed latest changes.`);
+				}
+			}
+
 			return out;
-		} else {
-			console.error(`[fragment] Error while saving files on disk.`);
-			await saveInBrowser(files);
 		}
 	} else {
 		await saveInBrowser(files);

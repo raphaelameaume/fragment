@@ -5,6 +5,7 @@ Fragment includes a set of **keyboard shortcuts** for easier navigation and cont
 | Shortcut | Action |
 |---|---|
 |`Cmd/Ctrl + S`| Capture the current canvas as an image
+|`Cmd/Ctrl + K`| Capture the current canvas as an image and commit latest changes.
 |`Cmd/Ctrl + Shift + S`| Start or stop recording the canvas as a video.
 |`r`| Reload the current sketch.
 |`w`| Toggle layout edit mode.
