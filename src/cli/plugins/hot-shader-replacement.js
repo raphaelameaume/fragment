@@ -231,7 +231,11 @@ ${keyword}${shaderParts[1]}
 
 							return `${prefix}\n${chunkCode}`;
 						} catch (error) {
-							if (error.code === 'ENOENT') {
+							const err = /** @type {NodeJS.ErrnoException} */ (
+								error
+							);
+
+							if (err.code === 'ENOENT') {
 								warnings.push({
 									type: 'not found',
 									message: `Cannot find ${chunkResolvedPath}`,

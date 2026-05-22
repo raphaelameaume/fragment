@@ -205,9 +205,10 @@ export async function saveFiles(files = [], out = [], { commit = false } = {}) {
 		});
 
 		const limitInMb = 100;
-		/** @type {{ files: File[] }} */
+		/** @type {{ files: File[], commit: boolean }} */
 		const body = {
 			files: [],
+			commit: false,
 		};
 
 		let size = 0;
@@ -215,7 +216,7 @@ export async function saveFiles(files = [], out = [], { commit = false } = {}) {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
 
-			if (size + file.size < limitInMb) {
+			if (size + (file.size ?? 0) < limitInMb) {
 				body.files.push(file);
 				size += file.size || 0;
 			} else {
@@ -237,6 +238,7 @@ export async function saveFiles(files = [], out = [], { commit = false } = {}) {
 				'Content-Type': 'application/json',
 			},
 		});
+		/** @type {{ filepaths: string[], warnings: string[], errors: string[]}} */
 		const { filepaths, warnings, errors } = await response.json();
 
 		if (errors?.length > 0) {

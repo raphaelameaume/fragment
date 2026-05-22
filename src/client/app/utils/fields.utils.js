@@ -142,33 +142,38 @@ export function parseFolder(folder) {
 	const segments = folder.split('.');
 	const regex = /(?<name>[^\[]+)(?:\[(?<attributes>[^\]]+)\])?/;
 
-	const results = segments.map((segment) => {
-		const match = segment.match(regex);
+	const results = segments
+		.map((segment) => {
+			const match = segment.match(regex);
 
-		return {
-			name: match.groups.name,
-			attributes: match.groups.attributes
-				? Object.fromEntries(
-						match.groups.attributes
-							.split(', ')
-							.map((attr) =>
-								attr
-									.split('=')
-									.map((v) =>
-										v === 'false'
-											? false
-											: v === 'true'
-												? true
-												: v,
+			if (match) {
+				return {
+					name: match.groups?.name,
+					attributes: match.groups?.attributes
+						? Object.fromEntries(
+								match.groups.attributes
+									.split(', ')
+									.map((attr) =>
+										attr
+											.split('=')
+											.map((v) =>
+												v === 'false'
+													? false
+													: v === 'true'
+														? true
+														: v,
+											),
 									),
-							),
-					)
-				: {},
-		};
-	});
+							)
+						: {},
+				};
+			}
+		})
+		.filter((result) => result !== undefined);
 
 	let names = results.map((match) => match.name);
 
+	/** @type {string|undefined} */
 	let rootId;
 
 	results.forEach((match, index) => {
