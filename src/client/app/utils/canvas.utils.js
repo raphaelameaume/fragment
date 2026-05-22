@@ -66,7 +66,7 @@ import { createDataURLFromBlob, saveFiles } from './file.utils';
  * Get current date/time parameters for filename generation
  * @returns {FilenameParams}
  */
-function getFilenameParams() {
+export function getFilenameParams() {
 	const now = new Date();
 
 	const year = now.toLocaleString('default', { year: 'numeric' });
