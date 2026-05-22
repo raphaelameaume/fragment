@@ -6,11 +6,28 @@ import Sketch from './Sketch.svelte.js';
 import { rendering } from './rendering.svelte.js';
 import { removeHotListeners } from '../triggers/index.js';
 
+/**
+ * @typedef {Object} SketchInstance
+ * @property {string} [rendering]
+ * @property {any} [renderer]
+ */
+
+/**
+ * @typedef {Record<string, () => Promise<SketchInstance>>} SketchCollection
+ */
+
 class SketchesManager {
+	/** @type {Record<string, Sketch>} */
 	sketches = $state({});
 	keys = $derived(Object.keys(this.sketches));
 	count = $derived(this.keys.length);
 
+	/**
+	 * Load a single sketch from a collection
+	 * @param {SketchCollection} collection - The collection of sketches
+	 * @param {string} key - The key of the sketch to load
+	 * @returns {Promise<SketchInstance | undefined>}
+	 */
 	async loadSketch(collection, key) {
 		try {
 			let sketch = await collection[key]();
@@ -27,6 +44,11 @@ class SketchesManager {
 		}
 	}
 
+	/**
+	 * Load all sketches from a collection
+	 * @param {SketchCollection} collection - The collection of sketches to load
+	 * @returns {Promise<void>}
+	 */
 	async loadAll(collection) {
 		const keys = [...Object.keys(collection)];
 
@@ -42,16 +64,30 @@ class SketchesManager {
 			keys.map((key) => this.loadSketch(collection, key)),
 		);
 
-		const newSketches = keys.reduce((all, key, index) => {
-			if (loadedSketches[index]) {
-				all[key] = loadedSketches[index];
-			}
-
-			return all;
-		}, {});
-
-		const newInstancedSketches = Object.keys(newSketches).reduce(
+		/** @type {Record<string, SketchInstance>} */
+		const newSketches = keys.reduce(
+			/**
+			 * @param {Record<string, SketchInstance>} all
+			 * @param {string} key
+			 * @param {number} index
+			 */
 			(all, key, index) => {
+				if (loadedSketches[index]) {
+					all[key] = loadedSketches[index];
+				}
+
+				return all;
+			},
+			{},
+		);
+
+		/** @type {Record<string, Sketch>} */
+		const newInstancedSketches = Object.keys(newSketches).reduce(
+			/**
+			 * @param {Record<string, Sketch>} all
+			 * @param {string} key
+			 */
+			(all, key) => {
 				const prevSketch = this.sketches[key];
 
 				const instanced = new Sketch({

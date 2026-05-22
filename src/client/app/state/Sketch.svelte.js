@@ -1,4 +1,3 @@
-import { isColor } from '@fragment/utils/color.utils';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
@@ -14,11 +13,58 @@ import {
 
 const noop = () => {};
 
+/**
+ * @typedef InstanceProp
+ * @property {any} value
+ * @property {Record<string, any>} params
+ * @property {any[]} triggers
+ * @property {string|undefined} group
+ * @property {string|undefined} type
+ * @property {string|undefined} folder
+ * @property {string|null|undefined} displayName
+ * @property {boolean|(() => boolean)} hidden
+ * @property {boolean|(() => boolean)} disabled
+ */
+
+/**
+ * @typedef SketchProp
+ * @property {any} value
+ * @property {any} __initialValue
+ * @property {any} __currentValue
+ * @property {Record<string, any>} params
+ * @property {any[]} triggers
+ * @property {string|undefined} group
+ * @property {string|undefined} type
+ * @property {string|undefined} folder
+ * @property {string|null|undefined} displayName
+ * @property {boolean} hidden
+ * @property {(() => boolean)} __hidden
+ * @property {boolean} disabled
+ * @property {(() => boolean)} __disabled
+ */
+
+/**
+ * @typedef SketchPropFolder
+ * @property {string} id
+ * @property {string} displayName
+ * @property {string} displayName
+ * @property {string} rootId
+ * @property {(SketchPropFolder | { type: 'field', key: string })[]} children
+ * @property {SketchPropFolder|undefined} parent
+ * @property {'fieldgroup'} type
+ * @property {number} depth
+ * @property {boolean} collapsed
+ * @property {boolean} hidden
+ * @property {boolean} __initialCollapsed
+ */
+
 class Sketch {
+	/** @type {Record<string, SketchProp} */
 	props = $state({});
 	canvas = $state(null);
 	backgroundColor = $state('inherit');
 	propsGroups = $state([]);
+	/** @type {SketchPropFolder[]} */
 	propsFolders = $state([]);
 	version = $state(0);
 
@@ -40,9 +86,13 @@ class Sketch {
 
 		this.recording = null;
 		this.params = {};
+		/** @type {(() => {})[]} */
 		this.beforeCapture = [];
+		/** @type {(() => {})[]} */
 		this.beforeRecord = [];
+		/** @type {(() => {})[]} */
 		this.afterCapture = [];
+		/** @type {(() => {})[]} */
 		this.afterRecord = [];
 
 		this.reconcile(previous);
@@ -60,8 +110,10 @@ class Sketch {
 
 	reconcile(previous) {
 		const instanceProps = this.instance.props ?? {};
+		/** @type {Record<string, SketchProp>} */
 		const newProps = {};
 		const newPropsGroups = [];
+		/** @type {SketchPropFolder[]} */
 		const newPropsFolders = [];
 
 		Object.keys(instanceProps).forEach((key) => {
@@ -119,7 +171,15 @@ class Sketch {
 			}
 		};
 
+		/**
+		 *
+		 * @param {SketchPropFolder[]} prevFolders
+		 */
 		const restorePropsFoldersState = (prevFolders) => {
+			/**
+			 *
+			 * @param {SketchPropFolder} prevFolder
+			 */
 			const restoreFolder = (prevFolder) => {
 				const newFolder = newPropsFolders.find((f) => {
 					return prevFolder.id === f.id;
@@ -165,6 +225,15 @@ class Sketch {
 		this.propsFolders = newPropsFolders;
 	}
 
+	/**
+	 *
+	 * @param {Record<string, any>} target
+	 * @param {string} key
+	 * @param {InstanceProp} instanceProp
+	 * @param {*} propsFoldersCollection
+	 * @param {*} propsGroupsCollection
+	 * @returns
+	 */
 	createProp(
 		target,
 		key,
@@ -238,6 +307,11 @@ class Sketch {
 		return prop;
 	}
 
+	/**
+	 *
+	 * @param {string} key
+	 * @param {any} newValue
+	 */
 	updateProp(key, newValue) {
 		const prop = this.props[key];
 		const instanceProp = this.instance.props[key];
@@ -278,6 +352,13 @@ class Sketch {
 		this.version++;
 	}
 
+	/**
+	 *
+	 * @param {string} folder
+	 * @param {SketchPropFolder[]} collection
+	 * @param {string} key
+	 * @returns {SketchPropFolder | undefined}
+	 */
 	createPropFolder(folder, collection, key) {
 		if (!folder) return undefined;
 
@@ -328,7 +409,7 @@ class Sketch {
 					collection.push(fieldgroup);
 				}
 
-				if (isCurrent) {
+				if (fieldgroup && isCurrent) {
 					fieldgroup.children.push({
 						type: 'field',
 						key,
@@ -342,6 +423,11 @@ class Sketch {
 		return propFolder;
 	}
 
+	/**
+	 *
+	 * @param {SketchPropFolder} folder
+	 * @param {boolean} collapsed
+	 */
 	updateFolder(folder, collapsed) {
 		this.propsFolders.forEach((f, index) => {
 			if (f.id === folder.id) {
@@ -417,6 +503,10 @@ class Sketch {
 						);
 						fieldgroup.children.splice(childIndex, 1);
 
+						/**
+						 *
+						 * @param {SketchPropFolder} fieldgroup
+						 */
 						const removeFolderIfNeeded = (fieldgroup) => {
 							if (fieldgroup.children.length === 0) {
 								const currentFolderIndex =
@@ -425,9 +515,8 @@ class Sketch {
 									);
 								this.propsFolders.splice(currentFolderIndex, 1);
 
-								const { parent } = fieldgroup;
-
-								if (parent) {
+								if (fieldgroup && fieldgroup.parent) {
+									const { parent } = fieldgroup;
 									const childIndex =
 										parent.children.findIndex(
 											(c) => c.id === fieldgroup.id,
@@ -513,23 +602,45 @@ class Sketch {
 		});
 	}
 
+	/**
+	 * @param {() => void} fn
+	 */
 	onBeforeCapture(fn) {
 		this.beforeCapture.push(fn);
 	}
 
+	/**
+	 *
+	 * @param {() => void} fn
+	 */
 	onBeforeRecord(fn) {
 		this.beforeRecord.push(fn);
 	}
 
+	/**
+	 * @param {() => void} fn
+	 */
 	onAfterCapture(fn) {
 		this.afterCapture.push(fn);
 	}
 
+	/**
+	 * @param {() => void} fn
+	 */
 	onAfterRecord(fn) {
 		this.afterRecord.push(fn);
 	}
 
 	toJSON() {
+		/**
+		 * @typedef SketchPropJSON
+		 * @property {any} value
+		 * @property {Record<string, any>} params
+		 * @property {any[]} triggers
+		 * @property {any} __initialValue
+		 * @property {any} __currentValue
+		 */
+		/** @type {Record<string, SketchPropJSON>} */
 		const props = {};
 
 		for (const key in this.props) {

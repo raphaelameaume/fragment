@@ -4,7 +4,6 @@ import {
 	Mp4OutputFormat,
 	MkvOutputFormat,
 	MovOutputFormat,
-	WebMInputFormat,
 	BufferTarget,
 	CanvasSource,
 	Quality,
@@ -18,6 +17,26 @@ import {
 import { map } from '@fragment/utils/math.utils.js';
 import { VIDEO_FORMATS } from '@fragment/state/exports.svelte.js';
 
+/**
+ * @typedef {'avc' | 'hevc' | 'vp9' | 'av1' | 'vp8'} VideoCodec
+ */
+
+/**
+ * @typedef {Object} MediaBunnyRecorderOptions
+ * @property {VideoCodec} codec - Video codec to use
+ * @property {number} [duration] - Recording duration in seconds
+ * @property {number} [framerate] - Frames per second
+ * @property {number} [quality] - Recording quality (1-100)
+ * @property {string} format - Output format
+ * @property {import('./CanvasRecorder').CanvasRecorderStartCallback} [onStart] - Callback when recording starts
+ * @property {import('./CanvasRecorder').CanvasRecorderTickCallback} [onTick] - Callback on each frame
+ * @property {import('./CanvasRecorder').CanvasRecorderCompleteCallback} [onComplete] - Callback when recording completes
+ */
+
+/**
+ * Recorder that uses MediaBunny to encode video
+ * @extends CanvasRecorder
+ */
 class MediaBunnyRecorder extends CanvasRecorder {
 	/** @type Quality[] */
 	static BITRATES = [
@@ -29,15 +48,14 @@ class MediaBunnyRecorder extends CanvasRecorder {
 	];
 
 	/**
-	 *
-	 * @param {HTMLCanvasElement} canvas
-	 * @param {object} options
-	 * @param {codec} options.string
+	 * Create a MediaBunny recorder
+	 * @param {HTMLCanvasElement} canvas - The canvas to record
+	 * @param {MediaBunnyRecorderOptions} options - Recording options
 	 */
 	constructor(canvas, { codec, ...options }) {
 		super(canvas, options);
 
-		/** @type {string} */
+		/** @type {VideoCodec} */
 		this.codec = codec;
 
 		const outputFormats = new Map();
@@ -72,23 +90,39 @@ class MediaBunnyRecorder extends CanvasRecorder {
 		});
 	}
 
+	/**
+	 * Load and start the output
+	 * @returns {Promise<void>}
+	 */
 	async load() {
 		await this.output.start();
 	}
 
-	async tick({ frameCount, time }) {
+	/**
+	 * Process a single frame
+	 * @param {import('./CanvasRecorder').TickData} tickData - Frame data
+	 * @returns {Promise<void>}
+	 */
+	async tick({ frameCount }) {
 		const timestamp = frameCount / this.framerate;
 
 		this.videoSource.add(timestamp, this.frameDuration / 1000);
 	}
 
+	/**
+	 * End recording and create video blob
+	 * @returns {Promise<void>}
+	 */
 	async end() {
 		await this.output.finalize();
 
 		const { mimeType } = this.output.format;
-		const { buffer } = this.output.target;
+		const target = /** @type {BufferTarget} */ (this.output.target);
+		const buffer = target.buffer;
 
-		this.result = new Blob([buffer], { type: mimeType });
+		if (buffer) {
+			this.result = new Blob([buffer], { type: mimeType });
+		}
 
 		super.end();
 	}

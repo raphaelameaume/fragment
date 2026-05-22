@@ -20,7 +20,7 @@
 		/* Linting */
 		"strict": true,
 		"allowJs": true,
-		"checkJs": false,
+		"checkJs": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,

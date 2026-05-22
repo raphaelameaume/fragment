@@ -57,7 +57,7 @@ export let onMountPreview = ({
 };
 
 /**
- * @param {MountParamsP5GLRenderer} params
+ * @param {object} params
  * @param {number} params.id
  * @param {HTMLCanvasElement} params.canvas
  * @param {HTMLDivElement} params.container
@@ -73,7 +73,7 @@ export let onBeforeUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {MountParamsP5GLRenderer} params
+ * @param {object} params
  * @param {number} params.id
  * @param {HTMLCanvasElement} params.canvas
  * @param {HTMLDivElement} params.container
@@ -94,7 +94,7 @@ export let onAfterUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {MountParamsP5GLRenderer} params
+ * @param {object} params
  * @param {number} params.id
  * @param {HTMLCanvasElement} params.canvas
  * @param {number} params.width
@@ -111,7 +111,7 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 };
 
 /**
- * @param {MountParamsP5GLRenderer} params
+ * @param {object} params
  * @param {number} params.id
  * @param {HTMLCanvasElement} params.canvas
  * @param {HTMLElement} params.container

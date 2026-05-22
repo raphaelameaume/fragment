@@ -4,34 +4,52 @@ import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
 /**
- * @typedef {object} MountParamsThreeRenderer
+ * @typedef {object} MountParamsTHREERenderer
  * @property {HTMLCanvasElement} canvas
- * @property {THREE.Scene} scene
- * @property {THREE.WebGLRenderer} renderer
+ * @property {Scene} scene
+ * @property {WebGLRenderer} renderer
  */
 
 /**
- * @typedef {object} PreviewThreeRenderer
+ * @typedef {object} PreviewTHREERenderer
  * @property {number} id
- * @property {THREE.Scene} scene
- * @property {THREE.WebGLrenderer} renderer
- * @property {rendered} boolean
+ * @property {Scene} scene
+ * @property {WebGLRenderer} renderer
+ * @property {boolean} rendered
  */
 
-/** @type {PreviewThreeRenderer[]} */
+/**
+ * @typedef {object} PreviewParams
+ * @property {number} id
+ * @property {HTMLCanvasElement} canvas
+ * @property {HTMLDivElement} container
+ * @property {number} width
+ * @property {number} height
+ * @property {number} pixelRatio
+ */
+
+/**
+ * @typedef {Object} ShaderWarning
+ * @property {string} type - Warning type
+ * @property {string} importer - File that imported the shader
+ * @property {string} message - Warning message
+ * @property {Object} location - Location of the warning
+ * @property {string} location.lineText - The line of code with the warning
+ */
+
+/**
+ * @typedef {Object} ShaderUpdate
+ * @property {ShaderWarning[]} [warnings] - Array of shader warnings
+ */
+
+/** @type {PreviewTHREERenderer[]} */
 let previews = [];
 
 /**
- * @param {object} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLDivElement} params.container
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
- * @returns {MountParamsThreeRenderer}
+ * @param {PreviewParams} params
+ * @returns {MountParamsTHREERenderer}
  */
-export let onMountPreview = ({ id, canvas }) => {
+export let onMountPreview = ({ id }) => {
 	let renderer = new WebGLRenderer({ antialias: true });
 
 	const render = renderer.render;
@@ -59,10 +77,7 @@ export let onMountPreview = ({ id, canvas }) => {
 };
 
 /**
- * @param {MountParamsThreeRenderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLDivElement} params.container
+ * @param {PreviewParams} params
  */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -73,10 +88,7 @@ export let onBeforeUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {MountParamsThreeRenderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLDivElement} params.container
+ * @param {PreviewParams} params
  */
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -94,14 +106,9 @@ export let onAfterUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {MountParamsThreeRenderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @param {PreviewParams} params
  */
-export let onResizePreview = ({ id, width, height, pixelRatio }) => {
+export let onResizePreview = ({ id, width, height, pixelRatio, canvas }) => {
 	const preview = previews.find((p) => p.id === id);
 
 	if (preview) {
@@ -112,10 +119,7 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 };
 
 /**
- * @param {MountParamsThreeRenderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLElement} params.container
+ * @param {PreviewParams} params
  */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);
@@ -131,8 +135,16 @@ export let onDestroyPreview = ({ id }) => {
 };
 
 /* HOT SHADER RELOADING */
+/** @type {ShaderUpdate[]} */
 let _shaderUpdates = [];
 
+function clearShaderUpdates() {
+	_shaderUpdates = [];
+}
+
+/**
+ * @param {Scene} scene
+ */
 function handleHotShaderUpdate(scene) {
 	if (_shaderUpdates.length > 0) {
 		const verifyMaterial = (material) => {
@@ -173,20 +185,22 @@ function handleHotShaderUpdate(scene) {
 	}
 }
 
-function clearShaderUpdates() {
-	_shaderUpdates = [];
-}
-
 if (import.meta.hot) {
-	import.meta.hot.on('sketch-update', (data) => {
+	import.meta.hot.on('sketch-update', () => {
 		clearShaderUpdates();
 	});
 }
 
-client.on('shader-update', (shaderUpdates) => {
-	previews.forEach((preview) => {
-		clearError(preview.renderer.getContext().__uuid);
-	});
+client.on(
+	'shader-update',
+	/**
+	 * @param {ShaderUpdate[]} shaderUpdates
+	 */
+	(shaderUpdates) => {
+		previews.forEach((preview) => {
+			clearError(preview.renderer.getContext().__uuid);
+		});
 
-	_shaderUpdates = shaderUpdates;
-});
+		_shaderUpdates = shaderUpdates;
+	},
+);
