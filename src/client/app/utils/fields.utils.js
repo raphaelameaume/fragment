@@ -22,6 +22,10 @@ export const fieldTypes = {
 /** @type string[] */
 const types = Object.values(fieldTypes);
 
+/**
+ * @param {string} url
+ * @returns {boolean}
+ */
 function isImageURL(url) {
 	return (
 		url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null ||
@@ -29,8 +33,15 @@ function isImageURL(url) {
 	);
 }
 
+/**
+ * @param {any} value
+ * @returns {boolean}
+ */
 function isImage(value) {
-	return typeof value === HTMLImageElement || isImageURL(value);
+	return (
+		typeof value === HTMLImageElement ||
+		(typeof value === 'string' && isImageURL(value))
+	);
 }
 
 /**
