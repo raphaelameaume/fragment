@@ -63,6 +63,15 @@ export function isFunction(item) {
 }
 
 /**
+ * Returns true if the given cache key contains the data:image scheme.
+ * @param {any} value
+ * @return {boolean} Whether the given cache url contains the blob: scheme or not.
+ */
+export function isDataURL(value) {
+	return typeof value === 'string' && value.startsWith('data:image/');
+}
+
+/**
  * Recursively assigns properties from source to target
  * @param {Record<string, any>} target - The target object to assign to
  * @param {Record<string, any>} source - The source object to assign from

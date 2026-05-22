@@ -12,6 +12,11 @@ import { layout } from './layout.svelte.js';
 import { persist, hydrate } from './utils.svelte';
 import presets from '../lib/presets';
 import { client } from '../client.js';
+import { saveFiles } from '@fragment/utils/file.utils.js';
+import {
+	defaultFilenamePattern,
+	getFilenameParams,
+} from '@fragment/utils/canvas.utils.js';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -581,6 +586,8 @@ export class Render {
 		filename = this.sketch.key,
 		pattern = this.sketch.filenamePattern,
 		exportDir = this.sketch.exportDir,
+		files = [],
+		commit = false,
 	} = {}) {
 		const { sketch } = this;
 
@@ -591,6 +598,8 @@ export class Render {
 			params: {
 				props: sketch.props,
 			},
+			files,
+			commit,
 			onBeforeCapture: (params) => {
 				sketch.beforeCapture.forEach((fn) => fn(params));
 				this.renderSketch();
@@ -599,6 +608,44 @@ export class Render {
 				sketch.afterCapture.forEach((fn) => fn(params));
 				this.renderSketch();
 			},
+		});
+	}
+
+	async commit({
+		filename = this.sketch.key,
+		pattern = this.sketch.filenamePattern ?? defaultFilenamePattern,
+		exportDir = this.sketch.exportDir,
+	} = {}) {
+		const { sketch } = this;
+		const { props } = sketch;
+
+		const data = {};
+
+		for (const key in props) {
+			data[key] = { value: props[key].value };
+		}
+
+		let patternParams = getFilenameParams();
+		let name = pattern({
+			filename,
+			params: { props },
+			...patternParams,
+		});
+
+		let files = [
+			{
+				filename: `${name}.props.json`,
+				exportDir,
+				data: JSON.stringify(data),
+			},
+		];
+
+		await this.screenshot({
+			filename,
+			pattern,
+			exportDir,
+			files,
+			commit: true,
 		});
 	}
 

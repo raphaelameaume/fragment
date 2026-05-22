@@ -25,8 +25,16 @@ let previews = [];
  * @param {number} params.pixelRatio
  * @returns {MountParamsP5Renderer}
  */
-export let onMountPreview = ({ id, container, canvas, width, height }) => {
+export let onMountPreview = ({
+	id,
+	container,
+	canvas,
+	width,
+	height,
+	pixelRatio,
+}) => {
 	const p = new p5((sketch) => {
+		sketch.pixelDensity(pixelRatio);
 		sketch.setup = () => {
 			sketch.createCanvas(width, height, canvas);
 		};

@@ -18,8 +18,8 @@ import {
  * Create a new sketch
  * @param {string} entry
  * @param {object} options
- * @param {string} options.templateName
- * @param {boolean} options.typescript
+ * @param {string} [options.templateName]
+ * @param {boolean} [options.typescript]
  */
 export async function create(entry, { templateName, typescript } = {}) {
 	const cwd = process.cwd();
@@ -28,7 +28,10 @@ export async function create(entry, { templateName, typescript } = {}) {
 	try {
 		log.message(`${magenta(entry)}\n`, prefix);
 
-		let dir, name;
+		/** @type {string |undefined} */
+		let dir;
+		/** @type {string |undefined} */
+		let name;
 
 		if (entry) {
 			const { dir: entryDir, base: entryBase } = path.parse(entry);
@@ -42,6 +45,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 			placeholder: '.',
 			hint: '(hit Enter to use current directory)',
 			initialValue: dir,
+			defaultValue: '.',
 		});
 
 		handleCancelledPrompt(dir, prefix);
@@ -56,7 +60,9 @@ export async function create(entry, { templateName, typescript } = {}) {
 			hint: '(hit Enter to validate)',
 			initialValue: name,
 			validate: (value) => {
-				if (value.length === 0) return `A name is required.`;
+				if (!value || value.length === 0) return `A name is required.`;
+
+				return undefined;
 			},
 		});
 
@@ -64,6 +70,18 @@ export async function create(entry, { templateName, typescript } = {}) {
 
 		name = name.replace(/\s/g, '-');
 
+		/**
+		 * @typedef TemplateOption
+		 * @property {string} name
+		 * @property {string} description
+		 * @property {string} path
+		 * @property {string} label
+		 * @property {string} hint
+		 * @property {string} value
+		 * @property {boolean} [isDefault=false]
+		 */
+
+		/** @type {TemplateOption[]} */
 		let templatesOptions = fs
 			.readdirSync(file('./templates'))
 			.map((dir) => {

@@ -9,7 +9,8 @@ import { addExtension } from './utils.js';
  * Build entries from entry filepath or folder path
  * @param {string} entry
  * @param {string} cwd - Current working directory
- * @returns {string[]}
+ * @param {string} command - Current working directory
+ * @returns {Promise<string[]>}
  */
 export async function getEntries(
 	entry,
@@ -17,10 +18,18 @@ export async function getEntries(
 	command,
 	prefix = log.prefix(command),
 ) {
+	/**
+	 *
+	 * @param {string} message
+	 */
 	const displayCommand = (message) => {
 		p.note(bold(cyan(message)));
 	};
 
+	/**
+	 *
+	 * @param {string} message
+	 */
 	const onError = (message) => {
 		log.error(`Error\n`, prefix);
 		log.warn(message);

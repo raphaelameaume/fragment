@@ -21,6 +21,7 @@
 			color.FORMATS.VEC4_STRING,
 			color.FORMATS.VEC4_ARRAY,
 			color.FORMATS.RGBA_OBJECT,
+			color.FORMATS.RGBA_OBJECT_STRING,
 			color.FORMATS.HSLA_STRING,
 		].includes(format),
 	);
@@ -212,7 +213,7 @@
 		bottom: var(--gap);
 
 		background-color: var(--currentColor);
-		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) - var(--gap));
 		opacity: var(--opacity, 1);
 		pointer-events: none;
 	}
@@ -224,7 +225,9 @@
 			var(--box-shadow-color, var(--fragment-accent-color));
 	}
 
-	.mirror:focus-within {
+	:global(body:not(.fragment-dragging))
+		.color-input:not(.disabled)
+		.mirror:focus-within {
 		box-shadow: 0 0 0 2px
 			var(--box-shadow-color, var(--fragment-accent-color));
 	}

@@ -117,9 +117,9 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
  * Capture and save a screenshot of a canvas
  * @param {HTMLCanvasElement} canvas - The canvas to capture
  * @param {ScreenshotOptions} [options={}] - Screenshot options
- * @returns {Promise<void>}
+ * @returns {{ filename: string, exportDir: string | undefined, data: string, encoding: string }}
  */
-export async function screenshotCanvas(
+export function screenshotCanvas(
 	canvas,
 	{
 		filename = 'Screenshot',
@@ -141,21 +141,12 @@ export async function screenshotCanvas(
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, index, ...params, ...patternParams });
 
-	const files = [
-		{
-			filename: `${name}${extension}`,
-			exportDir,
-			data: dataURL,
-			encoding: 'base64',
-		},
-	];
-
-	try {
-		await saveFiles(files);
-	} catch (error) {
-		console.error(`[fragment] Error while saving screenshot.`);
-		console.log(error);
-	}
+	return {
+		filename: `${name}${extension}`,
+		exportDir,
+		data: dataURL,
+		encoding: 'base64',
+	};
 }
 
 /**

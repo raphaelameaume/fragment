@@ -32,6 +32,8 @@
 	}
 
 	.button {
+		position: relative;
+
 		display: flex;
 		width: 100%;
 		min-width: var(--fragment-input-height);

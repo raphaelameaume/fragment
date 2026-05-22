@@ -1,4 +1,5 @@
 <script>
+	import { tick } from 'svelte';
 	import FieldInputRow from './FieldInputRow.svelte';
 	import Input from './Input.svelte';
 	import ProgressInput from './ProgressInput.svelte';
@@ -17,6 +18,9 @@
 		key = '',
 		progress = true,
 		onchange,
+		onfocus,
+		onblur,
+		node = $bindable(),
 	} = $props();
 
 	let hasProgress = $derived(progress && isFinite(min) && isFinite(max));
@@ -45,21 +49,25 @@
 		composeValue(value, isFocused, suffix, precision),
 	);
 
-	function onFocus() {
+	function onFocus(event) {
 		isFocused = true;
+		onfocus?.(event);
 	}
 
-	function onBlur(event) {
+	async function onBlur(event) {
+		await tick();
+
+		let newValue = node.value;
 		isFocused = false;
+		let sanitizedValue = sanitize(newValue, suffix);
 
-		let newValue = event.currentTarget.value;
-		let isNotValid = isNaN(Number(event.currentTarget.value));
-
-		if (isNotValid) {
-			newValue = `${value}`;
+		if (isNaN(sanitizedValue)) {
+			onchange(value, true);
+		} else {
+			onchange(sanitizedValue, true);
 		}
 
-		onchange(sanitize(newValue, suffix));
+		onblur?.(event);
 	}
 
 	function onKeyDown(event) {
@@ -68,9 +76,10 @@
 
 			const diff = Keyboard.getStepFromEvent(event) * step;
 			const direction = event.keyCode === 38 ? 1 : -1;
-			const newValue = sanitize(composedValue, suffix) + direction * diff;
+			const sanitizedValue =
+				sanitize(event.currentTarget.value, suffix) + direction * diff;
 
-			onchange(newValue);
+			onchange(sanitizedValue, false);
 		}
 	}
 </script>
@@ -93,6 +102,7 @@
 				{disabled}
 				{context}
 				{key}
+				bind:node
 				onkeydown={onKeyDown}
 				onfocus={onFocus}
 				onblur={onBlur}
@@ -108,6 +118,7 @@
 			onkeydown={onKeyDown}
 			onfocus={onFocus}
 			onblur={onBlur}
+			bind:node
 			value={composedValue}
 		/>
 	{/if}

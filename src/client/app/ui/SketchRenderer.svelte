@@ -74,6 +74,11 @@
 			render.screenshot();
 			exports.capturing = false;
 		}
+
+		if (exports.committing) {
+			render.commit();
+			exports.committing = false;
+		}
 	});
 
 	function checkForRefresh(event) {
@@ -110,6 +115,16 @@
 	function checkForRecord(event) {
 		if (event.shiftKey) {
 			exports.recording = !exports.recording;
+		}
+	}
+
+	function checkForCommit(event) {
+		if (event.metaKey || event.ctrlKey) {
+			event.preventDefault();
+
+			if (!exports.committing) {
+				render.commit();
+			}
 		}
 	}
 
@@ -154,6 +169,7 @@
 <KeyBinding type="down" key=" " onTrigger={checkForPause} />
 <KeyBinding type="down" key="s" onTrigger={checkForScreenshot} />
 <KeyBinding type="down" key="S" onTrigger={checkForRecord} />
+<KeyBinding type="down" key="k" onTrigger={checkForCommit} />
 
 <style>
 	.sketch-renderer {

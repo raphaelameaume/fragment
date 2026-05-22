@@ -11,19 +11,23 @@ type BaseProp<Value, Params, Type> = {
 };
 
 type SelectProp = BaseProp<
-	number | string,
+	number | string | undefined,
 	{
 		options?:
 			| number[]
 			| string[]
+			| undefined[]
 			| Array<{ label?: string; value: number }>
-			| Array<{ label?: string; value: string }>;
+			| Array<{ label?: string; value: string | undefined }>;
 	},
 	'select'
 >;
 type NumberProp = BaseProp<
 	number,
-	{ disabled?: boolean; step?: number } | { min: number; max: number },
+	({ min?: never; max?: never } | { min: number; max: number }) & {
+		step?: number;
+		suffix?: string;
+	},
 	'number'
 >;
 
@@ -56,23 +60,39 @@ type VecParams<V extends VecValue> = V extends readonly number[]
 
 type VecProp<V extends VecValue = VecValue> = BaseProp<
 	V,
-	{ locked?: boolean } | VecParams<V>,
+	{ locked?: boolean; suffix?: string } & VecParams<V>,
 	'vec'
 >;
 type CheckboxProp = BaseProp<boolean, never, 'checkbox'>;
-type TextProp = BaseProp<string, { disabled?: boolean }, 'text'>;
-type ListProp = BaseProp<any[], { disabled?: boolean }, 'list'>;
-type ColorProp = BaseProp<
-	string | THREE.Color | { r: number; g: number; b: string; a?: number },
-	never,
-	'color'
+type TextProp = BaseProp<string, { label?: string }, 'text'>;
+type TextareaProp = BaseProp<string, { height?: string }, 'textarea'>;
+type ListProp = BaseProp<any[], never, 'list'>;
+type ColorRepresentation =
+	| string
+	| THREE.Color
+	| { r: number; g: number; b: string; a?: number };
+type ColorProp = BaseProp<ColorRepresentation, never, 'color'>;
+type PaletteProp = BaseProp<
+	ColorRepresentation[],
+	{ extensible?: boolean; editable?: boolean },
+	'palette'
 >;
-type ButtonProp = BaseProp<
-	() => void,
-	{ disabled?: boolean; label?: string },
-	'button' | 'download'
+type ButtonProp = BaseProp<() => void, { label?: string }, 'button'>;
+type ImportProp = BaseProp<
+	(event: ProgressEvent) => void,
+	{ label?: string; accept?: string },
+	'import'
+>;
+type DownloadProp = BaseProp<
+	() => [any, string],
+	{ label?: string },
+	'download'
 >;
 type ImageProp = BaseProp<string, never, 'image'>;
+
+type GradientStop = { color: ColorRepresentation; position: number };
+
+type GradientProp = BaseProp<GradientStop[], never, 'gradient'>;
 
 type Prop =
 	| SelectProp
@@ -81,10 +101,15 @@ type Prop =
 	| VecProp<VecArray>
 	| CheckboxProp
 	| TextProp
+	| TextareaProp
 	| ListProp
 	| ColorProp
+	| PaletteProp
+	| ImportProp
+	| DownloadProp
 	| ButtonProp
-	| ImageProp;
+	| ImageProp
+	| GradientProp;
 
 export type Props = Record<string, Prop>;
 

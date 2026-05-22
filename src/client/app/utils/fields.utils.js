@@ -14,17 +14,37 @@ export const fieldTypes = {
 	IMPORT: 'import',
 	IMAGE: 'image',
 	INTERVAL: 'interval',
+	WRAPPER: 'wrapper',
+	PALETTE: 'palette',
+	GRADIENT: 'gradient',
 };
 
 /** @type string[] */
 const types = Object.values(fieldTypes);
 
 function isImageURL(url) {
-	return url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null;
+	return (
+		url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null ||
+		url.startsWith('data:image')
+	);
 }
 
 function isImage(value) {
 	return typeof value === HTMLImageElement || isImageURL(value);
+}
+
+/**
+ *
+ * @param {any[]} value
+ * @returns {boolean}
+ */
+function isGradient(value) {
+	return value.every(
+		(v) =>
+			typeof v === 'object' &&
+			typeof v.position === 'number' &&
+			isColor(v.color),
+	);
 }
 
 export function inferFieldType({ type, value, params, key }) {
@@ -82,6 +102,10 @@ export function inferFieldType({ type, value, params, key }) {
 			typeof params.max === 'number'
 		) {
 			return fieldTypes.INTERVAL;
+		} else if (isArray && isGradient(value)) {
+			return fieldTypes.GRADIENT;
+		} else if (isArray && values.every((v) => isColor(v))) {
+			return fieldTypes.PALETTE;
 		} else if (isColor(value)) {
 			return fieldTypes.COLOR;
 		} else if (typeof value === 'number') {
@@ -115,10 +139,12 @@ export function inferFieldType({ type, value, params, key }) {
  * @param {string} folder
  */
 export function parseFolder(folder) {
-	const regex = /(?<name>[\w ]+)(?:\[(?<attributes>[^\]]+)\])?/g;
-	const matches = [...folder.matchAll(regex)];
+	const segments = folder.split('.');
+	const regex = /(?<name>[^\[]+)(?:\[(?<attributes>[^\]]+)\])?/;
 
-	const results = matches.map((match) => {
+	const results = segments.map((segment) => {
+		const match = segment.match(regex);
+
 		return {
 			name: match.groups.name,
 			attributes: match.groups.attributes

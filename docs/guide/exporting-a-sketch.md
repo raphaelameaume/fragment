@@ -80,3 +80,9 @@ By default, exports are saved to the working directory from which Fragment was l
 ```js
 export let exportDir = "/path/to/custom/directory";
 ```
+
+## Committing your changes
+
+Fragment can automatically create commits using the keyboard shortcut `Cmd/Ctrl + K`. Each commit captures the canvas based on the Exports settings and saves it to disk along with a JSON file containing the current props values. 
+This lets you return to a specific version of your sketch, whether changes were made through code or the GUI.
+This is especially useful for generative art workflows when the seed is exposed via props or [`filenamePattern`](../api/sketch.md#filename-pattern)
