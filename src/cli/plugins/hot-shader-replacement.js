@@ -4,11 +4,20 @@ import { readFile } from 'node:fs/promises';
 import { log, dim, green, yellow } from '../log.js';
 
 /**
- * @typedef {Object} ShaderUpdate
+ * @typedef Warning
+ * @property {string} type
+ * @property {string} importer
+ * @property {string} message
+ * @property {string} url
+ * @property {{ lineText: string }} location
+ */
+
+/**
+ * @typedef ShaderUpdate
  * @property {string} filepath - The path of the shader on the filesystem
  * @property {string} source - The source code of the shader
  * @property {boolean} nohsr - Whether the shader can be injected on the fly or if the sketch needs to be fully reloaded
- * @property {string[]} warnings - Indicates whether the Wisdom component is present.
+ * @property {Warning[]} warnings - Indicates whether the Wisdom component is present.
  */
 
 /**
@@ -28,8 +37,11 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 		/(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi;
 	const base = process.cwd().split(path.sep).join(path.posix.sep);
 
+	/** @type Map<string, string[]> */
 	let dependencies = new Map();
+	/** @type {string[]} */
 	let shaders = [];
+	/** @type {import('vite').ModuleNode[]} */
 	let modulesToReload = [];
 
 	function reloadSketch() {
@@ -56,6 +68,12 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 		return clone;
 	}
 
+	/**
+	 *
+	 * @param {string} shaderSource
+	 * @param {string} shaderPath
+	 * @returns
+	 */
 	function addShaderFilepath(shaderSource, shaderPath) {
 		let keyword = `void main`;
 		let shaderParts = shaderSource.split(keyword);
@@ -67,10 +85,21 @@ ${keyword}${shaderParts[1]}
         `;
 	}
 
+	/**
+	 *
+	 * @param {string} shaderPath
+	 * @returns {string}
+	 */
 	function getUnixPath(shaderPath) {
 		return shaderPath.split(path.sep).join(path.posix.sep);
 	}
 
+	/**
+	 *
+	 * @param {string} shaderSource
+	 * @param {string} shaderPath
+	 * @returns
+	 */
 	function compileGLSL(shaderSource, shaderPath) {
 		// test if shader source contains hint to avoid shader injection
 		const nohsr = ignoreRegex.test(shaderSource);
@@ -97,7 +126,8 @@ ${keyword}${shaderParts[1]}
 		 * @param {string} parentSource
 		 * @param {string} parentPath
 		 * @param {string[]} deps
-		 * @returns {}
+		 * @param {Warning[]} warnings
+		 * @returns {{ code: string, deps: string[], warnings: Warning[] }}
 		 */
 		function resolveDependencies(
 			parentSource,
@@ -163,7 +193,7 @@ ${keyword}${shaderParts[1]}
 
 						const parents = dependencies.get(chunkUnixPath);
 
-						if (!parents.includes(shaderPath)) {
+						if (parents && !parents.includes(shaderPath)) {
 							parents.push(shaderPath);
 							deps.push(chunkResolvedPath);
 						} else {
@@ -237,8 +267,7 @@ ${keyword}${shaderParts[1]}
 
 		warnings.forEach((warning) => {
 			const { location } = warning;
-			const line = 1;
-			const column = 4;
+
 			log.message(`${yellow(warning.type)} ${warning.importer}`, prefix);
 			console.log();
 			console.log(`  ${dim(location.lineText)}`);
@@ -292,7 +321,7 @@ ${keyword}${shaderParts[1]}
 		config: () => ({
 			optimizeDeps: {
 				rolldownOptions: {
-					loader: {
+					moduleTypes: {
 						'.frag': 'text',
 						'.vert': 'text',
 						'.glsl': 'text',
@@ -305,7 +334,7 @@ ${keyword}${shaderParts[1]}
 		configureServer(_server) {
 			server = _server;
 		},
-		handleHotUpdate: async ({ modules, file, read }) => {
+		handleHotUpdate: async ({ file, read }) => {
 			const { moduleGraph } = server;
 
 			if (fileRegex.test(file)) {
@@ -324,7 +353,7 @@ ${keyword}${shaderParts[1]}
 						nohsr,
 					} = compileGLSL(source, file);
 
-					/** @type ShaderUpdate[] */
+					/** @type ShaderUpdate */
 					const shaderUpdate = {
 						filepath: unixPath,
 						source: glsl,
@@ -335,16 +364,21 @@ ${keyword}${shaderParts[1]}
 					return reloadShaders([shaderUpdate]);
 				} else {
 					if (dependencies.has(unixPath)) {
-						const shadersList = dependencies.get(unixPath);
+						const shadersList = dependencies.get(unixPath) ?? [];
 
 						// retrieve modules from module graph
-						const moduleNodes = shadersList.map((moduleNode) =>
-							moduleGraph.getModuleById(moduleNode),
-						);
+						const moduleNodes = shadersList
+							.map((moduleNode) =>
+								moduleGraph.getModuleById(moduleNode),
+							)
+							.filter((moduleNode) => moduleNode !== undefined);
 
 						// save it as modules to reload to invalidate the top level shaders in case a dependency has been hot updated in between
-						modulesToReload.push(...moduleNodes);
+						if (moduleNodes.length > 0) {
+							modulesToReload.push(...moduleNodes);
+						}
 
+						/** @type {string[]} */
 						const sources = await Promise.all(
 							shadersList.map((shader) => {
 								return readFile(shader, 'utf-8');
