@@ -1,15 +1,17 @@
 <script>
-	let {
-		value = $bindable(),
-		context,
-		key = '',
-		disabled = false,
-		onchange,
-	} = $props();
+	/**
+	 * @typedef {Object} Props
+	 * @property {boolean} value
+	 * @property {boolean} disabled
+	 * @property {(value: boolean) => void|undefined} onchange
+	 */
 
-	const handleChange = (event) => {
-		onchange(value);
-	};
+	/** @type {Props} */
+	let { value = $bindable(), disabled = false, onchange } = $props();
+
+	function handleChange() {
+		onchange?.(value);
+	}
 </script>
 
 <div class="checkbox" class:disabled>
@@ -18,7 +20,7 @@
 		bind:checked={value}
 		type="checkbox"
 		onchange={handleChange}
-		disabled={disabled ? 'disabled' : null}
+		{disabled}
 	/>
 </div>
 

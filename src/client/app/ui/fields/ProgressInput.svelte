@@ -2,46 +2,74 @@
 	import Keyboard from '../../inputs/Keyboard.js';
 	import { map, clamp, roundToStep } from '../../utils/math.utils.js';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {number} value
+	 * @property {number} min
+	 * @property {number} max
+	 * @property {number} step
+	 * @property {boolean} disabled
+	 * @property {(value: number) => void|undefined} onchange
+	 */
+
+	/** @type {Props} */
 	let { value, min, max, step, disabled = false, onchange } = $props();
 
+	/** @type {HTMLElement|undefined} */
 	let node;
+	/** @type {DOMRect|undefined} */
 	let rect;
 
 	let isDragging = $state(false);
 	let steppedValue = $derived(roundToStep(value, step));
 
-	// handlers
+	/**
+	 * @param {MouseEvent} event
+	 */
 	function handleMouseDown(event) {
 		if (disabled) return;
 
-		document.body.classList.add('fragment-dragging');
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
+		if (node) {
+			document.body.classList.add('fragment-dragging');
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
 
-		rect = node.getBoundingClientRect();
+			rect = node.getBoundingClientRect();
 
-		isDragging = true;
+			isDragging = true;
 
-		onDrag(event);
+			onDrag(event);
+		}
 	}
 
+	/**
+	 * @param {MouseEvent} event
+	 */
 	function handleMouseMove(event) {
 		onDrag(event);
 	}
 
+	/**
+	 * @param {MouseEvent} event
+	 */
 	function onDrag(event) {
-		let dragValue = clamp(
-			map(event.clientX, rect.left, rect.right, min, max),
-			min,
-			max,
-		);
-		dragValue = roundToStep(dragValue, step);
+		if (rect) {
+			let dragValue = clamp(
+				map(event.clientX, rect.left, rect.right, min, max),
+				min,
+				max,
+			);
+			dragValue = roundToStep(dragValue, step);
 
-		if (dragValue !== value) {
-			onchange(dragValue);
+			if (dragValue !== value) {
+				onchange?.(dragValue);
+			}
 		}
 	}
 
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function handleKeyDown(event) {
 		const direction = ['ArrowUp', 'ArrowRight'].includes(event.key)
 			? 1
@@ -59,7 +87,7 @@
 			);
 
 			if (newValue !== value) {
-				onchange(newValue);
+				onchange?.(newValue);
 			}
 		}
 	}
