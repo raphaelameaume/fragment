@@ -16,19 +16,21 @@
 	let textValue = $state();
 	let alpha = $state(1);
 	let hasAlpha = $derived(
-		[
-			color.FORMATS.RGBA_STRING,
-			color.FORMATS.VEC4_STRING,
-			color.FORMATS.VEC4_ARRAY,
-			color.FORMATS.RGBA_OBJECT,
-			color.FORMATS.RGBA_OBJECT_STRING,
-			color.FORMATS.HSLA_STRING,
-		].includes(format),
+		format &&
+			[
+				color.FORMATS.RGBA_STRING,
+				color.FORMATS.VEC4_STRING,
+				color.FORMATS.VEC4_ARRAY,
+				color.FORMATS.RGBA_OBJECT,
+				color.FORMATS.RGBA_OBJECT_STRING,
+				color.FORMATS.HSLA_STRING,
+			].includes(format),
 	);
 
 	$effect(() => {
 		if (hasAlpha) {
-			const [r, g, b, a = 1] = color.toComponents(value);
+			const components = color.toComponents(value);
+			const a = components[3] ?? 1;
 			alpha = a;
 		} else {
 			alpha = 1;
@@ -144,7 +146,7 @@
 			<input
 				class="input"
 				type="color"
-				disabled={disabled ? 'disabled' : null}
+				{disabled}
 				value={hexValue}
 				onblur={handleBlur}
 				oninput={onInput}

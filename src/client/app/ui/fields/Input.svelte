@@ -11,9 +11,15 @@
 		node = $bindable(),
 	} = $props();
 
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function onKeyPress(event) {
-		if (event.key === 'Enter') {
-			node.blur();
+		if (
+			event.currentTarget instanceof HTMLInputElement &&
+			event.key === 'Enter'
+		) {
+			event.currentTarget.blur();
 		}
 	}
 </script>
@@ -32,7 +38,7 @@
 		{onfocus}
 		{onblur}
 		onkeypress={onKeyPress}
-		disabled={disabled ? 'disabled' : null}
+		{disabled}
 		autocomplete="off"
 		spellcheck="false"
 	/>

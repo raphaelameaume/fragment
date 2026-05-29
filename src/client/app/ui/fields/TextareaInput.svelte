@@ -1,6 +1,5 @@
 <script>
 	let {
-		label,
 		value = $bindable(),
 		height,
 		disabled = false,
@@ -11,14 +10,16 @@
 		onblur,
 	} = $props();
 
-	$inspect(height);
-
-	/** @type {HTMLInputElement} */
-	let node;
-
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function onKeyPress(event) {
-		if (event.key === 'Enter' && !event.shiftKey) {
-			node.blur();
+		if (
+			event.currentTarget instanceof HTMLTextAreaElement &&
+			event.key === 'Enter' &&
+			!event.shiftKey
+		) {
+			event.currentTarget.blur();
 		}
 	}
 </script>
@@ -30,7 +31,6 @@
 >
 	<textarea
 		class="input"
-		bind:this={node}
 		bind:value
 		{oninput}
 		{onchange}
@@ -38,7 +38,7 @@
 		{onfocus}
 		{onblur}
 		onkeypress={onKeyPress}
-		disabled={disabled ? 'disabled' : null}
+		{disabled}
 		autocomplete="off"
 		spellcheck="false"
 	></textarea>
