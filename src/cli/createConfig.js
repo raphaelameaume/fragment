@@ -129,7 +129,12 @@ export async function createConfig(
 				__DEV__: !build,
 			},
 			optimizeDeps: {
-				include: ['convert-length', 'changedpi'],
+				include: [
+					'convert-length',
+					'changedpi',
+					'gifenc',
+					'mediabunny',
+				],
 			},
 		}),
 		config.vite ?? {},
