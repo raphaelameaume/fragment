@@ -1,8 +1,7 @@
-import { Props } from './props';
+import type { Props } from './props';
 
 /**
  * Declare props with full type inference support
- *
  * @param {Props} props
  * @returns {Props}
  */

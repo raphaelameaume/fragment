@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { createServer, mergeConfig } from 'vite';
-import { createConfig } from './createConfig.js';
+import { loadConfig, createConfig } from './createConfig.js';
 import {
 	createTsConfigFile,
 	FRAGMENT_DIRECTORY,
@@ -18,20 +18,27 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 /**
  * Run a sketch
  * @param {string} entry
- * @param {object} options
- * @param {boolean} options.development
- * @param {number} options.port
- * @param {number} options.exportDir
- * @param {string} options.configFilepath
+ * @param {object} [options={}]
+ * @param {boolean} [options.development]
+ * @param {number} [options.port]
+ * @param {boolean} [options.open]
+ * @param {string} [options.exportDir]
+ * @param {string} [options.configFilepath]
+ * @returns {Promise<void>}
  */
-export async function run(entry, options = {}) {
+export async function run(
+	entry,
+	{ development, port, open, exportDir, configFilepath } = {},
+) {
+	const cwd = process.cwd();
+	const command = 'run';
+	const prefix = log.prefix(command);
+
+	const options = { exportDir, development, port, open, configFilepath };
+
 	let fragmentServer;
 	/** @type {import('node:fs').FSWatcher} */
 	let watcher;
-
-	const cwd = process.cwd();
-	const command = `run`;
-	const prefix = log.prefix(command);
 
 	const stop = () => {
 		fragmentServer?.close();
@@ -68,6 +75,14 @@ export async function run(entry, options = {}) {
 			);
 		}
 
+		const fragmentConfig = await loadConfig({
+			cwd,
+			filepath: configFilepath,
+		});
+
+		port = port ?? fragmentConfig.port;
+		open = open ?? fragmentConfig.open;
+
 		const hasTSFiles = entries.some((entry) => entry.endsWith('ts'));
 		const tsConfigDirpath = path.join(cwd, FRAGMENT_DIRECTORY);
 		const tsConfigFilepath = path.join(tsConfigDirpath, 'tsconfig.json');
@@ -82,10 +97,10 @@ export async function run(entry, options = {}) {
 		const config = await createConfig(
 			entries,
 			{
-				dev: options.development,
+				dev: development,
 				build: false,
 			},
-			options.configFilepath,
+			fragmentConfig.vite,
 			cwd,
 		);
 
@@ -94,8 +109,9 @@ export async function run(entry, options = {}) {
 		const server = await createServer(
 			mergeConfig(config, {
 				server: {
-					port: options.port,
 					host: true,
+					port,
+					open,
 					fs: {
 						strict: false,
 						allow: ['..'],
@@ -105,11 +121,13 @@ export async function run(entry, options = {}) {
 					__FRAGMENT_PORT__: fragmentServer.port,
 				},
 				plugins: [
-					hotSketchReload({
-						cwd,
-					}),
+					hotSketchReload({ cwd }),
 					hotShaderReplacement({ cwd, wss: fragmentServer }),
-					save({ cwd, inlineExportDir: options.exportDir }),
+					save({
+						cwd,
+						inlineExportDir: exportDir,
+						configExportDir: fragmentConfig.exportDir,
+					}),
 				],
 			}),
 		);
@@ -119,7 +137,7 @@ export async function run(entry, options = {}) {
 				['fragment.config.js', 'fragment.config.ts'].includes(
 					filename,
 				) ||
-				options.configFilepath?.includes(filename)
+				configFilepath?.includes(filename)
 			) {
 				log.warn(`${filename} has changed. Restarting...`);
 				console.log();

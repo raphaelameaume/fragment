@@ -9,6 +9,28 @@ import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
 
+/** @type import('../types/config.js').Config */
+export const DEFAULT_CONFIG = {
+	port: 3000,
+	open: false,
+	exportDir: undefined,
+	create: {
+		template: 'default',
+		typescript: false,
+	},
+	build: {
+		outDir: undefined,
+		emptyOutDir: true,
+		base: undefined,
+		prompts: true,
+	},
+	preview: {
+		port: 3000,
+		open: false,
+	},
+	vite: {},
+};
+
 /**
  *
  * @param {{ cwd: string, filepath: string | undefined }} params
@@ -43,7 +65,7 @@ export async function loadConfig({ cwd, filepath }) {
 
 		let configFile = path.relative(cwd, resolvedPath);
 
-		log.info(`Extending configuration from ${configFile}`);
+		log.info(`Loading configuration from ${configFile}`);
 
 		const config = (
 			await import(
@@ -51,7 +73,7 @@ export async function loadConfig({ cwd, filepath }) {
 			)
 		).default;
 
-		return config;
+		return mergeConfig(DEFAULT_CONFIG, config, false);
 	} catch (error) {
 		log.error(error);
 		return {};
@@ -64,14 +86,14 @@ export async function loadConfig({ cwd, filepath }) {
  * @param {object} [options]
  * @param {boolean} [options.dev=false]
  * @param {boolean} [options.build=false]
- * @param {string} [configFilepath]
+ * @param {import('vite').UserConfig} [config]
  * @param {string} [cwd=process.cwd()]
  * @returns {Promise<import('vite').UserConfig>}
  */
 export async function createConfig(
 	entries,
 	{ dev = false, build = false } = {},
-	configFilepath,
+	config = {},
 	cwd = process.cwd(),
 ) {
 	const entriesPaths = entries.map((entry) => path.join(cwd, entry));
@@ -80,11 +102,6 @@ export async function createConfig(
 	const app = path.join(root, 'app');
 
 	log.info(`Creating Vite configuration...`);
-
-	const config = await loadConfig({
-		cwd,
-		filepath: configFilepath,
-	});
 
 	return mergeConfig(
 		defineConfig({
@@ -137,6 +154,6 @@ export async function createConfig(
 				],
 			},
 		}),
-		config.vite ?? {},
+		config,
 	);
 }

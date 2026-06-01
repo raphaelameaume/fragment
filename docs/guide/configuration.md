@@ -15,7 +15,86 @@ A different configuration file path can be provided using the `--config` flag on
 fragment sketch.js --config custom/path/to/config.js
 ```
 
-## Extending Vite
+## Config options
+
+### server.port
+
+- Type: `number`
+- Default: `3000`
+
+Specify the server port.
+
+### server.open
+
+- Type: `boolean`
+- Default: `false`
+
+Flag to open the application in the browser when the server starts.
+
+### exportDir
+
+- Type: `string`
+- Default: `undefined`
+
+Override directory used for exports.
+
+### create.template
+
+- Type: `'blank' | 'default' | 'fragment-gl' | 'p5' | 'p5-gl' | 'three-fragment' | 'three-orthographic' | 'three-perspective'`
+- Default: `'default'`
+
+Pre-populate template choice in create prompts.
+
+### create.typescript
+
+- Type: `boolean`
+- Default: `false`
+
+Pre-populate TypeScript support choice in create prompts.
+
+### build.outDir
+
+- Type: `string`
+- Default: `undefined`
+
+Pre-populate out directory in build prompts.
+
+### build.emptyOutDir
+
+- Type: `boolean`
+- Default: `true`
+
+Pre-populate flag to empty outDir before static build in build prompts.
+
+### build.base
+
+- Type: `string`
+- Default: `undefined`
+
+Pre-populate base public path in build prompts.
+
+### build.prompts
+
+- Type: `boolean`
+- Default: `true`
+
+Toggle interactive prompts in build prompts.
+
+### preview.port
+
+- Type: `number`
+- Default: `3000`
+
+Specify the preview server port.
+
+### preview.open
+
+- Type: `boolean`
+- Default: `false`
+
+Flag to open the application in the browser when the preview server starts.
+
+### vite
 
 Vite's configuration can be extended by adding Vite options under the `vite` property in the config file.
 
