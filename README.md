@@ -4,7 +4,7 @@
 
 Fragment lets you sketch, render, and export canvas-based graphics with ease, from quick experiments to production-ready visuals.
 
-![Screen capture of Fragment, splitted in two columns, the left one has a canvas displaying circles arranged in a grid layout with chromatic aberration, grain and blur effects. The right column contains various controls for colors, circle and grid parameters and an export module with video capabilities](https://github.com/raphaelameaume/fragment/raw/main/screenshot.jpg 'Screen Capture of Fragment')
+![Screen capture of Fragment, splitted in two columns, the left one has a canvas displaying circles arranged in a grid layout with chromatic aberration, grain and blur effects. The right column contains various controls for colors, circle and grid parameters and an export module with video capabilities](https://github.com/raphaelameaume/fragment/blob/dev/screenshot.jpg?raw=true 'Screen Capture of Fragment')
 
 
 ## Features
