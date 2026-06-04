@@ -138,9 +138,9 @@ export let props = {
 
 A slider should have appeared after saving the sketch file next to the previous input. Now if you click and drag on the slider, you should see your circle changing live.
 
-Congrats, you made your first sketch in `fragment`!
+Congrats, you made your first sketch in Fragment!
 
-If you want to know more about `props` and what can be done with it, check out the [SketchProps](../api/sketch.md#sketchprops) section of the documentation.
+If you want to know more about `props` and what can be done with it, check out the [Props](../api/props.md) section of the documentation.
 
 
 ## Next steps
