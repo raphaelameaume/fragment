@@ -38,9 +38,15 @@ export let onMountPreview = ({
 	pixelRatio,
 }) => {
 	const p = new p5((sketch) => {
-		sketch.pixelDensity(pixelRatio);
 		sketch.setup = () => {
-			sketch.createCanvas(width, height, 'webgl', canvas);
+			const dpr = window.devicePixelRatio;
+			sketch.pixelDensity(pixelRatio);
+			sketch.createCanvas(
+				(width / dpr) * pixelRatio,
+				(height / dpr) * pixelRatio,
+				'webgl',
+				canvas,
+			);
 		};
 	}, container);
 
