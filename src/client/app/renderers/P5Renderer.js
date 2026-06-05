@@ -34,9 +34,14 @@ export let onMountPreview = ({
 	pixelRatio,
 }) => {
 	const p = new p5((sketch) => {
-		sketch.pixelDensity(pixelRatio);
 		sketch.setup = () => {
-			sketch.createCanvas(width, height, canvas);
+			const dpr = window.devicePixelRatio;
+			sketch.pixelDensity(pixelRatio);
+			sketch.createCanvas(
+				(width / dpr) * pixelRatio,
+				(height / dpr) * pixelRatio,
+				canvas,
+			);
 		};
 	}, container);
 
@@ -52,10 +57,7 @@ export let onMountPreview = ({
 };
 
 /**
- * @param {MountParamsP5Renderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLDivElement} params.container
+ * @param {MountParamsP5Renderer & PreviewP5Renderer} params
  */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
