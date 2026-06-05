@@ -1,6 +1,5 @@
 # Principles & Intent
 
-
 Fragment exists to make digital sketching, experimentation, and visual exploration fast, intuitive, and empowering. The tool should:
 - encourage creative iteration without friction
 - remain understandable and transparent rather than magical or opaque
@@ -14,7 +13,7 @@ Its design principles prioritize openness, longevity, and creative independence.
 
 ## Local-first
 
-Fragment is designed to run fully offline. No network access is required to load fonts, scripts, styles, or other assets.
+Fragment is designed to run fully offline. No network access is required to load fonts, scripts, styles, or other assets, to the limit of sketches requirements.
 
 This ensures that:
 - Sketches always run the same, with or without internet access.
@@ -29,14 +28,16 @@ Fragment aims to keep external dependencies to a minimum. This serves two goals:
 
 ## Credible exit
 
-Fragment encourages writing sketches that can survive outside of Fragment itself.
+Fragment encourages writing sketches that can exist outside of Fragment itself.
 
 A sketch should remain usable in another environment as long as it does not rely on Fragment-specific hooks or helpers. This avoids lock-in and ensures:
 - Code remains your own.
 - Nothing prevents you from exporting, adapting, or running it elsewhere later.
-- Fragment remains a tool - not a boundary.
+- Fragment remains a tool and should not be a boundary.
 
 This aligns with the idea of a [credible exit](https://newsletter.squishy.computer/p/credible-exit): the freedom to leave without losing the work you've created.
+
+The API of Fragment is designed to be portable to other stacks and tools and should remain agnostic.
 
 For example, a sketch can be manually assembled into a small standalone animation loop without using Fragment at all:
 
