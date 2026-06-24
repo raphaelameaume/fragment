@@ -409,7 +409,13 @@ class Sketch {
 					collection.push(fieldgroup);
 				}
 
-				if (fieldgroup && isCurrent) {
+				if (
+					fieldgroup &&
+					isCurrent &&
+					!fieldgroup.children.some(
+						(c) => c.type === 'field' && c.key === key,
+					)
+				) {
 					fieldgroup.children.push({
 						type: 'field',
 						key,
