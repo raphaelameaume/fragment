@@ -131,38 +131,40 @@
 		{/if}
 		{#if typeof sketchProps === 'object'}
 			{#snippet sketchField(index, key, prop)}
-				{@const {
-					hidden,
-					displayName,
-					value,
-					type,
-					disabled,
-					__initialValue: initialValue,
-				} = prop}
-				{#if !hidden}
-					<Field
-						context={sketch.key}
-						{key}
-						{displayName}
-						{value}
-						{initialValue}
-						{type}
-						{index}
-						{disabled}
-						bind:params={sketchProps[key].params}
-						bind:triggers={prop.triggers}
-						trackChanges
-						onclick={(event) => {
-							sketch.version++;
-							// value(event, sketch.params);
-						}}
-						onchange={(v) => {
-							if (v?.currentTarget && v?.type === 'change') {
-								v = v.currentTarget.value;
-							}
-							sketch.updateProp(key, v);
-						}}
-					/>
+				{#if prop}
+					{@const {
+						hidden,
+						displayName,
+						value,
+						type,
+						disabled,
+						__initialValue: initialValue,
+					} = prop}
+					{#if !hidden}
+						<Field
+							context={sketch.key}
+							{key}
+							{displayName}
+							{value}
+							{initialValue}
+							{type}
+							{index}
+							{disabled}
+							bind:params={sketchProps[key].params}
+							bind:triggers={prop.triggers}
+							trackChanges
+							onclick={(event) => {
+								sketch.version++;
+								// value(event, sketch.params);
+							}}
+							onchange={(v) => {
+								if (v?.currentTarget && v?.type === 'change') {
+									v = v.currentTarget.value;
+								}
+								sketch.updateProp(key, v);
+							}}
+						/>
+					{/if}
 				{/if}
 			{/snippet}
 			{#snippet sketchPropItem(index, item)}
