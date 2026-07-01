@@ -4,13 +4,15 @@
 	import FieldInputRow from './FieldInputRow.svelte';
 	import TextInput from './TextInput.svelte';
 
-	let {
-		value,
-		context = null,
-		key = '',
-		onchange,
-		disabled = false,
-	} = $props();
+	/**
+	 * @typedef {Object} Props
+	 * @property {string|HTMLImageElement|string[]|HTMLImageElement[]} value
+	 * @property {boolean} disabled
+	 * @property {(value: string|HTMLImageElement|string[]|HTMLImageElement[]) => void|undefined} onchange
+	 */
+
+	/** @type {Props} */
+	let { value, onchange, disabled = false } = $props();
 
 	/** @type {HTMLImageElement} */
 	let img;
@@ -18,45 +20,95 @@
 	let input;
 
 	let name = $state('');
-	let url = $derived(typeof value === HTMLImageElement ? value.src : value);
+	let url = $derived.by(() => {
+		if (value instanceof HTMLImageElement) {
+			return value.src;
+		}
+
+		if (Array.isArray(value)) {
+			if (value.every((v) => v instanceof HTMLImageElement)) {
+				return value[0].src;
+			}
+
+			return value[0];
+		}
+
+		return value;
+	});
 	let displayUrl = $derived(name ? name : url.replace(`/@fs${__CWD__}`, ''));
 
-	$effect(async () => {
-		await loadImage(url, { img });
+	$effect(() => {
+		loadImage(url, { img });
 	});
 
 	function handleClick() {
 		input.click();
 	}
 
-	let reader = new FileReader();
 	let dragover = $state(false);
 
+	/**
+	 *
+	 * @param {Event | DragEvent} event
+	 */
 	function handleUpload(event) {
-		event.preventDefault();
-		event.stopPropagation();
+		/** @type {File[]} */
+		let files = [];
 
-		let file;
-
-		if (event.dataTransfer) {
-			file = event.dataTransfer.files[0];
+		if ('dataTransfer' in event && event.dataTransfer) {
+			files = [...event.dataTransfer.files];
 		} else if (event.target) {
-			file = event.target.files[0];
+			let target = /** @type {HTMLInputElement} */ (event.target);
+			files = [...(target?.files ?? [])];
 		}
 
-		name = file.name;
+		if (files.length > 0) {
+			name = files[0].name;
 
-		reader.onload = async (e) => {
-			reader.onload = null;
+			/** @type {string[]} */
+			let values = [];
 
-			value = e.target.result;
-			onchange(value);
-		};
-		reader.readAsDataURL(file);
+			files.forEach((file, index) => {
+				let reader = new FileReader();
+
+				/**
+				 *
+				 * @param {ProgressEvent} e
+				 */
+				reader.onload = (e) => {
+					reader.onload = null;
+
+					const result =
+						typeof reader.result === 'string' && reader.result;
+
+					console.log(result);
+
+					if (result) {
+						if (index === 0 && e.target) {
+							value = result;
+						}
+
+						if (files.length === 1) {
+							onchange(value);
+						} else {
+							values.push(result);
+
+							if (values.length === files.length) {
+								onchange(values);
+							}
+						}
+					}
+				};
+				reader.readAsDataURL(file);
+			});
+		}
 
 		dragover = false;
 	}
 
+	/**
+	 * @param {DragEvent} event
+	 */
 	function handleDragover(event) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -64,6 +116,9 @@
 		dragover = true;
 	}
 
+	/**
+	 * @param {DragEvent} event
+	 */
 	function handleDragleave(event) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -93,7 +148,8 @@
 					type="file"
 					bind:this={input}
 					onchange={handleUpload}
-					disabled={disabled ? 'disabled' : null}
+					{disabled}
+					multiple
 				/>
 			</div>
 			<TextInput disabled value={displayUrl} />

@@ -653,7 +653,12 @@ class Sketch {
 			const prop = this.props[key];
 
 			props[key] = {
-				value: isDataURL(prop.value) ? prop.__initialValue : prop.value,
+				value:
+					isDataURL(prop.value) ||
+					(Array.isArray(prop.value) &&
+						prop.value.every((v) => isDataURL(v)))
+						? prop.__initialValue
+						: prop.value,
 				params: prop.params,
 				triggers: prop.triggers,
 				__initialValue: prop.__initialValue,

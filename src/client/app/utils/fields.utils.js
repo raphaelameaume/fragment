@@ -117,6 +117,8 @@ export function inferFieldType({ type, value, params, key }) {
 			return fieldTypes.GRADIENT;
 		} else if (isArray && values.every((v) => isColor(v))) {
 			return fieldTypes.PALETTE;
+		} else if (isArray && values.every((v) => isImage(v))) {
+			return fieldTypes.IMAGE;
 		} else if (isColor(value)) {
 			return fieldTypes.COLOR;
 		} else if (typeof value === 'number') {
