@@ -41,6 +41,7 @@
     "@types/node": "^25.9.1",
     "@types/p5": "^1.7.6",
     "@types/three": "^0.174.0",
+    "@types/ws": "^8.18.1",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.2.6"
   }

@@ -7,13 +7,7 @@ import { rendering } from './rendering.svelte.js';
 import { removeHotListeners } from '../triggers/index.js';
 
 /**
- * @typedef {Object} SketchInstance
- * @property {string} [rendering]
- * @property {any} [renderer]
- */
-
-/**
- * @typedef {Record<string, () => Promise<SketchInstance>>} SketchCollection
+ * @typedef {Record<string, () => Promise<import('./Sketch.svelte.js').SketchInstance>>} SketchCollection
  */
 
 class SketchesManager {
@@ -26,7 +20,7 @@ class SketchesManager {
 	 * Load a single sketch from a collection
 	 * @param {SketchCollection} collection - The collection of sketches
 	 * @param {string} key - The key of the sketch to load
-	 * @returns {Promise<SketchInstance | undefined>}
+	 * @returns {Promise<import('./Sketch.svelte.js').SketchInstance | undefined>}
 	 */
 	async loadSketch(collection, key) {
 		try {
@@ -64,10 +58,10 @@ class SketchesManager {
 			keys.map((key) => this.loadSketch(collection, key)),
 		);
 
-		/** @type {Record<string, SketchInstance>} */
+		/** @type {Record<string, import('./Sketch.svelte.js').SketchInstance>} */
 		const newSketches = keys.reduce(
 			/**
-			 * @param {Record<string, SketchInstance>} all
+			 * @param {Record<string, import('./Sketch.svelte.js').SketchInstance>} all
 			 * @param {string} key
 			 * @param {number} index
 			 */

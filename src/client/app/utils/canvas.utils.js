@@ -36,7 +36,7 @@ import { createDataURLFromBlob, saveFiles } from './file.utils';
 /**
  * @typedef {Object} RecordCanvasOptions
  * @property {string} [filename='output'] - Base filename for output
- * @property {string} [format='mp4'] - Output format
+ * @property {import('../state/exports.svelte.js').VideoFormat} [format='mp4'] - Output format
  * @property {number} [framerate=25] - Frames per second
  * @property {number} [duration=Infinity] - Recording duration in seconds
  * @property {number} [quality=100] - Recording quality (1-100)

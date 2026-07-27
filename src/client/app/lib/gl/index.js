@@ -5,6 +5,24 @@ import Renderer from './Renderer.js';
 
 export { Geometry, Texture, Program, Renderer };
 
+/**
+ * @typedef {Object} Frag
+ * @property {WebGLRenderingContext|WebGL2RenderingContext|null} gl
+ * @property {Program} program
+ * @property {() => Texture} texture
+ * @property {(params: { width: number, height: number, pixelRatio: number }) => void} resize
+ * @property {() => void} render
+ * @property {() => void} destroy
+ */
+
+/**
+ *
+ * @param {object} params
+ * @param {HTMLCanvasElement} [params.canvas]
+ * @param {string} [params.shader]
+ * @param {Record<any, any>} [params.uniforms]
+ * @returns {Frag}
+ */
 export function fragment({
 	canvas = document.createElement('canvas'),
 	shader = defaultFragment,
@@ -42,9 +60,10 @@ export function fragment({
 	function destroy() {
 		geometry.destroy();
 		renderer.destroy();
-		uniforms = null;
+		uniforms = {};
 	}
 
+	/** @type {Frag} */
 	const frag = {
 		gl: renderer.gl,
 		program,

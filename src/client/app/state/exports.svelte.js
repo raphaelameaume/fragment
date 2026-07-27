@@ -2,8 +2,41 @@ import { saveFiles } from '@fragment/utils/file.utils';
 import { screenshotCanvas, recordCanvas } from '../utils/canvas.utils';
 import { hydrate, persist } from './utils.svelte';
 
+/**
+ * @typedef {'png' | 'jpeg' | 'webp'} ImageEncoding
+ */
+
+/**
+ * @typedef {'frames'|'mp4' | 'webm' | 'gif' | 'mkv' | 'mov' } VideoFormat
+ */
+
+/** @typedef CaptureParams
+ * @property {ImageEncoding} encoding
+ * @property {number} quality
+ * @property {number} pixelsPerInch
+ * @property {number} count
+ */
+
+/** @typedef RecordParams
+ * @property {number} framerate,
+ * @property {string} format,
+ * @property {ImageEncoding} imageEncoding,
+ * @property {number} quality,
+ * @property {number|undefined} duration,
+ */
+
+/** @callback CaptureListener
+ * @param {CaptureParams} params
+ */
+
+/** @callback RecordListener
+ * @param {RecordParams} params
+ */
+
+/** @type {ImageEncoding[]} */
 export const IMAGE_ENCODINGS = ['png', 'jpeg', 'webp'];
 
+/** @type {Record<string, VideoFormat>} */
 export const VIDEO_FORMATS = {
 	FRAMES: 'frames',
 	MP4: 'mp4',
@@ -13,6 +46,7 @@ export const VIDEO_FORMATS = {
 	MOV: 'mov',
 };
 
+/** @type {Record<string, import('../lib/canvas-recorder/MediaBunnyRecorder').VideoCodec>} */
 export const VIDEO_CODECS = {
 	AVC: 'avc',
 	HEVC: 'hevc',
@@ -21,6 +55,7 @@ export const VIDEO_CODECS = {
 	AV1: 'av1',
 };
 
+/** @type {Map<import('../lib/canvas-recorder/MediaBunnyRecorder').VideoCodec, string[]>} */
 export const VIDEO_CODECS_FORMATS = new Map();
 VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.AVC, ['mp4', 'mkv', 'mov']);
 VIDEO_CODECS_FORMATS.set(VIDEO_CODECS.HEVC, ['mp4', 'mkv', 'mov']);
@@ -47,6 +82,7 @@ export function getCodecsForFormat(format) {
 
 class Exports {
 	imageEncoding = $state(IMAGE_ENCODINGS[0]);
+	/** @type {VideoFormat} */
 	videoFormat = $state(VIDEO_FORMATS.MP4);
 	pixelsPerInch = $state(72);
 	framerate = $state(60);
@@ -90,6 +126,25 @@ class Exports {
 		hydrate(this.key, this);
 	}
 
+	/**
+	 *
+	 * @param {HTMLCanvasElement} canvas
+	 * @param {object} [options]
+	 * @param {number} [options.count]
+	 * @param {ImageEncoding} [options.encoding]
+	 * @param {number} [options.quality]
+	 * @param {number} [options.pixelsPerInch]
+	 * @param {string} [options.filename]
+	 * @param {File[]} [options.files]
+	 * @param {boolean} [options.commit]
+	 * @param {import('../utils/canvas.utils').FilenamePattern} [options.pattern]
+	 * @param {string} [options.exportDir]
+	 * @param {Record<any, any>} [options.params]
+	 * @param {CaptureListener} [options.onStart]
+	 * @param {CaptureListener} [options.onComplete]
+	 * @param {CaptureListener} [options.onBeforeCapture]
+	 * @param {CaptureListener} [options.onAfterCapture]
+	 */
 	async screenshot(
 		canvas,
 		{
@@ -109,6 +164,7 @@ class Exports {
 			onAfterCapture = () => {},
 		} = {},
 	) {
+		/** @type {CaptureParams} */
 		const captureParams = {
 			encoding,
 			quality,
@@ -116,10 +172,10 @@ class Exports {
 			count,
 		};
 
-		onStart(captureParams);
+		onStart?.(captureParams);
 
 		for (let i = 0; i < count; i++) {
-			onBeforeCapture(captureParams);
+			onBeforeCapture?.(captureParams);
 
 			const file = screenshotCanvas(canvas, {
 				filename,
@@ -134,10 +190,10 @@ class Exports {
 
 			files.push(file);
 
-			onAfterCapture(captureParams);
+			onAfterCapture?.(captureParams);
 		}
 
-		onComplete(captureParams);
+		onComplete?.(captureParams);
 
 		try {
 			await saveFiles(files, [], { commit });
@@ -147,6 +203,26 @@ class Exports {
 		}
 	}
 
+	/**
+	 *
+	 * @param {HTMLCanvasElement} canvas
+	 * @param {object} options
+	 * @param {number} [options.framerate]
+	 * @param {VideoFormat} [options.format]
+	 * @param {ImageEncoding} [options.imageEncoding]
+	 * @param {number} [options.quality]
+	 * @param {number} [options.duration]
+	 * @param {string} [options.filename]
+	 * @param {import('../utils/canvas.utils').FilenamePattern} [options.pattern]
+	 * @param {string} [options.exportDir]
+	 * @param {Record<any, any>} [options.params]
+	 * @param {import('@fragment/lib/canvas-recorder/MediaBunnyRecorder').VideoCodec} [options.codec]
+	 * @param {RecordListener} [options.onStart]
+	 * @param {RecordListener} [options.onComplete]
+	 * @param {RecordListener} [options.onBeforeRecord]
+	 * @param {RecordListener} [options.onAfterRecord]
+	 * @param {(params: { time: number, deltaTime: number }) => void} [options.onTick]
+	 */
 	record(
 		canvas,
 		{
@@ -167,6 +243,7 @@ class Exports {
 			onAfterRecord = () => {},
 		},
 	) {
+		/** @type RecordParams */
 		const recordParams = {
 			framerate,
 			format,
@@ -186,15 +263,16 @@ class Exports {
 			codec,
 			imageEncoding,
 			quality,
-			duration: duration * this.loopCount,
+			duration:
+				duration !== undefined ? duration * this.loopCount : undefined,
 			onStart: () => {
-				onStart(recordParams);
-				onBeforeRecord(recordParams);
+				onStart?.(recordParams);
+				onBeforeRecord?.(recordParams);
 			},
 			onComplete: () => {
 				this.recording = false;
-				onAfterRecord(recordParams);
-				onComplete(recordParams);
+				onAfterRecord?.(recordParams);
+				onComplete?.(recordParams);
 			},
 		});
 	}
