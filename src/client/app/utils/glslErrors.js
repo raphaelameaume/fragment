@@ -3,6 +3,22 @@ import { getShaderPath, removeShaderPath } from './glsl.utils';
 
 const methods = ['attachShader'];
 
+/** @typedef {object} IdentifiableWebGLRenderingContextProperties
+ * @property { string } __uuid
+ */
+
+/**
+ * @typedef {WebGL2RenderingContext & IdentifiableWebGLRenderingContextProperties} IdentifiableWebGL2RenderingContext
+ */
+
+/**
+ * @typedef {WebGLRenderingContext & IdentifiableWebGLRenderingContextProperties} IdentifiableWebGLRenderingContext
+ */
+
+/**
+ * @typedef {IdentifiableWebGLRenderingContext | IdentifiableWebGL2RenderingContext} FragmentWebGLRenderingContext
+ */
+
 const contexts = [WebGLRenderingContext, WebGL2RenderingContext];
 /** @type {Record<string, any>} */
 const references = {};

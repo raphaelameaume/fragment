@@ -146,6 +146,17 @@ export function inferFieldType({ type, value, params, key }) {
 }
 
 /**
+ * @typedef MatchFolderResult
+ * @property {string} id
+ * @property {string} parentId
+ * @property {string} [name]
+ * @property {number} depth
+ * @property {boolean} isCurrent
+ * @property {string} [rootId]
+ * @property {{ collapsed: boolean}} [attributes]
+ */
+
+/**
  *
  * @param {string} folder
  */
@@ -153,7 +164,7 @@ export function parseFolder(folder) {
 	const segments = folder.split('.');
 	const regex = /(?<name>[^\[]+)(?:\[(?<attributes>[^\]]+)\])?/;
 
-	const results = segments
+	const matches = segments
 		.map((segment) => {
 			const match = segment.match(regex);
 
@@ -182,12 +193,15 @@ export function parseFolder(folder) {
 		})
 		.filter((result) => result !== undefined);
 
-	let names = results.map((match) => match.name);
+	let names = matches.map((match) => match.name);
 
 	/** @type {string|undefined} */
 	let rootId;
 
-	results.forEach((match, index) => {
+	/** @type {MatchFolderResult[]} */
+	let results = [];
+
+	matches.forEach((match, index) => {
 		let id = [...names].slice(0, index + 1).join('.');
 		let parentId = [...names].slice(0, index).join('.');
 
@@ -195,11 +209,18 @@ export function parseFolder(folder) {
 			rootId = id;
 		}
 
-		match.id = id;
-		match.parentId = parentId;
-		match.depth = index;
-		match.isCurrent = index === results.length - 1;
-		match.rootId = rootId;
+		/** @type {MatchFolderResult} */
+		let result = {
+			id,
+			parentId,
+			depth: index,
+			isCurrent: index === matches.length - 1,
+			rootId,
+			name: match.name,
+			attributes: match.attributes,
+		};
+
+		results.push(result);
 	});
 
 	return results;

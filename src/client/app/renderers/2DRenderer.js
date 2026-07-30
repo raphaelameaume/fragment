@@ -5,7 +5,7 @@
  */
 
 /**
- * @typedef {object} PreviewParams
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParams2DRenderer} PreviewParams2DRenderer
  * @property {number} id
  * @property {HTMLCanvasElement} canvas
  * @property {HTMLElement} container
@@ -15,7 +15,7 @@
  */
 
 /**
- * @param {PreviewParams} params
+ * @param {PreviewParams2DRenderer} params
  * @returns {MountParams2DRenderer}
  */
 export let onMountPreview = ({ canvas }) => {
@@ -32,7 +32,7 @@ export let onMountPreview = ({ canvas }) => {
 };
 
 /**
- * @param {MountParams2DRenderer & PreviewParams} params
+ * @param {PreviewParams2DRenderer} params
  */
 export let onResizePreview = ({ canvas, width, height, pixelRatio }) => {
 	canvas.width = width * pixelRatio;

@@ -4,12 +4,13 @@ import { readFile } from 'node:fs/promises';
 import { log, dim, green, yellow } from '../log.js';
 
 /**
- * @typedef Warning
- * @property {string} type
- * @property {string} importer
- * @property {string} message
- * @property {string} url
- * @property {{ lineText: string }} location
+ * @typedef {Object} ShaderWarning
+ * @property {string} type - Warning type
+ * @property {string} importer - File that imported the shader
+ * @property {string} message - Warning message
+ * @property {string} url - Chunk resolved path
+ * @property {Object} location - Location of the warning
+ * @property {string} location.lineText - The line of code with the warning
  */
 
 /**
@@ -17,7 +18,7 @@ import { log, dim, green, yellow } from '../log.js';
  * @property {string} filepath - The path of the shader on the filesystem
  * @property {string} source - The source code of the shader
  * @property {boolean} nohsr - Whether the shader can be injected on the fly or if the sketch needs to be fully reloaded
- * @property {Warning[]} warnings - Indicates whether the Wisdom component is present.
+ * @property {ShaderWarning[]} warnings
  */
 
 /**
@@ -49,7 +50,7 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 
 		modulesToReload = [];
 
-		if (clone.length > 0) {
+		if (clone.length > 0 && clone[0].file) {
 			const { file } = clone[0];
 			const filepath = path.relative(cwd, file);
 			log.message(`${green(`hmr update`)} /${filepath}`);
@@ -126,8 +127,8 @@ ${keyword}${shaderParts[1]}
 		 * @param {string} parentSource
 		 * @param {string} parentPath
 		 * @param {string[]} deps
-		 * @param {Warning[]} warnings
-		 * @returns {{ code: string, deps: string[], warnings: Warning[] }}
+		 * @param {ShaderWarning[]} warnings
+		 * @returns {{ code: string, deps: string[], warnings: ShaderWarning[] }}
 		 */
 		function resolveDependencies(
 			parentSource,

@@ -56,9 +56,9 @@
 					const parsed = parseFolder(folder);
 					const current = parsed.find((m) => m.isCurrent);
 
-					const fieldgroup = sketch?.propsFolders.find(
-						(f) => f.id === current.id,
-					);
+					const fieldgroup =
+						current &&
+						sketch?.propsFolders.find((f) => f.id === current.id);
 
 					if (fieldgroup) {
 						const { depth, rootId } = fieldgroup;

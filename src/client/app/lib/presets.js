@@ -13,7 +13,7 @@ export default Object.keys(paperSizes);
  * @param {string} preset
  * @param {object} params
  * @param {number} params.pixelsPerInch
- * @param {string} params.orientation
+ * @param {string} [params.orientation]
  * @returns {number[]} dimensions
  */
 export function getDimensionsForPreset(

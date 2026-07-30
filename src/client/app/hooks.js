@@ -4,9 +4,8 @@ import { getContext } from './triggers/shared';
 
 /**
  * Register a callback to be called before capturing
- * @param {Function} listener - The callback function to execute before capture
+ * @param {(params: import('./state/exports.svelte').CaptureParams) => void} listener - The callback function to execute before capture
  * @param {string} [context] - The sketch context (defaults to current context)
- * @returns {void}
  */
 export const onBeforeCapture = (listener, context = getContext()) => {
 	sketchesManager.sketches[context]?.onBeforeCapture(listener);
@@ -14,9 +13,8 @@ export const onBeforeCapture = (listener, context = getContext()) => {
 
 /**
  * Register a callback to be called after capturing
- * @param {Function} listener - The callback function to execute after capture
+ * @param {(params: import('./state/exports.svelte').CaptureParams) => void} listener - The callback function to execute after capture
  * @param {string} [context] - The sketch context (defaults to current context)
- * @returns {void}
  */
 export const onAfterCapture = (listener, context = getContext()) => {
 	sketchesManager.sketches[context]?.onAfterCapture(listener);
@@ -24,9 +22,8 @@ export const onAfterCapture = (listener, context = getContext()) => {
 
 /**
  * Register a callback to be called before recording
- * @param {Function} listener - The callback function to execute before recording
+ * @param {(params: import('./state/exports.svelte').RecordParams) => void} listener - The callback function to execute before recording
  * @param {string} [context] - The sketch context (defaults to current context)
- * @returns {void}
  */
 export const onBeforeRecord = (listener, context = getContext()) => {
 	sketchesManager.sketches[context]?.onBeforeRecord(listener);
@@ -34,9 +31,8 @@ export const onBeforeRecord = (listener, context = getContext()) => {
 
 /**
  * Register a callback to be called after recording
- * @param {Function} listener - The callback function to execute after recording
+ * @param {(params: import('./state/exports.svelte').RecordParams) => void} listener - The callback function to execute after recording
  * @param {string} [context] - The sketch context (defaults to current context)
- * @returns {void}
  */
 export const onAfterRecord = (listener, context = getContext()) => {
 	sketchesManager.sketches[context]?.onAfterRecord(listener);
@@ -46,10 +42,16 @@ export const onAfterRecord = (listener, context = getContext()) => {
  * Screenshot the sketch it is called from
  * @param {object} options
  * @param {string} [options.filename]
- * @param {function} [options.pattern]
+ * @param {import('./utils/canvas.utils').FilenamePattern} [options.pattern]
  * @param {string} [options.exportDir]
+ * @param {number} [options.quality]
  */
-export async function screenshot({ filename, pattern, exportDir } = {}) {
+export async function screenshot({
+	filename,
+	pattern,
+	exportDir,
+	quality,
+} = {}) {
 	const context = getContext();
 
 	const renders = rendering.renders.filter(
@@ -62,6 +64,7 @@ export async function screenshot({ filename, pattern, exportDir } = {}) {
 				filename,
 				pattern,
 				exportDir,
+				quality,
 			});
 		}
 	}

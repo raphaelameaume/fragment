@@ -7,6 +7,10 @@ import p5 from 'p5';
  */
 
 /**
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParamsP5Renderer} PreviewParamsP5Renderer
+ */
+
+/**
  * @typedef {object} PreviewP5Renderer
  * @property {number} id
  * @property {p5} p
@@ -16,13 +20,7 @@ import p5 from 'p5';
 let previews = [];
 
 /**
- * @param {object} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLDivElement} params.container
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @param {import('../state/rendering.svelte').PreviewParamsRenderer} params
  * @returns {MountParamsP5Renderer}
  */
 export let onMountPreview = ({
@@ -57,7 +55,7 @@ export let onMountPreview = ({
 };
 
 /**
- * @param {MountParamsP5Renderer & PreviewP5Renderer} params
+ * @param {{ id: number }} params
  */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -68,12 +66,7 @@ export let onBeforeUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {MountParamsP5Renderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @param {PreviewParamsP5Renderer} params
  */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -85,10 +78,7 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 };
 
 /**
- * @param {MountParamsP5Renderer} params
- * @param {number} params.id
- * @param {HTMLCanvasElement} params.canvas
- * @param {HTMLElement} params.container
+ * @param {{ id: number }} params
  */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);

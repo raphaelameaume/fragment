@@ -29,6 +29,7 @@ class Renderer {
 				canvas.getContext('experimental-webgl', attributes);
 		}
 
+		/** @type {WebGLRenderingContext|WebGL2RenderingContext|null} */
 		this.gl = gl;
 
 		this.state = {
