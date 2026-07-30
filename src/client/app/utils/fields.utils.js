@@ -214,7 +214,7 @@ export function parseFolder(folder) {
 			id,
 			parentId,
 			depth: index,
-			isCurrent: index === results.length - 1,
+			isCurrent: index === matches.length - 1,
 			rootId,
 			name: match.name,
 			attributes: match.attributes,
