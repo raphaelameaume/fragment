@@ -251,8 +251,8 @@ class Rendering {
 			} else if (resizing === SIZES.ASPECT_RATIO) {
 				const { aspectRatio } = config;
 
-				if (!isNaN(aspectRatio)) {
-					this.aspectRatio = config.aspectRatio;
+				if (aspectRatio !== undefined && !isNaN(Number(aspectRatio))) {
+					this.aspectRatio = aspectRatio;
 				} else {
 					this.resizing = SIZES.WINDOW;
 
@@ -270,13 +270,13 @@ class Rendering {
 					this.resizing = SIZES.WINDOW;
 				}
 
-				if (isNaN(scale)) {
+				if (scale !== undefined && !isNaN(Number(scale))) {
+					this.scale = scale;
+				} else {
 					console.warn(
 						`Cannot compute canvas size for config.scale: ${scale}`,
 					);
 					this.resizing = SIZES.WINDOW;
-				} else {
-					this.scale = scale;
 				}
 			}
 		}
