@@ -28,6 +28,22 @@ const noop = () => {};
  */
 
 /**
+ * @typedef InitParamsSketch
+ * @property {number} id
+ * @property {HTMLCanvasElement} canvas
+ * @property {HTMLElement} container
+ * @property {number | undefined} width
+ * @property {number | undefined} height
+ * @property {number | undefined} pixelRatio
+ * @property {string} publicPath
+ * @property {Record<string, InstanceProp>} props
+ */
+
+/**
+ * @typedef {InitParamsSketch & { time: number, deltaTime: number, playhead: number, playcount: number, frame: number}} DrawParamsSketch
+ */
+
+/**
  * @typedef {Object} SketchInstance
  * @property {string} [rendering]
  * @property {any} [renderer]
@@ -38,12 +54,12 @@ const noop = () => {};
  * @property {number} [duration]
  * @property {string} [exportDir]
  * @property {string} [backgroundColor]
- * @property {() => Promise<void>} [load]
- * @property {(() => (void | Promise<void>))} [setup]
- * @property {(() => (void | Promise<void>))} [init]
- * @property {() => void} [draw]
- * @property {() => void} [update]
- * @property {(params: { width: number, height: number, pixelRatio: number }) => void} [resize]
+ * @property {(params: InitParamsSketch) => Promise<void>} [load]
+ * @property {(params: InitParamsSketch) => (void | Promise<void>)} [setup]
+ * @property {(params: InitParamsSketch) => (void | Promise<void>)} [init]
+ * @property {(params: DrawParamsSketch) => void} [draw]
+ * @property {(params: DrawParamsSketch) => void} [update]
+ * @property {(params: InitParamsSketch) => void} [resize]
  * @property {() => void} [dispose]
  * @property {import('../utils/canvas.utils').FilenamePattern} [filenamePattern]
  * @property {SketchBuildConfig} [buildConfig]

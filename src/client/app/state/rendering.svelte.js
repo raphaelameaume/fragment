@@ -432,25 +432,37 @@ export class Render {
 		});
 
 		this.observer = new MutationObserver((mutationsList) => {
+			/**
+			 * @typedef {'width' | 'height'} DimensionKey
+			 */
+
+			/** @type {DimensionKey[]} */
 			const attributes = ['width', 'height'];
 
 			let attributesMutationsList = mutationsList.filter(
 				(mutationRecord) =>
 					mutationRecord.attributeName &&
-					attributes.includes(mutationRecord.attributeName),
+					attributes.includes(
+						/** @type {DimensionKey} */ (
+							mutationRecord.attributeName
+						),
+					),
 			);
 
 			const { pixelRatio } = rendering;
 
 			attributesMutationsList.forEach((mutationRecord) => {
-				const { target, attributeName } = mutationRecord;
+				const { attributeName } = mutationRecord;
+
+				const target = /** @type {HTMLCanvasElement} */ (
+					mutationRecord.target
+				);
 
 				if (attributeName) {
-					const key =
-						/** @type {keyof typeof target & keyof typeof rendering} */ (
-							attributeName
-						);
-					const dimension = Math.round(target[key] / pixelRatio);
+					const key = /** @type {DimensionKey} */ (attributeName);
+					const dimension = Math.round(
+						/** @type {number} */ (target[key]) / pixelRatio,
+					);
 					const needsUpdate = rendering[key] !== dimension;
 
 					if (needsUpdate) {
@@ -483,18 +495,23 @@ export class Render {
 
 		const { duration, fps } = sketch;
 
-		let frameLength = isFinite(fps) ? (1 / fps) * 1000 : 0;
-		let frameCount = fps * duration;
+		const numericFps = Number(fps);
+		const numericDuration = Number(duration);
+
+		let frameLength = isFinite(numericFps) ? (1 / numericFps) * 1000 : 0;
+		let frameCount = numericFps * numericDuration;
 		let interval = 1 / frameCount;
 
 		this.elapsed =
-			isFinite(fps) && fps !== 0
+			isFinite(numericFps) && fps !== 0
 				? this.time - frameLength * Math.floor(this.time / frameLength)
 				: 0;
 
-		this.timeTotal = isFinite(duration)
+		this.timeTotal = isFinite(numericDuration)
 			? this.time -
-				duration * 1000 * Math.floor(this.time / (duration * 1000))
+				numericDuration *
+					1000 *
+					Math.floor(this.time / (numericDuration * 1000))
 			: 0;
 
 		this.renderSketch = (deltaTime = 0) => {
@@ -522,7 +539,7 @@ export class Render {
 				return;
 			}
 
-			let totalPlayhead = time / 1000 / duration;
+			let totalPlayhead = time / 1000 / numericDuration;
 			let playhead = fps === 0 ? 0 : totalPlayhead % 1;
 
 			if (playhead < this.playheadLast) {
@@ -736,6 +753,7 @@ export class Render {
 		});
 	}
 
+	/** @type {import('./Sketch.svelte.js').InitParamsSketch} */
 	get params() {
 		return {
 			...this.mountParams,
