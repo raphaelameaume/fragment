@@ -125,8 +125,8 @@
 				showLabel={false}
 				onclick={handleClickDelete}
 				--color-text="white"
-				--background-color="var(--color-red)"
-				--box-shadow-color-active="var(--color-lightred)"
+				--background-color="var(--fragment-color-red)"
+				--box-shadow-color-active="var(--fragment-color-lightred)"
 			>
 				<IconCross />
 			</ButtonInput>
@@ -163,7 +163,6 @@
 					value={enabled}
 					onchange={() => {
 						trigger.enabled = !trigger.enabled;
-						console.log(trigger.enabled);
 					}}
 				/>
 			{/if}

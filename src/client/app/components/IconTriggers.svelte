@@ -21,10 +21,10 @@
 	}
 
 	.setup:not(.active) .circle:nth-child(1) {
-		fill: var(--color-red);
+		fill: var(--fragment-color-red);
 	}
 
 	.active .circle {
-		fill: var(--color-green);
+		fill: var(--fragment-color-green);
 	}
 </style>

@@ -58,7 +58,7 @@
 		index = null,
 		onchange,
 		onclick = () => {},
-		children,
+		children = undefined,
 		trackChanges = false,
 		triggers = $bindable([]),
 	} = $props();
@@ -200,15 +200,13 @@
 		</button>
 	{/if}
 	{#if triggerable && showTriggers}
-		<FieldSection {key} visible={showTriggers} secondary>
-			<FieldTriggers
-				bind:triggers
-				{onTrigger}
-				{context}
-				triggerable={fieldType === fieldTypes.BUTTON}
-				controllable={fieldType === fieldTypes.NUMBER}
-			/>
-		</FieldSection>
+		<FieldTriggers
+			bind:triggers
+			{onTrigger}
+			{context}
+			triggerable={fieldType === fieldTypes.BUTTON}
+			controllable={fieldType === fieldTypes.NUMBER}
+		/>
 	{/if}
 </div>
 

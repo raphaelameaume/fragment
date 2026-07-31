@@ -114,10 +114,6 @@
 		grid-template-columns: 1fr;
 	}
 
-	.field__section.secondary .field__infos {
-		display: none;
-	}
-
 	.field__section.secondary .field__label {
 		position: relative;
 

@@ -5,8 +5,8 @@
 		showLabel = true,
 		title = '',
 		onclick,
-		onmouseenter,
-		onmouseleave,
+		onmouseenter = undefined,
+		onmouseleave = undefined,
 		children,
 	} = $props();
 </script>

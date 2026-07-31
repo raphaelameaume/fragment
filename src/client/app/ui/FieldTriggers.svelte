@@ -67,7 +67,7 @@
 		margin-bottom: var(--column-gap);
 		border-width: 1px 1px 0px 1px;
 		border-style: solid;
-		border-color: var(--color-spacing);
+		border-color: var(--fragment-spacing-color);
 	}
 
 	.field-triggers:before {
@@ -80,13 +80,13 @@
 		width: 1px;
 		height: var(--margin);
 
-		background-color: var(--color-spacing);
+		background-color: var(--fragment-spacing-color);
 	}
 
 	.header {
 		display: flex;
 		padding: var(--column-gap);
-		border-bottom: 1px solid var(--color-spacing);
+		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
 	.field-triggers:not(:empty) {
