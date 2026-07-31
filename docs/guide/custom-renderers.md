@@ -1,11 +1,11 @@
 # Custom renderers
 
-Fragment has built-in support for [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/) and [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader), however you might want to implement your own renderer.
+Fragment has built-in support for [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), [p5.js](https://github.com/processing/p5.js/), [three.js](https://github.com/mrdoob/three.js/) and [WebGL fragment shaders](https://developer.mozilla.org/en-US/docs/Web/API/WebGLShader). Custom renderers can also be implemented when a different rendering strategy is required.
 
-You can do so by exporting a `renderer` property from the sketch file:
+A custom renderer can be assigned by exporting a `renderer` property from a sketch file:
 
 ```js
-import * as SVGRenderer from './custom-svg-renderer.js';
+import * as SVGRenderer from "/path/to/custom-svg-renderer.js";
 
 export let renderer = SVGRenderer;
 ```
@@ -13,20 +13,19 @@ export let renderer = SVGRenderer;
 Dynamic imports are also supported by wrapping the import in a `function`.
 
 ```js
-export let renderer = () => import('./SVGRenderer');
+export let renderer = () => import("path/to/custom-svg-renderer.js");
 ```
 
-> ⚠️ Do not mistake `renderer` and `rendering`. The `rendering` export is just a string key used internally by Fragment for retrieving and caching the built-in renderers. The key is not needed when using a custom renderer as it's simply not cached.
+> `renderer` should not be confused with `rendering`. The `rendering` export is a string key used internally by Fragment to retrieve and cache built-in renderers, and is not needed when using a custom renderer.
 
 ## Implementation
 
-Renderers have their own lifecycle inside `fragment`, that can be defined through ESM named-exports just like in a sketch file.
-You can refer to the [Renderers](../api/renderers.md) API that list available exports and their usage.
+Renderers have their own lifecycle inside `fragment`, that can be defined through ESM named-exports just like in a sketch file. The [Renderers API](../api/renderers.md) documents available lifecycle functions and their expected structure.
 
 ## Example
 
 ```js
-// custom-svg-renderer
+// custom-svg-renderer.js
 let previews = [];
 
 export let onMountPreview = ({ id, container, width, height }) => {
@@ -107,7 +106,7 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 
 ```js
 // sketch
-export let renderer = () => import('./custom-svg-renderer.js');
+export let renderer = () => import("path/to/custom-svg-renderer.js");
 
 export let update = ({ svg, width, height }) => {
 	// use the tag function exposed by the renderer in `onMountPreview`
@@ -118,4 +117,4 @@ export let update = ({ svg, width, height }) => {
 
 ```
 
-> ⚠️ In this example, nothing is drawn on the canvas, so the different exports (images or videos) will not work (the files will be blank). You might want to implement your own way of replicating the SVG (in this special case) to the canvas by parsing it and drawing it in a 2D context in `onAfterUpdatePreview`.
+> In this example, nothing is drawn directly to the canvas, meaning built-in exports such as image or video output will produce blank files. To make these exports work, the SVG content can be manually drawn onto the canvas inside `onAfterUpdatePreview`.

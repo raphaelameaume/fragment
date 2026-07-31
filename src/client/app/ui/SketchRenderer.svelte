@@ -69,6 +69,16 @@
 		} else if (render?.recording && !exports.recording) {
 			render.stopRecording();
 		}
+
+		if (exports.capturing) {
+			render.screenshot();
+			exports.capturing = false;
+		}
+
+		if (exports.committing) {
+			render.commit();
+			exports.committing = false;
+		}
 	});
 
 	function checkForRefresh(event) {
@@ -108,9 +118,23 @@
 		}
 	}
 
+	function checkForCommit(event) {
+		if (event.metaKey || event.ctrlKey) {
+			event.preventDefault();
+
+			if (!exports.committing) {
+				render.commit();
+			}
+		}
+	}
+
 	let backgroundColor = $derived.by(() => {
 		if (layout.previewing) {
-			return sketch?.buildConfig?.backgroundColor ?? 'inherit';
+			return (
+				sketch?.buildConfig?.backgroundColor ??
+				sketch?.backgroundColor ??
+				'inherit'
+			);
 		}
 
 		return sketch?.backgroundColor ?? 'inherit';
@@ -145,6 +169,7 @@
 <KeyBinding type="down" key=" " onTrigger={checkForPause} />
 <KeyBinding type="down" key="s" onTrigger={checkForScreenshot} />
 <KeyBinding type="down" key="S" onTrigger={checkForRecord} />
+<KeyBinding type="down" key="k" onTrigger={checkForCommit} />
 
 <style>
 	.sketch-renderer {
@@ -155,7 +180,10 @@
 		justify-content: center;
 		align-items: center;
 
-		background-color: var(--background-color, var(--color-lightblack));
+		background-color: var(
+			--background-color,
+			var(--fragment-color-lightblack)
+		);
 
 		container-type: size;
 	}

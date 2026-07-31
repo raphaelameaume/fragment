@@ -1,8 +1,12 @@
 import path from 'node:path';
+import util from 'node:util';
+import { exec as execSync } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
-import bodyParser from 'body-parser';
-import { log, green, red } from '../log.js';
+import { json } from 'milliparsec';
+import { log, green, red, yellow } from '../log.js';
 import { mkdirp } from '../utils.js';
+
+const exec = util.promisify(execSync);
 
 /**
  *
@@ -45,58 +49,118 @@ export default function screenshot({
 		return directory;
 	}
 
+	/**
+	 * Check if a directory is within a git repository
+	 * @param {string} dir - Directory to check
+	 * @returns {Promise<boolean>}
+	 */
+	async function isGitRepository(directory) {
+		try {
+			await exec('git status --porcelain');
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
+
+	async function commitChanges() {
+		const message = `fragment-auto-commit`;
+
+		try {
+			log.message(`${yellow(`git`)} Committing latest changes...`);
+			await exec(`git add . && git commit -m ${message}`);
+			log.message(`${green(`git`)} Committed latest changes.`);
+		} catch (error) {
+			log.error(error);
+		}
+	}
+
 	let inlineExportDirPath;
 
 	return {
 		name: 'save',
 		configureServer(server) {
-			server.middlewares.use(bodyParser.json({ limit: '100mb' }));
+			const payloadLimit = 100 * 1024 * 1024; // 100mb
+			server.middlewares.use(
+				json({
+					payloadLimit,
+					payloadLimitErrorFn: (payloadLimit) => {},
+				}),
+			);
 			server.middlewares.use('/save', async (req, res, next) => {
 				if (req.method === 'POST') {
-					const { files } = req.body;
-
 					try {
-						const filepaths = [];
+						if (req.body) {
+							const { files, commit: shouldCommit = false } =
+								req.body;
 
-						for (let i = 0; i < files.length; i++) {
-							const { filename, data, encoding, exportDir } =
-								files[i];
+							let canCommit = false;
 
-							let directory = resolveExportDirectory(
-								exportDir,
-								path.dirname(filename),
-							);
-							mkdirp(directory);
+							if (shouldCommit) {
+								canCommit = await isGitRepository();
+							}
 
-							let filepath = path.join(
-								directory,
-								path.basename(filename),
-							);
+							const filepaths = [];
+							const warnings = [];
 
-							let buffer = Buffer.from(
-								encoding === 'base64'
-									? data.split(',')[1]
-									: data,
-								encoding,
-							);
+							for (let i = 0; i < files.length; i++) {
+								const { filename, data, encoding, exportDir } =
+									files[i];
 
-							await writeFile(filepath, buffer);
+								let directory = resolveExportDirectory(
+									exportDir,
+									path.dirname(filename),
+								);
+								mkdirp(directory);
 
-							log.message(`${green(`export`)} Saved ${filepath}`);
-							filepaths.push(filepath);
+								let filepath = path.join(
+									directory,
+									path.basename(filename),
+								);
+
+								let buffer = Buffer.from(
+									encoding === 'base64'
+										? data.split(',')[1]
+										: data,
+									encoding,
+								);
+
+								await writeFile(filepath, buffer);
+
+								log.message(
+									`${green(`export`)} Saved ${filepath}`,
+								);
+								filepaths.push(filepath);
+							}
+
+							if (shouldCommit && canCommit) {
+								await commitChanges();
+							} else if (shouldCommit) {
+								const warning = `Auto-commit failed because the current folder is not a Git repository.`;
+								log.warn(warning);
+								warnings.push(warning);
+							}
+
+							res.writeHead(200, {
+								'Content-Type': 'application/json',
+							});
+							res.end(JSON.stringify({ filepaths, warnings }));
+						} else {
+							throw new Error(`Payload is too big.`);
 						}
-
-						res.writeHead(200, {
-							'Content-Type': 'application/json',
-						});
-						res.end(JSON.stringify({ filepaths }));
 					} catch (error) {
-						log.message(`${red(`export`)} Error`);
+						const errorMessage = `Error while trying to save files on disk.`;
+
+						log.message(`${red(`export`)} ${errorMessage}`);
 						console.error(error);
 						res.writeHead(500, {
 							'Content-Type': 'application/json',
 						});
-						res.end(JSON.stringify({ error }));
+						res.end(
+							JSON.stringify({
+								errors: [errorMessage],
+							}),
+						);
 					}
 				} else {
 					next();

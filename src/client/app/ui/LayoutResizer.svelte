@@ -196,7 +196,7 @@
 
 	.resizer.dragging .resizer-hover.visible:before {
 		opacity: 1;
-		background-color: #177bd0;
+		background-color: var(--fragment-accent-color);
 	}
 
 	.resizer--horizontal {

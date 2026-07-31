@@ -21,6 +21,7 @@ prog.command('run [entry]', '', { default: true })
 	.describe('Run a dev environment for fragment')
 	.option('-n, --new', 'Create a new sketch', false)
 	.option('-t, --template', 'Specify template to create the file from', '2d')
+	.option('--typescript', 'Specify TypeScript support', false)
 	.option('-p, --port', 'Port to bind', 3000)
 	.option('-dev, --development', 'Enable development mode', false)
 	.option('-b, --build', 'Build sketch for production', false)
@@ -34,6 +35,7 @@ prog.command('run [entry]', '', { default: true })
 		if (options.new) {
 			return create(entry, {
 				templateName: options.template,
+				typescript: options.typescript,
 			});
 		}
 
@@ -59,9 +61,11 @@ prog.command('run [entry]', '', { default: true })
 prog.command('create [entry]')
 	.describe('Create a new sketch')
 	.option('-t, --template', 'Specify template to create the file from', '2d')
+	.option('--typescript', 'Specify TypeScript support', false)
 	.action((entry = '', options) => {
 		create(entry, {
 			templateName: options.template,
+			typescript: options.typescript,
 		});
 	});
 

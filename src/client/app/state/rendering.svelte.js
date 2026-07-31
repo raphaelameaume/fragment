@@ -9,6 +9,11 @@ import { client } from '../client.js';
 import Mouse from '../inputs/Mouse.js';
 import Trigger from '../triggers/Trigger.js';
 import { Inputs } from '../inputs/index.js';
+import {
+	defaultFilenamePattern,
+	getFilenameParams,
+} from '@fragment/utils/canvas.utils.js';
+import Sketch from './Sketch.svelte.js';
 
 export const SIZES = {
 	FIXED: 'fixed',
@@ -17,6 +22,32 @@ export const SIZES = {
 	WINDOW: 'window',
 	SCALE: 'scale',
 };
+
+/** @typedef InitParamsRenderer
+ * @property {number} width
+ * @property {number} height
+ * @property {number} pixelRatio
+ * @property {HTMLCanvasElement} canvas
+ */
+
+/** @typedef {InitParamsRenderer & { id: number, container: HTMLDivElement}} PreviewParamsRenderer
+ */
+
+/** @typedef Renderer
+ * @property {(params: InitParamsRenderer & any) => void} [init]
+ * @property {(params: InitParamsRenderer & any) => void} [resize]
+ * @property {(params: PreviewParamsRenderer & any) => any} [onMountPreview]
+ * @property {(params: { id: number }) => void} [onBeforeUpdatePreview]
+ * @property {(params: { id: number }) => void} [onAfterUpdatePreview]
+ * @property {(params: PreviewParamsRenderer & any) => void} [onResizePreview]
+ * @property {(params: { id: number }) => void} [onDestroyPreview]
+ */
+
+/**
+ * @typedef {object} Monitor
+ * @property {number} id
+ * @property {{ width?: number, height?: number }} dimensions
+ */
 
 let MONITOR_ID = 0;
 
@@ -32,12 +63,15 @@ class Rendering {
 	preset = $state('a4');
 	presetOrientation = $state(PRESET_ORIENTATIONS.PORTRAIT);
 	refreshRate = $state(0);
+	/** @type {Monitor[]} */
 	monitors = $state([]);
+	/** @type {Render[]} */
 	renders = $state([]);
 
 	constructor() {
 		this.key = 'rendering';
 
+		/** @type {Record<string, { instance: Renderer, params: Record<any, any>}>} */
 		this.renderers = {};
 		this.recording = false;
 		// sync time between multiple windows
@@ -91,6 +125,11 @@ class Rendering {
 		this.estimateRefreshRate();
 	}
 
+	/**
+	 *
+	 * @param {string|undefined} renderingMode
+	 * @returns {Promise<Renderer>|undefined}
+	 */
 	loadRenderer(renderingMode) {
 		if (__THREE_RENDERER__ && renderingMode === 'three') {
 			return import('../renderers/THREERenderer.js');
@@ -113,6 +152,13 @@ class Rendering {
 		}
 	}
 
+	/**
+	 *
+	 * @param {object} params
+	 * @param {string|undefined} params.renderingMode
+	 * @param {() => Promise<Renderer>|Renderer} params.customRenderer
+	 * @returns {Promise<Renderer | undefined>}
+	 */
 	async preloadRenderer({ renderingMode, customRenderer }) {
 		// load and save
 		const instance = customRenderer
@@ -125,15 +171,15 @@ class Rendering {
 			const params =
 				instance.init?.({
 					canvas: document.createElement('canvas'),
-					pixelRatio: this.pixelRatio,
 					width: this.width,
 					height: this.height,
+					pixelRatio: this.pixelRatio,
 				}) ?? {};
 
 			instance.resize?.({
-				pixelRatio: this.pixelRatio,
 				width: this.width,
 				height: this.height,
+				pixelRatio: this.pixelRatio,
 				...params,
 			});
 
@@ -146,10 +192,19 @@ class Rendering {
 		}
 	}
 
+	/**
+	 * @param {object} params
+	 * @param {string} params.renderingMode
+	 * @returns {Renderer}
+	 */
 	findRenderer({ renderingMode }) {
 		return this.renderers[renderingMode]?.instance;
 	}
 
+	/**
+	 *
+	 * @param {import('./Sketch.svelte.js').SketchBuildConfig} config
+	 */
 	override(config) {
 		if (!config) return;
 
@@ -193,8 +248,8 @@ class Rendering {
 			} else if (resizing === SIZES.ASPECT_RATIO) {
 				const { aspectRatio } = config;
 
-				if (!isNaN(aspectRatio)) {
-					this.aspectRatio = config.aspectRatio;
+				if (aspectRatio !== undefined && !isNaN(Number(aspectRatio))) {
+					this.aspectRatio = aspectRatio;
 				} else {
 					this.resizing = SIZES.WINDOW;
 
@@ -212,13 +267,13 @@ class Rendering {
 					this.resizing = SIZES.WINDOW;
 				}
 
-				if (isNaN(scale)) {
+				if (scale !== undefined && !isNaN(Number(scale))) {
+					this.scale = scale;
+				} else {
 					console.warn(
 						`Cannot compute canvas size for config.scale: ${scale}`,
 					);
 					this.resizing = SIZES.WINDOW;
-				} else {
-					this.scale = scale;
 				}
 			}
 		}
@@ -228,8 +283,9 @@ class Rendering {
 			dimensions.length === 2 &&
 			dimensions.every((d) => !isNaN(Number(d)))
 		) {
-			this.width = dimensions[0];
-			this.height = dimensions[1];
+			const [w, h] = /** @type {[number, number]}*/ (dimensions);
+			this.width = w;
+			this.height = h;
 		}
 
 		if (pixelRatio) {
@@ -240,12 +296,15 @@ class Rendering {
 
 	estimateRefreshRate() {
 		return new Promise((resolve) => {
+			/** @type {number[]} */
 			const deltas = [];
 			const frameCount = 10;
 			let count = 0;
 			let lastTime = performance.now();
 
-			const findClosestRefreshRate = (targetRate) => {
+			const findClosestRefreshRate = /** @param {number} targetRate **/ (
+				targetRate,
+			) => {
 				// List of common refresh rates
 				const refreshRates = [60, 75, 120, 144, 165, 240, 360];
 
@@ -267,7 +326,7 @@ class Rendering {
 				return closestRate;
 			};
 
-			const computeRefreshRate = (time) => {
+			const computeRefreshRate = /** @param {number} time **/ (time) => {
 				const deltaTime = time - lastTime;
 				lastTime = time;
 
@@ -307,6 +366,14 @@ export class Render {
 	paused = $state(false);
 	resized = $state(false);
 
+	/**
+	 *
+	 * @param {object} params
+	 * @param {number} params.id
+	 * @param {HTMLElement} params.container
+	 * @param {Sketch} params.sketch
+	 * @param {Renderer} params.renderer
+	 */
 	constructor({ id, container, sketch, renderer }) {
 		this.id = id;
 		this.container = container;
@@ -317,8 +384,11 @@ export class Render {
 		this.renderer = renderer;
 		this.time = 0;
 		this.recording = false;
+		/** @type {number|null} */
+		this.raf = null;
 
-		let resizeTimeout;
+		/** @type {NodeJS.Timeout|null} */
+		let resizeTimeout = null;
 
 		$effect.pre(() => {
 			const { width, height, pixelRatio } = rendering;
@@ -327,7 +397,10 @@ export class Render {
 				if (resizeTimeout) clearTimeout(resizeTimeout);
 
 				resizeTimeout = setTimeout(() => {
-					clearTimeout(resizeTimeout);
+					if (resizeTimeout) {
+						clearTimeout(resizeTimeout);
+					}
+
 					resizeTimeout = null;
 
 					this.resize(width, height, pixelRatio);
@@ -440,36 +513,53 @@ export class Render {
 		});
 
 		this.observer = new MutationObserver((mutationsList) => {
+			/**
+			 * @typedef {'width' | 'height'} DimensionKey
+			 */
+
+			/** @type {DimensionKey[]} */
 			const attributes = ['width', 'height'];
 
 			let attributesMutationsList = mutationsList.filter(
 				(mutationRecord) =>
-					attributes.includes(mutationRecord.attributeName),
+					mutationRecord.attributeName &&
+					attributes.includes(
+						/** @type {DimensionKey} */ (
+							mutationRecord.attributeName
+						),
+					),
 			);
 
 			const { pixelRatio } = rendering;
 
 			attributesMutationsList.forEach((mutationRecord) => {
-				const { target, attributeName } = mutationRecord;
+				const { attributeName } = mutationRecord;
 
-				const dimension = Math.round(
-					target[attributeName] / pixelRatio,
+				const target = /** @type {HTMLCanvasElement} */ (
+					mutationRecord.target
 				);
-				const needsUpdate = rendering[attributeName] !== dimension;
 
-				if (needsUpdate) {
-					console.warn(
-						`Canvas ${attributeName} was changed from sketch from ${rendering[attributeName]}px to ${dimension}px.`,
+				if (attributeName) {
+					const key = /** @type {DimensionKey} */ (attributeName);
+					const dimension = Math.round(
+						/** @type {number} */ (target[key]) / pixelRatio,
 					);
-					rendering[attributeName] = dimension;
+					const needsUpdate = rendering[key] !== dimension;
 
-					if (rendering.resizing !== SIZES.FIXED) {
-						if (!__BUILD__) {
-							console.warn(
-								'Canvas resizing has been switch to fixed.',
-							);
+					if (needsUpdate) {
+						console.warn(
+							`Canvas ${attributeName} was changed from sketch from ${rendering[key]}px to ${dimension}px.`,
+						);
+						rendering[key] = dimension;
+
+						if (rendering.resizing !== SIZES.FIXED) {
+							if (!__BUILD__) {
+								console.warn(
+									'Canvas resizing has been switch to fixed.',
+								);
+							}
+							rendering.resizing = SIZES.FIXED;
 						}
-						rendering.resizing = SIZES.FIXED;
 					}
 				}
 			});
@@ -480,23 +570,29 @@ export class Render {
 		this.then = performance.now();
 
 		this.playhead = 0;
+		this.playheadLast = 0;
 		this.playcount = 0;
 		this.frame = 0;
 
 		const { duration, fps } = sketch;
 
-		let frameLength = isFinite(fps) ? (1 / fps) * 1000 : 0;
-		let frameCount = fps * duration;
+		const numericFps = Number(fps);
+		const numericDuration = Number(duration);
+
+		let frameLength = isFinite(numericFps) ? (1 / numericFps) * 1000 : 0;
+		let frameCount = numericFps * numericDuration;
 		let interval = 1 / frameCount;
 
 		this.elapsed =
-			isFinite(fps) && fps !== 0
+			isFinite(numericFps) && fps !== 0
 				? this.time - frameLength * Math.floor(this.time / frameLength)
 				: 0;
 
-		this.timeTotal = isFinite(duration)
+		this.timeTotal = isFinite(numericDuration)
 			? this.time -
-				duration * 1000 * Math.floor(this.time / (duration * 1000))
+				numericDuration *
+					1000 *
+					Math.floor(this.time / (numericDuration * 1000))
 			: 0;
 
 		this.renderSketch = (deltaTime = 0) => {
@@ -519,29 +615,28 @@ export class Render {
 			}
 		};
 
-		this.loop = (time) => {
+		this.loop = /** @param {number} time **/ (time) => {
 			if (!this.loaded || !this.resized || this.errored) {
 				return;
 			}
 
-			let playhead = time / 1000 / duration;
-			playhead %= 1;
-			let playcount = 0;
+			let totalPlayhead = time / 1000 / numericDuration;
+			let playhead = fps === 0 ? 0 : totalPlayhead % 1;
+
+			if (playhead < this.playheadLast) {
+				this.playcount++;
+			}
+			this.playheadLast = playhead;
+
 			if (isFinite(interval)) {
 				// round values for low framerates
 				playhead = Math.floor(playhead / interval) * interval;
 			}
-			if (isFinite(duration)) {
-				playcount = Math.floor(this.timeTotal / 1000 / duration);
-			}
-			if (fps === 0) {
-				playhead = 0;
-			}
+
 			const now = performance.now();
 			const deltaTime = now - this.thenLoop;
 
 			this.playhead = playhead;
-			this.playcount = playcount;
 			this.frame = Math.floor(map(playhead, 0, 1, 1, frameCount + 1));
 			if (
 				this.elapsed === 0 ||
@@ -563,7 +658,10 @@ export class Render {
 			this.loading = true;
 
 			clearError(this.sketch.key);
+
+			/** @type {Record<any, any>} */
 			this.mountParams = this.renderer?.onMountPreview?.(this.params);
+
 			if (this.mountParams && this.mountParams.canvas !== this.canvas) {
 				this.destroyCanvas(this.canvas);
 				this.canvas = this.createCanvas({
@@ -580,6 +678,9 @@ export class Render {
 
 				this.raf = requestAnimationFrame(() => {
 					this.time = new Date().getTime() - rendering.today;
+					this.initialTime = this.time;
+					this.playheadLast = 0;
+					this.playcount = 0;
 					this.then = this.time;
 					this.thenLoop = performance.now();
 					this.update(this.time);
@@ -603,6 +704,14 @@ export class Render {
 		});
 	}
 
+	/**
+	 *
+	 * @param {Object} params
+	 * @param {HTMLElement} params.container
+	 * @param {HTMLCanvasElement} [params.canvas]
+	 * @param {string} params.context
+	 * @returns
+	 */
 	createCanvas({
 		container,
 		canvas = document.createElement('canvas'),
@@ -624,6 +733,10 @@ export class Render {
 		return canvas;
 	}
 
+	/**
+	 *
+	 * @param {HTMLCanvasElement} canvas
+	 */
 	destroyCanvas(canvas) {
 		if (canvas) {
 			this.observer.disconnect();
@@ -632,24 +745,45 @@ export class Render {
 			canvas.onmousemove = null;
 			canvas.onmouseup = null;
 			canvas.onclick = null;
-			canvas = null;
 		}
 	}
 
+	/**
+	 *
+	 * @param {object} [options]
+	 * @param {string} [options.filename]
+	 * @param {import('../utils/canvas.utils.js').FilenamePattern} [options.pattern]
+	 * @param {string} [options.exportDir]
+	 * @param {File[]} [options.files]
+	 * @param {boolean} [options.commit]
+	 * @param {import('./exports.svelte.js').ImageEncoding} [options.encoding]
+	 * @param {number} [options.quality]
+	 * @param {number} [options.pixelsPerInch]
+	 */
 	async screenshot({
-		filename = this.sketch.name ?? this.sketch.key,
+		filename = this.sketch.key,
 		pattern = this.sketch.filenamePattern,
 		exportDir = this.sketch.exportDir,
+		files = [],
+		commit = false,
+		encoding,
+		quality,
+		pixelsPerInch,
 	} = {}) {
 		const { sketch } = this;
 
 		await exports.screenshot(this.canvas, {
+			encoding,
+			quality,
+			pixelsPerInch,
 			filename,
 			pattern,
 			exportDir,
 			params: {
 				props: sketch.props,
 			},
+			files,
+			commit,
 			onBeforeCapture: (params) => {
 				sketch.beforeCapture.forEach((fn) => fn(params));
 				this.renderSketch();
@@ -661,6 +795,46 @@ export class Render {
 		});
 	}
 
+	async commit({
+		filename = this.sketch.key,
+		pattern = this.sketch.filenamePattern ?? defaultFilenamePattern,
+		exportDir = this.sketch.exportDir,
+	} = {}) {
+		const { sketch } = this;
+		const { props } = sketch;
+
+		/** @type {Record<string, { value: any }>} */
+		const data = {};
+
+		for (const key in props) {
+			data[key] = { value: props[key].value };
+		}
+
+		let patternParams = getFilenameParams();
+		let name = pattern({
+			filename,
+			params: { props },
+			...patternParams,
+		});
+
+		let files = [
+			{
+				filename: `${name}.props.json`,
+				exportDir,
+				data: JSON.stringify(data),
+			},
+		];
+
+		await this.screenshot({
+			filename,
+			pattern,
+			exportDir,
+			files,
+			commit: true,
+		});
+	}
+
+	/** @type {import('./Sketch.svelte.js').InitParamsSketch} */
 	get params() {
 		return {
 			...this.mountParams,
@@ -697,11 +871,15 @@ export class Render {
 			onStart: (params) => {
 				this.time = 0;
 				this.elapsed = 0;
+				this.playcount = 0;
+				this.playheadLast = 0;
 				this.thenLoop = performance.now();
 
 				sketch.beforeRecord.forEach((fn) => fn(params));
 			},
-			onTick: ({ time, deltaTime }) => {
+			onTick: /** @param {{time: number, deltaTime: number}} **/ ({
+				deltaTime,
+			}) => {
 				this.time += deltaTime;
 				this.loop(this.time);
 			},
@@ -767,6 +945,10 @@ export class Render {
 		}
 	}
 
+	/**
+	 *
+	 * @param {number} time
+	 */
 	update(time) {
 		if (!this.paused) {
 			const deltaTime = time - this.then;
@@ -783,9 +965,15 @@ export class Render {
 		});
 	}
 
-	invalidate() {
+	/**
+	 *
+	 * @param {number} [version]
+	 */
+	invalidate(version) {
 		this.time = 0;
 		this.elapsed = 0;
+		this.playcount = 0;
+		this.playheadLast = 0;
 	}
 
 	dispose() {
@@ -804,7 +992,9 @@ export class Render {
 			this.errored = true;
 		}
 
-		cancelAnimationFrame(this.raf);
-		this.raf = null;
+		if (this.raf) {
+			cancelAnimationFrame(this.raf);
+			this.raf = null;
+		}
 	}
 }

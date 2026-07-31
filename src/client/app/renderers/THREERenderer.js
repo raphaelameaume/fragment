@@ -1,21 +1,43 @@
 import { WebGLRenderer, Scene } from 'three';
-import { client } from '@fragment/client';
+import { client } from '../client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
 /**
- * @typedef {Object} Preview
- * @property {number} id
- * @property {Scene} scene - An empty Scene
- * @property {WebGLRenderer} renderer - The WebGLRenderer instance
- * @property {boolean} rendered - Indicates whether the preview was rendered or not
+ * @typedef {object} MountParamsTHREERenderer
+ * @property {Scene} scene
+ * @property {HTMLCanvasElement} canvas
+ * @property {WebGLRenderer} renderer
  */
 
-/** @type {Preview[]} */
+/**
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParamsTHREERenderer} PreviewParamsTHREERenderer
+ */
+
+/**
+ * @typedef {object} PreviewTHREERenderer
+ * @property {number} id
+ * @property {Scene} scene
+ * @property {WebGLRenderer} renderer
+ * @property {boolean} rendered
+ */
+
+/**
+ * @typedef {import('three').Material & {
+ *   vertexShader?: string,
+ *   fragmentShader?: string,
+ * }} ShaderLikeMaterial
+ */
+
+/** @type {PreviewTHREERenderer[]} */
 let previews = [];
 
-export let onMountPreview = ({ id, canvas }) => {
-	let renderer = new WebGLRenderer({ antialias: true, canvas });
+/**
+ * @param {PreviewParamsTHREERenderer} params
+ * @returns {MountParamsTHREERenderer}
+ */
+export let onMountPreview = ({ id }) => {
+	let renderer = new WebGLRenderer({ antialias: true });
 
 	const render = renderer.render;
 
@@ -41,19 +63,9 @@ export let onMountPreview = ({ id, canvas }) => {
 	};
 };
 
-export let onDestroyPreview = ({ id }) => {
-	const previewIndex = previews.findIndex((p) => p.id === id);
-	const preview = previews[previewIndex];
-
-	if (preview) {
-		const { renderer, scene } = preview;
-		clearError(renderer.getContext().__uuid);
-		scene.clear();
-		renderer.dispose();
-		previews.splice(previewIndex, 1);
-	}
-};
-
+/**
+ * @param {{id: number}} params
+ */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -62,6 +74,9 @@ export let onBeforeUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {{id: number}} params
+ */
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -77,6 +92,9 @@ export let onAfterUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {PreviewParamsTHREERenderer} params
+ */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -87,38 +105,76 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	}
 };
 
+/**
+ * @param {{ id: number }} params
+ */
+export let onDestroyPreview = ({ id }) => {
+	const previewIndex = previews.findIndex((p) => p.id === id);
+	const preview = previews[previewIndex];
+
+	if (preview) {
+		const { renderer } = preview;
+		const context =
+			/** @type {import('@fragment/utils/glslErrors').FragmentWebGLRenderingContext} */ (
+				renderer.getContext()
+			);
+		clearError(context.__uuid);
+		renderer.dispose();
+		renderer.forceContextLoss();
+		previews.splice(previewIndex, 1);
+	}
+};
+
 /* HOT SHADER RELOADING */
+/** @type {import('src/cli/plugins/hot-shader-replacement').ShaderUpdate[]} */
 let _shaderUpdates = [];
 
+function clearShaderUpdates() {
+	_shaderUpdates = [];
+}
+
+/**
+ * @param {ShaderLikeMaterial|undefined} material
+ */
+function verifyMaterial(material) {
+	if (!material) return;
+
+	/** @type {('vertexShader' | 'fragmentShader')[]} */
+	const shaderKeys = ['vertexShader', 'fragmentShader'];
+
+	shaderKeys.forEach((key) => {
+		const shader = /** @type {string} */ (material[key]);
+		const shaderPath = getShaderPath(shader);
+		const shaderUpdate = _shaderUpdates.find(
+			(shaderUpdate) => shaderUpdate.filepath === shaderPath,
+		);
+
+		if (shaderUpdate && shaderPath) {
+			if (__CWD__) {
+				console.log(
+					`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
+						__CWD__,
+						'',
+					)}`,
+				);
+			}
+			material[key] = shaderUpdate.source;
+			material.needsUpdate = true;
+		}
+	});
+}
+
+/**
+ * @param {import('three').Object3D<import('three').Object3DEventMap>} scene
+ */
 function handleHotShaderUpdate(scene) {
 	if (_shaderUpdates.length > 0) {
-		const verifyMaterial = (material) => {
-			if (!material) return;
-
-			const { vertexShader = '', fragmentShader = '' } = material;
-
-			Object.keys({ vertexShader, fragmentShader }).forEach((key) => {
-				const shader = material[key];
-				const shaderPath = getShaderPath(shader);
-				const shaderUpdate = _shaderUpdates.find(
-					(shaderUpdate) => shaderUpdate.filepath === shaderPath,
-				);
-
-				if (shaderUpdate) {
-					console.log(
-						`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
-							__CWD__,
-							'',
-						)}`,
-					);
-					material[key] = shaderUpdate.source;
-					material.needsUpdate = true;
-				}
-			});
-		};
 		scene.traverse((child) => {
-			if (child.material) {
-				const { material } = child;
+			if ('material' in child && child.material) {
+				const material =
+					/** @type {ShaderLikeMaterial|ShaderLikeMaterial[]} */ (
+						child.material
+					);
 
 				if (Array.isArray(material)) {
 					material.forEach((m) => verifyMaterial(m));
@@ -130,20 +186,26 @@ function handleHotShaderUpdate(scene) {
 	}
 }
 
-function clearShaderUpdates() {
-	_shaderUpdates = [];
-}
-
 if (import.meta.hot) {
-	import.meta.hot.on('sketch-update', (data) => {
+	import.meta.hot.on('sketch-update', () => {
 		clearShaderUpdates();
 	});
 }
 
-client.on('shader-update', (shaderUpdates) => {
-	previews.forEach((preview) => {
-		clearError(preview.renderer.getContext().__uuid);
-	});
+client.on(
+	'shader-update',
+	/**
+	 * @param {import('src/cli/plugins/hot-shader-replacement').ShaderUpdate[]} shaderUpdates
+	 */
+	(shaderUpdates) => {
+		previews.forEach((preview) => {
+			const context =
+				/** @type {import('@fragment/utils/glslErrors').FragmentWebGLRenderingContext} */ (
+					preview.renderer.getContext()
+				);
+			clearError(context.__uuid);
+		});
 
-	_shaderUpdates = shaderUpdates;
-});
+		_shaderUpdates = shaderUpdates;
+	},
+);

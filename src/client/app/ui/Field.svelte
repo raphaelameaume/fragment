@@ -4,11 +4,14 @@
 	import CheckboxInput from './fields/CheckboxInput.svelte';
 	import VectorInput from './fields/VectorInput.svelte';
 	import TextInput from './fields/TextInput.svelte';
+	import TextareaInput from './fields/TextareaInput.svelte';
 	import ColorInput from './fields/ColorInput.svelte';
 	import ListInput from './fields/ListInput.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import ImageInput from './fields/ImageInput.svelte';
 	import IntervalInput from './fields/IntervalInput.svelte';
+	import PaletteInput from './fields/PaletteInput.svelte';
+	import GradientInput from './fields/GradientInput.svelte';
 	import { fieldTypes } from '../utils/fields.utils.js';
 
 	const fields = {
@@ -17,13 +20,17 @@
 		[`${fieldTypes.VEC}`]: VectorInput,
 		[`${fieldTypes.CHECKBOX}`]: CheckboxInput,
 		[`${fieldTypes.TEXT}`]: TextInput,
+		[`${fieldTypes.TEXTAREA}`]: TextareaInput,
 		[`${fieldTypes.LIST}`]: ListInput,
 		[`${fieldTypes.COLOR}`]: ColorInput,
+		[`${fieldTypes.PALETTE}`]: PaletteInput,
 		[`${fieldTypes.BUTTON}`]: ButtonInput,
 		[`${fieldTypes.DOWNLOAD}`]: ButtonInput,
 		[`${fieldTypes.IMPORT}`]: ImportInput,
 		[`${fieldTypes.IMAGE}`]: ImageInput,
 		[`${fieldTypes.INTERVAL}`]: IntervalInput,
+		[`${fieldTypes.GRADIENT}`]: GradientInput,
+		[`${fieldTypes.WRAPPER}`]: null,
 	};
 </script>
 
@@ -52,6 +59,7 @@
 		onchange,
 		onclick = () => {},
 		children,
+		trackChanges = false,
 		triggers = $bindable([]),
 	} = $props();
 
@@ -63,14 +71,26 @@
 
 			onchange(value);
 		},
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
 		button: (event) => {
 			value(event);
 			onclick(event);
 		},
-		download: (event) => {
-			let [data, filename] = value(event);
+		/**
+		 *
+		 * @param {MouseEvent} event
+		 */
+		download: async (event) => {
+			try {
+				let [data, filename] = await value(event);
 
-			download(data, filename);
+				download(data, filename);
+			} catch (error) {
+				console.error(`Error while trying to download:`, error);
+			}
 		},
 		number: (event = {}) => {
 			const isValueInRange = event.value >= 0 && event.value <= 1;
@@ -102,7 +122,12 @@
 				fieldType === fieldTypes.CHECKBOX),
 	);
 	let triggersActive = $derived(triggers.length > 0);
+	let changed = $derived(trackChanges && !deepEqual(value, initialValue));
 
+	/**
+	 *
+	 * @param {MouseEvent} event
+	 */
 	function toggleTriggers(event) {
 		event.preventDefault();
 
@@ -120,16 +145,15 @@
 		};
 	}
 
-	function hasChanged(current, next) {
-		const changed = !deepEqual(current, next);
-		return changed;
+	function restoreInitialValue() {
+		onchange($state.snapshot(initialValue));
 	}
 </script>
 
 <div
 	class="field"
 	class:disabled
-	class:changed={!disabled && hasChanged(value, initialValue)}
+	class:changed={!disabled && changed}
 	style="--index: {index};"
 >
 	<FieldSection
@@ -166,14 +190,25 @@
 		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
 		{@render children?.()}
 	</FieldSection>
+	{#if changed}
+		<button
+			class="field__changed"
+			onclick={restoreInitialValue}
+			title="Restore initial value"
+		>
+			<span class="visually-hidden">Restore initial value</span>
+		</button>
+	{/if}
 	{#if triggerable && showTriggers}
-		<FieldTriggers
-			bind:triggers
-			{onTrigger}
-			{context}
-			triggerable={fieldType === fieldTypes.BUTTON}
-			controllable={fieldType === fieldTypes.NUMBER}
-		/>
+		<FieldSection {key} visible={showTriggers} secondary>
+			<FieldTriggers
+				bind:triggers
+				{onTrigger}
+				{context}
+				triggerable={fieldType === fieldTypes.BUTTON}
+				controllable={fieldType === fieldTypes.NUMBER}
+			/>
+		</FieldSection>
 	{/if}
 </div>
 
@@ -187,31 +222,48 @@
 		width: 100%;
 
 		padding: 3px 6px 3px 12px;
-		border-bottom: 1px solid var(--color-spacing);
+		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
-	.field.changed:before {
-		content: '';
-
+	.field__changed {
 		position: absolute;
 		top: 0px;
 		left: 0px;
 		bottom: 0px;
 		z-index: 1;
 
-		width: 4px;
+		width: 13px;
 		/* height: 4px; */
 		/* border-radius: 2px; */
 
-		--stripes-offset: calc(var(--index) * 1.9px);
+		background: transparent;
+		cursor: pointer;
 
-		background: repeating-linear-gradient(
-			45deg,
-			var(--color-active) calc(0px + var(--stripes-offset)),
-			var(--color-active) calc(2px + var(--stripes-offset)),
-			transparent calc(2px + var(--stripes-offset)),
-			transparent calc(4px + var(--stripes-offset))
-		);
+		&:before {
+			content: '';
+
+			position: absolute;
+			top: 0;
+			left: 0;
+
+			display: block;
+			width: 4px;
+			height: 100%;
+
+			--stripes-offset: calc(var(--index) * 1.9px);
+
+			background: repeating-linear-gradient(
+				45deg,
+				var(--fragment-accent-color) calc(0px + var(--stripes-offset)),
+				var(--fragment-accent-color) calc(2px + var(--stripes-offset)),
+				transparent calc(2px + var(--stripes-offset)),
+				transparent calc(4px + var(--stripes-offset))
+			);
+		}
+
+		&:hover:before {
+			width: 7px;
+		}
 	}
 
 	:global(.field__input .field) {
@@ -220,13 +272,14 @@
 	}
 
 	:global(.field__input .field:last-child) {
-		border-bottom: 0px solid #323233 !important;
+		border-bottom-width: 0px !important;
 		padding-bottom: 0px !important;
 	}
 
 	.field__actions {
 		display: flex;
 		align-items: center;
+		gap: var(--column-gap);
 	}
 
 	.field__action {
@@ -258,15 +311,11 @@
 	}
 
 	.field__action {
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 
 		opacity: 0.6;
 		background-color: transparent;
 		transition: opacity 0.1s ease;
-	}
-
-	.field__action--triggers svg {
-		transform: rotate(90deg);
 	}
 
 	.field__action:hover {

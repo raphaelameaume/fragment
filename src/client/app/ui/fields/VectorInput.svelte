@@ -131,6 +131,6 @@
 		width: var(--column-gap);
 		height: 1px;
 
-		background-color: var(--color-border-input);
+		background-color: var(--fragment-input-border-color);
 	}
 </style>

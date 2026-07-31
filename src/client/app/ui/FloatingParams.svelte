@@ -55,7 +55,7 @@
 
 		height: auto;
 
-		border-radius: calc(var(--border-radius-input) * 2);
+		border-radius: calc(var(--fragment-input-border-radius) * 2);
 		overflow: hidden;
 	}
 

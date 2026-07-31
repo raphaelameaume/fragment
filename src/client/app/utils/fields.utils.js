@@ -6,6 +6,7 @@ export const fieldTypes = {
 	VEC: 'vec',
 	CHECKBOX: 'checkbox',
 	TEXT: 'text',
+	TEXTAREA: 'textarea',
 	LIST: 'list',
 	COLOR: 'color',
 	BUTTON: 'button',
@@ -13,17 +14,48 @@ export const fieldTypes = {
 	IMPORT: 'import',
 	IMAGE: 'image',
 	INTERVAL: 'interval',
+	WRAPPER: 'wrapper',
+	PALETTE: 'palette',
+	GRADIENT: 'gradient',
 };
 
 /** @type string[] */
 const types = Object.values(fieldTypes);
 
+/**
+ * @param {string} url
+ * @returns {boolean}
+ */
 function isImageURL(url) {
-	return url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null;
+	return (
+		url.match(/\.(jpeg|jpg|gif|png|webp)$/) !== null ||
+		url.startsWith('data:image')
+	);
 }
 
+/**
+ * @param {any} value
+ * @returns {boolean}
+ */
 function isImage(value) {
-	return typeof value === HTMLImageElement || isImageURL(value);
+	return (
+		typeof value === HTMLImageElement ||
+		(typeof value === 'string' && isImageURL(value))
+	);
+}
+
+/**
+ *
+ * @param {any[]} value
+ * @returns {boolean}
+ */
+function isGradient(value) {
+	return value.every(
+		(v) =>
+			typeof v === 'object' &&
+			typeof v.position === 'number' &&
+			isColor(v.color),
+	);
 }
 
 export function inferFieldType({ type, value, params, key }) {
@@ -81,6 +113,10 @@ export function inferFieldType({ type, value, params, key }) {
 			typeof params.max === 'number'
 		) {
 			return fieldTypes.INTERVAL;
+		} else if (isArray && isGradient(value)) {
+			return fieldTypes.GRADIENT;
+		} else if (isArray && values.every((v) => isColor(v))) {
+			return fieldTypes.PALETTE;
 		} else if (isColor(value)) {
 			return fieldTypes.COLOR;
 		} else if (typeof value === 'number') {
@@ -110,31 +146,62 @@ export function inferFieldType({ type, value, params, key }) {
 }
 
 /**
+ * @typedef MatchFolderResult
+ * @property {string} id
+ * @property {string} parentId
+ * @property {string} [name]
+ * @property {number} depth
+ * @property {boolean} isCurrent
+ * @property {string} [rootId]
+ * @property {{ collapsed: boolean}} [attributes]
+ */
+
+/**
  *
  * @param {string} folder
  */
 export function parseFolder(folder) {
-	const regex = /(?<name>\w+)(?:\[(?<attributes>[^\]]+)\])?/g;
-	const matches = [...folder.matchAll(regex)];
+	const segments = folder.split('.');
+	const regex = /(?<name>[^\[]+)(?:\[(?<attributes>[^\]]+)\])?/;
 
-	const results = matches.map((match) => {
-		return {
-			name: match.groups.name,
-			attributes: match.groups.attributes
-				? Object.fromEntries(
-						match.groups.attributes
-							.split(', ')
-							.map((attr) => attr.split('=')),
-					)
-				: {},
-		};
-	});
+	const matches = segments
+		.map((segment) => {
+			const match = segment.match(regex);
 
-	let names = results.map((match) => match.name);
+			if (match) {
+				return {
+					name: match.groups?.name,
+					attributes: match.groups?.attributes
+						? Object.fromEntries(
+								match.groups.attributes
+									.split(', ')
+									.map((attr) =>
+										attr
+											.split('=')
+											.map((v) =>
+												v === 'false'
+													? false
+													: v === 'true'
+														? true
+														: v,
+											),
+									),
+							)
+						: {},
+				};
+			}
+		})
+		.filter((result) => result !== undefined);
 
+	let names = matches.map((match) => match.name);
+
+	/** @type {string|undefined} */
 	let rootId;
 
-	results.forEach((match, index) => {
+	/** @type {MatchFolderResult[]} */
+	let results = [];
+
+	matches.forEach((match, index) => {
 		let id = [...names].slice(0, index + 1).join('.');
 		let parentId = [...names].slice(0, index).join('.');
 
@@ -142,11 +209,18 @@ export function parseFolder(folder) {
 			rootId = id;
 		}
 
-		match.id = id;
-		match.parentId = parentId;
-		match.depth = index;
-		match.isCurrent = index === results.length - 1;
-		match.rootId = rootId;
+		/** @type {MatchFolderResult} */
+		let result = {
+			id,
+			parentId,
+			depth: index,
+			isCurrent: index === matches.length - 1,
+			rootId,
+			name: match.name,
+			attributes: match.attributes,
+		};
+
+		results.push(result);
 	});
 
 	return results;

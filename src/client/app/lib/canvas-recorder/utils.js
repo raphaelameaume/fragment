@@ -3,15 +3,24 @@ import { changeDpiDataUrl } from 'changedpi';
 const supportedEncodings = ['image/png', 'image/jpeg', 'image/webp'];
 
 /**
- * Create a Data URL from a canvas
- * @param {HTMLCanvasElement} canvas
- * @param {object} [options]
- * @param {string} [encoding="image/png"]
- * @param {number} [encodingQuality=0.92]
- * @param {number} [pixelsPerInch=72]
- * @returns {object} result
- * @returns {string} result.dataURL
- * @returns {string} result.extension
+ * @typedef {Object} ExportCanvasOptions
+ * @property {string} [encoding='image/png'] - Image MIME type (image/png, image/jpeg, image/webp)
+ * @property {number} [encodingQuality=0.92] - Image quality (0-1)
+ * @property {number} [pixelsPerInch=72] - DPI/PPI for the exported image
+ */
+
+/**
+ * @typedef {Object} ExportCanvasResult
+ * @property {string} extension - File extension (e.g., '.png', '.jpg')
+ * @property {string} dataURL - Data URL of the exported canvas
+ */
+
+/**
+ * Export a canvas to a data URL with specified encoding and DPI
+ * @param {HTMLCanvasElement} canvas - The canvas to export
+ * @param {ExportCanvasOptions} [options={}] - Export options
+ * @returns {ExportCanvasResult}
+ * @throws {Error} If encoding is not supported
  */
 export function exportCanvas(
 	canvas,

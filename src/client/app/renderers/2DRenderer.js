@@ -1,31 +1,38 @@
 /**
  * @typedef {object} MountParams2DRenderer
+ * @property {HTMLCanvasElement} canvas
  * @property {CanvasRenderingContext2D} context
  */
 
 /**
- * @param {object} params
- * @param {number} params.id
- * @param {HTMLDivElement} params.container
- * @param {HTMLCanvasElement} params.canvas
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParams2DRenderer} PreviewParams2DRenderer
+ * @property {number} id
+ * @property {HTMLCanvasElement} canvas
+ * @property {HTMLElement} container
+ * @property {number} width
+ * @property {number} height
+ * @property {number} pixelRatio
+ */
+
+/**
+ * @param {PreviewParams2DRenderer} params
  * @returns {MountParams2DRenderer}
  */
 export let onMountPreview = ({ canvas }) => {
+	const context = canvas.getContext('2d');
+
+	if (!context) {
+		throw new Error(`Cannot get CanvasRenderingContext2D from canvas`);
+	}
+
 	return {
 		canvas,
-		context: canvas.getContext('2d'),
+		context,
 	};
 };
 
 /**
- * @param {object} params
- * @param {HTMLCanvasElement} params.canvas
- * @param {number} params.width
- * @param {number} params.height
- * @param {number} params.pixelRatio
+ * @param {PreviewParams2DRenderer} params
  */
 export let onResizePreview = ({ canvas, width, height, pixelRatio }) => {
 	canvas.width = width * pixelRatio;

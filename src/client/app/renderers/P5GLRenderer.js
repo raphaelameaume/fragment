@@ -1,14 +1,7 @@
 import p5 from 'p5';
-import { client } from '@fragment/client';
+import { client } from '../client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
-
-/**
- * @typedef {object} PreviewP5GLRenderer
- * @property {number} id
- * @property {p5} p
- * @property {boolean} rendered
- */
 
 /**
  * @typedef {object} MountParamsP5GLRenderer
@@ -17,10 +10,14 @@ import { clearError } from '../state/errors.svelte';
  */
 
 /**
- * @typedef {object} PreviewParamsP5GLRenderer
- * @property {number} params.id
- * @property {HTMLDivElement} params.container
- * @property {HTMLCanvasElement} params.canvas
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParamsP5GLRenderer} PreviewParamsP5GLRenderer
+ */
+
+/**
+ * @typedef {object} PreviewP5GLRenderer
+ * @property {number} id
+ * @property {p5} p
+ * @property {boolean} rendered
  */
 
 /** @type {PreviewP5GLRenderer[]} */
@@ -36,30 +33,41 @@ let previews = [];
  * @param {number} params.pixelRatio
  * @returns {MountParamsP5GLRenderer}
  */
-export let onMountPreview = ({ id, width, height }) => {
+export let onMountPreview = ({
+	id,
+	container,
+	canvas,
+	width,
+	height,
+	pixelRatio,
+}) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			sketch.createCanvas(width, height, 'webgl');
+			const dpr = window.devicePixelRatio;
+			sketch.pixelDensity(pixelRatio);
+			sketch.createCanvas(
+				(width / dpr) * pixelRatio,
+				(height / dpr) * pixelRatio,
+				'webgl',
+				canvas,
+			);
 		};
-	});
+	}, container);
 
-	/** @type {PreviewP5GLRenderer} */
-	const preview = {
+	previews.push({
 		id,
 		p,
 		rendered: false,
-	};
-
-	previews.push(preview);
+	});
 
 	return {
-		canvas: p.canvas,
+		canvas,
 		p,
 	};
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {{ id: number }} params
  */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -72,7 +80,7 @@ export let onBeforeUpdatePreview = ({ id }) => {
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {{ id: number }} params
  */
 export let onAfterUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
@@ -102,7 +110,7 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 };
 
 /**
- * @param {PreviewParamsP5GLRenderer} params
+ * @param {{ id: number }} params
  */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((preview) => preview.id === id);
@@ -116,16 +124,27 @@ export let onDestroyPreview = ({ id }) => {
 };
 
 /* HOT SHADER RELOADING */
-const { shader } = p5.prototype;
-const { useProgram } = p5.Shader.prototype;
+/** @type {import('src/cli/plugins/hot-shader-replacement').ShaderUpdate[]} */
+let _shaderUpdates = [];
 
+function clearShaderUpdates() {
+	_shaderUpdates = [];
+}
+
+const { shader } = p5.prototype;
+
+// @ts-ignore
+const { useProgram } = p5.Shader.prototype;
+// @ts-ignore
 p5.Shader.prototype.useProgram = function () {
 	// avoid p5 throwing error covering shader syntax error overlay
+	// @ts-ignore
 	if (this._glProgram !== 0) {
 		useProgram.call(this);
 	}
 };
 
+// @ts-ignore
 p5.prototype.shader = function (s) {
 	let needsUpdate = false;
 	['_vertSrc', '_fragSrc'].forEach((key) => {
@@ -135,13 +154,15 @@ p5.prototype.shader = function (s) {
 			(shaderUpdate) => shaderUpdate.filepath === shaderPath,
 		);
 
-		if (shaderUpdate) {
-			console.log(
-				`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
-					__CWD__,
-					'',
-				)}`,
-			);
+		if (shaderUpdate && shaderPath) {
+			if (__CWD__) {
+				console.log(
+					`[fragment-plugin-hsr] hsr update ${shaderPath.replace(
+						__CWD__,
+						'',
+					)}`,
+				);
+			}
 			needsUpdate = true;
 
 			s[key] = shaderUpdate.source;
@@ -152,8 +173,8 @@ p5.prototype.shader = function (s) {
 		s.bindShader();
 		s.unbindShader();
 
-		// set it to undefined so it goes into useProgram when binded
-		// see useProgram
+		// set it to undefined so it goes into useProgram when binded, see useProgram
+		// @ts-ignore
 		this._renderer._curShader = undefined;
 
 		// set _glProgram so it compiles the shader again
@@ -171,23 +192,22 @@ p5.prototype.shader = function (s) {
 	return shader.call(this, s);
 };
 
-let _shaderUpdates = [];
-
-function clearShaderUpdates() {
-	_shaderUpdates = [];
-}
-
 if (import.meta.hot) {
-	import.meta.hot.on('sketch-update', (data) => {
+	import.meta.hot.on('sketch-update', () => {
 		clearShaderUpdates();
 	});
 }
 
-client.on('shader-update', (shaderUpdates) => {
-	previews.forEach(({ p }) => {
-		console.log('clear error', p._renderer.GL.__uuid);
-		clearError(p._renderer.GL.__uuid);
-	});
+client.on(
+	'shader-update',
+	/** @param {import('src/cli/plugins/hot-shader-replacement').ShaderUpdate[]} shaderUpdates */ (
+		shaderUpdates,
+	) => {
+		previews.forEach(({ p }) => {
+			//@ts-ignore
+			clearError(p._renderer.GL.__uuid);
+		});
 
-	_shaderUpdates = shaderUpdates;
-});
+		_shaderUpdates = shaderUpdates;
+	},
+);

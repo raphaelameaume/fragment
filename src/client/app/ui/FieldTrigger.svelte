@@ -173,7 +173,7 @@
 
 <style>
 	.field-trigger {
-		--width-delete: var(--height-input);
+		--width-delete: var(--fragment-input-height);
 		--width-input: 90px;
 		--width-activity: 16px;
 		--width-cols: 1fr;
@@ -209,11 +209,11 @@
 	}
 
 	.activity.valid.enabled {
-		--background-color: var(--color-green);
+		--background-color: var(--fragment-color-green);
 	}
 
 	.activity.valid.disabled {
-		--background-color: var(--color-red);
+		--background-color: var(--fragment-color-red);
 	}
 
 	.delete {

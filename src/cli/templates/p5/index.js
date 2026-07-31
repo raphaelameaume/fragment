@@ -1,6 +1,6 @@
 import p5 from 'p5';
 
-export let props = {};
+export const props = {};
 
 /**
  * @param {object} params
@@ -10,7 +10,7 @@ export let props = {};
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export function setup({ p, width, height }) {}
+export const setup = ({ p, width, height }) => {};
 
 /**
  * @param {object} params
@@ -25,8 +25,8 @@ export function setup({ p, width, height }) {}
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export function draw({ p }) {
-	p.background(255, 0, 0);
-}
+export const draw = ({ p }) => {
+	p.background(0, 255, 0);
+};
 
-export let rendering = 'p5';
+export const rendering = 'p5';

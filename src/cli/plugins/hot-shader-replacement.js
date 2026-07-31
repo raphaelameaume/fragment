@@ -1,15 +1,24 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import glslify from 'glslify';
 import { log, dim, green, yellow } from '../log.js';
 
 /**
- * @typedef {Object} ShaderUpdate
+ * @typedef {Object} ShaderWarning
+ * @property {string} type - Warning type
+ * @property {string} importer - File that imported the shader
+ * @property {string} message - Warning message
+ * @property {string} url - Chunk resolved path
+ * @property {Object} location - Location of the warning
+ * @property {string} location.lineText - The line of code with the warning
+ */
+
+/**
+ * @typedef ShaderUpdate
  * @property {string} filepath - The path of the shader on the filesystem
  * @property {string} source - The source code of the shader
  * @property {boolean} nohsr - Whether the shader can be injected on the fly or if the sketch needs to be fully reloaded
- * @property {string[]} warnings - Indicates whether the Wisdom component is present.
+ * @property {ShaderWarning[]} warnings
  */
 
 /**
@@ -29,8 +38,11 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 		/(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)|(\/\/.*)/gi;
 	const base = process.cwd().split(path.sep).join(path.posix.sep);
 
+	/** @type Map<string, string[]> */
 	let dependencies = new Map();
+	/** @type {string[]} */
 	let shaders = [];
+	/** @type {import('vite').ModuleNode[]} */
 	let modulesToReload = [];
 
 	function reloadSketch() {
@@ -38,7 +50,7 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 
 		modulesToReload = [];
 
-		if (clone.length > 0) {
+		if (clone.length > 0 && clone[0].file) {
 			const { file } = clone[0];
 			const filepath = path.relative(cwd, file);
 			log.message(`${green(`hmr update`)} /${filepath}`);
@@ -57,6 +69,12 @@ export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
 		return clone;
 	}
 
+	/**
+	 *
+	 * @param {string} shaderSource
+	 * @param {string} shaderPath
+	 * @returns
+	 */
 	function addShaderFilepath(shaderSource, shaderPath) {
 		let keyword = `void main`;
 		let shaderParts = shaderSource.split(keyword);
@@ -68,10 +86,21 @@ ${keyword}${shaderParts[1]}
         `;
 	}
 
+	/**
+	 *
+	 * @param {string} shaderPath
+	 * @returns {string}
+	 */
 	function getUnixPath(shaderPath) {
 		return shaderPath.split(path.sep).join(path.posix.sep);
 	}
 
+	/**
+	 *
+	 * @param {string} shaderSource
+	 * @param {string} shaderPath
+	 * @returns
+	 */
 	function compileGLSL(shaderSource, shaderPath) {
 		// test if shader source contains hint to avoid shader injection
 		const nohsr = ignoreRegex.test(shaderSource);
@@ -98,7 +127,8 @@ ${keyword}${shaderParts[1]}
 		 * @param {string} parentSource
 		 * @param {string} parentPath
 		 * @param {string[]} deps
-		 * @returns {}
+		 * @param {ShaderWarning[]} warnings
+		 * @returns {{ code: string, deps: string[], warnings: ShaderWarning[] }}
 		 */
 		function resolveDependencies(
 			parentSource,
@@ -164,7 +194,7 @@ ${keyword}${shaderParts[1]}
 
 						const parents = dependencies.get(chunkUnixPath);
 
-						if (!parents.includes(shaderPath)) {
+						if (parents && !parents.includes(shaderPath)) {
 							parents.push(shaderPath);
 							deps.push(chunkResolvedPath);
 						} else {
@@ -202,7 +232,11 @@ ${keyword}${shaderParts[1]}
 
 							return `${prefix}\n${chunkCode}`;
 						} catch (error) {
-							if (error.code === 'ENOENT') {
+							const err = /** @type {NodeJS.ErrnoException} */ (
+								error
+							);
+
+							if (err.code === 'ENOENT') {
 								warnings.push({
 									type: 'not found',
 									message: `Cannot find ${chunkResolvedPath}`,
@@ -232,18 +266,13 @@ ${keyword}${shaderParts[1]}
 			shaderPath,
 		);
 
-		code = glslify(code, {
-			basedir: process.cwd(),
-		});
-
 		if (server) {
 			code = addShaderFilepath(code, shaderPath);
 		}
 
 		warnings.forEach((warning) => {
 			const { location } = warning;
-			const line = 1;
-			const column = 4;
+
 			log.message(`${yellow(warning.type)} ${warning.importer}`, prefix);
 			console.log();
 			console.log(`  ${dim(location.lineText)}`);
@@ -296,8 +325,8 @@ ${keyword}${shaderParts[1]}
 		name: 'fragment-plugin-hsr',
 		config: () => ({
 			optimizeDeps: {
-				esbuildOptions: {
-					loader: {
+				rolldownOptions: {
+					moduleTypes: {
 						'.frag': 'text',
 						'.vert': 'text',
 						'.glsl': 'text',
@@ -310,7 +339,7 @@ ${keyword}${shaderParts[1]}
 		configureServer(_server) {
 			server = _server;
 		},
-		handleHotUpdate: async ({ modules, file, read }) => {
+		handleHotUpdate: async ({ file, read }) => {
 			const { moduleGraph } = server;
 
 			if (fileRegex.test(file)) {
@@ -329,7 +358,7 @@ ${keyword}${shaderParts[1]}
 						nohsr,
 					} = compileGLSL(source, file);
 
-					/** @type ShaderUpdate[] */
+					/** @type ShaderUpdate */
 					const shaderUpdate = {
 						filepath: unixPath,
 						source: glsl,
@@ -340,16 +369,21 @@ ${keyword}${shaderParts[1]}
 					return reloadShaders([shaderUpdate]);
 				} else {
 					if (dependencies.has(unixPath)) {
-						const shadersList = dependencies.get(unixPath);
+						const shadersList = dependencies.get(unixPath) ?? [];
 
 						// retrieve modules from module graph
-						const moduleNodes = shadersList.map((moduleNode) =>
-							moduleGraph.getModuleById(moduleNode),
-						);
+						const moduleNodes = shadersList
+							.map((moduleNode) =>
+								moduleGraph.getModuleById(moduleNode),
+							)
+							.filter((moduleNode) => moduleNode !== undefined);
 
 						// save it as modules to reload to invalidate the top level shaders in case a dependency has been hot updated in between
-						modulesToReload.push(...moduleNodes);
+						if (moduleNodes.length > 0) {
+							modulesToReload.push(...moduleNodes);
+						}
 
+						/** @type {string[]} */
 						const sources = await Promise.all(
 							shadersList.map((shader) => {
 								return readFile(shader, 'utf-8');

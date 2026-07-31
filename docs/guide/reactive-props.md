@@ -1,6 +1,6 @@
 # Reactive props
 
-In order to create controllers in the interface, your sketch can export a plain JavaScript Object named `props` like this:
+Fragment can expose configuration controllers to the interface by exporting a plain JavaScript Object named `props`. The following example demonstrates a basic setup that declares a single property with a default value and parameter constraints. The interface automatically creates a controller for this property.
 
 ```js
 export let props = {
@@ -14,7 +14,9 @@ export let props = {
 };
 ```
 
-However, you might want to update the value from your code and the interface to update accordingly. Fragment tracks value changes internally so you don't have to do anything and it works out-of-the-box.
+Read more about `props` [here](../api/props.md).
+
+Often, a sketch needs to update a property's value in code while ensuring that the interface reflects the change immediately. Fragment automatically tracks internal value updates, allowing the interface to stay synchronized without requiring additional logic. The next example shows a property that can be mutated programmatically, alongside another property that triggers those changes.
 
 ```js
 export let props = {
@@ -34,8 +36,9 @@ export let props = {
 };
 ```
 
-With reactive props, you can enable complex behaviours such as:
-- Adding props
+## Adding props
+
+In many situations, a sketch may need to introduce new properties dynamically at runtime. The example below demonstrates how a new controller can be generated based on an object created in the sketch. Each new object creates its own associated color controller that remains linked to the object's actual value.
 
 ```js
 export let props = {
@@ -61,7 +64,9 @@ export let props = {
 };
 ```
 
-- Change prop `params`
+## Updating `params`
+
+Parameter definitions may also need to change at runtime. The next example shows how a selectable list of modes is generated dynamically and refreshed as new modes are added.
 
 ```js
 
@@ -87,12 +92,14 @@ export let props = {
 };
 ```
 
-- Monitor value changes
+## Monitoring changes
+
+Some properties may need to be controlled entirely from code while still exposing their current state in the interface. The following example shows a seed value that cannot be changed directly from the interface but updates whenever another property is triggered.
 
 ```js
 export let props = {
 	seed: {
-		value: generateSeed(), // seed cannot be changed from the interface but will reflect new values on click on `generate`
+		value: generateSeed(), // A seed displayed but not user-editable
 		disabled: true,
 	},
 	generate: {

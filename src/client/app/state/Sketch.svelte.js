@@ -5,6 +5,7 @@ import {
 	deepClone,
 	deepEqual,
 	hydrate,
+	isDataURL,
 	isFunction,
 	isObject,
 	persist,
@@ -12,14 +13,128 @@ import {
 
 const noop = () => {};
 
+/**
+ * @typedef InstanceProp
+ * @property {any} value
+ * @property {Record<string, any>} params
+ * @property {any[]} [triggers]
+ * @property {string|undefined} [group]
+ * @property {string|undefined} [type]
+ * @property {string|undefined} [folder]
+ * @property {string|null|undefined} [displayName]
+ * @property {boolean|(() => boolean)} [hidden]
+ * @property {boolean|(() => boolean)} [disabled]
+ * @property {(prop: InstanceProp, context: { canvas: HTMLCanvasElement|null, width: number, height: number, pixelRatio: number }) => boolean} [onChange]
+ */
+
+/**
+ * @typedef InitParamsSketch
+ * @property {number} id
+ * @property {HTMLCanvasElement} canvas
+ * @property {HTMLElement} container
+ * @property {number | undefined} width
+ * @property {number | undefined} height
+ * @property {number | undefined} pixelRatio
+ * @property {string} publicPath
+ * @property {Record<string, InstanceProp>} props
+ */
+
+/**
+ * @typedef {InitParamsSketch & { time: number, deltaTime: number, playhead: number, playcount: number, frame: number}} DrawParamsSketch
+ */
+
+/**
+ * @typedef {Object} SketchInstance
+ * @property {string} [rendering]
+ * @property {any} [renderer]
+ * @property {Record<string, InstanceProp>} [props]
+ * @property {string} [name]
+ * @property {number} [fps]
+ * @property {() => boolean} [needsUpdate]
+ * @property {number} [duration]
+ * @property {string} [exportDir]
+ * @property {string} [backgroundColor]
+ * @property {(params: InitParamsSketch) => Promise<void>} [load]
+ * @property {(params: InitParamsSketch) => (void | Promise<void>)} [setup]
+ * @property {(params: InitParamsSketch) => (void | Promise<void>)} [init]
+ * @property {(params: DrawParamsSketch) => void} [draw]
+ * @property {(params: DrawParamsSketch) => void} [update]
+ * @property {(params: InitParamsSketch) => void} [resize]
+ * @property {() => void} [dispose]
+ * @property {import('../utils/canvas.utils').FilenamePattern} [filenamePattern]
+ * @property {SketchBuildConfig} [buildConfig]
+ */
+
+/**
+ * @typedef SketchProp
+ * @property {any} value
+ * @property {any} __initialValue
+ * @property {any} __currentValue
+ * @property {Record<string, any>} params
+ * @property {any[]} triggers
+ * @property {string|undefined} group
+ * @property {string|undefined} type
+ * @property {string|undefined} folder
+ * @property {string|null|undefined} displayName
+ * @property {boolean} hidden
+ * @property {(() => boolean)} __hidden
+ * @property {boolean} disabled
+ * @property {(() => boolean)} __disabled
+ */
+
+/**
+ * @typedef SketchPropFolder
+ * @property {string} id
+ * @property {string} [displayName]
+ * @property {string} [rootId]
+ * @property {(SketchPropFolder | { type: 'field', key: string })[]} children
+ * @property {SketchPropFolder|undefined} parent
+ * @property {'fieldgroup'} type
+ * @property {number} depth
+ * @property {boolean} collapsed
+ * @property {boolean} hidden
+ * @property {boolean} __initialCollapsed
+ */
+
+/**
+ * @typedef {string} SketchPropGroup
+ */
+
+/**
+ * @typedef {object} SketchBuildConfig
+ * @property {string} [canvasSize]
+ * @property {string} [resizing]
+ * @property {[number, number]} [dimensions]
+ * @property {number} [width]
+ * @property {number} [height]
+ * @property {number|(() => number)} [pixelRatio]
+ * @property {number} [aspectRatio]
+ * @property {string} [preset]
+ * @property {string} [presetOrientation]
+ * @property {number} [scale]
+ * @property {string} [backgroundColor]
+ * @property {string} [styles]
+ * @property {{ headless?: boolean, resizable?: boolean, component?: () => Promise<{ default: import('svelte').Component }>, persistent?: boolean}} [layout]
+ */
+
 class Sketch {
+	/** @type {Record<string, SketchProp>} */
 	props = $state({});
 	canvas = $state(null);
 	backgroundColor = $state('inherit');
+	/** @type {SketchPropGroup[]} */
 	propsGroups = $state([]);
+	/** @type {SketchPropFolder[]} */
 	propsFolders = $state([]);
 	version = $state(0);
 
+	/**
+	 *
+	 * @param {object} params
+	 * @param {string} params.key
+	 * @param {SketchInstance} params.instance
+	 * @param {Sketch} params.previous
+	 */
 	constructor({ key, instance, previous }) {
 		this.key = key;
 		this.instance = instance;
@@ -34,13 +149,18 @@ class Sketch {
 		this.exportDir = this.instance.exportDir;
 		this.filenamePattern = this.instance.filenamePattern;
 		this.backgroundColor = this.instance.backgroundColor ?? 'inherit';
+		/** @type {SketchBuildConfig} */
 		this.buildConfig = this.instance.buildConfig ?? {};
 
 		this.recording = null;
 		this.params = {};
+		/** @type {import('./exports.svelte').CaptureListener[]} */
 		this.beforeCapture = [];
+		/** @type {import('./exports.svelte').RecordListener[]} */
 		this.beforeRecord = [];
+		/** @type {import('./exports.svelte').CaptureListener[]} */
 		this.afterCapture = [];
+		/** @type {import('./exports.svelte').RecordListener[]} */
 		this.afterRecord = [];
 
 		this.reconcile(previous);
@@ -48,10 +168,7 @@ class Sketch {
 
 	reset() {
 		Object.keys(this.props).forEach((key) => {
-			this.updateProp(
-				key,
-				$state.snapshot(this.props[key].__initialValue),
-			);
+			this.updateProp(key, this.props[key].__initialValue);
 		});
 
 		this.propsFolders.forEach((fieldgroup) => {
@@ -59,10 +176,17 @@ class Sketch {
 		});
 	}
 
+	/**
+	 *
+	 * @param {Sketch} previous
+	 */
 	reconcile(previous) {
 		const instanceProps = this.instance.props ?? {};
+		/** @type {Record<string, SketchProp>} */
 		const newProps = {};
+		/** @type {SketchPropGroup[]} */
 		const newPropsGroups = [];
+		/** @type {SketchPropFolder[]} */
 		const newPropsFolders = [];
 
 		Object.keys(instanceProps).forEach((key) => {
@@ -75,6 +199,10 @@ class Sketch {
 			);
 		});
 
+		/**
+		 *
+		 * @param {Record<string, SketchProp>} prevProps
+		 */
 		const restoreProps = (prevProps) => {
 			const prevPropKeys = Object.keys(prevProps);
 
@@ -120,7 +248,15 @@ class Sketch {
 			}
 		};
 
+		/**
+		 *
+		 * @param {SketchPropFolder[]} prevFolders
+		 */
 		const restorePropsFoldersState = (prevFolders) => {
+			/**
+			 *
+			 * @param {SketchPropFolder} prevFolder
+			 */
 			const restoreFolder = (prevFolder) => {
 				const newFolder = newPropsFolders.find((f) => {
 					return prevFolder.id === f.id;
@@ -166,6 +302,15 @@ class Sketch {
 		this.propsFolders = newPropsFolders;
 	}
 
+	/**
+	 *
+	 * @param {Record<string, any>} target
+	 * @param {string} key
+	 * @param {InstanceProp} instanceProp
+	 * @param {SketchPropFolder[]} propsFoldersCollection
+	 * @param {SketchPropGroup[]} propsGroupsCollection
+	 * @returns
+	 */
 	createProp(
 		target,
 		key,
@@ -211,7 +356,11 @@ class Sketch {
 		}
 
 		if (folder) {
-			this.createPropFolder(folder, propsFoldersCollection, key);
+			// this prevent references from breaking when using Proxies
+			const propsFoldersCollectionCopy = [...propsFoldersCollection];
+			this.createPropFolder(folder, propsFoldersCollectionCopy, key);
+			propsFoldersCollection.length = 0;
+			propsFoldersCollection.push(...propsFoldersCollectionCopy);
 		}
 
 		let prop = {
@@ -235,9 +384,14 @@ class Sketch {
 		return prop;
 	}
 
+	/**
+	 *
+	 * @param {string} key
+	 * @param {any} newValue
+	 */
 	updateProp(key, newValue) {
 		const prop = this.props[key];
-		const instanceProp = this.instance.props[key];
+		const instanceProp = this.instance.props?.[key];
 
 		if (prop) {
 			prop.value = newValue;
@@ -246,7 +400,13 @@ class Sketch {
 
 		if (instanceProp) {
 			if (!deepEqual(instanceProp.value, newValue)) {
-				if (isObject(instanceProp.value) && isObject(newValue)) {
+				if (
+					Array.isArray(instanceProp.value) &&
+					Array.isArray(newValue)
+				) {
+					instanceProp.value.length = 0;
+					instanceProp.value.push(...newValue);
+				} else if (isObject(instanceProp.value) && isObject(newValue)) {
 					deepAssign(instanceProp.value, newValue);
 				} else {
 					instanceProp.value = newValue;
@@ -269,6 +429,13 @@ class Sketch {
 		this.version++;
 	}
 
+	/**
+	 *
+	 * @param {string} folder
+	 * @param {SketchPropFolder[]} collection
+	 * @param {string} key
+	 * @returns {SketchPropFolder | undefined}
+	 */
 	createPropFolder(folder, collection, key) {
 		if (!folder) return undefined;
 
@@ -286,9 +453,9 @@ class Sketch {
 					rootId,
 					isCurrent,
 					name,
-					attributes = {},
+					attributes,
 				} = match;
-				let { collapsed = false } = attributes;
+				let { collapsed = false } = attributes ?? {};
 				let displayName = name;
 
 				let parent =
@@ -312,14 +479,21 @@ class Sketch {
 						hidden: false,
 					};
 
-					if (parent) {
-						parent.children.push(fieldgroup);
+					if (fieldgroup) {
+						if (parent) {
+							parent.children.push(fieldgroup);
+						}
+						collection.push(fieldgroup);
 					}
-
-					collection.push(fieldgroup);
 				}
 
-				if (isCurrent) {
+				if (
+					fieldgroup &&
+					isCurrent &&
+					!fieldgroup.children.some(
+						(c) => c.type === 'field' && c.key === key,
+					)
+				) {
 					fieldgroup.children.push({
 						type: 'field',
 						key,
@@ -333,6 +507,11 @@ class Sketch {
 		return propFolder;
 	}
 
+	/**
+	 *
+	 * @param {SketchPropFolder} folder
+	 * @param {boolean} collapsed
+	 */
 	updateFolder(folder, collapsed) {
 		this.propsFolders.forEach((f, index) => {
 			if (f.id === folder.id) {
@@ -356,8 +535,10 @@ class Sketch {
 	}
 
 	sync() {
-		Object.keys(this.instance.props ?? {}).forEach((key) => {
-			const instanceProp = this.instance.props[key];
+		const instanceProps = this.instance.props ?? {};
+
+		Object.keys(instanceProps).forEach((key) => {
+			const instanceProp = instanceProps[key];
 			const prop = this.props[key];
 
 			if (!prop) {
@@ -404,24 +585,29 @@ class Sketch {
 						const { children } = fieldgroup;
 
 						const childIndex = children.findIndex(
-							(c) => c.key === key,
+							(c) => c.type === 'field' && c.key === key,
 						);
 						fieldgroup.children.splice(childIndex, 1);
 
+						/**
+						 *
+						 * @param {SketchPropFolder} fieldgroup
+						 */
 						const removeFolderIfNeeded = (fieldgroup) => {
 							if (fieldgroup.children.length === 0) {
 								const currentFolderIndex =
 									this.propsFolders.findIndex(
-										(c) => c === fieldgroup,
+										(c) => c.id === fieldgroup.id,
 									);
 								this.propsFolders.splice(currentFolderIndex, 1);
 
-								const { parent } = fieldgroup;
-
-								if (parent) {
+								if (fieldgroup && fieldgroup.parent) {
+									const { parent } = fieldgroup;
 									const childIndex =
 										parent.children.findIndex(
-											(c) => c.id === fieldgroup.id,
+											(c) =>
+												c.type === 'fieldgroup' &&
+												c.id === fieldgroup.id,
 										);
 									parent.children.splice(childIndex, 1);
 									removeFolderIfNeeded(fieldgroup.parent);
@@ -433,11 +619,14 @@ class Sketch {
 					}
 
 					if (instanceProp.folder) {
+						// this prevent references from breaking when using Proxies
+						const propsFoldersCopy = [...this.propsFolders];
 						this.createPropFolder(
 							instanceProp.folder,
-							this.propsFolders,
+							propsFoldersCopy,
 							key,
 						);
+						this.propsFolders = propsFoldersCopy;
 						prop.folder = instanceProp.folder;
 					} else {
 						prop.folder = undefined;
@@ -490,7 +679,7 @@ class Sketch {
 		fieldgroups.forEach((fieldgroup) => {
 			const hasAllFieldsHidden = fieldgroup.children
 				.filter((child) => child.type === 'field')
-				.every((child) => this.props[child.key].__hidden());
+				.every((child) => this.props[child.key]?.__hidden());
 			const hasAllFieldgroupsHidden = fieldgroup.children
 				.filter((child) => child.type === 'fieldgroup')
 				.every((child) => child.hidden);
@@ -507,25 +696,61 @@ class Sketch {
 		});
 	}
 
+	/**
+	 * @param {import('./exports.svelte').CaptureListener} fn
+	 */
 	onBeforeCapture(fn) {
 		this.beforeCapture.push(fn);
 	}
 
+	/**
+	 *
+	 * @param {import('./exports.svelte').RecordListener} fn
+	 */
 	onBeforeRecord(fn) {
 		this.beforeRecord.push(fn);
 	}
 
+	/**
+	 * @param {import('./exports.svelte').CaptureListener} fn
+	 */
 	onAfterCapture(fn) {
 		this.afterCapture.push(fn);
 	}
 
+	/**
+	 * @param {import('./exports.svelte').RecordListener} fn
+	 */
 	onAfterRecord(fn) {
 		this.afterRecord.push(fn);
 	}
 
 	toJSON() {
+		/**
+		 * @typedef SketchPropJSON
+		 * @property {any} value
+		 * @property {Record<string, any>} params
+		 * @property {any[]} triggers
+		 * @property {any} __initialValue
+		 * @property {any} __currentValue
+		 */
+		/** @type {Record<string, SketchPropJSON>} */
+		const props = {};
+
+		for (const key in this.props) {
+			const prop = this.props[key];
+
+			props[key] = {
+				value: isDataURL(prop.value) ? prop.__initialValue : prop.value,
+				params: prop.params,
+				triggers: prop.triggers,
+				__initialValue: prop.__initialValue,
+				__currentValue: prop.__currentValue,
+			};
+		}
+
 		return {
-			props: this.props,
+			props,
 			propsFolders: this.propsFolders.map(
 				({
 					id,
@@ -548,10 +773,6 @@ class Sketch {
 				}),
 			),
 		};
-	}
-
-	get backgroundColor() {
-		return this.instance.backgroundColor;
 	}
 }
 

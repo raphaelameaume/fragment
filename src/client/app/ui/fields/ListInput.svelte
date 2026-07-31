@@ -42,8 +42,8 @@
 		height: 80px;
 
 		background-color: #1d1d1e;
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 		overflow-y: scroll;
 	}
 
@@ -60,12 +60,14 @@
 
 	.container::-webkit-scrollbar-track {
 		background-color: var(
-			--color-lightblack
+			--fragment-color-lightblack
 		); /* color of the tracking area */
 	}
 
 	.container::-webkit-scrollbar-thumb {
-		background-color: var(--color-active); /* color of the scroll thumb */
+		background-color: var(
+			--fragment-accent-color
+		); /* color of the scroll thumb */
 		border-radius: 20px; /* roundness of the scroll thumb */
 	}
 
@@ -75,7 +77,7 @@
 
 		margin: 0;
 		padding: 0 3px;
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 		font-size: 10px;
 
 		opacity: 0.35;
@@ -90,15 +92,14 @@
 	}
 
 	.list:not(.disabled) .label:hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	.list:not(.disabled) .label:active {
-		box-shadow: 0 0 0 2px var(--color-active);
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.item:hover {
-		/* background-color: #0E0E0E; */
 		opacity: 1;
 	}
 

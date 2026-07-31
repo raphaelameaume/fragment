@@ -1,4 +1,5 @@
 <script>
+	import { tick } from 'svelte';
 	import FieldInputRow from './FieldInputRow.svelte';
 	import Input from './Input.svelte';
 	import ProgressInput from './ProgressInput.svelte';
@@ -17,16 +18,30 @@
 		key = '',
 		progress = true,
 		onchange,
+		onfocus,
+		onblur,
+		node = $bindable(),
 	} = $props();
 
 	let hasProgress = $derived(progress && isFinite(min) && isFinite(max));
 	let isFocused = $state(false);
 	let precision = $derived(step.toString().split('.')[1]?.length || 0);
 
+	/**
+	 * @param {string} v
+	 * @param {string} suffix
+	 */
 	function sanitize(v, suffix) {
 		return suffix && suffix !== '' ? Number(v.split(suffix)[0]) : Number(v);
 	}
 
+	/**
+	 *
+	 * @param {number} v
+	 * @param {boolean} isFocused
+	 * @param {string} suffix
+	 * @param {number} precision
+	 */
 	function composeValue(v, isFocused, suffix = '', precision) {
 		const clampedValue = clamp(
 			v,
@@ -45,32 +60,53 @@
 		composeValue(value, isFocused, suffix, precision),
 	);
 
-	function onFocus() {
+	/**
+	 * @param {FocusEvent} event
+	 */
+	function onFocus(event) {
 		isFocused = true;
+		onfocus?.(event);
 	}
 
-	function onBlur(event) {
-		isFocused = false;
+	/**
+	 * @param {KeyboardEvent} event
+	 */
+	async function onBlur(event) {
+		let currentTarget = event.currentTarget;
 
-		let newValue = event.currentTarget.value;
-		let isNotValid = isNaN(Number(event.currentTarget.value));
+		await tick();
 
-		if (isNotValid) {
-			newValue = `${value}`;
+		if (currentTarget instanceof HTMLInputElement) {
+			let newValue = currentTarget.value;
+			isFocused = false;
+			let sanitizedValue = sanitize(newValue, suffix);
+
+			if (isNaN(sanitizedValue)) {
+				onchange(value, true);
+			} else {
+				onchange(sanitizedValue, true);
+			}
+
+			onblur?.(event);
 		}
-
-		onchange(sanitize(newValue, suffix));
 	}
 
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function onKeyDown(event) {
-		if ([38, 40].includes(event.keyCode)) {
+		if (
+			event.currentTarget instanceof HTMLInputElement &&
+			['ArrowDown', 'ArrowUp'].includes(event.key)
+		) {
 			event.preventDefault();
 
 			const diff = Keyboard.getStepFromEvent(event) * step;
-			const direction = event.keyCode === 38 ? 1 : -1;
-			const newValue = sanitize(composedValue, suffix) + direction * diff;
+			const direction = event.key === 'ArrowUp' ? 1 : -1;
+			const sanitizedValue =
+				sanitize(event.currentTarget.value, suffix) + direction * diff;
 
-			onchange(newValue);
+			onchange(sanitizedValue, false);
 		}
 	}
 </script>
@@ -93,6 +129,7 @@
 				{disabled}
 				{context}
 				{key}
+				bind:node
 				onkeydown={onKeyDown}
 				onfocus={onFocus}
 				onblur={onBlur}
@@ -108,6 +145,7 @@
 			onkeydown={onKeyDown}
 			onfocus={onFocus}
 			onblur={onBlur}
+			bind:node
 			value={composedValue}
 		/>
 	{/if}

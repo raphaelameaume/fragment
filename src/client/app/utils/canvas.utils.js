@@ -3,15 +3,70 @@ https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad84
 */
 
 import { VIDEO_FORMATS } from '../state/exports.svelte';
-import WebMRecorder from '../lib/canvas-recorder/WebMRecorder';
-import MP4Recorder from '../lib/canvas-recorder/MP4Recorder';
 import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
 import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
+import MediaBunnyRecorder from '../lib/canvas-recorder/MediaBunnyRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
 
-function getFilenameParams() {
+/**
+ * @typedef {Object} FilenameParams
+ * @property {string} year - Four-digit year
+ * @property {string} month - Two-digit month
+ * @property {string} day - Two-digit day
+ * @property {string} hours - Two-digit hours
+ * @property {string} minutes - Two-digit minutes
+ * @property {string} seconds - Two-digit seconds
+ * @property {string} timestamp - Full timestamp string
+ */
+
+/**
+ * @typedef {Object} ScreenshotOptions
+ * @property {string} [filename='Screenshot'] - Base filename
+ * @property {number} [index] - Optional frame index
+ * @property {FilenamePattern} [pattern] - Filename pattern function
+ * @property {string} [exportDir] - Export directory path
+ * @property {Record<string, any>} [params={}] - Additional parameters for pattern
+ * @property {string} [encoding='png'] - Image encoding format
+ * @property {number} [quality=100] - Image quality (1-100)
+ * @property {number} [pixelsPerInch=72] - Image DPI
+ */
+
+/**
+ * @typedef {Object} RecordCanvasOptions
+ * @property {string} [filename='output'] - Base filename for output
+ * @property {import('../state/exports.svelte.js').VideoFormat} [format='mp4'] - Output format
+ * @property {number} [framerate=25] - Frames per second
+ * @property {number} [duration=Infinity] - Recording duration in seconds
+ * @property {number} [quality=100] - Recording quality (1-100)
+ * @property {FilenamePattern} [pattern] - Filename pattern function
+ * @property {import('../lib/canvas-recorder/MediaBunnyRecorder').VideoCodec} [codec] - Video codec
+ * @property {string} [exportDir] - Export directory path
+ * @property {string} [imageEncoding] - Image encoding for frame exports
+ * @property {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderStartCallback} [onStart] - Callback when recording starts
+ * @property {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderTickCallback} [onTick] - Callback on each frame
+ * @property {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderCompleteCallback} [onComplete] - Callback when recording completes
+ * @property {Record<string, any>} [params={}] - Additional parameters
+ */
+/**
+ * @typedef {Object} PatternParams
+ * @property {number} [index] - Frame or sequence index
+ * @property {string} filename - Base filename
+ * @property {string} timestamp - Timestamp string
+ */
+
+/**
+ * @callback FilenamePattern
+ * @param {PatternParams & Record<string, any>} params - Pattern parameters
+ * @returns {string} Generated filename
+ */
+
+/**
+ * Get current date/time parameters for filename generation
+ * @returns {FilenameParams}
+ */
+export function getFilenameParams() {
 	const now = new Date();
 
 	const year = now.toLocaleString('default', { year: 'numeric' });
@@ -44,10 +99,14 @@ function getFilenameParams() {
 	};
 }
 
+/**
+ * Default filename pattern generator
+ * @type {FilenamePattern}
+ */
 export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 	let name = `${filename}.${timestamp}`;
 
-	if (!isNaN(index)) {
+	if (typeof index === 'number' && !isNaN(index)) {
 		name += `-${index}`;
 	}
 
@@ -55,14 +114,12 @@ export const defaultFilenamePattern = ({ index, filename, timestamp }) => {
 };
 
 /**
- *
- * @param {HTMLCanvasElement} canvas
- * @param {string} sketchKey
- * @param {Sketch} sketch
- * @param {number} [index]
- * @param {Promise<string[]>}
+ * Capture and save a screenshot of a canvas
+ * @param {HTMLCanvasElement} canvas - The canvas to capture
+ * @param {ScreenshotOptions} [options={}] - Screenshot options
+ * @returns {{ filename: string, exportDir: string | undefined, data: string, encoding: string }}
  */
-export async function screenshotCanvas(
+export function screenshotCanvas(
 	canvas,
 	{
 		filename = 'Screenshot',
@@ -84,51 +141,59 @@ export async function screenshotCanvas(
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, index, ...params, ...patternParams });
 
-	const files = [
-		{
-			filename: `${name}${extension}`,
-			exportDir,
-			data: dataURL,
-			encoding: 'base64',
-		},
-	];
-
-	try {
-		await saveFiles(files);
-	} catch (error) {
-		console.error(`[fragment] Error while saving screenshot.`);
-		console.log(error);
-	}
+	return {
+		filename: `${name}${extension}`,
+		exportDir,
+		data: dataURL,
+		encoding: 'base64',
+	};
 }
 
-function recordCanvasWebM(canvas, options) {
-	let recorder = new WebMRecorder(canvas, options);
+/**
+ * Record video using MediaBunny recorder
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {import('../lib/canvas-recorder/MediaBunnyRecorder').MediaBunnyRecorderOptions} options - Recording options
+ * @returns {MediaBunnyRecorder}
+ */
+function record(canvas, options) {
+	let recorder = new MediaBunnyRecorder(canvas, options);
 	recorder.start();
 
 	return recorder;
 }
 
-function recordCanvasMp4(canvas, options) {
-	let recorder = new MP4Recorder(canvas, options);
-	recorder.start();
-
-	return recorder;
-}
-
-function recordCanvasGIF(canvas, options) {
+/**
+ * Record GIF animation
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {import('../lib/canvas-recorder/CanvasRecorder').CanvasRecorderOptions} options - Recording options
+ * @returns {GIFRecorder}
+ */
+function recordGIF(canvas, options) {
 	let recorder = new GIFRecorder(canvas, options);
 	recorder.start();
 
 	return recorder;
 }
 
-function recordCanvasFrames(canvas, options) {
+/**
+ * Record individual frames
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {import('../lib/canvas-recorder/FrameRecorder').FrameRecorderOptions} options - Recording options
+ * @returns {FrameRecorder}
+ */
+function recordFrames(canvas, options) {
 	let recorder = new FrameRecorder(canvas, options);
 	recorder.start();
 
 	return recorder;
 }
 
+/**
+ * Start recording canvas output
+ * @param {HTMLCanvasElement} canvas - The canvas to record
+ * @param {RecordCanvasOptions} [options={}] - Recording options
+ * @returns {MediaBunnyRecorder | GIFRecorder | FrameRecorder | undefined}
+ */
 export function recordCanvas(
 	canvas,
 	{
@@ -138,17 +203,22 @@ export function recordCanvas(
 		duration = Infinity,
 		quality = 100,
 		pattern = defaultFilenamePattern,
+		codec = 'avc',
 		exportDir,
 		imageEncoding,
 		onStart = () => {},
 		onTick = () => {},
 		onComplete = () => {},
-		params = {},
 	} = {},
 ) {
 	let patternParams = getFilenameParams();
 	let name = pattern({ filename, ...patternParams });
 
+	/**
+	 * Handle recording completion
+	 * @param {Blob | Blob[] | null} result - Recording result (blob or array of blobs)
+	 * @returns {Promise<void>}
+	 */
 	async function complete(result) {
 		const files = [];
 
@@ -170,7 +240,7 @@ export function recordCanvas(
 					encoding: 'base64',
 				});
 			}
-		} else {
+		} else if (result) {
 			const blob = result;
 			const data = await createDataURLFromBlob(blob);
 
@@ -184,11 +254,12 @@ export function recordCanvas(
 		}
 
 		await saveFiles(files);
-		onComplete();
+		onComplete(result);
 	}
 
 	const options = {
 		framerate,
+		format,
 		duration,
 		quality,
 		onStart,
@@ -198,14 +269,22 @@ export function recordCanvas(
 
 	let recorder;
 
-	if (format === VIDEO_FORMATS.WEBM) {
-		recorder = recordCanvasWebM(canvas, options);
-	} else if (format === VIDEO_FORMATS.MP4) {
-		recorder = recordCanvasMp4(canvas, options);
+	if (
+		[
+			VIDEO_FORMATS.MKV,
+			VIDEO_FORMATS.MOV,
+			VIDEO_FORMATS.MP4,
+			VIDEO_FORMATS.WEBM,
+		].includes(format)
+	) {
+		recorder = record(canvas, {
+			...options,
+			codec,
+		});
 	} else if (format === VIDEO_FORMATS.GIF) {
-		recorder = recordCanvasGIF(canvas, options);
+		recorder = recordGIF(canvas, options);
 	} else if (format === VIDEO_FORMATS.FRAMES) {
-		recorder = recordCanvasFrames(canvas, {
+		recorder = recordFrames(canvas, {
 			...options,
 			imageEncoding,
 		});

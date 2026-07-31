@@ -3,7 +3,24 @@ import { getShaderPath, removeShaderPath } from './glsl.utils';
 
 const methods = ['attachShader'];
 
+/** @typedef {object} IdentifiableWebGLRenderingContextProperties
+ * @property { string } __uuid
+ */
+
+/**
+ * @typedef {WebGL2RenderingContext & IdentifiableWebGLRenderingContextProperties} IdentifiableWebGL2RenderingContext
+ */
+
+/**
+ * @typedef {WebGLRenderingContext & IdentifiableWebGLRenderingContextProperties} IdentifiableWebGLRenderingContext
+ */
+
+/**
+ * @typedef {IdentifiableWebGLRenderingContext | IdentifiableWebGL2RenderingContext} FragmentWebGLRenderingContext
+ */
+
 const contexts = [WebGLRenderingContext, WebGL2RenderingContext];
+/** @type {Record<string, any>} */
 const references = {};
 
 for (let i = 0; i < methods.length; i++) {
@@ -50,6 +67,14 @@ const FRAGMENT_SHADER = 35632;
 const VERTEX_SHADER = 35633;
 
 class ShaderCompileError extends Error {
+	/**
+	 *
+	 * @param {Object} params
+	 * @param {string} [params.source]
+	 * @param {string} [params.filename]
+	 * @param {string} [params.message]
+	 * @param {number} [params.lineNumber]
+	 */
 	constructor({
 		source,
 		filename = '',
@@ -112,30 +137,33 @@ e('compileShader', function (res, args) {
 	const filename = shader.__filename;
 
 	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		const { source, lineNumber, message } = getShaderError(
-			gl,
-			shader,
-			shader.__type,
-		);
+		const shaderError = getShaderError(gl, shader, shader.__type);
 
-		const error = new ShaderCompileError({
-			source,
-			message,
-			filename,
-			lineNumber,
-		});
-
-		displayError(error, this.__uuid);
+		if (shaderError) {
+			const { source, message, lineNumber } = shaderError;
+			const shaderCompileError = new ShaderCompileError({
+				source,
+				message,
+				filename,
+				lineNumber,
+			});
+			displayError(shaderCompileError, this.__uuid);
+		}
 	}
 });
 
+/**
+ *
+ * @param {WebGL2RenderingContext} gl
+ * @param {WebGLShader} shader
+ * @param {number} type
+ * @returns {{ message: string, source: string, lineNumber: number} | undefined}
+ */
 function getShaderError(gl, shader, type) {
+	console.log(`getShaderError`, gl, shader, type);
 	const status = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-	const errors = gl.getShaderInfoLog(shader).trim();
-
-	if (status && errors === '') return '';
-
-	const errorMatches = errors.match(/ERROR: 0:(\d+):([\s\S]*$)/);
+	const errors = gl.getShaderInfoLog(shader)?.trim() ?? '';
+	const errorMatches = errors && errors.match(/ERROR: 0:(\d+):([\s\S]*$)/);
 
 	if (errorMatches) {
 		const lineNumber = parseInt(errorMatches[1]);
@@ -148,8 +176,6 @@ function getShaderError(gl, shader, type) {
 			source: source,
 			lineNumber,
 		};
-	} else {
-		return errors;
 	}
 }
 
