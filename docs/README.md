@@ -23,3 +23,4 @@
 - [Props](./api/props.md)
 - [Renderers](./api/renderers.md)
 - [Triggers](./api/triggers.md)
+- [Plugins](./api/plugins.md)

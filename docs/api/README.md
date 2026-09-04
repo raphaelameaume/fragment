@@ -6,3 +6,4 @@
 - [Props](./props.md)
 - [Renderers](./renderers.md)
 - [Triggers](./triggers.md)
+- [Plugins](./plugins.md)
