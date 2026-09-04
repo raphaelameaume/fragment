@@ -141,3 +141,28 @@ declare module 'gifenc' {
 		palette: PaletteEntry[];
 	};
 }
+
+declare module 'virtual:config-modules' {
+	import type { ComponentType, SvelteComponent } from 'svelte';
+
+	export const configModulesNames: string[];
+
+	export const configModulesList: Record<
+		string,
+		ComponentType<SvelteComponent>
+	>;
+
+	const _default: Record<string, never>;
+	export default _default;
+}
+
+declare module 'virtual:config-inputs' {
+	import type { ComponentType, SvelteComponent } from 'svelte';
+
+	export const configInputsList: Record<string, unknown>;
+
+	export const configInputsTriggerList: Record<
+		string,
+		ComponentType<SvelteComponent>
+	>;
+}
