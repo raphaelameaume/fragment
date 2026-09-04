@@ -12,6 +12,7 @@
 	import IntervalInput from './fields/IntervalInput.svelte';
 	import PaletteInput from './fields/PaletteInput.svelte';
 	import GradientInput from './fields/GradientInput.svelte';
+	import Link from './fields/Link.svelte';
 	import { fieldTypes } from '../utils/fields.utils.js';
 
 	const fields = {
@@ -30,6 +31,7 @@
 		[`${fieldTypes.IMAGE}`]: ImageInput,
 		[`${fieldTypes.INTERVAL}`]: IntervalInput,
 		[`${fieldTypes.GRADIENT}`]: GradientInput,
+		[`${fieldTypes.LINK}`]: Link,
 		[`${fieldTypes.WRAPPER}`]: null,
 	};
 </script>

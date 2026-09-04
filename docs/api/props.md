@@ -169,6 +169,7 @@ Fragment will automatically choose the correct control type based on `value` and
 | `string` | `{ label?: string }` | `<TextInput>`|
 | `string` | `{ height?: string }` | `<TextareaInput>` (with `type: "textarea"`)|
 | `string` | - | `<ImageInput>` (with `type: "image"`)|
+| `string` | `{ label?: string, target?: string }` | `<Link>` (with `type: "link"`)|
 | `string` | `{ options: string[] \| { label?: string, value: string }[] }` | `<SelectInput>`|
 | `function` | `{ label?: string }` | `<ButtonInput>`|
 | `() => [content: any, filename: string]` | `{ label?: string }` | `<DownloadInput>` (with `type: "download"`)|
@@ -189,4 +190,4 @@ imageURL: {
   type: "image"          // override to use ImageInput
 }
 ```
-Without the `type` override, a `string` defaults to `<TextInput>`, and a `function` defaults to `<ButtonInput>`. Use `type: "image"`, `type: "textarea"`, `type: "download"`, or `type: "import"` to specify other controls.
+Without the `type` override, a `string` defaults to `<TextInput>`, and a `function` defaults to `<ButtonInput>`. Use `type: "image"`, `type: "textarea"`, `type: "download"`, `type: "link"` or `type: "import"` to specify other controls.

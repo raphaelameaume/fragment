@@ -17,6 +17,7 @@ export const fieldTypes = {
 	WRAPPER: 'wrapper',
 	PALETTE: 'palette',
 	GRADIENT: 'gradient',
+	LINK: 'link',
 };
 
 /** @type string[] */
