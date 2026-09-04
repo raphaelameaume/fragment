@@ -28,14 +28,6 @@
 	};
 
 	let Component = $derived(modulesList[name]);
-
-	// if (!__BUILD__) {
-	// 	Object.assign(moduleList, {
-	// 		midi: () => import('../modules/MidiPanel.svelte'),
-	// 		console: () => import('../modules/Console.svelte'),
-	// 		exports: () => import('../modules/Exports.svelte'),
-	// 	});
-	// }
 </script>
 
 {#if Component}
@@ -55,23 +47,6 @@
 		</div>
 	</div>
 {/if}
-
-<!-- {#await buildConfig.layout.component() then layoutModule}
-	{@const LayoutBuildCustom = layoutModule.default}
-	<LayoutBuildCustom {sketchKey} {buildConfig} {sketch} />
-{/await} -->
-<!--
-{#if name === 'monitor'}
-	<Monitor {id} {headless} {params} />
-{:else if name === 'exports'}
-	<Exports {id} {headless} {params} />
-{:else if name === 'console'}
-	<Console {id} {headless} {params} />
-{:else if name === 'params'}
-	<Params {id} {headless} {params} />
-{:else if name === 'midi'}
-	<MidiPanel {id} {headless} {params} />
-{:else}{/if} -->
 
 <style>
 	.module-renderer {

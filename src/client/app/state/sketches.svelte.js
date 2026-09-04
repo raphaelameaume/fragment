@@ -4,7 +4,6 @@ import { sketches as all } from 'virtual:sketches';
 
 import Sketch from './Sketch.svelte.js';
 import { rendering } from './rendering.svelte.js';
-import { removeHotListeners } from '../triggers/index.js';
 
 /**
  * @typedef {Record<string, () => Promise<import('./Sketch.svelte.js').SketchInstance>>} SketchCollection

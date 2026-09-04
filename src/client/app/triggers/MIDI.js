@@ -10,29 +10,6 @@ const numberoffs = new Map();
 const controlchanges = new Map();
 
 /**
- * Remove listeners from a specific context
- * @param {string} context
- */
-export const removeHotListeners = (context) => {
-	function removeHotFrom(collection) {
-		for (let trigger of collection) {
-			const [key, triggers] = trigger;
-
-			collection.set(
-				key,
-				triggers.filter((trigger) => trigger.context !== context),
-			);
-		}
-	}
-
-	removeHotFrom(noteons);
-	removeHotFrom(noteoffs);
-	removeHotFrom(numberons);
-	removeHotFrom(numberoffs);
-	removeHotFrom(controlchanges);
-};
-
-/**
  * Check all registered listeners for a specific key
  * @param {Map} collection
  * @param {function} getKey

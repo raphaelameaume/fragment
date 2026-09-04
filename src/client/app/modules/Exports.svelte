@@ -124,6 +124,7 @@
 		<Field
 			key="useDuration"
 			value={exports.useDuration}
+			params={{ triggerable: false }}
 			onchange={(value) => {
 				exports.useDuration = value;
 			}}
