@@ -18,6 +18,7 @@ export const fieldTypes = {
 	PALETTE: 'palette',
 	GRADIENT: 'gradient',
 	LINK: 'link',
+	RADIO: 'radio',
 };
 
 /** @type string[] */
