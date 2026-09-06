@@ -13,6 +13,7 @@
 	import PaletteInput from './fields/PaletteInput.svelte';
 	import GradientInput from './fields/GradientInput.svelte';
 	import Link from './fields/Link.svelte';
+	import RadioInput from './fields/RadioInput.svelte';
 	import { fieldTypes } from '../utils/fields.utils.js';
 
 	const fields = {
@@ -32,6 +33,7 @@
 		[`${fieldTypes.INTERVAL}`]: IntervalInput,
 		[`${fieldTypes.GRADIENT}`]: GradientInput,
 		[`${fieldTypes.LINK}`]: Link,
+		[`${fieldTypes.RADIO}`]: RadioInput,
 		[`${fieldTypes.WRAPPER}`]: null,
 	};
 </script>

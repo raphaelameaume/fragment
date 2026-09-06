@@ -171,6 +171,7 @@ Fragment will automatically choose the correct control type based on `value` and
 | `string` | - | `<ImageInput>` (with `type: "image"`)|
 | `string` | `{ label?: string, target?: string }` | `<Link>` (with `type: "link"`)|
 | `string` | `{ options: string[] \| { label?: string, value: string }[] }` | `<SelectInput>`|
+| `string` | `{ options: string[] \| { label?: string, value: string }[] }` | `<RadioInput>` (with `type: "radio"`)|
 | `function` | `{ label?: string }` | `<ButtonInput>`|
 | `() => [content: any, filename: string]` | `{ label?: string }` | `<DownloadInput>` (with `type: "download"`)|
 | `(event: ProgressEvent) => void` | `{ label?: string, accept?: string }` | `<ImportInput>` (with `type: "import"`)|
