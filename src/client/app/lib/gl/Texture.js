@@ -10,6 +10,8 @@ class Texture {
 		{
 			image = null,
 			name = '',
+			width,
+			height,
 			target = gl.TEXTURE_2D,
 			type = gl.UNSIGNED_BYTE,
 			wrapS = gl.CLAMP_TO_EDGE,
@@ -22,13 +24,13 @@ class Texture {
 			// premultiplyAlpha = false,
 			// unpackAlignment = 4,
 			flipY = target === gl.TEXTURE_2D ? true : false,
-			// width = image ? image.width : null,
-			// height = image ? image.height : null
 		} = {},
 	) {
 		this.gl = gl;
 		this.image = image;
 		this.name = name;
+		this.width = width;
+		this.height = height;
 		this.target = target;
 		this.type = type;
 		this.wrapS = wrapS;
@@ -54,6 +56,13 @@ class Texture {
 
 		this.gl.bindTexture(this.target, this.glTexture);
 		this.gl.state.textureUnits[this.gl.state.activeTextureUnit] = this.id;
+	}
+
+	resize(width, height) {
+		this.width = width;
+		this.height = height;
+		this.needsUpdate = true;
+		this.update();
 	}
 
 	update(textureUnit = 0) {
@@ -121,12 +130,12 @@ class Texture {
 				this.target,
 				0,
 				this.gl.RGBA,
-				1,
-				1,
+				this.width,
+				this.height,
 				0,
 				this.gl.RGBA,
 				this.gl.UNSIGNED_BYTE,
-				emptyPixel,
+				null, // emptyPixel,
 			);
 		}
 	}
