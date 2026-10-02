@@ -9,6 +9,7 @@
 		exports,
 		getCodecsForFormat,
 	} from '../state/exports.svelte';
+	import { rendering } from '../state/rendering.svelte';
 
 	let { id = layout.getID(), headless = false } = $props();
 
@@ -17,6 +18,12 @@
 
 	let recordLabel = $derived(
 		exports.recording ? LABEL_RECORDING : LABEL_RECORD,
+	);
+
+	let sketchDuration = $derived(
+		rendering.renders.length === 1
+			? rendering.renders[0].sketch.duration
+			: undefined,
 	);
 </script>
 
@@ -122,13 +129,39 @@
 			}}
 		/>
 		<Field
-			key="useDuration"
-			value={exports.useDuration}
+			key="realtime"
+			value={exports.realtime}
 			onchange={(value) => {
-				exports.useDuration = value;
+				exports.realtime = value;
 			}}
 		/>
-		{#if exports.useDuration}
+		<Field
+			key="durationSource"
+			value={exports.durationSource}
+			params={{ options: ['manual', 'custom', 'sketch'] }}
+			onchange={(value) => {
+				exports.durationSource = value;
+			}}
+			type="radio"
+			displayName="duration"
+		/>
+		{#if exports.durationSource === 'custom' || exports.durationSource === 'sketch'}
+			<Field
+				key="duration"
+				value={exports.durationSource === 'sketch'
+					? (sketchDuration ?? 'undefined')
+					: exports.duration}
+				params={{ suffix: 's' }}
+				disabled={exports.durationSource === 'sketch'}
+				onchange={(value) => {
+					if (exports.durationSource === 'custom') {
+						exports.duration = value;
+					}
+				}}
+				displayName="length"
+			/>
+		{/if}
+		{#if exports.durationSource === 'custom' || (exports.durationSource === 'sketch' && sketchDuration !== undefined)}
 			<Field
 				key="loopCount"
 				value={exports.loopCount}
@@ -138,6 +171,7 @@
 				}}
 			/>
 		{/if}
+
 		<Field
 			key="record"
 			value={() => (exports.recording = !exports.recording)}

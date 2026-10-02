@@ -3,7 +3,7 @@
 
 	let {
 		key,
-		options,
+		options = [],
 		value = $bindable(),
 		disabled = false,
 		title = '',

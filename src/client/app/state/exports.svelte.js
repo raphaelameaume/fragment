@@ -86,8 +86,9 @@ class Exports {
 	videoFormat = $state(VIDEO_FORMATS.MP4);
 	pixelsPerInch = $state(72);
 	framerate = $state(60);
-	useDuration = $state(true);
 	duration = $state(1);
+	durationSource = $state('manual');
+	realtime = $state(true);
 	loopCount = $state(1);
 	imageQuality = $state(100);
 	videoQuality = $state(100);
@@ -109,8 +110,9 @@ class Exports {
 						videoFormat: this.videoFormat,
 						pixelsPerInch: this.pixelsPerInch,
 						framerate: this.framerate,
-						useDuration: this.useDuration,
 						duration: this.duration,
+						durationSource: this.durationSource,
+						realtime: this.realtime,
 						loopCount: this.loopCount,
 						imageQuality: this.imageQuality,
 						videoQuality: this.videoQuality,
@@ -217,6 +219,7 @@ class Exports {
 	 * @param {string} [options.exportDir]
 	 * @param {Record<any, any>} [options.params]
 	 * @param {import('@fragment/lib/canvas-recorder/MediaBunnyRecorder').VideoCodec} [options.codec]
+	 * @param {boolean} [options.realtime]
 	 * @param {RecordListener} [options.onStart]
 	 * @param {RecordListener} [options.onComplete]
 	 * @param {RecordListener} [options.onBeforeRecord]
@@ -231,6 +234,7 @@ class Exports {
 			imageEncoding = this.imageEncoding,
 			quality = this.videoQuality,
 			codec = this.videoCodec,
+			realtime = this.realtime,
 			duration,
 			filename,
 			pattern,
@@ -257,6 +261,7 @@ class Exports {
 			filename,
 			exportDir,
 			pattern,
+			realtime,
 			onTick,
 			framerate,
 			format,

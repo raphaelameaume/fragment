@@ -45,3 +45,24 @@ export function exportCanvas(
 		dataURL,
 	};
 }
+
+/**
+ * @returns {Promise<void>}
+ */
+export function waitForNextFrame() {
+	return new Promise((resolve) =>
+		requestAnimationFrame(() => {
+			resolve();
+		}),
+	);
+}
+
+/**
+ * @param {number} target
+ * @returns {Promise<void>}
+ */
+export function sleepUntil(target) {
+	const wait = target - performance.now();
+	if (wait <= 0) return Promise.resolve();
+	return new Promise((resolve) => setTimeout(resolve, wait));
+}

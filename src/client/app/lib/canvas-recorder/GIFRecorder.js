@@ -1,6 +1,6 @@
 import { map } from '../../utils/math.utils';
 import { GIFEncoder, quantize, applyPalette } from 'gifenc';
-import CanvasRecorder from './CanvasRecorder';
+import { CanvasRecorder } from './CanvasRecorder';
 
 /**
  * @typedef {import('./CanvasRecorder').CanvasRecorderOptions} GIFRecorderOptions
@@ -10,7 +10,7 @@ import CanvasRecorder from './CanvasRecorder';
  * Recorder that captures frames and encodes them as an animated GIF
  * @extends CanvasRecorder
  */
-class GIFRecorder extends CanvasRecorder {
+export class GIFRecorder extends CanvasRecorder {
 	/**
 	 * Create a GIF recorder
 	 * @param {HTMLCanvasElement} canvas - The canvas to record
@@ -26,7 +26,9 @@ class GIFRecorder extends CanvasRecorder {
 		this.tmpCanvas = document.createElement('canvas');
 
 		/** @type {CanvasRenderingContext2D | null} */
-		this.tmpContext = this.tmpCanvas.getContext('2d');
+		this.tmpContext = this.tmpCanvas.getContext('2d', {
+			willReadFrequently: true,
+		});
 
 		/** @type {number} */
 		this.maxColors = 256;
@@ -39,19 +41,12 @@ class GIFRecorder extends CanvasRecorder {
 	async start() {
 		this.encoder = GIFEncoder();
 
-		this.tmpCanvas = document.createElement('canvas');
-		this.tmpContext = this.tmpCanvas.getContext('2d');
-
 		this.maxColors = Math.floor(map(this.quality, 20, 100, 32, 256));
 
 		if (this.framerate > 50) {
 			console.warn(`GIFRecorder :: recording was capped at 50fps.`);
 			this.framerate = 50;
-			this.deltaTime = 1000 / this.framerate;
-			this.frameDuration = 1000 / this.framerate;
-			this.frameTotal = isFinite(this.duration)
-				? this.duration * this.framerate
-				: Infinity;
+			this._updateTiming();
 		}
 
 		await super.start();
@@ -99,9 +94,9 @@ class GIFRecorder extends CanvasRecorder {
 
 	/**
 	 * End recording and create GIF blob
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	end() {
+	async end() {
 		if (this.encoder) {
 			this.encoder.finish();
 			this.result = new Blob([this.encoder.bytes()], {
@@ -109,7 +104,7 @@ class GIFRecorder extends CanvasRecorder {
 			});
 		}
 
-		super.end();
+		await super.end();
 	}
 }
 
