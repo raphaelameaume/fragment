@@ -6,7 +6,6 @@
 		getDimensionsForPreset,
 	} from '../lib/presets';
 	import { exports } from '../state/exports.svelte';
-	// import ParamsMultisampling from './ParamsMultisampling.svelte';
 	import Select from './fields/Select.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
 
@@ -102,7 +101,11 @@
 	/>
 {/if}
 {#if rendering.resizing === SIZES.PRESET}
-	<Field key="preset" type="wrapper" value={`${rendering.preset}-${rendering.presetOrientation}`}>
+	<Field
+		key="preset"
+		type="wrapper"
+		value={`${rendering.preset}-${rendering.presetOrientation}`}
+	>
 		<FieldInputRow --grid-template-columns="1fr 1fr">
 			<Select
 				value={rendering.preset}
@@ -136,7 +139,3 @@
 		}}
 	/>
 {/if}
-
-<!-- {#if $sketchesCount > 1 && $monitors.length > 1}
-	<ParamsMultisampling />
-{/if} -->

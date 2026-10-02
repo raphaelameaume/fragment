@@ -1,7 +1,7 @@
 <script>
 	import { getContext } from 'svelte';
 	import { layout } from '../state/layout.svelte.js';
-	import { resize } from '../actions/resize.js';
+	import { resize} from '../attachments/resize.js';
 
 	let {
 		id,
@@ -52,7 +52,7 @@
 			</div>
 		</header>
 	{/if}
-	<div class="module__container" use:resize={onresize}>
+	<div class="module__container" {@attach resize(onresize)}>
 		{@render children?.()}
 	</div>
 </div>
