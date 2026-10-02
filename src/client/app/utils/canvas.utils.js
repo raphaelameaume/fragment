@@ -3,9 +3,9 @@ https://github.com/mattdesl/canvas-sketch/blob/24f6bb2bbdfdfd72a698a0b8a0962ad84
 */
 
 import { VIDEO_FORMATS } from '../state/exports.svelte';
-import GIFRecorder from '../lib/canvas-recorder/GIFRecorder';
-import FrameRecorder from '../lib/canvas-recorder/FrameRecorder';
-import MediaBunnyRecorder from '../lib/canvas-recorder/MediaBunnyRecorder';
+import { GIFRecorder } from '../lib/canvas-recorder/GIFRecorder';
+import { FrameRecorder } from '../lib/canvas-recorder/FrameRecorder';
+import { MediaBunnyRecorder } from '../lib/canvas-recorder/MediaBunnyRecorder';
 import { exportCanvas } from '../lib/canvas-recorder/utils';
 import { map } from './math.utils';
 import { createDataURLFromBlob, saveFiles } from './file.utils';
@@ -40,6 +40,7 @@ import { createDataURLFromBlob, saveFiles } from './file.utils';
  * @property {number} [framerate=25] - Frames per second
  * @property {number} [duration=Infinity] - Recording duration in seconds
  * @property {number} [quality=100] - Recording quality (1-100)
+ * @property {boolean} [realtime=true]
  * @property {FilenamePattern} [pattern] - Filename pattern function
  * @property {import('../lib/canvas-recorder/MediaBunnyRecorder').VideoCodec} [codec] - Video codec
  * @property {string} [exportDir] - Export directory path
@@ -202,6 +203,7 @@ export function recordCanvas(
 		framerate = 25,
 		duration = Infinity,
 		quality = 100,
+		realtime = true,
 		pattern = defaultFilenamePattern,
 		codec = 'avc',
 		exportDir,
@@ -262,6 +264,7 @@ export function recordCanvas(
 		format,
 		duration,
 		quality,
+		realtime,
 		onStart,
 		onTick,
 		onComplete: complete,

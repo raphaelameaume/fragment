@@ -783,7 +783,12 @@ export class Render {
 			filename: sketch.key,
 			pattern: sketch.filenamePattern,
 			exportDir: sketch.exportDir,
-			duration: exports.useDuration ? sketch.duration : undefined,
+			duration:
+				exports.durationSource === 'sketch'
+					? sketch.duration
+					: exports.durationSource === 'custom'
+						? exports.duration
+						: undefined,
 			params: {
 				props: sketch.props,
 			},

@@ -54,13 +54,17 @@ export let filenamePattern = ({ filename, timestamp, props }) => {
 
 ## Exporting a video
 
-Fragment can generate MP4, GIF, and WEBM video exports, as well as frame sequences for external compositing.
+Fragment can export MP4, MOV, MKV, WEBM and GIF videos, as well as frame sequences (PNG, JPEG, WEBP) for external compositing.
 
-Framerate, encoding format, and output quality can be configured in the Exports module.
+Framerate, format, codec and output quality can be configured in the Exports module. GIF exports are capped at 50fps.
 
-If useDuration is enabled and the sketch exports a [duration](../api/sketch.md#duration) property, Fragment will automatically determine when to end recording based on the number of frames required at the specified framerate. This behavior is especially useful for loop-based animations.
+If duration is set to `manual`, the recording will go on until stopped. If duration is set to `custom` or `sketch`, Fragment will automatically end the recording once the number of frames required at the specified framerate has been captured. When using `sketch`, the sketch needs to export a [duration](../api/sketch.md#duration) property. This is especially useful for loop-based animations.
 
-When loopCount is greater than 1, recording will continue until enough frames have been collected to render the sketch for the entire loop sequence. The total frame count equals `duration * loopCount * framerate`, allowing variations to be captured across repeated loops.
+When `loopCount` is greater than 1, recording will continue until enough frames have been collected to render the sketch for the entire loop sequence. The total frame count equals `duration * loopCount * framerate`, allowing variations to be captured across repeated loops.
+
+By default, recording happens in realtime: frames are captured at the pace of the specified framerate, so live input such as mouse interaction is recorded as it happens. If the sketch can't keep up with the framerate, that input will appear slowed down in the export.
+
+Disabling realtime renders frames as fast as possible, which can make exports much quicker, but live input will appear sped up. Use it for animations that only depend on time.
 
 > The recording framerate can be independent of the [sketch's runtime framerate](../api/sketch.md#duration).
 

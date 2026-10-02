@@ -1,4 +1,4 @@
-import CanvasRecorder from './CanvasRecorder.js';
+import { CanvasRecorder } from './CanvasRecorder.js';
 import {
 	Output,
 	Mp4OutputFormat,
@@ -22,22 +22,16 @@ import { VIDEO_FORMATS } from '@fragment/state/exports.svelte.js';
  */
 
 /**
- * @typedef {Object} MediaBunnyRecorderOptions
- * @property {VideoCodec} codec - Video codec to use
- * @property {number} [duration] - Recording duration in seconds
- * @property {number} [framerate] - Frames per second
- * @property {number} [quality] - Recording quality (1-100)
- * @property {string} format - Output format
- * @property {import('./CanvasRecorder').CanvasRecorderStartCallback} [onStart] - Callback when recording starts
- * @property {import('./CanvasRecorder').CanvasRecorderTickCallback} [onTick] - Callback on each frame
- * @property {import('./CanvasRecorder').CanvasRecorderCompleteCallback} [onComplete] - Callback when recording completes
+ * @typedef {import('./CanvasRecorder').CanvasRecorderOptions & {
+ *   codec: VideoCodec
+ * }} MediaBunnyRecorderOptions
  */
 
 /**
  * Recorder that uses MediaBunny to encode video
  * @extends CanvasRecorder
  */
-class MediaBunnyRecorder extends CanvasRecorder {
+export class MediaBunnyRecorder extends CanvasRecorder {
 	/** @type Quality[] */
 	static BITRATES = [
 		QUALITY_VERY_LOW,
@@ -91,11 +85,16 @@ class MediaBunnyRecorder extends CanvasRecorder {
 	}
 
 	/**
-	 * Load and start the output
+	 * Start the output, then start recording
 	 * @returns {Promise<void>}
 	 */
-	async load() {
+	async start() {
 		await this.output.start();
+
+		// stop() may have been called while the output was starting
+		if (this.stopped) return;
+
+		await super.start();
 	}
 
 	/**
@@ -106,7 +105,8 @@ class MediaBunnyRecorder extends CanvasRecorder {
 	async tick({ frameCount }) {
 		const timestamp = frameCount / this.framerate;
 
-		this.videoSource.add(timestamp, this.frameDuration / 1000);
+		// Awaiting gives backpressure from the encoder
+		await this.videoSource.add(timestamp, this.frameDuration / 1000);
 	}
 
 	/**
@@ -124,8 +124,6 @@ class MediaBunnyRecorder extends CanvasRecorder {
 			this.result = new Blob([buffer], { type: mimeType });
 		}
 
-		super.end();
+		await super.end();
 	}
 }
-
-export default MediaBunnyRecorder;
