@@ -1,30 +1,30 @@
-import { fragment } from '../lib/gl';
+import { fragment } from 'fragment-gl';
 import { client } from '../client';
 import { getShaderPath } from '../utils/glsl.utils';
 import { clearError } from '../state/errors.svelte';
 
 /**
- * @typedef {object} MountParamsFragmentRenderer
+ * @typedef {object} MountParamsFragmentGLRenderer
  * @property {HTMLCanvasElement|undefined} canvas
- * @property {import('../lib/gl').Frag} frag
+ * @property {import('fragment-gl').Frag} frag
  */
 
 /**
- * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParamsFragmentRenderer} PreviewParamsFragmentRenderer
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParamsFragmentGLRenderer} PreviewParamsFragmentGLRenderer
  */
 
 /**
- * @typedef {object} PreviewFragmentRenderer
+ * @typedef {object} PreviewFragmentGLRenderer
  * @property {number} id
- * @property {import('../lib/gl').Frag} frag
+ * @property {import('fragment-gl').Frag} frag
  */
 
-/** @type {PreviewFragmentRenderer[]} */
+/** @type {PreviewFragmentGLRenderer[]} */
 let frags = [];
 
 /**
  * @param {import('../state/rendering.svelte').PreviewParamsRenderer} params
- * @returns {MountParamsFragmentRenderer}
+ * @returns {MountParamsFragmentGLRenderer}
  */
 export let onMountPreview = ({ id, canvas }) => {
 	let frag = fragment({
@@ -40,7 +40,7 @@ export let onMountPreview = ({ id, canvas }) => {
 };
 
 /**
- * @param {PreviewParamsFragmentRenderer} params
+ * @param {PreviewParamsFragmentGLRenderer} params
  */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	let preview = frags.find((f) => f.id === id);
@@ -89,11 +89,11 @@ client.on(
 			const programs = frags.map(({ frag }) => frag.program);
 
 			programs.forEach((program) => {
-				const { fragment, vertex } = program;
+				const { fragmentShader, vertexShader } = program;
 
 				const shaders = {
-					vertexShader: vertex,
-					fragmentShader: fragment,
+					vertexShader,
+					fragmentShader,
 				};
 
 				/** @type {(keyof shaders)[]} */

@@ -25,6 +25,7 @@
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "changedpi": "1.0.4",
     "convert-length": "1.0.1",
+    "fragment-gl": "^1.0.1",
     "get-port": "^7.1.0",
     "gifenc": "1.0.3",
     "is-unicode-supported": "^2.0.0",
