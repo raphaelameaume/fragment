@@ -1,8 +1,9 @@
 import type p5 from 'p5';
 import type * as THREE from 'three';
-import type { Frag } from '@fragment/lib/gl';
+import type { Frag } from 'fragment-gl';
 
-export type Rendering = '2d' | 'fragment' | 'p5' | 'p5-webgl' | 'three';
+export type Rendering =
+	'2d' | 'fragment' | 'fragment-gl' | 'p5' | 'p5-webgl' | 'three';
 
 type Params = Record<string, any>;
 
@@ -20,6 +21,7 @@ export type InitParams<P extends Params = Params> = P;
 type RenderingsMountParams = {
 	'2d': { canvas: HTMLCanvasElement; context: CanvasRenderingContext2D };
 	fragment: { canvas: HTMLCanvasElement; frag: Frag };
+	'fragment-gl': { canvas: HTMLCanvasElement; frag: Frag };
 	p5: { canvas: HTMLCanvasElement; p: p5 };
 	'p5-webgl': { canvas: HTMLCanvasElement; p: p5 };
 	three: {
@@ -34,6 +36,7 @@ export type MountParams<R extends Rendering | Params> =
 
 export type MountParams2DRenderer = MountParams<'2d'>;
 export type MountParamsFragmentRenderer = MountParams<'fragment'>;
+export type MountParamsFragmentGLRenderer = MountParams<'fragment-gl'>;
 export type MountParamsP5Renderer = MountParams<'p5'>;
 export type MountParamsP5GLRenderer = MountParams<'p5-webgl'>;
 export type MountParamsThreeRenderer = MountParams<'three'>;

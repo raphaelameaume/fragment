@@ -138,8 +138,11 @@ class Rendering {
 			return import('../renderers/THREERenderer.js');
 		}
 
-		if (__FRAGMENT_RENDERER__ && renderingMode === 'fragment') {
-			return import('../renderers/FragmentRenderer.js');
+		if (
+			__FRAGMENT_GL_RENDERER__ &&
+			(renderingMode === 'fragment' || renderingMode === 'fragment-gl')
+		) {
+			return import('../renderers/FragmentGLRenderer.js');
 		}
 
 		if (__P5_RENDERER__ && renderingMode === 'p5') {

@@ -26,7 +26,8 @@ export default function checkDependencies({
 	dependenciesMap.set('three', ['three']);
 	dependenciesMap.set('p5', ['p5']);
 	dependenciesMap.set('p5-webgl', ['p5']);
-	dependenciesMap.set('fragment', []);
+	dependenciesMap.set('fragment', ['fragment-gl']);
+	dependenciesMap.set('fragment-gl', ['fragment-gl']);
 	dependenciesMap.set('2d', []);
 
 	const renderers = new Map();
@@ -34,7 +35,8 @@ export default function checkDependencies({
 	renderers.set('p5', `${app}/renderers/P5Renderer.js`);
 	renderers.set('p5-webgl', `${app}/renderers/P5GLRenderer.js`);
 	renderers.set('ogl', `${app}/renderers/OGLRenderer.js`);
-	renderers.set('fragment', `${app}/renderers/FragmentRenderer.js`);
+	renderers.set('fragment', `${app}/renderers/FragmentGLRenderer.js`);
+	renderers.set('fragment-gl', `${app}/renderers/FragmentGLRenderer.js`);
 	renderers.set('2d', `${app}/renderers/2DRenderer.js`);
 
 	const renderings = [];
@@ -105,8 +107,11 @@ export default function checkDependencies({
 		__P5_WEBGL_RENDERER__: JSON.stringify(
 			renderings.some((rendering) => rendering === 'p5-webgl'),
 		),
-		__FRAGMENT_RENDERER__: JSON.stringify(
-			renderings.some((rendering) => rendering === 'fragment'),
+		__FRAGMENT_GL_RENDERER__: JSON.stringify(
+			renderings.some(
+				(rendering) =>
+					rendering === 'fragment' || rendering === 'fragment-gl',
+			),
 		),
 		__2D_RENDERER__: JSON.stringify(
 			renderings.some((rendering) => rendering === '2d'),

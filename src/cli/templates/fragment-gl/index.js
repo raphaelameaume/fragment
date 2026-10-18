@@ -34,4 +34,4 @@ export const update = ({ frag, deltaTime }) => {
 	frag.render();
 };
 
-export const rendering = 'fragment';
+export const rendering = 'fragment-gl';
