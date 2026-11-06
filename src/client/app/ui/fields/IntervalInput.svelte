@@ -17,54 +17,44 @@
 		onchange,
 	} = $props();
 
-	/** @type {HTMLElement} */
-	let node;
-	/** @type {DOMRect}*/
-	let rect;
 	/** @type {boolean}*/
 	let dragging = $state(false);
 
 	let proximityIndex = -1;
 
 	/**
-	 *
-	 * @param {MouseEvent} event
-	 * @param {DOMRect}
+	 * @param {number} x
 	 */
-	function computeDrag(event, rect) {
-		let dragValue = clamp(
-			map(event.clientX, rect.left, rect.right, min, max),
-			min,
-			max,
-		);
+	function computeDrag(x) {
+		let dragValue = clamp(map(x, 0, 1, min, max), min, max);
 		dragValue = roundToStep(dragValue, step);
 
 		return dragValue;
 	}
 
 	/**
-	 *
-	 * @param {MouseEvent} event
-	 * @param {object} params
-	 * @param {DOMRect | undefined} params.rect
+	 * @param {MouseEvent | TouchEvent} event
+	 * @param {import('../../attachments/draggable.js').DragParams} params
 	 */
 	function onDragStart(event, params) {
-		if (params.rect) {
-			let dragValue = computeDrag(event, params.rect);
+		let dragValue = computeDrag(params.px);
 
-			let abs0 = Math.abs(dragValue - value[0]);
-			let abs1 = Math.abs(dragValue - value[1]);
+		let abs0 = Math.abs(dragValue - value[0]);
+		let abs1 = Math.abs(dragValue - value[1]);
 
-			proximityIndex = abs0 < abs1 ? 0 : 1;
+		proximityIndex = abs0 < abs1 ? 0 : 1;
 
-			onDrag(event, params);
-		}
+		onDrag(event, params);
 	}
 
-	function onDrag(event, params) {
+	/**
+	 * @param {MouseEvent | TouchEvent} _
+	 * @param {import('../../attachments/draggable.js').DragParams} params
+	 */
+	function onDrag(_, params) {
 		dragging = params.isDragging;
 
-		let dragValue = computeDrag(event, params.rect);
+		let dragValue = computeDrag(params.px);
 		let prevValue = value[proximityIndex];
 
 		if (dragValue !== prevValue) {
@@ -80,7 +70,6 @@
 			onchange(newValues);
 		}
 	}
-
 
 	function handleValueChange(index, newValue) {
 		let newValues = [...value];
@@ -111,13 +100,12 @@
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div
 			class="range"
-			class:dragging={dragging}
-			bind:this={node}
+			class:dragging
 			{@attach draggable({ onDragStart, onDrag })}
 		>
-			<div class="handler" style="--position: {p1};" />
+			<div class="handler" style="--position: {p1};"></div>
 			<div class="filler" style="--p1: {p1}; --p2: {p2};"></div>
-			<div class="handler" style="--position: {p2};" />
+			<div class="handler" style="--position: {p2};"></div>
 		</div>
 		<div class="numbers">
 			<NumberInput

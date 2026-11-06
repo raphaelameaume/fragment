@@ -1,4 +1,5 @@
 <script>
+	import { draggable } from '../../attachments/draggable.js';
 	import Keyboard from '../../inputs/Keyboard.js';
 	import { map, clamp, roundToStep } from '../../utils/math.utils.js';
 
@@ -15,55 +16,23 @@
 	/** @type {Props} */
 	let { value, min, max, step, disabled = false, onchange } = $props();
 
-	/** @type {HTMLElement|undefined} */
-	let node;
-	/** @type {DOMRect|undefined} */
-	let rect;
-
-	let isDragging = $state(false);
+	let dragging = $state(false);
 	let steppedValue = $derived(roundToStep(value, step));
 
 	/**
-	 * @param {MouseEvent} event
+	 * @param {MouseEvent | TouchEvent} _
+	 * @param {import('../../attachments/draggable.js').DragParams} params
 	 */
-	function handleMouseDown(event) {
+	function onDrag(_, params) {
 		if (disabled) return;
 
-		if (node) {
-			document.body.classList.add('fragment-dragging');
-			document.addEventListener('mousemove', handleMouseMove);
-			document.addEventListener('mouseup', handleMouseUp);
+		dragging = params.isDragging;
 
-			rect = node.getBoundingClientRect();
+		let dragValue = clamp(map(params.px, 0, 1, min, max), min, max);
+		dragValue = roundToStep(dragValue, step);
 
-			isDragging = true;
-
-			onDrag(event);
-		}
-	}
-
-	/**
-	 * @param {MouseEvent} event
-	 */
-	function handleMouseMove(event) {
-		onDrag(event);
-	}
-
-	/**
-	 * @param {MouseEvent} event
-	 */
-	function onDrag(event) {
-		if (rect) {
-			let dragValue = clamp(
-				map(event.clientX, rect.left, rect.right, min, max),
-				min,
-				max,
-			);
-			dragValue = roundToStep(dragValue, step);
-
-			if (dragValue !== value) {
-				onchange?.(dragValue);
-			}
+		if (dragValue !== value) {
+			onchange?.(dragValue);
 		}
 	}
 
@@ -92,14 +61,6 @@
 		}
 	}
 
-	function handleMouseUp() {
-		document.body.classList.remove('fragment-dragging');
-		document.removeEventListener('mousemove', handleMouseMove);
-		document.removeEventListener('mouseup', handleMouseUp);
-
-		isDragging = false;
-	}
-
 	let progress = $derived(
 		clamp(map(steppedValue, min, max, 0, 1), 0.0001, 1),
 	);
@@ -108,16 +69,15 @@
 
 <div
 	class="progress"
-	bind:this={node}
-	onmousedown={handleMouseDown}
-	onkeydown={handleKeyDown}
 	class:disabled
-	class:dragging={isDragging}
+	class:dragging
 	role="slider"
 	aria-valuemin={min}
 	aria-valuemax={max}
 	aria-valuenow={value}
 	tabindex={disabled ? -1 : 0}
+	onkeydown={handleKeyDown}
+	{@attach draggable({ onDrag })}
 >
 	<div
 		class="fill"
