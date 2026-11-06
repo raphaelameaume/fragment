@@ -147,6 +147,7 @@ p5.Shader.prototype.useProgram = function () {
 // @ts-ignore
 p5.prototype.shader = function (s) {
 	let needsUpdate = false;
+
 	['_vertSrc', '_fragSrc'].forEach((key) => {
 		const shader = s[key];
 		const shaderPath = getShaderPath(shader);
@@ -170,23 +171,36 @@ p5.prototype.shader = function (s) {
 	});
 
 	if (needsUpdate) {
-		s.bindShader();
-		s.unbindShader();
+		const renderer = this._renderer;
+		const gl = renderer.GL;
 
-		// set it to undefined so it goes into useProgram when binded, see useProgram
-		// @ts-ignore
-		this._renderer._curShader = undefined;
+		if (s._glProgram) {
+			gl.deleteProgram(s._glProgram);
+		}
 
-		// set _glProgram so it compiles the shader again
+		// 1.x flags
 		s._glProgram = 0;
-		// set to false so it caches attributes and uniforms
 		s._loadedAttributes = false;
 		s._loadedUniforms = false;
-		// empty samplers array because of samplers.push()
-		s.samplers = [];
 
-		// call s.init() and gl.useProgram
-		s.bindShader();
+		// 2.x flags
+		s._initialized = false;
+		s._compiled = false;
+
+		s.uniforms = {};
+		s.attributes = {};
+		s.samplers = [];
+		s._bound = false;
+
+		s.init();
+
+		if (s._initialized || s._glProgram) {
+			if (typeof renderer._useShader === 'function') {
+				renderer._useShader(s); // 2.x
+			} else {
+				gl.useProgram(s._glProgram); // 1.x
+			}
+		}
 	}
 
 	return shader.call(this, s);
