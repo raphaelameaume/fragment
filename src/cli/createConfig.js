@@ -8,6 +8,7 @@ import checkDependencies from './plugins/check-dependencies.js';
 import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
+import { createRequire } from 'node:module';
 
 /**
  *
@@ -86,6 +87,19 @@ export async function createConfig(
 		filepath: configFilepath,
 	});
 
+	const requireFromCwd = createRequire(path.join(cwd, 'package.json'));
+
+	/** @param {string} id */
+	const resolveEntry = (id) => {
+		try {
+			return requireFromCwd.resolve(id);
+		} catch {
+			return undefined;
+		}
+	};
+	
+	const p5Path = resolveEntry('p5');
+
 	return mergeConfig(
 		defineConfig({
 			configFile: false,
@@ -97,8 +111,8 @@ export async function createConfig(
 					'@fragment/types': path.join(__dirname, 'src/types'),
 					'@fragment': path.join(__dirname, 'src/client/app'),
 					three: path.join(cwd, 'node_modules/three'),
-					p5: path.join(cwd, 'node_modules/p5'),
 					ogl: path.join(cwd, 'node_modules/ogl'),
+					p5: p5Path ?? path.join(cwd, 'node_modules/p5'),
 				},
 			},
 			plugins: [
