@@ -4,13 +4,16 @@
 	let showLabel = $state(false);
 
 	onMount(() => {
+		/** @type {NodeJS.Timeout|null} */
 		let timeout = setTimeout(() => {
 			showLabel = true;
 		}, 250);
 
 		return () => {
-			clearTimeout(timeout);
-			timeout = null;
+			if (timeout !== null) {
+				clearTimeout(timeout);
+				timeout = null;
+			}
 		};
 	});
 </script>

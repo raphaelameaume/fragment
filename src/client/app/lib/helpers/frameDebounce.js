@@ -1,13 +1,16 @@
 /**
  * Run a function maximum once per frame
- * @param {Function} fn
+ * @template {(...args: any[]) => any} T
+ * @param {T} fn
  * @param {Number} timeout
- * @returns {Function} debounced function
+ * @returns {(...args: Parameters<T>) => void} debounced function
  */
 export default function frameDebounce(fn, timeout = 100) {
 	let lastTime = performance.now();
 	let needCall = false;
-	let _raf;
+	/** @type {number|null} */
+	let _raf = null;
+	/** @type {Parameters<T>|[]} */
 	let a;
 
 	function loop() {
@@ -17,11 +20,11 @@ export default function frameDebounce(fn, timeout = 100) {
 			needCall = false;
 			lastTime = now;
 
-			fn.apply(this, a);
+			fn(...a);
 			lastTime = now;
 		}
 
-		if (now - lastTime > timeout && _raf > -1) {
+		if (now - lastTime > timeout && _raf && _raf > -1) {
 			cancelAnimationFrame(_raf);
 			_raf = null;
 		} else {

@@ -1,6 +1,10 @@
-import Input from './Input';
+import { Input } from './Input';
 
-class Keyboard extends Input {
+export class Keyboard extends Input {
+	constructor() {
+		super({ name: 'Keyboard' });
+	}
+
 	/**
 	 *
 	 * @param {KeyboardEvent} event
