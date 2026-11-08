@@ -1,5 +1,10 @@
-class Input {
-	constructor() {
+export class Input {
+	/**
+	 * @param {object} params
+	 * @param {string} params.name
+	 */
+	constructor({ name }) {
+		this.name = name;
 		this.enabled = true;
 	}
 
@@ -11,5 +16,3 @@ class Input {
 		this.enabled = false;
 	}
 }
-
-export default Input;

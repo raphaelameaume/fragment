@@ -1,5 +1,9 @@
-import Input from './Input';
+import { Input } from './Input';
 
-class Mouse extends Input {}
+export class Mouse extends Input {
+	constructor() {
+		super({ name: 'Mouse' });
+	}
+}
 
 export default new Mouse();

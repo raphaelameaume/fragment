@@ -1,4 +1,10 @@
 <script>
+	/**
+	 * @typedef {Object} Props
+	 * @property {number} angle
+	 */
+
+	/** @type {Props} */
 	let { angle = 0 } = $props();
 </script>
 
