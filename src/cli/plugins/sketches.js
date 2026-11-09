@@ -1,5 +1,11 @@
 import path from 'node:path';
 
+/**
+ * @param {object} params
+ * @param {string} params.cwd
+ * @param {string[]} params.entries
+ * @returns {import('vite').Plugin}
+ */
 export default function sketches({ cwd, entries }) {
 	const virtualModuleId = 'virtual:sketches';
 	const resolvedVirtualModuleId = '\0' + virtualModuleId;

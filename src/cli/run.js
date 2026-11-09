@@ -11,20 +11,22 @@ import { log, magenta, bold, cyan } from './log.js';
 import save from './plugins/save.js';
 import * as p from './prompts.js';
 import { prettifyTime } from './utils.js';
-import { start as startWebSocketServer } from './ws.js';
+import { createWebSocketServer } from './createWebSocketServer.js';
 import hotSketchReload from './plugins/hot-sketch-reload.js';
 import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 
 /**
  * Run a sketch
  * @param {string} entry
- * @param {object} options
- * @param {boolean} options.development
- * @param {number} options.port
- * @param {number} options.exportDir
- * @param {string} options.configFilepath
+ * @param {object} [options]
+ * @param {boolean} [options.development]
+ * @param {number} [options.port]
+ * @param {string} [options.exportDir]
+ * @param {string} [options.configFilepath]
+ * @returns {Promise<void>}
  */
 export async function run(entry, options = {}) {
+	/** @type {import('./createWebSocketServer.js').FragmentWebSocketServer | undefined} */
 	let fragmentServer;
 	/** @type {import('node:fs').FSWatcher} */
 	let watcher;
@@ -75,9 +77,7 @@ export async function run(entry, options = {}) {
 			await createTsConfigFile(cwd);
 		}
 
-		fragmentServer = await startWebSocketServer({
-			cwd,
-		});
+		fragmentServer = await createWebSocketServer();
 
 		const config = await createConfig(
 			entries,
@@ -115,6 +115,8 @@ export async function run(entry, options = {}) {
 		);
 
 		watcher = fs.watch(cwd, (eventType, filename) => {
+			if (!filename) return;
+
 			if (
 				['fragment.config.js', 'fragment.config.ts'].includes(
 					filename,
@@ -141,11 +143,11 @@ export async function run(entry, options = {}) {
 
 		const { resolvedUrls } = server;
 
-		let urls = [
-			...resolvedUrls.local.map(
+		const urls = [
+			...(resolvedUrls?.local ?? []).map(
 				(url) => `${bold('Local')}:   ${bold(cyan(url))}`,
 			),
-			...resolvedUrls.network.map(
+			...(resolvedUrls?.network ?? []).map(
 				(url) => `${bold('Network')}: ${bold(cyan(url))}`,
 			),
 		];

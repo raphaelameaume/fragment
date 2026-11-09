@@ -7,7 +7,7 @@ import * as p from '../prompts.js';
 /**
  *
  * @param {object} params
- * @param {string} params.cwd - Current working directory
+ * @param {string} [params.cwd] - Current working directory
  * @param {string} params.app - App directory
  * @param {string[]} params.entriesPaths - Absolute entries paths
  * @param {boolean} params.build - Building for production
@@ -18,10 +18,11 @@ export default function checkDependencies({
 	app,
 	entriesPaths,
 	build,
-} = {}) {
+}) {
 	const regex =
 		/\bexport\s+\b(let|const)\s+\brendering\b\s*(?::\s*\w+)?\s*=\s*["'](.*?)["']/;
 
+	/** @type {Map<string, string[]>} */
 	const dependenciesMap = new Map();
 	dependenciesMap.set('three', ['three']);
 	dependenciesMap.set('p5', ['p5']);
@@ -39,6 +40,7 @@ export default function checkDependencies({
 	renderers.set('fragment-gl', `${app}/renderers/FragmentGLRenderer.js`);
 	renderers.set('2d', `${app}/renderers/2DRenderer.js`);
 
+	/** @type {string[]} */
 	const renderings = [];
 
 	entriesPaths.forEach((entry) => {
@@ -49,8 +51,9 @@ export default function checkDependencies({
 		if (rendering) {
 			renderings.push(rendering);
 
-			if (dependenciesMap.has(rendering)) {
-				const dependencies = dependenciesMap.get(rendering);
+			const dependencies = dependenciesMap.get(rendering);
+
+			if (dependencies) {
 				dependencies.forEach((dependency) => {
 					const dependencyPath = path.join(
 						cwd,
@@ -119,7 +122,7 @@ export default function checkDependencies({
 	};
 
 	return {
-		name: 'check-dependencies',
+		name: 'fragment-plugin-check-dependencies',
 		config: () => ({
 			define: defines,
 		}),

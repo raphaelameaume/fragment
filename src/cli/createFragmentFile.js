@@ -1,14 +1,13 @@
 import path from 'node:path';
-import { readFile, writeFile } from 'node:fs/promises';
-import { log } from './log.js';
-import { __dirname, file, mkdirp } from './utils.js';
+import { writeFile } from 'node:fs/promises';
+import { __dirname, mkdirp } from './utils.js';
 
 export const FRAGMENT_DIRECTORY = '/.fragment';
 
 /**
  * Create local tsconfig.json file
  * @param {string} cwd Current working directory
- * @returns {string}
+ * @returns {Promise<string>}
  */
 export async function createTsConfigFile(cwd = process.cwd()) {
 	try {
@@ -58,7 +57,7 @@ export async function createTsConfigFile(cwd = process.cwd()) {
 }
 `;
 
-		await mkdirp(dirpath);
+		mkdirp(dirpath);
 		await writeFile(filepath, tsConfigCode);
 
 		return filepath;
