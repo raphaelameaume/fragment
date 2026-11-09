@@ -25,7 +25,7 @@ import { log, dim, green, yellow } from '../log.js';
  * Resolve shader include directives and send shader code via WebSocket
  * @param {object} params
  * @param {string} [params.cwd=process.cwd()] - Current working directory
- * @param {import('ws').WebSocketServer} params.wss
+ * @param {import('../createWebSocketServer.js').FragmentWebSocketServer} params.wss
  * @returns {import('vite').Plugin}
  */
 export default function hotShaderReplacement({ cwd = process.cwd(), wss }) {
