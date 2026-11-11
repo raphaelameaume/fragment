@@ -114,7 +114,7 @@ export async function run(entry, options = {}) {
 			}),
 		);
 
-		watcher = fs.watch(cwd, (eventType, filename) => {
+		watcher = fs.watch(cwd, (_, filename) => {
 			if (!filename) return;
 
 			if (

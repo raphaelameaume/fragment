@@ -25,10 +25,10 @@ const S_BAR = s('│', '|');
 /**
  * @param {object} opts
  * @param {string} opts.message
- * @param {string} opts.active
- * @param {string} opts.inactive
- * @param {boolean} opts.initialValue
- * @returns {Promise<boolean|symbol>}
+ * @param {string} [opts.active]
+ * @param {string} [opts.inactive]
+ * @param {boolean} [opts.initialValue]
+ * @returns {Promise<boolean | unique symbol | undefined>}
  */
 export const confirm = (opts) => {
 	const active = opts.active ?? 'Yes';
@@ -70,7 +70,7 @@ export const confirm = (opts) => {
  * @param {string} [opts.defaultValue]
  * @param {string} [opts.initialValue]
  * @param {string} [opts.hint]
- * @param {(value: string | undefined) => any} [opts.validate]
+ * @param {(value: string | undefined) => string | Error | undefined} [opts.validate]
  * @returns {Promise<string | symbol | undefined>}
  */
 export const text = (opts) => {
@@ -119,6 +119,18 @@ export const text = (opts) => {
 	}).prompt();
 };
 
+/**
+ * @template T
+ * @param {object} params
+ * @param {number} params.cursor
+ * @param {T[]} params.options
+ * @param {(option: T, active: boolean) => string} params.style
+ * @param {number} [params.maxItems]
+ * @param {import('node:stream').Writable} [params.output]
+ * @param {number} [params.columnPadding]
+ * @param {number} [params.rowPadding]
+ * @returns {string[]}
+ */
 const limitOptions = (params) => {
 	const { cursor, options, style } = params;
 
@@ -176,7 +188,7 @@ const computeLabel = (label, format) => {
 
 /**
  * @typedef {Object} Option
- * @property {string} value
+ * @property {Value} value
  * @property {string} [label]
  * @property {string} [hint]
  * @property {boolean} [disabled]
@@ -185,10 +197,13 @@ const computeLabel = (label, format) => {
 /**
  * @param {object} opts
  * @param {string} opts.message
- * @param {import('@clack/core').SelectOptions<Value>} opts.options
+ * @param {Option[]} opts.options
  * @param {Value} [opts.initialValue]
  * @param {number} [opts.maxItems]
- * @returns {Promise<boolean|symbol>}
+ * @param {AbortSignal} [opts.signal]
+ * @param {import('node:stream').Readable} [opts.input]
+ * @param {import('node:stream').Writable} [opts.output]
+ * @returns {Promise<Value | symbol | undefined>}
  */
 export const select = (opts) => {
 	/**

@@ -1,5 +1,17 @@
 import { green, yellow, grey, inverse, red } from 'kleur/colors';
 
+/**
+ * @typedef {Object} Logger
+ * @property {(message?: string, prefix?: string) => void} message
+ * @property {(message?: string, prefix?: string) => void} info
+ * @property {(message?: string, prefix?: string) => void} success
+ * @property {(message?: string, prefix?: string) => void} warn
+ * @property {(message?: string, prefix?: string) => void} warning
+ * @property {(message?: string, prefix?: string) => void} error
+ * @property {(label: string) => string} prefix
+ */
+
+/** @type {Logger} */
 export const log = {
 	message: (message = '', prefix) => {
 		const prefixed = prefix ? `${prefix} ` : ``;
