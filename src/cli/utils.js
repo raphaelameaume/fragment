@@ -42,6 +42,13 @@ export function file(path) {
 	return fileURLToPath(new URL(`${path}`, import.meta.url).href);
 }
 
+/**
+ * Exit gracefully if the prompt was cancelled.
+ * @template T
+ * @param {T | symbol} prompt
+ * @param {string} [prefix]
+ * @returns {asserts prompt is T}
+ */
 export function handleCancelledPrompt(prompt, prefix) {
 	if (isCancel(prompt)) {
 		log.error(`Cancelled`, prefix);

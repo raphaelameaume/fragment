@@ -38,10 +38,10 @@ export async function preview(dir, options = {}) {
 		const { resolvedUrls } = previewServer;
 
 		let urls = [
-			...resolvedUrls.local.map(
+			...(resolvedUrls?.local ?? []).map(
 				(url) => `${bold('Local')}:   ${bold(cyan(url))}`,
 			),
-			...resolvedUrls.network.map(
+			...(resolvedUrls?.network ?? []).map(
 				(url) => `${bold('Network')}: ${bold(cyan(url))}`,
 			),
 		];

@@ -15,9 +15,21 @@ import {
 } from './utils.js';
 
 /**
+ * @typedef TemplateOption
+ * @property {string} name
+ * @property {string} description
+ * @property {string[]} [dependencies]
+ * @property {string} path
+ * @property {string} label
+ * @property {string} hint
+ * @property {string} value
+ * @property {boolean} [isDefault=false]
+ */
+
+/**
  * Create a new sketch
  * @param {string} entry
- * @param {object} options
+ * @param {object} [options]
  * @param {string} [options.templateName]
  * @param {boolean} [options.typescript]
  */
@@ -40,7 +52,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 			name = entryBase;
 		}
 
-		dir = await p.text({
+		const outDirResult = await p.text({
 			message: 'Specify an output directory:',
 			placeholder: '.',
 			hint: '(hit Enter to use current directory)',
@@ -48,13 +60,15 @@ export async function create(entry, { templateName, typescript } = {}) {
 			defaultValue: '.',
 		});
 
-		handleCancelledPrompt(dir, prefix);
+		handleCancelledPrompt(outDirResult, prefix);
+
+		dir = outDirResult;
 
 		if (!dir) {
 			dir = cwd;
 		}
 
-		name = await p.text({
+		const answerName = await p.text({
 			message: 'Specify a sketch name:',
 			placeholder: `  `,
 			hint: '(hit Enter to validate)',
@@ -66,20 +80,9 @@ export async function create(entry, { templateName, typescript } = {}) {
 			},
 		});
 
-		handleCancelledPrompt(name, prefix);
+		handleCancelledPrompt(answerName, prefix);
 
-		name = name.replace(/\s/g, '-');
-
-		/**
-		 * @typedef TemplateOption
-		 * @property {string} name
-		 * @property {string} description
-		 * @property {string} path
-		 * @property {string} label
-		 * @property {string} hint
-		 * @property {string} value
-		 * @property {boolean} [isDefault=false]
-		 */
+		name = (answerName ?? '').replace(/\s/g, '-');
 
 		/** @type {TemplateOption[]} */
 		let templatesOptions = fs
@@ -100,11 +103,12 @@ export async function create(entry, { templateName, typescript } = {}) {
 			});
 
 		// put default template in the first place
-		templatesOptions = templatesOptions.sort((a, b) =>
-			a.isDefault ? -1 : 1,
+		templatesOptions = templatesOptions.sort(
+			(a, b) =>
+				Number(Boolean(b.isDefault)) - Number(Boolean(a.isDefault)),
 		);
 
-		templateName = await p.select({
+		const templateNameAnswer = await p.select({
 			message: 'Pick a template:',
 			options: templatesOptions,
 			initialValue: templatesOptions.find(
@@ -112,26 +116,34 @@ export async function create(entry, { templateName, typescript } = {}) {
 			)?.value,
 		});
 
-		handleCancelledPrompt(templateName, prefix);
+		handleCancelledPrompt(templateNameAnswer, prefix);
 
-		typescript = await p.confirm({
+		templateName = String(templateNameAnswer);
+
+		const typescriptAnswer = await p.confirm({
 			message: 'Use TypeScript template?',
 			active: 'Yes',
 			inactive: 'No',
-			initialValue: typescript,
+			initialValue: typescript ?? path.extname(name) === '.ts',
 		});
 
-		handleCancelledPrompt(typescript, prefix);
+		handleCancelledPrompt(typescriptAnswer, prefix);
+		typescript = typescriptAnswer;
 
-		let template = templatesOptions.find(
+		const template = templatesOptions.find(
 			(option) => option.value === templateName,
 		);
 
-		const hasDependencies = template.dependencies?.length > 0;
-		const singleDependency = template.dependencies?.length === 1;
+		if (!template) {
+			throw new Error(`Template "${templateName}" not found.`);
+		}
+
+		const dependencies = template.dependencies ?? [];
+		const hasDependencies = dependencies.length > 0;
+		const singleDependency = dependencies.length === 1;
 
 		if (hasDependencies) {
-			const dependenciesList = template.dependencies
+			const dependenciesList = dependencies
 				.map((dependency) => bold(`${dependency}`))
 				.join(',');
 
@@ -145,10 +157,10 @@ export async function create(entry, { templateName, typescript } = {}) {
 		const from = file(`./templates/${template.path}`);
 		const to = dir;
 
-		const tsOptions = templatesOptions.typescript ?? {};
-		const tsExcludes = tsOptions.excludes ?? ['index.js'];
-		const jsExcludes = tsOptions.includes ?? ['index.ts'];
-		let excludes = [...(typescript ? tsExcludes : jsExcludes), 'meta.json'];
+		let excludes = [
+			...(typescript ? ['index.js'] : ['index.ts']),
+			'meta.json',
+		];
 
 		let filename = path.basename(name).split('.')[0];
 		let templateFiles = await readdir(from);
@@ -163,17 +175,23 @@ export async function create(entry, { templateName, typescript } = {}) {
 			prefix,
 		);
 
+		/**
+		 * Resolve a destination path, asking the user what to do if it already exists.
+		 * @param {string} filepath
+		 * @param {boolean} [skip=false] return an empty string instead of asking for another name
+		 * @returns {Promise<string>}
+		 */
 		const checkForFileExistence = async (filepath, skip = false) => {
 			if (fs.existsSync(filepath)) {
 				const dirname = path.dirname(filepath);
 				const ext = path.extname(filepath);
 
-				let filename = path.basename(filepath);
+				const existingName = path.basename(filepath);
 
-				log.warn(`${filename} already exists.\n`);
+				log.warn(`${existingName} already exists.\n`);
 
-				let override = await p.confirm({
-					message: `Override ${filename}?`,
+				const override = await p.confirm({
+					message: `Override ${existingName}?`,
 					active: 'Yes',
 					inactive: 'No',
 					initialValue: false,
@@ -184,23 +202,30 @@ export async function create(entry, { templateName, typescript } = {}) {
 				if (!override) {
 					if (skip) return '';
 
-					filename = await p.text({
+					const newNameAnswer = await p.text({
 						message: 'Pick a different name:',
 						placeholder: `  `,
 						hint: '(hit Enter to validate)',
-						initialValue: filename,
+						initialValue: existingName,
 						validate: (value) => {
-							if (value.length === 0)
+							if (!value || value.length === 0) {
 								return `A name is required.`;
+							}
+
+							return undefined;
 						},
 					});
 
-					handleCancelledPrompt(filename, prefix);
-
-					filename = filename.replace(/\s/g, '-');
+					handleCancelledPrompt(newNameAnswer, prefix);
 
 					return await checkForFileExistence(
-						path.join(dirname, addExtension(filename, ext)),
+						path.join(
+							dirname,
+							addExtension(
+								(newNameAnswer ?? '').replace(/\s/g, '-'),
+								ext,
+							),
+						),
 					);
 				}
 
@@ -210,6 +235,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 			return filepath;
 		};
 
+		/** @type {string[]} */
 		const newFiles = [];
 
 		for (let i = 0; i < templateFiles.length; i++) {
@@ -224,6 +250,7 @@ export async function create(entry, { templateName, typescript } = {}) {
 			);
 
 			dest = await checkForFileExistence(dest);
+			filename = path.parse(dest).name;
 
 			let buffer = await readFile(source);
 			let content = buffer.toString();
@@ -232,14 +259,17 @@ export async function create(entry, { templateName, typescript } = {}) {
 			templateFiles.forEach((templateFile, index) => {
 				if (index === i) return;
 
-				if (newFiles.length > 0) {
-					const newFile = newFiles[index];
+				const newFile = newFiles[index];
 
-					content = content.replace(
-						new RegExp(templateFile, 'g'),
-						`${path.basename(newFile)}`,
-					);
-				}
+				if (!newFile) return;
+
+				content = content.replace(
+					new RegExp(
+						templateFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+						'g',
+					),
+					`${path.basename(newFile)}`,
+				);
 			});
 
 			await writeFile(dest, Buffer.from(content));
@@ -289,10 +319,11 @@ export async function create(entry, { templateName, typescript } = {}) {
 		let nextSteps = ``;
 
 		if (hasDependencies) {
-			nextSteps += `${dim(`${i++}. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${template.dependencies.join(' ')}`))}\n\n`;
+			nextSteps += `${dim(`${i++}. Install dependencies`)}\n${bold(cyan(`${packageManager} install ${dependencies.join(' ')}`))}\n\n`;
 		}
 
-		const regex = new RegExp(`${filename}\.(js|ts)$`);
+		const escapedFilename = filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		const regex = new RegExp(`${escapedFilename}\\.(js|ts)$`);
 		const newIndexFile = newFiles.findLast((file) => regex.test(file));
 
 		nextSteps += `${dim(`${i++}. Start Fragment`)}\n${bold(cyan(`fragment ${path.relative(cwd, newIndexFile ?? entry)}`))}`;

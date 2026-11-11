@@ -1,14 +1,14 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import url from 'node:url';
-import { defineConfig, mergeConfig } from 'vite';
+import { createRequire } from 'node:module';
+import { mergeConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 import checkDependencies from './plugins/check-dependencies.js';
 import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
-import { createRequire } from 'node:module';
 
 /**
  *
@@ -54,7 +54,7 @@ export async function loadConfig({ cwd, filepath }) {
 
 		return config;
 	} catch (error) {
-		log.error(error);
+		log.error(error instanceof Error ? error.message : String(error));
 		return {};
 	}
 }
@@ -97,60 +97,55 @@ export async function createConfig(
 			return undefined;
 		}
 	};
-	
+
 	const p5Path = resolveEntry('p5');
 
-	return mergeConfig(
-		defineConfig({
-			configFile: false,
-			root,
-			logLevel: dev ? 'info' : 'silent',
-			publicDir,
-			resolve: {
-				alias: {
-					'@fragment/types': path.join(__dirname, 'src/types'),
-					'@fragment': path.join(__dirname, 'src/client/app'),
-					three: path.join(cwd, 'node_modules/three'),
-					ogl: path.join(cwd, 'node_modules/ogl'),
-					p5: p5Path ?? path.join(cwd, 'node_modules/p5'),
+	/** @type {import('vite').InlineConfig} */
+	const defaults = {
+		configFile: false,
+		root,
+		logLevel: dev ? 'info' : 'silent',
+		publicDir,
+		resolve: {
+			alias: {
+				'@fragment/types': path.join(__dirname, 'src/types'),
+				'@fragment': path.join(__dirname, 'src/client/app'),
+				three: path.join(cwd, 'node_modules/three'),
+				ogl: path.join(cwd, 'node_modules/ogl'),
+				p5: p5Path ?? path.join(cwd, 'node_modules/p5'),
+			},
+		},
+		plugins: [
+			svelte({
+				configFile: false,
+				onwarn: (warning, handler) => {
+					if (dev) {
+						handler(warning);
+					} else {
+						return;
+					}
 				},
-			},
-			plugins: [
-				svelte({
-					configFile: false,
-					onwarn: (warning, handler) => {
-						if (dev) {
-							handler(warning);
-						} else {
-							return;
-						}
-					},
-				}),
-				checkDependencies({
-					cwd,
-					app,
-					entriesPaths,
-					build,
-				}),
-				sketches({ cwd, entries }),
-			],
-			define: {
-				__CWD__: `${JSON.stringify(cwd)}`,
-				__FRAGMENT_PORT__: undefined,
-				__START_TIME__: Date.now(),
-				__SEED__: Date.now(),
-				__BUILD__: build,
-				__DEV__: !build,
-			},
-			optimizeDeps: {
-				include: [
-					'convert-length',
-					'changedpi',
-					'gifenc',
-					'mediabunny',
-				],
-			},
-		}),
-		config.vite ?? {},
-	);
+			}),
+			checkDependencies({
+				cwd,
+				app,
+				entriesPaths,
+				build,
+			}),
+			sketches({ cwd, entries }),
+		],
+		define: {
+			__CWD__: `${JSON.stringify(cwd)}`,
+			__FRAGMENT_PORT__: undefined,
+			__START_TIME__: Date.now(),
+			__SEED__: Date.now(),
+			__BUILD__: build,
+			__DEV__: !build,
+		},
+		optimizeDeps: {
+			include: ['convert-length', 'changedpi', 'gifenc', 'mediabunny'],
+		},
+	};
+
+	return mergeConfig(defaults, config.vite ?? {});
 }

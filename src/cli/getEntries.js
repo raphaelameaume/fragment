@@ -36,6 +36,7 @@ export async function getEntries(
 	};
 
 	try {
+		/** @type {string[]} */
 		const entries = [];
 
 		if (!entry) {
