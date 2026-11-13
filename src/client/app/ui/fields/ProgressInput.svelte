@@ -1,45 +1,44 @@
 <script>
+	import { draggable } from '../../attachments/draggable.js';
 	import Keyboard from '../../inputs/Keyboard.js';
 	import { map, clamp, roundToStep } from '../../utils/math.utils.js';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {number} value
+	 * @property {number} min
+	 * @property {number} max
+	 * @property {number} step
+	 * @property {boolean} disabled
+	 * @property {(value: number) => void|undefined} onchange
+	 */
+
+	/** @type {Props} */
 	let { value, min, max, step, disabled = false, onchange } = $props();
 
-	let node;
-	let rect;
-
-	let isDragging = $state(false);
+	let dragging = $state(false);
 	let steppedValue = $derived(roundToStep(value, step));
 
-	// handlers
-	function handleMouseDown(event) {
-		document.body.classList.add('fragment-dragging');
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
+	/**
+	 * @param {MouseEvent | TouchEvent} _
+	 * @param {import('../../attachments/draggable.js').DragParams} params
+	 */
+	function onDrag(_, params) {
+		if (disabled) return;
 
-		rect = node.getBoundingClientRect();
+		dragging = params.isDragging;
 
-		isDragging = true;
-
-		onDrag(event);
-	}
-
-	function handleMouseMove(event) {
-		onDrag(event);
-	}
-
-	function onDrag(event) {
-		let dragValue = clamp(
-			map(event.clientX, rect.left, rect.right, min, max),
-			min,
-			max,
-		);
+		let dragValue = clamp(map(params.px, 0, 1, min, max), min, max);
 		dragValue = roundToStep(dragValue, step);
 
 		if (dragValue !== value) {
-			onchange(dragValue);
+			onchange?.(dragValue);
 		}
 	}
 
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function handleKeyDown(event) {
 		const direction = ['ArrowUp', 'ArrowRight'].includes(event.key)
 			? 1
@@ -57,17 +56,9 @@
 			);
 
 			if (newValue !== value) {
-				onchange(newValue);
+				onchange?.(newValue);
 			}
 		}
-	}
-
-	function handleMouseUp() {
-		document.body.classList.remove('fragment-dragging');
-		document.removeEventListener('mousemove', handleMouseMove);
-		document.removeEventListener('mouseup', handleMouseUp);
-
-		isDragging = false;
 	}
 
 	let progress = $derived(
@@ -78,16 +69,15 @@
 
 <div
 	class="progress"
-	bind:this={node}
-	onmousedown={handleMouseDown}
-	onkeydown={handleKeyDown}
 	class:disabled
-	class:dragging={isDragging}
+	class:dragging
 	role="slider"
 	aria-valuemin={min}
 	aria-valuemax={max}
 	aria-valuenow={value}
 	tabindex={disabled ? -1 : 0}
+	onkeydown={handleKeyDown}
+	{@attach draggable({ onDrag })}
 >
 	<div
 		class="fill"
@@ -99,23 +89,28 @@
 	.progress {
 		position: relative;
 
-		height: var(--height-input);
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		height: var(--fragment-input-height);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 
-		background: var(--color-background-input);
-		cursor: ew-resize;
+		background: var(--fragment-input-background-color);
+
 		container-type: size;
 		outline: 0;
 	}
 
-	:global(body:not(.fragment-dragging)) .progress:hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+	.progress:not(.disabled) {
+		cursor: ew-resize;
+	}
+
+	:global(body:not(.fragment-dragging)) .progress:not(.disabled):hover {
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	.progress.dragging,
-	:global(body:not(.fragment-dragging)) .progress:focus-visible {
-		box-shadow: 0 0 0 2px var(--color-active);
+	:global(body:not(.fragment-dragging))
+		.progress:not(.disabled):focus-visible {
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.fill {
@@ -138,14 +133,14 @@
 
 		background: grey;
 		transform-origin: 0 50%;
-		border-radius: calc(var(--border-radius-input) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
 
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 
 		transform: translate3d(var(--tx), 0px, 0px);
 	}
 
 	.progress.disabled .fill {
-		background-color: var(--color-active-disabled);
+		background-color: var(--fragment-color-disabled);
 	}
 </style>

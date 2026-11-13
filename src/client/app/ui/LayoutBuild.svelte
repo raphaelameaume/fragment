@@ -9,7 +9,7 @@
 
 	let gui = $derived(buildConfig.gui ?? {});
 	let layout = $derived(buildConfig.layout ?? {});
-	let headless = $derived(layout.headless ?? false);
+	let headless = $derived(layout.headless ?? true);
 	let resizable = $derived(layout.resizable ?? false);
 
 	let guiOutput = $derived(gui.output ?? true);

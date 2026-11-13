@@ -8,14 +8,18 @@
 		onkeydown,
 		onfocus,
 		onblur,
+		node = $bindable(),
 	} = $props();
 
-	/** @type {HTMLInputElement} */
-	let node;
-
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function onKeyPress(event) {
-		if (event.key === 'Enter') {
-			node.blur();
+		if (
+			event.currentTarget instanceof HTMLInputElement &&
+			event.key === 'Enter'
+		) {
+			event.currentTarget.blur();
 		}
 	}
 </script>
@@ -34,7 +38,7 @@
 		{onfocus}
 		{onblur}
 		onkeypress={onKeyPress}
-		disabled={disabled ? 'disabled' : null}
+		{disabled}
 		autocomplete="off"
 		spellcheck="false"
 	/>
@@ -45,22 +49,22 @@
 		position: relative;
 
 		display: flex;
-		height: var(--height-input);
+		height: var(--fragment-input-height);
 		margin: 2px 0;
 
-		border-radius: var(--border-radius-input);
-		background-color: var(--color-background-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		border-radius: var(--fragment-input-border-radius);
+		background-color: var(--fragment-input-background-color);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 	}
 
 	:global(body:not(.fragment-dragging))
 		.input-container:not(.disabled):hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	:global(body:not(.fragment-dragging))
 		.input-container:not(.disabled):focus-within {
-		box-shadow: 0 0 0 2px var(--color-active);
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.label {
@@ -73,8 +77,8 @@
 		align-items: center;
 		padding: var(--padding);
 
-		color: var(--color-text);
-		font-size: var(--font-size-input);
+		color: var(--fragment-text-color);
+		font-size: var(--fragment-input-font-size);
 		font-weight: 600;
 		pointer-events: none;
 		opacity: 0.35;
@@ -89,8 +93,8 @@
 		height: 100%;
 		padding: 0 var(--padding);
 
-		color: var(--color-text-input);
-		font-size: var(--font-size-input);
+		color: var(--fragment-input-text-color);
+		font-size: var(--fragment-input-font-size);
 		text-align: right;
 
 		background: transparent;
@@ -98,14 +102,14 @@
 	}
 
 	.input:disabled {
-		color: var(--color-text-input-disabled);
+		color: var(--fragment-input-disabled-text-color);
 	}
 
 	.input:focus {
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 	}
 
 	/* .input:focus {
-    border: var(--borderWidth) solid var(--color-active);
+    border: var(--borderWidth) solid var(--fragment-accent-color);
 } */
 </style>

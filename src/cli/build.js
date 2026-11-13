@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
 import { mergeConfig, build as viteBuild } from 'vite';
-import { createFragmentFile } from './createFragmentFile.js';
 import { createConfig } from './createConfig.js';
 import { getEntries } from './getEntries.js';
 import { log, magenta } from './log.js';
@@ -12,14 +11,15 @@ import hotShaderReplacement from './plugins/hot-shader-replacement.js';
 /**
  * Build a sketch for production
  * @param {string} entry
- * @param {object} options
- * @param {string} options.base
- * @param {string} options.outDir
- * @param {boolean} options.emptyOutDir
- * @param {boolean} options.development
+ * @param {object} [options]
+ * @param {string} [options.base]
+ * @param {string} [options.outDir]
+ * @param {boolean} [options.emptyOutDir]
+ * @param {boolean} [options.development]
+ * @param {string} [options.configFilepath]
  * @param {boolean} [options.prompts=true]
  */
-export async function build(entry, options) {
+export async function build(entry, options = {}) {
 	const cwd = process.cwd();
 	const command = 'build';
 	const prefix = log.prefix(command);
@@ -33,18 +33,21 @@ export async function build(entry, options) {
 
 		log.message(`${magenta(entry)}\n`, prefix);
 
+		/** @type {string|undefined} */
 		let outDir =
 			options.outDir ?? entries[0].split(path.extname(entries[0]))[0];
 
 		if (prompts) {
-			outDir = await p.text({
+			const outDirAnswer = await p.text({
 				message: 'Output directory:',
 				placeholder: '.',
 				hint: '(hit Enter to use current directory)',
 				initialValue: outDir,
 			});
 
-			handleCancelledPrompt(outDir, prefix);
+			handleCancelledPrompt(outDirAnswer, prefix);
+
+			outDir = outDirAnswer;
 		}
 
 		if (!outDir) {
@@ -58,34 +61,41 @@ export async function build(entry, options) {
 
 		const files = await readdir(outDirPath);
 
+		/** @type {boolean} */
 		let emptyOutDir = options.emptyOutDir ?? true;
 
 		if (files.length > 0) {
 			log.warn(`${outDirPath} is not an empty folder.\n`);
 
 			if (prompts) {
-				emptyOutDir = await p.confirm({
+				const emptyOutDirAnswer = await p.confirm({
 					message: 'Empty folder before building?',
 					active: 'Yes',
 					inactive: 'No',
 					initialValue: emptyOutDir,
 				});
 
-				handleCancelledPrompt(emptyOutDir, prefix);
+				handleCancelledPrompt(emptyOutDirAnswer, prefix);
+
+				emptyOutDir = emptyOutDirAnswer ?? true;
 			}
 		}
 
+		/** @type {string|undefined} */
 		let base = options.base;
 
 		if (prompts) {
-			base = await p.text({
+			const baseAnswer = await p.text({
 				message: 'Base public path:',
 				placeholder: `/`,
 				hint: '(Hit Enter to validate)',
 				initialValue: base,
+				defaultValue: '/',
 			});
 
-			handleCancelledPrompt(base, prefix);
+			handleCancelledPrompt(baseAnswer, prefix);
+
+			base = baseAnswer;
 		}
 
 		if (entries.length > 0) {
@@ -94,10 +104,8 @@ export async function build(entry, options) {
 				prefix,
 			);
 
-			const fragmentFilepath = await createFragmentFile(entries, cwd);
 			const config = await createConfig(
 				entries,
-				fragmentFilepath,
 				{
 					dev: options.development,
 					build: true,

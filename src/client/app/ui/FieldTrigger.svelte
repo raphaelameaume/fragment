@@ -121,9 +121,9 @@
 				label="delete"
 				showLabel={false}
 				onclick={handleClickDelete}
-				--color-text="white"
-				--background-color="var(--color-red)"
-				--box-shadow-color-active="var(--color-lightred)"
+				--text-color="var(--fragment-color-white)"
+				--background-color="var(--fragment-color-red)"
+				--box-shadow-color-active="var(--fragment-color-lightred)"
 			>
 				<IconCross />
 			</ButtonInput>
@@ -169,7 +169,7 @@
 
 <style>
 	.field-trigger {
-		--width-delete: var(--height-input);
+		--width-delete: var(--fragment-input-height);
 		--width-input: 90px;
 		--width-activity: 16px;
 		--width-cols: 1fr;
@@ -205,11 +205,11 @@
 	}
 
 	.activity.valid.enabled {
-		--background-color: var(--color-green);
+		--background-color: var(--fragment-color-green);
 	}
 
 	.activity.valid.disabled {
-		--background-color: var(--color-red);
+		--background-color: var(--fragment-color-red);
 	}
 
 	.delete {

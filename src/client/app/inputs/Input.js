@@ -1,11 +1,13 @@
 import { getContext, wildcard } from '../triggers/shared';
 import Trigger from '../triggers/Trigger';
 
-class Input {
-	constructor({ type } = {}) {
-		/** @type {string} */
-		this.type = type;
-		/** @type {boolean} */
+export class Input {
+	/**
+	 * @param {object} params
+	 * @param {string} params.name
+	 */
+	constructor({ name }) {
+		this.name = name;
 		this.enabled = true;
 		/** @type {Trigger[]} */
 		this.triggers = [];
@@ -82,5 +84,3 @@ class Input {
 		this.enabled = false;
 	}
 }
-
-export default Input;

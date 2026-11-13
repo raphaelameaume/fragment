@@ -7,7 +7,9 @@
 		IMAGE_ENCODINGS,
 		VIDEO_FORMATS,
 		exports,
+		getCodecsForFormat,
 	} from '../state/exports.svelte';
+	import { rendering } from '../state/rendering.svelte';
 
 	let { id = layout.getID(), headless = false } = $props();
 
@@ -16,6 +18,12 @@
 
 	let recordLabel = $derived(
 		exports.recording ? LABEL_RECORDING : LABEL_RECORD,
+	);
+
+	let sketchDuration = $derived(
+		rendering.renders.length === 1
+			? rendering.renders[0].sketch.duration
+			: undefined,
 	);
 </script>
 
@@ -81,16 +89,39 @@
 			params={{ options: Object.values(VIDEO_FORMATS) }}
 			onchange={(value) => {
 				exports.videoFormat = value;
+
+				if (
+					!getCodecsForFormat(exports.videoFormat).includes(
+						exports.videoCodec,
+					)
+				) {
+					exports.videoCodec = getCodecsForFormat(
+						exports.videoFormat,
+					)?.[0];
+				}
 			}}
 		/>
+		{#if [VIDEO_FORMATS.MKV, VIDEO_FORMATS.MP4, VIDEO_FORMATS.WEBM, VIDEO_FORMATS.MOV].includes(exports.videoFormat)}
+			<Field
+				key="codec"
+				value={exports.videoCodec}
+				params={{ options: getCodecsForFormat(exports.videoFormat) }}
+				onchange={(value) => {
+					exports.videoCodec = value;
+				}}
+			/>
+		{/if}
 		<Field
 			key="quality"
 			value={exports.videoQuality}
 			params={{
-				min: 1,
-				max: 100,
-				step: 1,
-				suffix: '%',
+				options: [
+					{ value: 100, label: 'very high' },
+					{ value: 80, label: 'high' },
+					{ value: 60, label: 'medium' },
+					{ value: 40, label: 'low' },
+					{ value: 20, label: 'very low' },
+				],
 				triggerable: false,
 			}}
 			onchange={(value) => {
@@ -98,13 +129,39 @@
 			}}
 		/>
 		<Field
-			key="useDuration"
-			value={exports.useDuration}
+			key="realtime"
+			value={exports.realtime}
 			onchange={(value) => {
-				exports.useDuration = value;
+				exports.realtime = value;
 			}}
 		/>
-		{#if exports.useDuration}
+		<Field
+			key="durationSource"
+			value={exports.durationSource}
+			params={{ options: ['manual', 'custom', 'sketch'] }}
+			onchange={(value) => {
+				exports.durationSource = value;
+			}}
+			type="radio"
+			displayName="duration"
+		/>
+		{#if exports.durationSource === 'custom' || exports.durationSource === 'sketch'}
+			<Field
+				key="duration"
+				value={exports.durationSource === 'sketch'
+					? (sketchDuration ?? 'undefined')
+					: exports.duration}
+				params={{ suffix: 's' }}
+				disabled={exports.durationSource === 'sketch'}
+				onchange={(value) => {
+					if (exports.durationSource === 'custom') {
+						exports.duration = value;
+					}
+				}}
+				displayName="length"
+			/>
+		{/if}
+		{#if exports.durationSource === 'custom' || (exports.durationSource === 'sketch' && sketchDuration !== undefined)}
 			<Field
 				key="loopCount"
 				value={exports.loopCount}
@@ -114,6 +171,7 @@
 				}}
 			/>
 		{/if}
+
 		<Field
 			key="record"
 			value={() => (exports.recording = !exports.recording)}

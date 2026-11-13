@@ -1,9 +1,9 @@
-import Input from './Input';
+import { Input } from './Input';
 
-class Keyboard extends Input {
+export class Keyboard extends Input {
 	constructor() {
 		super({
-			type: 'Keyboard',
+			name: 'Keyboard',
 		});
 
 		window.addEventListener('keypress', (event) => {
@@ -31,6 +31,7 @@ class Keyboard extends Input {
 			});
 		});
 	}
+
 	/**
 	 *
 	 * @param {KeyboardEvent} event

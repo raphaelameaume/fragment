@@ -114,8 +114,8 @@
 		max-height: 100%;
 
 		background-color: #1d1d1e;
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 	}
 
 	.scroll {
@@ -138,12 +138,14 @@
 
 	.scroll::-webkit-scrollbar-track {
 		background-color: var(
-			--color-lightblack
+			--fragment-color-lightblack
 		); /* color of the tracking area */
 	}
 
 	.scroll::-webkit-scrollbar-thumb {
-		background-color: var(--color-active); /* color of the scroll thumb */
+		background-color: var(
+			--fragment-accent-color
+		); /* color of the scroll thumb */
 		border-radius: 20px; /* roundness of the scroll thumb */
 	}
 </style>

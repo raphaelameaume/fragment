@@ -90,12 +90,12 @@
 	.log {
 		--json-tree-string-color: #17d08e;
 		--arrow-sign: rgba(255, 255, 255, 0.5);
-		--json-tree-font-size: var(--font-size-input);
-		--json-tree-font-family: var(--font-mono);
+		--json-tree-font-size: var(--fragment-input-font-size);
+		--json-tree-font-family: var(--fragment-font-family);
 		--json-tree-number-color: #9980ff;
 		--json-tree-symbol-color: #0a0606;
 		--json-tree-boolean-color: #9980ff;
-		--json-tree-function-color: var(--color-active);
+		--json-tree-function-color: var(--fragment-accent-color);
 		/* --json-tree-number-color: #3029cf; */
 		--json-tree-property-color: #5db0d7;
 		--json-tree-label-color: rgba(240, 240, 240, 0.6);
@@ -124,22 +124,22 @@
 
 	.string {
 		display: block;
-		font-size: var(--font-size-input);
+		font-size: var(--fragment-input-font-size);
 	}
 
 	.function {
-		font-size: var(--font-size-input);
+		font-size: var(--fragment-input-font-size);
 		font-style: italic;
 		white-space: pre;
 		tab-size: 2em;
 	}
 
 	:global(
-			.log ul > .Number,
-			.log ul > .Boolean,
-			.log ul > .Date,
-			.log ul > .Undefined
-		) {
+		.log ul > .Number,
+		.log ul > .Boolean,
+		.log ul > .Date,
+		.log ul > .Undefined
+	) {
 		margin-left: calc(var(--li-identation) * -1);
 	}
 
@@ -204,7 +204,7 @@
 	.trace {
 		border-bottom: 1px solid #eee;
 		font-size: 12px;
-		font-family: var(--font-mono);
+		font-family: var(--fragment-font-family);
 		padding: 4px 0 2px;
 	}
 
@@ -234,7 +234,7 @@
 		height: 16px;
 
 		border-radius: 9px;
-		background-color: var(--color-lightblack);
+		background-color: var(--fragment-color-lightblack);
 	}
 
 	.count span {
@@ -261,7 +261,7 @@
 	}
 
 	.title {
-		font-family: var(--font-mono);
+		font-family: var(--fragment-font-family);
 		font-size: 13px;
 		font-weight: bold;
 		padding-left: 11px;

@@ -1,12 +1,51 @@
 # Getting started
 
+## Installation
+
+Fragment can be installed via the `fragment-tools` package.
+
+```bash
+npm install fragment-tools
+```
+
+You can also install Fragment globally so it's available from anywhere on your machine with the `--global` flag.
+
+## Usage
+
+If you installed Fragment locally, you will need to use [npx](https://docs.npmjs.com/cli/v9/commands/npx) as a prefix to run the `fragment` command.
+
+```bash
+# if installed locally
+npx fragment [cmd]
+
+# if installed globally
+fragment [cmd]
+```
+
+or you can setup NPM scripts to run the command
+
+```js
+{
+  "name": "sketches",
+  "description": "A web development environment for creative coding",
+  "scripts": {
+    "dev": "fragment run sketch.js",
+  },
+  "devDependencies": {
+    "fragment-tools": "0.2.10"
+  }
+}
+```
+
 ## Create a sketch
 
 In your terminal, type the following command to create a new sketch based on the 2D template.
+
+```bash
+fragment sketch.js --new --template=2d
 ```
-fragment ./sketch.js --new --template=2d
-```
-Check [Templates docs](../api/CLI.md#templates) to see which templates are also available.
+
+Check [Templates docs](../api/templates.md) to see which templates are also available.
 
 Open `sketch.js` recently created in your favorite code editor. The file should looks like this:
 
@@ -99,12 +138,13 @@ export let props = {
 
 A slider should have appeared after saving the sketch file next to the previous input. Now if you click and drag on the slider, you should see your circle changing live.
 
-Congrats, you made your first sketch in `fragment`!
+Congrats, you made your first sketch in Fragment!
 
-If you want to know more about `props` and what can be done with it, check out the [SketchProps](../api/sketch.md#sketchprops) section of the documentation.
+If you want to know more about `props` and what can be done with it, check out the [Props](../api/props.md) section of the documentation.
 
 
 ## Next steps
 
-- [Using triggers](./using-triggers.md)
-- [Exporting a sketch](./exports.md)
+- [Exporting a sketch](../guide/exporting-a-sketch.md)
+- [Building a sketch](../guide/building-a-sketch.md)
+- [Using triggers](../guide/using-triggers.md)

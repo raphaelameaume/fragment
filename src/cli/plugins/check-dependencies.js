@@ -7,7 +7,7 @@ import * as p from '../prompts.js';
 /**
  *
  * @param {object} params
- * @param {string} params.cwd - Current working directory
+ * @param {string} [params.cwd] - Current working directory
  * @param {string} params.app - App directory
  * @param {string[]} params.entriesPaths - Absolute entries paths
  * @param {boolean} params.build - Building for production
@@ -18,15 +18,17 @@ export default function checkDependencies({
 	app,
 	entriesPaths,
 	build,
-} = {}) {
+}) {
 	const regex =
-		/\bexport[\s]*\b(let|const)[\s]*\brendering\b[\s]*=[\s]*["'](.*?)["']/;
+		/\bexport\s+\b(let|const)\s+\brendering\b\s*(?::\s*\w+)?\s*=\s*["'](.*?)["']/;
 
+	/** @type {Map<string, string[]>} */
 	const dependenciesMap = new Map();
 	dependenciesMap.set('three', ['three']);
 	dependenciesMap.set('p5', ['p5']);
 	dependenciesMap.set('p5-webgl', ['p5']);
-	dependenciesMap.set('fragment', []);
+	dependenciesMap.set('fragment', ['fragment-gl']);
+	dependenciesMap.set('fragment-gl', ['fragment-gl']);
 	dependenciesMap.set('2d', []);
 
 	const renderers = new Map();
@@ -34,9 +36,11 @@ export default function checkDependencies({
 	renderers.set('p5', `${app}/renderers/P5Renderer.js`);
 	renderers.set('p5-webgl', `${app}/renderers/P5GLRenderer.js`);
 	renderers.set('ogl', `${app}/renderers/OGLRenderer.js`);
-	renderers.set('fragment', `${app}/renderers/FragmentRenderer.js`);
+	renderers.set('fragment', `${app}/renderers/FragmentGLRenderer.js`);
+	renderers.set('fragment-gl', `${app}/renderers/FragmentGLRenderer.js`);
 	renderers.set('2d', `${app}/renderers/2DRenderer.js`);
 
+	/** @type {string[]} */
 	const renderings = [];
 
 	entriesPaths.forEach((entry) => {
@@ -47,8 +51,9 @@ export default function checkDependencies({
 		if (rendering) {
 			renderings.push(rendering);
 
-			if (dependenciesMap.has(rendering)) {
-				const dependencies = dependenciesMap.get(rendering);
+			const dependencies = dependenciesMap.get(rendering);
+
+			if (dependencies) {
 				dependencies.forEach((dependency) => {
 					const dependencyPath = path.join(
 						cwd,
@@ -105,8 +110,11 @@ export default function checkDependencies({
 		__P5_WEBGL_RENDERER__: JSON.stringify(
 			renderings.some((rendering) => rendering === 'p5-webgl'),
 		),
-		__FRAGMENT_RENDERER__: JSON.stringify(
-			renderings.some((rendering) => rendering === 'fragment'),
+		__FRAGMENT_GL_RENDERER__: JSON.stringify(
+			renderings.some(
+				(rendering) =>
+					rendering === 'fragment' || rendering === 'fragment-gl',
+			),
 		),
 		__2D_RENDERER__: JSON.stringify(
 			renderings.some((rendering) => rendering === '2d'),
@@ -114,7 +122,7 @@ export default function checkDependencies({
 	};
 
 	return {
-		name: 'check-dependencies',
+		name: 'fragment-plugin-check-dependencies',
 		config: () => ({
 			define: defines,
 		}),

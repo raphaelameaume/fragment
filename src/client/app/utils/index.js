@@ -1,26 +1,42 @@
 /**
- *
- * @param {Map} map
- * @param {string} key
- * @param {any} find
+ * @template K, V
+ * @callback FindIndexCallback
+ * @param {V} item - The item to test
+ * @param {number} index - The index of the item
+ * @param {V[]} array - The array being searched
+ * @returns {boolean}
+ */
+
+/**
+ * Add an item to an array stored in a Map
+ * @template K, V
+ * @param {Map<K, V[]>} map - The Map containing arrays as values
+ * @param {K} key - The key to store the item under
+ * @param {V} item - The item to add to the array
+ * @returns {void}
  */
 export const addToMapArray = (map, key, item) => {
-	if (map.has(key)) {
-		map.set(key, [...map.get(key), item]);
+	const previous = map.get(key);
+
+	if (Array.isArray(previous)) {
+		map.set(key, [...previous, item]);
 	} else {
 		map.set(key, [item]);
 	}
 };
 
 /**
- *
- * @param {Map} map
- * @param {string} key
- * @param {function} findIndex
+ * Remove an item from an array stored in a Map
+ * @template K, V
+ * @param {Map<K, V[]>} map - The Map containing arrays as values
+ * @param {K} key - The key where the array is stored
+ * @param {(item: V, index: number, array: V[]) => boolean} findIndex - Callback to find the item to remove
+ * @returns {void}
  */
 export const removeFromMapArray = (map, key, findIndex) => {
-	if (map.has(key)) {
-		const items = map.get(key);
+	const items = map.get(key);
+
+	if (Array.isArray(items)) {
 		const index = items.findIndex(findIndex);
 
 		if (index >= 0) {

@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 
+/** @type {THREE.Scene} */
+let scene;
+/** @type {THREE.OrthographicCamera} */
 let camera;
+/** @type {THREE.Vector2} */
+let resolution = new THREE.Vector2();
 
 /**
  * @param {object} params
@@ -11,7 +16,10 @@ let camera;
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let init = ({ scene, width, height }) => {
+export const init = ({ width, height }) => {
+	scene = new THREE.Scene();
+	scene.background = new THREE.Color(0x00ff00);
+
 	camera = new THREE.OrthographicCamera(1, 1, 1, 1, 1, 1000);
 	camera.position.z = 1;
 };
@@ -30,7 +38,7 @@ export let init = ({ scene, width, height }) => {
  * @param {number} params.playhead
  * @param {number} params.playcount
  */
-export let update = ({ renderer, scene, time, deltaTime }) => {
+export const update = ({ renderer, time, deltaTime }) => {
 	renderer.render(scene, camera);
 };
 
@@ -43,7 +51,10 @@ export let update = ({ renderer, scene, time, deltaTime }) => {
  * @param {number} params.height
  * @param {number} params.pixelRatio
  */
-export let resize = ({ width, height }) => {
+export const resize = ({ width, height, pixelRatio }) => {
+	resolution.x = width * pixelRatio;
+	resolution.y = height * pixelRatio;
+
 	camera.left = -width * 0.5;
 	camera.right = width * 0.5;
 	camera.top = height * 0.5;
@@ -52,4 +63,4 @@ export let resize = ({ width, height }) => {
 	camera.updateProjectionMatrix();
 };
 
-export let rendering = 'three';
+export const rendering = 'three';

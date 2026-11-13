@@ -51,12 +51,12 @@
 		width: 12px;
 		height: 1px;
 
-		background-color: #323233;
+		background-color: var(--fragment-spacing-color);
 	}
 
 	.header {
 		padding: 3px 6px;
-		border-bottom: 1px solid #323233;
+		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 
 	.header__action {
@@ -73,7 +73,7 @@
 	.header__icon {
 		padding-bottom: 1px;
 
-		color: #f0f0f0;
+		color: var(--fragment-text-color);
 		transform: rotate(90deg);
 		opacity: 0.5;
 		transition: opacity 0.1s ease;
@@ -89,7 +89,7 @@
 	}
 
 	.field-group__name {
-		color: #f0f0f0;
+		color: var(--fragment-text-color);
 
 		font-size: 11px;
 		font-weight: 700;
@@ -108,7 +108,7 @@
 
 	.content {
 		margin-left: 12px;
-		border-left: 1px solid #323233;
+		border-left: 1px solid var(--fragment-spacing-color);
 	}
 
 	.field-group.collapsed .content {

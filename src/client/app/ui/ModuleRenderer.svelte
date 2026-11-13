@@ -74,14 +74,14 @@
 		text-transform: capitalize;
 		user-select: none;
 
-		background-color: var(--color-lightblack);
+		background-color: var(--fragment-color-lightblack);
 	}
 
 	.module-renderer-error {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		color: var(--color-red);
+		color: var(--fragment-color-red);
 		font-size: 11px;
 		text-align: center;
 		background: #2a0000;
@@ -89,7 +89,7 @@
 	}
 
 	.message {
-		color: var(--color-text);
+		color: var(--fragment-text-color);
 	}
 
 	.module-name {

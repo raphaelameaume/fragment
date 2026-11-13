@@ -2,6 +2,7 @@
 	import FieldInputRow from './FieldInputRow.svelte';
 	import NumberInput from './NumberInput.svelte';
 	import { map, clamp, roundToStep } from '../../utils/math.utils';
+	import { draggable } from '../../attachments/draggable.js';
 
 	let {
 		value = null,
@@ -16,56 +17,44 @@
 		onchange,
 	} = $props();
 
-	/** @type {HTMLElement} */
-	let node;
-	/** @type {DOMRect}*/
-	let rect;
 	/** @type {boolean}*/
-	let isDragging = $state(false);
+	let dragging = $state(false);
 
 	let proximityIndex = -1;
 
 	/**
-	 *
-	 * @param {MouseEvent} event
+	 * @param {number} x
 	 */
-	function handleMouseDown(event) {
-		document.body.classList.add('fragment-dragging');
+	function computeDrag(x) {
+		let dragValue = clamp(map(x, 0, 1, min, max), min, max);
+		dragValue = roundToStep(dragValue, step);
 
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
+		return dragValue;
+	}
 
-		rect = node.getBoundingClientRect();
-
-		isDragging = true;
-
-		let dragValue = computeDrag(event);
+	/**
+	 * @param {MouseEvent | TouchEvent} event
+	 * @param {import('../../attachments/draggable.js').DragParams} params
+	 */
+	function onDragStart(event, params) {
+		let dragValue = computeDrag(params.px);
 
 		let abs0 = Math.abs(dragValue - value[0]);
 		let abs1 = Math.abs(dragValue - value[1]);
 
 		proximityIndex = abs0 < abs1 ? 0 : 1;
 
-		onDrag(event);
+		onDrag(event, params);
 	}
 
-	function computeDrag(event) {
-		let dragValue = clamp(
-			map(event.clientX, rect.left, rect.right, min, max),
-			min,
-			max,
-		);
-		dragValue = roundToStep(dragValue, step);
-		return dragValue;
-	}
+	/**
+	 * @param {MouseEvent | TouchEvent} _
+	 * @param {import('../../attachments/draggable.js').DragParams} params
+	 */
+	function onDrag(_, params) {
+		dragging = params.isDragging;
 
-	function handleMouseMove(event) {
-		onDrag(event);
-	}
-
-	function onDrag(event) {
-		let dragValue = computeDrag(event);
-
+		let dragValue = computeDrag(params.px);
 		let prevValue = value[proximityIndex];
 
 		if (dragValue !== prevValue) {
@@ -78,19 +67,8 @@
 					: Math.max(dragValue, value[1]),
 			];
 
-			value[0] = newValues[0];
-			value[1] = newValues[1];
-
 			onchange(newValues);
 		}
-	}
-
-	function handleMouseUp() {
-		document.body.classList.remove('fragment-dragging');
-		document.removeEventListener('mousemove', handleMouseMove);
-		document.removeEventListener('mouseup', handleMouseUp);
-
-		isDragging = false;
 	}
 
 	function handleValueChange(index, newValue) {
@@ -122,13 +100,12 @@
 	<FieldInputRow --grid-template-columns="1fr 0.5fr">
 		<div
 			class="range"
-			class:dragging={isDragging}
-			bind:this={node}
-			onmousedown={handleMouseDown}
+			class:dragging
+			{@attach draggable({ onDragStart, onDrag })}
 		>
-			<div class="handler" style="--position: {p1};" />
+			<div class="handler" style="--position: {p1};"></div>
 			<div class="filler" style="--p1: {p1}; --p2: {p2};"></div>
-			<div class="handler" style="--position: {p2};" />
+			<div class="handler" style="--position: {p2};"></div>
 		</div>
 		<div class="numbers">
 			<NumberInput
@@ -183,21 +160,21 @@
 		);
 		--tx-max-1: calc(100cqw - var(--padding-h) * 1 - var(--width));
 
-		height: var(--height-input);
-		border-radius: var(--border-radius-input);
-		box-shadow: inset 0 0 0 1px var(--color-border-input);
+		height: var(--fragment-input-height);
+		border-radius: var(--fragment-input-border-radius);
+		box-shadow: inset 0 0 0 1px var(--fragment-input-border-color);
 
-		background: var(--color-background-input);
+		background: var(--fragment-input-background-color);
 		cursor: ew-resize;
 		container-type: size;
 	}
 
 	:global(body:not(.fragment-dragging)) .range:hover {
-		box-shadow: inset 0 0 0 1px var(--color-active);
+		box-shadow: inset 0 0 0 1px var(--fragment-accent-color);
 	}
 
 	.range.dragging {
-		box-shadow: 0 0 0 2px var(--color-active);
+		box-shadow: 0 0 0 2px var(--fragment-accent-color);
 	}
 
 	.handler {
@@ -215,9 +192,9 @@
 
 		background: grey;
 		transform-origin: 0 50%;
-		border-radius: calc(var(--border-radius-input) * 0.5);
+		border-radius: calc(var(--fragment-input-border-radius) * 0.5);
 
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 
 		transform: translate3d(var(--tx), 0px, 0px);
 	}
@@ -233,7 +210,7 @@
 	}
 
 	.interval-input.disabled .handler {
-		background-color: var(--color-active-disabled);
+		background-color: var(--fragment-color-disabled);
 	}
 
 	.filler {
@@ -252,14 +229,14 @@
 				var(--size)
 		);
 		bottom: 3px;
-		background-color: var(--color-active);
+		background-color: var(--fragment-accent-color);
 		opacity: 0.5;
 
 		transform-origin: 0px 50%;
 	}
 
 	.interval-input.disabled .filler {
-		background-color: var(--color-active-disabled);
+		background-color: var(--fragment-color-disabled);
 	}
 
 	.numbers {

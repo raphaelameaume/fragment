@@ -1,33 +1,36 @@
 # Hot shader replacement
 
-The same way [vite](https://vitejs.dev/) provides instant updates to your sketch with its [HMR API](https://vitejs.dev/guide/features.html#hot-module-replacement), `fragment` provides instant updates to shaders when using the following file extensions:
+Similar to how [Vite](https://vitejs.dev/) provides instant updates via its [HMR API](https://vitejs.dev/guide/features.html#hot-module-replacement),
+Fragment provides automatic updates for shaders when using the following file extensions:
 - `.glsl`
 - `.fs`
 - `.vs`
 - `.vert`
 - `.frag`
 
-Hot shader replacement is enabled by default when using `rendering="three"` or `rendering="fragment"`.
+Hot shader replacement is enabled by default when `rendering` is set to `"three"`, `"p5-wegl"` or `"fragment"`.
 
-## How does it work?
+## How it works
 
-When `fragment` encounters a file with an extension listed above, it adds a comment to the shader file with its path on the user filesystem like so:
+When Fragment detects a file with one of the supported extensions, it inserts a comment with the file's path on the local filesystem:
 
 ```glsl
 // <filepath://path/to/shader/on/filesystem>
 ```
 
-When the file or one of its dependency changes, instead of letting [vite](https://vitejs.dev/) do its work, `fragment` recompiles only the shader and sends it over a Websocket. The different [renderers](../api/renderers.md) listen to the event sent by the Websocket, retrieve the updated shader(s) and recompile the WebGL program(s) on the fly.
+If the file or one of its dependencies changes, Fragment recompiles only the shader and sends it via WebSocket, bypassing Vite's standard reload process. Built-in [renderers](../api/renderers.md) listen for this event, retrieve the updated shader(s), and recompile the corresponding WebGL program(s) in real time.
+
+> When using a custom `renderer`, Fragment cannot automatically detect which materials need shader updates before rendering.
 
 ### With `rendering="three"`
 
-When using [three.js](https://threejs.org/) rendering, `fragment` overrides the `render` method of the provided `renderer:WebGLRenderer` to traverse the scene before rendering it and check if some materials needs to be recompiled with the updated source code.
-This technique works when using `ShaderMaterial` and/or `RawShaderMaterial` like in this example:
+When using [three.js](https://threejs.org/), Fragment overrides the `render` method of the `WebGLRenderer` to traverse the scene before rendering. Materials that require recompilation are updated with the latest shader source.
+This approach works with `ShaderMaterial` and/or `RawShaderMaterial`:
 
 ```js
 import * as THREE from 'three';
-import customVertexShader from './custom.vert';
-import customFragmentShader from './custom.frag';
+import customVertexShader from '/path/to/custom.vert';
+import customFragmentShader from '/path/to/custom.frag';
 
 export let rendering = 'three';
 
@@ -52,12 +55,15 @@ export let update = ({ renderer, scene }) => {
 	renderer.render(scene, camera);
 };
 ```
-> ⚠️ If you use your own `Renderer` instance, `fragment` will not be able to retrieve the materials that needs an update before rendering.
+
+### With `rendering="p5-webgl"`
+
+Shader updates are intercepted and applied dynamically by replacing vertex and fragment source code in the p5 instance. Uniforms, attributes, and samplers are reset to ensure the shader recompiles correctly. Errors in shader compilation are cleared automatically before applying updates, preventing runtime issues.
 
 ### With `rendering="fragment"`
 
-The single WebGLProgram displayed is recompiled on the fly.
+The single WebGL program displayed by Fragment is recompiled on the fly when the shader file changes.
 
-## How to disable it?
+## Disabling hot shader replacement
 
-A `// @fragment-nohsr` at the top of the file will disable Hot Shader Replacement and triggers a sketch reload instead when shader changes.
+Adding `// @fragment-nohsr` at the top of a shader file disables hot shader replacement. Shader changes will then trigger a full sketch reload instead of an on-the-fly update.

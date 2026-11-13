@@ -1,5 +1,11 @@
 <script>
-let { locked = false } = $props();
+	/**
+	 * @typedef {Object} Props
+	 * @property {boolean} locked
+	 */
+
+	/** @type {Props} */
+	let { locked = false } = $props();
 </script>
 
 {#if locked}

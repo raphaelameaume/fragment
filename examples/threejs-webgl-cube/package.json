@@ -1,0 +1,11 @@
+{
+  "name": "threejs-webgl-cube",
+  "version": "1.0.0",
+  "description": "THREE.js WebGL Cube",
+  "main": "sketch.js",
+  "author": "Raphaël Améaume",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.179.1"
+  }
+}

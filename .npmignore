@@ -3,3 +3,7 @@
 /examples
 /docs
 screenshot.png
+.prettierrc
+.prettierignore
+.changeset
+CHANGELOG.md

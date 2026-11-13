@@ -11,7 +11,7 @@ export default function hotSketchReload({ cwd = process.cwd() } = {}) {
 	const shaderRegex = /\.(?:frag|vert|glsl|vs|fs)$/;
 	const base = cwd.split(path.sep).join(path.posix.sep);
 	return {
-		name: 'hot-sketch-reload',
+		name: 'fragment-plugin-hot-sketch-reload',
 		handleHotUpdate: async ({ server, modules, file }) => {
 			if (file.includes(base) && !shaderRegex.test(file)) {
 				const filepath = path.relative(cwd, file);

@@ -1,14 +1,12 @@
 # Organizing props
 
-As your props count grow with your project, it eventually becomes a really long list of controllers that might be hard to navigate.
-
-There's two ways in Fragment to organize props, [folders](#folders) and [groups](#groups).
+As the number of `props` increases across a project, the list of controllers can become long and difficult to navigate. Fragment provides two mechanisms for structuring this list: [folders](#folders) and [groups](#groups).
 
 ## Folders
 
-Props can be organized in folders and subfolders, like many other GUIs library.
+Props can be sorted into folders and subfolders, similar to organizational systems used in many GUI libraries.
 
-To put a prop in a folder, you can just do this:
+To place a prop inside a folder:
 
 ```js
 export let props = {
@@ -23,7 +21,7 @@ export let props = {
 };
 ```
 
-If multiple props share the same folder name, they will be put in the same folder based on the order of props.
+When multiple props share the same folder name, they are added to the same folder based on declaration order.
 
 ```js
 export let props = {
@@ -46,7 +44,7 @@ export let props = {
 };
 ```
 
-You can create subfolder by joining folder names with a `.` such as:
+Subfolders can be created by concatenating folder names with a `.`:
 
 ```js
 export let props = {
@@ -61,7 +59,7 @@ export let props = {
 };
 ```
 
-By default, a folder is not collapsed. During development, Fragment will preserve the state of the folder (collapsed or not) between hot reloads. It is possible to specify the state of the folder by using attributes in the folder string.
+Folders are not collapsed by default. During development, Fragment preserves their open or collapsed state across hot reloads. The desired initial state can also be specified directly within the folder string:
 
 ```js
 export let props = {
@@ -91,9 +89,9 @@ export let props = {
 };
 ```
 
-By default, Fragment will create 3 filters if 1 group is specified:
-- "all" (self-explanatory)
-- "output" (canvas dimensions)
-- "materials" (custom group)
+When a single group is defined, Fragment generates three filters by default:
+- "all" (shows all props)
+- "output" (related to canvas size and dimensions)
+- "materials" (the custom group)
 
-Fragment will preserve the choice of the group between hot reloads and hard refreshes.
+Fragment preserves the selected group of each Params module across hot reloads and full page refreshes.

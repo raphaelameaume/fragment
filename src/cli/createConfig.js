@@ -1,41 +1,60 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite';
+import url from 'node:url';
+import { createRequire } from 'node:module';
+import { mergeConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 import checkDependencies from './plugins/check-dependencies.js';
-import { file } from './utils.js';
+import { __dirname, file } from './utils.js';
 import { log } from './log.js';
 import sketches from './plugins/sketches.js';
 
+/**
+ *
+ * @param {{ cwd: string, filepath: string | undefined }} params
+ * @returns {Promise<import('../types/config.js').Config>}
+ */
 export async function loadConfig({ cwd, filepath }) {
 	try {
-		let filename = `fragment.config.js`;
-		let configFile = filepath ? filepath : filename;
 		let configRoot = cwd;
-		let resolvedPath = path.resolve(cwd, configFile);
+		let filenames = [`fragment.config.js`, `fragment.config.ts`];
 
-		if (!fs.existsSync(resolvedPath)) {
-			if (filepath) {
-				log.error(`Config file not found: ${resolvedPath}`);
-			}
+		if (filepath) {
+			filenames = [filepath, ...filenames];
+		}
+
+		let filepaths = filenames.map((filename) => {
+			return path.resolve(configRoot, filename);
+		});
+
+		let resolvedIndex = filepaths.findIndex((filepath) =>
+			fs.existsSync(filepath),
+		);
+		/** @type {string|undefined} */
+		let resolvedPath = filepaths[resolvedIndex];
+
+		if (filepath && resolvedIndex !== 0) {
+			log.error(`Config file not found: ${filepath}`);
+		}
+
+		if (!resolvedPath) {
 			return {};
 		}
 
-		log.info(`Extending configuration from ${resolvedPath}`);
+		let configFile = path.relative(cwd, resolvedPath);
 
-		const { config } = await loadConfigFromFile(
-			{
-				command: 'build',
-				mode: 'dev',
-			},
-			configFile,
-			configRoot,
-		);
+		log.info(`Extending configuration from ${configFile}`);
+
+		const config = (
+			await import(
+				`${url.pathToFileURL(configFile).href}?ts=${Date.now()}`
+			)
+		).default;
 
 		return config;
 	} catch (error) {
-		log.error(error);
+		log.error(error instanceof Error ? error.message : String(error));
 		return {};
 	}
 }
@@ -43,16 +62,15 @@ export async function loadConfig({ cwd, filepath }) {
 /**
  * Create Vite config from entries
  * @param {string[]} entries
- * @param {string} fragmentFilepath
- * @param {options} options
+ * @param {object} [options]
  * @param {boolean} [options.dev=false]
  * @param {boolean} [options.build=false]
+ * @param {string} [configFilepath]
  * @param {string} [cwd=process.cwd()]
- * @returns {import('vite').UserConfig}
+ * @returns {Promise<import('vite').UserConfig>}
  */
 export async function createConfig(
 	entries,
-	fragmentFilepath,
 	{ dev = false, build = false } = {},
 	configFilepath,
 	cwd = process.cwd(),
@@ -65,69 +83,69 @@ export async function createConfig(
 	log.info(`Creating Vite configuration...`);
 
 	const config = await loadConfig({
-		filepath: configFilepath,
 		cwd,
+		filepath: configFilepath,
 	});
 
-	return mergeConfig(
-		defineConfig({
-			configFile: false,
-			root,
-			logLevel: dev ? 'info' : 'silent',
-			publicDir,
-			resolve: {
-				alias: [
-					{
-						find: '@fragment/sketches',
-						replacement: fragmentFilepath,
-					},
-					{ find: '@fragment', replacement: app },
-					{
-						find: 'three',
-						replacement: path.join(cwd, 'node_modules/three'),
-					},
-					{
-						find: 'p5',
-						replacement: path.join(cwd, 'node_modules/p5'),
-					},
-					{
-						find: 'ogl',
-						replacement: path.join(cwd, 'node_modules/ogl'),
-					},
-				],
+	const requireFromCwd = createRequire(path.join(cwd, 'package.json'));
+
+	/** @param {string} id */
+	const resolveEntry = (id) => {
+		try {
+			return requireFromCwd.resolve(id);
+		} catch {
+			return undefined;
+		}
+	};
+
+	const p5Path = resolveEntry('p5');
+
+	/** @type {import('vite').InlineConfig} */
+	const defaults = {
+		configFile: false,
+		root,
+		logLevel: dev ? 'info' : 'silent',
+		publicDir,
+		resolve: {
+			alias: {
+				'@fragment/types': path.join(__dirname, 'src/types'),
+				'@fragment': path.join(__dirname, 'src/client/app'),
+				three: path.join(cwd, 'node_modules/three'),
+				ogl: path.join(cwd, 'node_modules/ogl'),
+				p5: p5Path ?? path.join(cwd, 'node_modules/p5'),
 			},
-			plugins: [
-				svelte({
-					configFile: false,
-					onwarn: (warning, handler) => {
-						if (dev) {
-							handler(warning);
-						} else {
-							return;
-						}
-					},
-				}),
-				checkDependencies({
-					cwd,
-					app,
-					entriesPaths,
-					build,
-				}),
-				sketches({ cwd, entries }),
-			],
-			define: {
-				__CWD__: `${JSON.stringify(cwd)}`,
-				__FRAGMENT_PORT__: undefined,
-				__START_TIME__: Date.now(),
-				__SEED__: Date.now(),
-				__BUILD__: build,
-				__DEV__: !build,
-			},
-			optimizeDeps: {
-				include: ['convert-length', 'webm-writer', 'changedpi'],
-				exclude: ['@fragment/sketches', ...entriesPaths],
-			},
-		}),
-		config.vite ?? {},
-	);
+		},
+		plugins: [
+			svelte({
+				configFile: false,
+				onwarn: (warning, handler) => {
+					if (dev) {
+						handler(warning);
+					} else {
+						return;
+					}
+				},
+			}),
+			checkDependencies({
+				cwd,
+				app,
+				entriesPaths,
+				build,
+			}),
+			sketches({ cwd, entries }),
+		],
+		define: {
+			__CWD__: `${JSON.stringify(cwd)}`,
+			__FRAGMENT_PORT__: undefined,
+			__START_TIME__: Date.now(),
+			__SEED__: Date.now(),
+			__BUILD__: build,
+			__DEV__: !build,
+		},
+		optimizeDeps: {
+			include: ['convert-length', 'changedpi', 'gifenc', 'mediabunny'],
+		},
+	};
+
+	return mergeConfig(defaults, config.vite ?? {});
 }

@@ -1,3 +1,4 @@
+import { styleText } from 'node:util';
 import { ConfirmPrompt, SelectPrompt, TextPrompt } from '@clack/core';
 import isUnicodeSupported from 'is-unicode-supported';
 import * as color from 'kleur/colors';
@@ -23,10 +24,11 @@ const S_BAR = s('│', '|');
 
 /**
  * @param {object} opts
- * @param {string} opts.active
- * @param {string} opts.inactive
- * @param {boolean} opts.initialValue
- * @returns {Promise<boolean|symbol>}
+ * @param {string} opts.message
+ * @param {string} [opts.active]
+ * @param {string} [opts.inactive]
+ * @param {boolean} [opts.initialValue]
+ * @returns {Promise<boolean | unique symbol | undefined>}
  */
 export const confirm = (opts) => {
 	const active = opts.active ?? 'Yes';
@@ -67,9 +69,9 @@ export const confirm = (opts) => {
  * @param {string} [opts.placeholder]
  * @param {string} [opts.defaultValue]
  * @param {string} [opts.initialValue]
- * @param {string} [opts.initialValue]
- * @param {function} [opts.validate]
- * @returns {Promise<string|symbol>}
+ * @param {string} [opts.hint]
+ * @param {(value: string | undefined) => string | Error | undefined} [opts.validate]
+ * @returns {Promise<string | symbol | undefined>}
  */
 export const text = (opts) => {
 	const { hint = '' } = opts;
@@ -82,29 +84,53 @@ export const text = (opts) => {
 		render() {
 			const title = `${opts.message}\n`;
 			const placeholder = opts.placeholder
-				? color.inverse(opts.placeholder[0]) +
-					color.dim(opts.placeholder.slice(1))
-				: color.inverse(color.hidden('_'));
-			const value = !this.value
-				? `${placeholder} ${color.dim(hint)}`.trim()
-				: this.valueWithCursor;
+				? styleText('inverse', opts.placeholder[0]) +
+					styleText('dim', opts.placeholder.slice(1))
+				: styleText(['inverse', 'hidden'], '_');
+			const userInput = !this.userInput
+				? `${placeholder} ${styleText('dim', hint)}`.trim()
+				: this.userInputWithCursor;
+			const value = this.value ?? '';
 
 			switch (this.state) {
-				case 'error':
-					return `${title.trim()}\n${value}\n  ${color.yellow(this.error)}\n`;
-				case 'submit':
-					return `${color.dim(`${title}`)} ${color.green(this.value || opts.placeholder)}\n`;
-				case 'cancel':
-					return `${title} ${color.strikethrough(
-						color.dim(this.value ?? placeholder),
-					)}\n`;
-				default:
-					return `${title} ${value}\n`;
+				case 'error': {
+					const errorText = this.error
+						? `  ${styleText('yellow', this.error)}`
+						: '';
+					return `${title.trim()}\n${userInput}\n${errorText}\n`;
+				}
+				case 'submit': {
+					const valueText = value
+						? `${styleText('green', value)}`
+						: '';
+					return `${styleText('dim', `${title}`)} ${valueText}\n`;
+				}
+				case 'cancel': {
+					const valueText = value
+						? ` ${styleText(['strikethrough', 'dim'], value)}`
+						: '';
+					return `${title}${valueText}${value.trim() ? `\n` : ''}`;
+				}
+				default: {
+					return `${title}${userInput}\n\n`;
+				}
 			}
 		},
 	}).prompt();
 };
 
+/**
+ * @template T
+ * @param {object} params
+ * @param {number} params.cursor
+ * @param {T[]} params.options
+ * @param {(option: T, active: boolean) => string} params.style
+ * @param {number} [params.maxItems]
+ * @param {import('node:stream').Writable} [params.output]
+ * @param {number} [params.columnPadding]
+ * @param {number} [params.rowPadding]
+ * @returns {string[]}
+ */
 const limitOptions = (params) => {
 	const { cursor, options, style } = params;
 
@@ -141,68 +167,110 @@ const limitOptions = (params) => {
 };
 
 /**
+ *
+ * @param {string} label
+ * @param {(text: string) => string} format
+ * @returns {string}
+ */
+const computeLabel = (label, format) => {
+	if (!label.includes('\n')) {
+		return format(label);
+	}
+	return label
+		.split('\n')
+		.map((line) => format(line))
+		.join('\n');
+};
+
+/**
  * @typedef {string|boolean|number} Value
  */
 
 /**
  * @typedef {Object} Option
- * @property {string} value
+ * @property {Value} value
  * @property {string} [label]
  * @property {string} [hint]
+ * @property {boolean} [disabled]
  */
 
 /**
  * @param {object} opts
  * @param {string} opts.message
- * @param {Option<Value>[]} opts.options
+ * @param {Option[]} opts.options
  * @param {Value} [opts.initialValue]
  * @param {number} [opts.maxItems]
- * @returns {Promise<boolean|symbol>}
+ * @param {AbortSignal} [opts.signal]
+ * @param {import('node:stream').Readable} [opts.input]
+ * @param {import('node:stream').Writable} [opts.output]
+ * @returns {Promise<Value | symbol | undefined>}
  */
 export const select = (opts) => {
 	/**
 	 *
-	 * @param {Option<Value>} option
-	 * @param {'inactive' | 'active' | 'selected' | 'cancelled'} state
+	 * @param {Option} option
+	 * @param {'inactive' | 'active' | 'selected' | 'cancelled' | 'disabled'} state
 	 * @returns {string}
 	 */
 	const opt = (option, state) => {
 		const label = option.label ?? String(option.value);
 		switch (state) {
+			case 'disabled':
+				return `${styleText('gray', S_RADIO_INACTIVE)} ${computeLabel(label, (text) => styleText('gray', text))}${
+					option.hint
+						? ` ${styleText('dim', `(${option.hint ?? 'disabled'})`)}`
+						: ''
+				}`;
 			case 'selected':
-				return `${label}`;
+				return `${computeLabel(label, (text) => text)}`;
 			case 'active':
-				return `${color.green(S_RADIO_ACTIVE)} ${label} ${
-					option.hint ? color.dim(`(${option.hint})`) : ''
+				return `${styleText('green', S_RADIO_ACTIVE)} ${label}${
+					option.hint
+						? ` ${styleText('dim', `(${option.hint})`)}`
+						: ''
 				}`;
 			case 'cancelled':
-				return `${color.strikethrough(color.dim(label))}`;
+				return `${computeLabel(label, (str) => styleText(['strikethrough', 'dim'], str))}`;
 			default:
-				return `${color.dim(S_RADIO_INACTIVE)} ${color.dim(label)}`;
+				return `${styleText('dim', S_RADIO_INACTIVE)} ${computeLabel(label, (text) => styleText('dim', text))}`;
 		}
 	};
 
 	return new SelectPrompt({
 		options: opts.options,
+		signal: opts.signal,
+		input: opts.input,
+		output: opts.output,
 		initialValue: opts.initialValue,
 		render() {
 			const title = `${opts.message}\n`;
 
 			switch (this.state) {
-				case 'submit':
-					return `${color.dim(title)} ${color.green(opt(this.options[this.cursor], 'selected'))}\n`;
-				case 'cancel':
-					return `${title} ${opt(
-						this.options[this.cursor],
-						'cancelled',
-					)}\n`;
+				case 'submit': {
+					return `${styleText('dim', title)} ${styleText('green', opt(this.options[this.cursor], 'selected'))}\n`;
+				}
+				case 'cancel': {
+					return `${title}${opt(this.options[this.cursor], 'cancelled')}`;
+				}
 				default: {
-					return `${title} ${limitOptions({
+					const titleLineCount = title.split('\n').length;
+					const footerLineCount = 1;
+					return `${title}${limitOptions({
+						output: opts.output,
 						cursor: this.cursor,
 						options: this.options,
 						maxItems: opts.maxItems,
+						columnPadding: 0,
+						rowPadding: titleLineCount + footerLineCount,
 						style: (item, active) =>
-							opt(item, active ? 'active' : 'inactive'),
+							opt(
+								item,
+								item.disabled
+									? 'disabled'
+									: active
+										? 'active'
+										: 'inactive',
+							),
 					}).join(`\n`)}\n`;
 				}
 			}

@@ -1,27 +1,62 @@
 import p5 from 'p5';
 
+/**
+ * @typedef {object} MountParamsP5Renderer
+ * @property {HTMLCanvasElement} canvas
+ * @property {p5} p
+ */
+
+/**
+ * @typedef {import('../state/rendering.svelte').PreviewParamsRenderer & MountParamsP5Renderer} PreviewParamsP5Renderer
+ */
+
+/**
+ * @typedef {object} PreviewP5Renderer
+ * @property {number} id
+ * @property {p5} p
+ */
+
+/** @type {PreviewP5Renderer[]} */
 let previews = [];
 
-export let onMountPreview = ({ id, width, height }) => {
+/**
+ * @param {import('../state/rendering.svelte').PreviewParamsRenderer} params
+ * @returns {MountParamsP5Renderer}
+ */
+export let onMountPreview = ({
+	id,
+	container,
+	canvas,
+	width,
+	height,
+	pixelRatio,
+}) => {
 	const p = new p5((sketch) => {
 		sketch.setup = () => {
-			sketch.createCanvas(width, height);
+			const dpr = window.devicePixelRatio;
+			sketch.pixelDensity(pixelRatio);
+			sketch.createCanvas(
+				(width / dpr) * pixelRatio,
+				(height / dpr) * pixelRatio,
+				canvas,
+			);
 		};
-	});
+	}, container);
 
-	const preview = {
+	previews.push({
 		id,
 		p,
-	};
-
-	previews.push(preview);
+	});
 
 	return {
-		canvas: p.canvas,
+		canvas,
 		p,
 	};
 };
 
+/**
+ * @param {{ id: number }} params
+ */
 export let onBeforeUpdatePreview = ({ id }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -30,6 +65,9 @@ export let onBeforeUpdatePreview = ({ id }) => {
 	}
 };
 
+/**
+ * @param {PreviewParamsP5Renderer} params
+ */
 export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	const preview = previews.find((p) => p.id === id);
 
@@ -39,6 +77,9 @@ export let onResizePreview = ({ id, width, height, pixelRatio }) => {
 	}
 };
 
+/**
+ * @param {{ id: number }} params
+ */
 export let onDestroyPreview = ({ id }) => {
 	const previewIndex = previews.findIndex((p) => p.id === id);
 	const preview = previews[previewIndex];

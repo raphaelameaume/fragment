@@ -1,0 +1,14 @@
+{
+  "name": "p5js-grid",
+  "version": "1.0.0",
+  "main": "sketch.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raphaël Améaume",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "p5": "^2.0.4"
+  }
+}

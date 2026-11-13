@@ -8,7 +8,7 @@
 	.field-space {
 		position: relative;
 
-		border-bottom: 1px solid var(--color-spacing);
+		border-bottom: 1px solid var(--fragment-spacing-color);
 		overflow: hidden;
 	}
 
@@ -22,7 +22,7 @@
 		width: 100%;
 		height: 1px;
 
-		background-color: var(--color-spacing);
+		background-color: var(--fragment-spacing-color);
 	}
 
 	.field-space:before {
