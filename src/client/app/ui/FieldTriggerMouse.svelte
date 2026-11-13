@@ -33,5 +33,6 @@
 	}}
 	onchange={(value) => {
 		trigger.eventName = value;
+		trigger.enabled = true;
 	}}
 />

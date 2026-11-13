@@ -3,14 +3,16 @@ import Mouse from '../inputs/Mouse.js';
 /**
  * Callback fired when the keyboard event occurs.
  * @typedef {import('../triggers/Trigger.js').TriggerCallback} MouseTriggerCallback
+ * @typedef {import('../triggers/Trigger.js').Trigger} MouseTrigger
  */
 
 /**
  * Register a callback to run on canvas mousedown
  * @param {MouseTriggerCallback} fn
+ * @returns {MouseTrigger}
  */
 export const onMouseDown = (fn) => {
-	Mouse.createTrigger(fn, {
+	return Mouse.createTrigger(fn, {
 		eventName: 'onMouseDown',
 	});
 };
@@ -18,9 +20,10 @@ export const onMouseDown = (fn) => {
 /**
  * Register a callback to run on canvas mouseup
  * @param {MouseTriggerCallback} fn
+ * @returns {MouseTrigger}
  */
 export const onMouseUp = (fn) => {
-	Mouse.createTrigger(fn, {
+	return Mouse.createTrigger(fn, {
 		eventName: 'onMouseUp',
 	});
 };
@@ -28,9 +31,10 @@ export const onMouseUp = (fn) => {
 /**
  * Register a callback to run on canvas mousemove
  * @param {MouseTriggerCallback} fn
+ * @returns {MouseTrigger}
  */
 export const onMouseMove = (fn) => {
-	Mouse.createTrigger(fn, {
+	return Mouse.createTrigger(fn, {
 		eventName: 'onMouseMove',
 	});
 };
@@ -38,9 +42,10 @@ export const onMouseMove = (fn) => {
 /**
  * Register a callback to run on canvas click
  * @param {MouseTriggerCallback} fn
+ * @returns {MouseTrigger}
  */
 export const onClick = (fn) => {
-	Mouse.createTrigger(fn, {
+	return Mouse.createTrigger(fn, {
 		eventName: 'onClick',
 	});
 };

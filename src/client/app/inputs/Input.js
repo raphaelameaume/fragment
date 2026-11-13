@@ -15,13 +15,18 @@ export class Input {
 
 	/**
 	 *
-	 * @param {import('../triggers/Trigger.js').TriggerCallback} fn
-	 * @param {*} param1
-	 * @returns
+	 * @param {import('../triggers/Trigger.js').TriggerCallback | undefined} fn
+	 * @param {object} opts
+	 * @param {string} opts.eventName
+	 * @param {string} [opts.context]
+	 * @param {boolean} [opts.hot]
+	 * @param {boolean} [opts.enabled]
+	 * @param {{ key?: string[] }} [opts.params]
+	 * @returns {Trigger}
 	 */
 	createTrigger(
 		fn,
-		{ eventName, context = getContext(), hot, enabled, ...params },
+		{ eventName, context = getContext(), hot, enabled, params = {} },
 	) {
 		const trigger = new Trigger({
 			inputName: this.name,
@@ -94,7 +99,9 @@ export class Input {
 		});
 
 		triggers.forEach((trigger) => {
-			trigger.run(event);
+			if (trigger.enabled) {
+				trigger.run(event);
+			}
 		});
 	}
 

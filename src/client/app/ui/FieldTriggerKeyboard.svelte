@@ -40,6 +40,7 @@
 		key="key"
 		value={keys}
 		onchange={(event) => {
+			trigger.hot = false;
 			trigger.params.key = event.currentTarget.value
 				.trim()
 				.split(',')

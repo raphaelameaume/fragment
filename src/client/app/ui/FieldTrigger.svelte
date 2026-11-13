@@ -41,12 +41,23 @@
 	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
 	import FieldTriggersMIDI from './FieldTriggersMIDI.svelte';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('../triggers/Trigger.js').Trigger} trigger
+	 * @property {number} index
+	 * @property {boolean} [controllable]
+	 * @property {boolean} [triggerable]
+	 * @property {object} [params]
+	 * @property {(value: number) => void|undefined} onDelete
+	 */
+
+	/** @type {Props} */
 	let {
-		trigger,
+		trigger = $bindable(),
 		index = 0,
 		controllable = false,
 		triggerable = false,
-		onDelete = () => {},
+		onDelete,
 		params = $bindable({}),
 	} = $props();
 
@@ -77,7 +88,7 @@
 		})),
 	]);
 
-	let enabled = $state(false);
+	let enabled = $derived(trigger.enabled);
 	let inputName = $derived(trigger.inputName);
 	let eventName = $derived(trigger.eventName);
 
@@ -92,7 +103,7 @@
 			name += ` — ${eventName}`;
 		}
 
-		if (trigger.params.key) {
+		if (trigger.params?.key) {
 			name += ` — ${trigger.params.key?.join(',')}`;
 		}
 
@@ -106,22 +117,26 @@
 
 <div class="field-trigger {inputName ? inputName.toLowerCase() : ''}">
 	<FieldInputRow --grid-template-columns="var(--width-cols)">
-		<div class="delete">
-			<ButtonInput
-				label="delete"
-				showLabel={false}
-				onclick={handleClickDelete}
-				--text-color="var(--fragment-color-white)"
-				--background-color="var(--fragment-color-red)"
-				--box-shadow-color-active="var(--fragment-color-lightred)"
-			>
-				<IconCross />
-			</ButtonInput>
-		</div>
+		{#if !trigger.hot}
+			<div class="delete">
+				<ButtonInput
+					label="delete"
+					showLabel={false}
+					onclick={handleClickDelete}
+					--text-color="var(--fragment-color-white)"
+					--background-color="var(--fragment-color-red)"
+					--box-shadow-color-active="var(--fragment-color-lightred)"
+				>
+					<IconCross />
+				</ButtonInput>
+			</div>
+		{/if}
 		<FieldGroup
 			{name}
 			collapsed={trigger.collapsed}
-			onchange={(collapsed) => (trigger.collapsed = collapsed)}
+			onchange={(collapsed) => {
+				trigger.collapsed = collapsed;
+			}}
 		>
 			<Field
 				key="input"
@@ -149,6 +164,15 @@
 			{/if}
 			{#if inputName === 'MIDI'}
 				<FieldTriggersMIDI bind:trigger {controllable} />
+			{/if}
+			{#if inputName && eventName}
+				<Field
+					key="enabled"
+					value={enabled}
+					onchange={() => {
+						trigger.enabled = !trigger.enabled;
+					}}
+				/>
 			{/if}
 		</FieldGroup>
 	</FieldInputRow>

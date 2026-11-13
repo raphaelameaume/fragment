@@ -3,7 +3,7 @@ import MIDI from '../inputs/MIDI.js';
 /**
  * Callback fired when the keyboard event occurs.
  * @typedef {import('../triggers/Trigger.js').TriggerCallback} MIDITriggerCallback
- * @typedef {import('./Trigger.js').default} Trigger
+ * @typedef {import('./Trigger.js').Trigger} MIDITrigger
  */
 
 /**
@@ -22,7 +22,7 @@ import MIDI from '../inputs/MIDI.js';
 /**
  * @param {string} eventName
  * @param {...(string|MIDITriggerCallback|undefined)} args
- * @returns {Trigger|undefined}
+ * @returns {MIDITrigger}
  */
 function createTrigger(eventName, ...args) {
 	/** @type {string[]} */
@@ -30,15 +30,14 @@ function createTrigger(eventName, ...args) {
 	/** @type {MIDITriggerCallback|undefined} */
 	let fn;
 
-	if (typeof args[0] === 'string' && typeof args[1] === 'function') {
+	if (typeof args[0] === 'string') {
 		key.push(...args[0].split(',').map((k) => k.trim()));
-		fn = args[1];
+
+		if (typeof args[1] === 'function') {
+			fn = args[1];
+		}
 	} else if (typeof args[0] === 'function') {
 		fn = args[0];
-	}
-
-	if (!fn) {
-		return;
 	}
 
 	if (!MIDI.enabled) {
@@ -48,106 +47,108 @@ function createTrigger(eventName, ...args) {
 	return MIDI.createTrigger(fn, {
 		eventName,
 		enabled: true,
-		key,
+		params: {
+			key,
+		},
 	});
 }
 
 /**
  * @overload
  * @param {MIDITriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @param {string|MIDITriggerCallback} key
  * @param {MIDITriggerCallback} [fn]
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 export const onNoteOn = (key, fn) => {
-	createTrigger('onNoteOn', key, fn);
+	return createTrigger('onNoteOn', key, fn);
 };
 
 /**
  * @overload
  * @param {MIDITriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @param {string|MIDITriggerCallback} key
  * @param {MIDITriggerCallback} [fn]
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 export const onNoteOff = (key, fn) => {
-	createTrigger('onNoteOff', key, fn);
+	return createTrigger('onNoteOff', key, fn);
 };
 
 /**
  * @overload
  * @param {MIDITriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @param {string|MIDITriggerCallback} key
  * @param {MIDITriggerCallback} [fn]
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 export const onNumberOn = (key, fn) => {
-	createTrigger('onNumberOn', key, fn);
+	return createTrigger('onNumberOn', key, fn);
 };
 
 /**
  * @overload
  * @param {MIDITriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @param {string|MIDITriggerCallback} key
  * @param {MIDITriggerCallback} [fn]
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 export const onNumberOff = (key, fn) => {
-	createTrigger('onNumberOff', key, fn);
+	return createTrigger('onNumberOff', key, fn);
 };
 
 /**
  * @overload
  * @param {MIDITriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 /**
  * @param {string|MIDITriggerCallback} key
  * @param {MIDITriggerCallback} [fn]
- * @returns {void}
+ * @returns {MIDITrigger}
  */
 export const onControlChange = (key, fn) => {
-	createTrigger('onControlChange', key, fn);
+	return createTrigger('onControlChange', key, fn);
 };

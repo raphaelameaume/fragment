@@ -3,22 +3,38 @@
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {Trigger[]} triggers
+	 * @property {} [onTrigger]
+	 * @property {boolean} [triggerable]
+	 * @property {boolean} [controllable]
+	 */
+
+	/** @type {Props} */
 	let {
-		context,
 		triggers = $bindable(),
 		onTrigger,
 		triggerable = false,
 		controllable = false,
 	} = $props();
 
+	/**
+	 * @param {number} index
+	 */
 	function onTriggerDelete(index) {
-		if (index >= 0) {
+		if (triggers[index]) {
 			triggers.splice(index, 1);
 		}
 	}
 
 	function handleClickAdd() {
-		triggers.push(new Trigger());
+		triggers.push(
+			new Trigger({
+				hot: false,
+				enabled: false,
+			}),
+		);
 	}
 </script>
 
@@ -28,22 +44,12 @@
 			<ButtonInput label="add trigger" onclick={handleClickAdd} />
 		</header>
 		<div class="triggers-list">
-			{#each triggers as trigger, index}
+			{#each triggers as _, index}
 				<FieldTrigger
 					bind:trigger={triggers[index]}
 					{index}
-					{onTrigger}
-					{context}
 					{controllable}
 					{triggerable}
-					onchange={(index, trigger) => {
-						if (triggers[index]) {
-							console.log(triggers[index]);
-							// triggers[index].destroy();
-						}
-
-						triggers[index] = trigger;
-					}}
 					onDelete={onTriggerDelete}
 				/>
 			{/each}
@@ -81,9 +87,5 @@
 		display: flex;
 		padding: var(--column-gap);
 		border-bottom: 1px solid var(--fragment-spacing-color);
-	}
-
-	.field-triggers:not(:empty) {
-		/* margin-top: var(--column-gap); */
 	}
 </style>

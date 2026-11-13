@@ -486,7 +486,7 @@ export class Render {
 					const trigger = new Trigger({
 						...propTrigger,
 						fn: createOnTriggerCallback(prop, key),
-						enabled: true,
+						enabled: propTrigger.enabled,
 					});
 
 					triggers.push(trigger);
