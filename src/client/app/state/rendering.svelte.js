@@ -440,6 +440,7 @@ export class Render {
 			/**
 			 *
 			 * @param {import('./Sketch.svelte.js').SketchProp} prop
+			 * @param {string} key
 			 * @returns {((event?: { value: number }) => void) | undefined}
 			 */
 			const createOnTriggerCallback = (prop, key) => {
