@@ -24,6 +24,7 @@ let ID = 0;
  * @property {string|undefined} inputName
  * @property {string|undefined} eventName
  * @property {boolean} enabled
+ * @property {boolean} collapsed
  * @property {Record<string, any>|undefined} params
  * @property {string} context
  */
@@ -106,6 +107,7 @@ export class Trigger {
 			enabled: this.enabled,
 			params: this.params,
 			context: this.context,
+			collapsed: this.collapsed,
 		};
 	}
 }

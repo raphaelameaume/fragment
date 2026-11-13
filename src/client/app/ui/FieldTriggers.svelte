@@ -5,7 +5,7 @@
 
 	/**
 	 * @typedef {Object} Props
-	 * @property {Trigger[]} triggers
+	 * @property {(Trigger|import('../triggers/Trigger.js').TriggerJSON)[]} triggers
 	 * @property {} [onTrigger]
 	 * @property {boolean} [triggerable]
 	 * @property {boolean} [controllable]
@@ -13,7 +13,7 @@
 
 	/** @type {Props} */
 	let {
-		triggers = $bindable(),
+		triggers = $bindable([]),
 		onTrigger,
 		triggerable = false,
 		controllable = false,
@@ -30,10 +30,11 @@
 
 	function handleClickAdd() {
 		triggers.push(
+			// push TriggerJSON to have reactivity
 			new Trigger({
 				hot: false,
-				enabled: false,
-			}),
+				enabled: true,
+			}).toJSON(),
 		);
 	}
 </script>

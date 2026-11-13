@@ -43,7 +43,7 @@
 
 	/**
 	 * @typedef {Object} Props
-	 * @property {import('../triggers/Trigger.js').Trigger} trigger
+	 * @property {import('../triggers/Trigger.js').Trigger | import('../triggers/Trigger.js').TriggerJSON} trigger
 	 * @property {number} index
 	 * @property {boolean} [controllable]
 	 * @property {boolean} [triggerable]
