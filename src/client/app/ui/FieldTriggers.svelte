@@ -1,5 +1,5 @@
 <script>
-	import Trigger from '../triggers/Trigger';
+	import { Trigger } from '../triggers/Trigger';
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 

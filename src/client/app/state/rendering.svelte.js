@@ -7,7 +7,7 @@ import { persist, hydrate } from './utils.svelte';
 import presets from '../lib/presets';
 import { client } from '../client.js';
 import Mouse from '../inputs/Mouse.js';
-import Trigger from '../triggers/Trigger.js';
+import { Trigger } from '../triggers/Trigger.js';
 import { Inputs } from '../inputs/index.js';
 import {
 	defaultFilenamePattern,

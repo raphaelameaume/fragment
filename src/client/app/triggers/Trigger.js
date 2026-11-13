@@ -111,5 +111,3 @@ export class Trigger {
 		};
 	}
 }
-
-export default Trigger;

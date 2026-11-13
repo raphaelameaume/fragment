@@ -1,4 +1,4 @@
-import Trigger from '../triggers/Trigger';
+import { Trigger } from '../triggers/Trigger';
 import { Input } from './Input';
 
 /**

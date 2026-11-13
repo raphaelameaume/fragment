@@ -5,7 +5,7 @@
 	/**
 	 * @typedef {Object} Props
 	 * @property {string} key
-	 * @property {'press'|'down'|'up'} type
+	 * @property {'press'|'down'|'up'} [type]
 	 * @property {import('../triggers/Keyboard.js').KeyboardTriggerCallback} onTrigger
 	 */
 

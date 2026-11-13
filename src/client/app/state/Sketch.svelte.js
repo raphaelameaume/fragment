@@ -1,5 +1,3 @@
-import { Inputs } from '../inputs';
-import Trigger from '../triggers/Trigger';
 import { parseFolder } from '../utils/fields.utils';
 import { rendering } from './rendering.svelte';
 import {
@@ -242,8 +240,8 @@ class Sketch {
 							 * Two triggers are considered the same if they share the same input,
 							 * event, keys and callback.
 							 *
-							 * @param {import('../triggers/Trigger.js').default} a
-							 * @param {import('../triggers/Trigger.js').default} b
+							 * @param {import('../triggers/Trigger.js').Trigger} a
+							 * @param {import('../triggers/Trigger.js').Trigger} b
 							 * @returns {boolean}
 							 */
 							const isSameTrigger = (a, b) =>

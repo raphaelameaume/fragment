@@ -1,5 +1,5 @@
 import { getContext, wildcard } from '../triggers/shared';
-import Trigger from '../triggers/Trigger';
+import { Trigger } from '../triggers/Trigger';
 
 export class Input {
 	/**
