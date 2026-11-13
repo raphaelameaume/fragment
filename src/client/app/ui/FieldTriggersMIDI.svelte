@@ -85,7 +85,7 @@
 	/>
 {/if}
 
-{#if ['onNumberOn', 'onNumberOff'].includes(eventName)}
+{#if ['onNumberOn', 'onNumberOff', 'onControlChange'].includes(eventName)}
 	<Field
 		key="number"
 		value={keys}

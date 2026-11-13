@@ -264,6 +264,10 @@
 		}
 	}
 
+	.field:has(:global(.field-triggers)) .field__changed {
+		max-height: calc(var(--fragment-input-height) + 4px + 6px);
+	}
+
 	:global(.field__input .field) {
 		padding-left: 0px !important;
 		padding-right: 0px !important;
