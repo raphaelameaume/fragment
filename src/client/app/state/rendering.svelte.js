@@ -434,12 +434,13 @@ export class Render {
 		$effect(() => {
 			const { props } = this.sketch;
 
+			/** @type {Trigger[]} */
 			const triggers = [];
 
 			/**
 			 *
-			 * @param {object} prop
-			 * @returns {Function}
+			 * @param {import('./Sketch.svelte.js').SketchProp} prop
+			 * @returns {((event?: { value: number }) => void) | undefined}
 			 */
 			const createOnTriggerCallback = (prop, key) => {
 				if (typeof prop.value === 'function') {
@@ -451,6 +452,8 @@ export class Render {
 					const { params } = prop;
 
 					return (event) => {
+						if (!event) return;
+
 						const isValueInRange =
 							event.value >= 0 && event.value <= 1;
 						if (
