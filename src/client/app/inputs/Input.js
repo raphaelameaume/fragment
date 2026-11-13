@@ -15,7 +15,7 @@ export class Input {
 
 	/**
 	 *
-	 * @param {import('../triggers/Trigger.js').TriggerFn} fn
+	 * @param {import('../triggers/Trigger.js').TriggerCallback} fn
 	 * @param {*} param1
 	 * @returns
 	 */
