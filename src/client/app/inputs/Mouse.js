@@ -8,8 +8,7 @@ export class Mouse extends Input {
 	}
 
 	/**
-	 *
-	 * @param {string} event
+	 * @param {MouseEvent} event
 	 * @param {string} context
 	 */
 	onMouseDown(event, context) {
@@ -20,8 +19,7 @@ export class Mouse extends Input {
 	}
 
 	/**
-	 *
-	 * @param {string} event
+	 * @param {MouseEvent} event
 	 * @param {string} context
 	 */
 	onMouseUp(event, context) {
@@ -32,8 +30,7 @@ export class Mouse extends Input {
 	}
 
 	/**
-	 *
-	 * @param {string} event
+	 * @param {MouseEvent} event
 	 * @param {string} context
 	 */
 	onMouseMove(event, context) {
@@ -43,6 +40,10 @@ export class Mouse extends Input {
 		});
 	}
 
+	/**
+	 * @param {MouseEvent} event
+	 * @param {string} context
+	 */
 	onClick(event, context) {
 		this.runTriggers(event, {
 			context,

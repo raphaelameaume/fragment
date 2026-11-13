@@ -2,17 +2,35 @@ import { wildcard } from './shared';
 
 let ID = 0;
 
-class Trigger {
+/**
+ * A generic callback used by a trigger.
+ * @typedef {(...args: any[]) => void} TriggerFn
+ */
+
+/**
+ * @typedef {object} TriggerOptions
+ * @property {string} [inputType]
+ * @property {string} [eventName]
+ * @property {TriggerFn} [fn]
+ * @property {string} [context]
+ * @property {Record<string, any>} [params]
+ * @property {boolean} [enabled]
+ * @property {boolean} [collapsed]
+ * @property {boolean} [hot]
+ */
+
+/**
+ * @typedef {object} TriggerJSON
+ * @property {string|undefined} inputType
+ * @property {string|undefined} eventName
+ * @property {boolean} enabled
+ * @property {Record<string, any>|undefined} params
+ * @property {string} context
+ */
+
+export class Trigger {
 	/**
-	 *
-	 * @param {object} params
-	 * @param {string} params.inputType
-	 * @param {string} params.eventName
-	 * @param {Function|undefined} params.fn
-	 * @param {string} params.context
-	 * @param {Object|undefined} params.params
-	 * @param {boolean} params.enabled
-	 * @param {object} params
+	 * @param {TriggerOptions} [opts]
 	 */
 	constructor({
 		inputType,
@@ -24,16 +42,17 @@ class Trigger {
 		collapsed = false,
 		hot = true,
 	} = {}) {
+		/** @type {number} */
 		this.id = ID++;
-		/** @type {string} */
+		/** @type {string|undefined} */
 		this.inputType = inputType;
-		/** @type {string} */
+		/** @type {string|undefined} */
 		this.eventName = eventName;
 		/** @type {Function|undefined} */
 		this.fn = fn;
 		/** @type {string} */
 		this.context = context;
-		/** @type {object} */
+		/** @type {Record<string, any>|undefined} */
 		this.params = params;
 		/** @type {boolean} */
 		this.enabled = enabled;
@@ -43,6 +62,11 @@ class Trigger {
 		this.hot = hot;
 	}
 
+	/**
+	 * Assign the callback that runs when the trigger fires.
+	 * @param {TriggerFn|undefined} fn
+	 * @returns {void}
+	 */
 	assign(fn) {
 		this.fn = fn;
 	}
@@ -55,6 +79,11 @@ class Trigger {
 		this.enabled = false;
 	}
 
+	/**
+	 * Run the callback if the trigger is enabled.
+	 * @param {...any} args
+	 * @returns {void}
+	 */
 	run(...args) {
 		if (this.enabled) {
 			this.fn?.(...args);
@@ -67,6 +96,9 @@ class Trigger {
 		this.params = undefined;
 	}
 
+	/**
+	 * @returns {TriggerJSON}
+	 */
 	toJSON() {
 		return {
 			inputType: this.inputType,

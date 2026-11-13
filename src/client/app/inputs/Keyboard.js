@@ -10,7 +10,7 @@ export class Keyboard extends Input {
 			this.runTriggers(event, {
 				eventName: 'onKeyPress',
 				params: {
-					key: event.key,
+					key: [event.key],
 				},
 			});
 		});
@@ -18,7 +18,7 @@ export class Keyboard extends Input {
 			this.runTriggers(event, {
 				eventName: 'onKeyUp',
 				params: {
-					key: event.key,
+					key: [event.key],
 				},
 			});
 		});
@@ -26,7 +26,7 @@ export class Keyboard extends Input {
 			this.runTriggers(event, {
 				eventName: 'onKeyDown',
 				params: {
-					key: event.key,
+					key: [event.key],
 				},
 			});
 		});

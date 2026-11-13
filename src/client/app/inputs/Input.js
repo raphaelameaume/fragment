@@ -15,7 +15,7 @@ export class Input {
 
 	/**
 	 *
-	 * @param {Function} fn
+	 * @param {import('../triggers/Trigger.js').TriggerFn} fn
 	 * @param {*} param1
 	 * @returns
 	 */
@@ -24,7 +24,7 @@ export class Input {
 		{ eventName, context = getContext(), hot, enabled, ...params },
 	) {
 		const trigger = new Trigger({
-			inputType: this.type,
+			inputType: this.name,
 			eventName,
 			context,
 			hot,
@@ -39,13 +39,15 @@ export class Input {
 	}
 
 	/**
-	 *
 	 * @param {Trigger} trigger
 	 */
 	add(trigger) {
 		this.triggers.push(trigger);
 	}
 
+	/**
+	 * @param {Trigger} trigger
+	 */
 	remove(trigger) {
 		const index = this.triggers.findIndex((t) => t === trigger);
 
@@ -56,6 +58,15 @@ export class Input {
 		trigger.dispose();
 	}
 
+	/**
+	 * @template T
+	 * @param {T} event
+	 * @param {object} opts
+	 * @param {string} [opts.context]
+	 * @param {string} [opts.eventName]
+	 * @param {{ key?: string[]}} [opts.params]
+	 * @returns
+	 */
 	runTriggers(event, { context, eventName, params = {} }) {
 		if (!this.enabled) return;
 
@@ -66,8 +77,8 @@ export class Input {
 					? trigger.context === context ||
 						trigger.context === wildcard
 					: true) &&
-				(params.key && trigger.params.key?.length > 0
-					? trigger.params.key.includes(params.key)
+				(params.key && trigger.params?.key?.length > 0
+					? trigger.params?.key.includes(params.key)
 					: true),
 		);
 
