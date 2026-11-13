@@ -71,7 +71,7 @@ const noop = () => {};
  * @property {any} __initialValue
  * @property {any} __currentValue
  * @property {Record<string, any>} params
- * @property {any[]} triggers
+ * @property {import('../triggers/Trigger.js').Trigger[]} triggers
  * @property {string|undefined} group
  * @property {string|undefined} type
  * @property {string|undefined} folder
@@ -235,7 +235,33 @@ class Sketch {
 							instanceProp.value = prevProp.value;
 						}
 
-						newProp.triggers = prevProp.triggers;
+						if (prevProp.triggers.length > 0) {
+							/**
+							 * Two triggers are considered the same if they share the same input,
+							 * event, keys and callback.
+							 *
+							 * @param {import('../triggers/Trigger.js').Trigger} a
+							 * @param {import('../triggers/Trigger.js').Trigger} b
+							 * @returns {boolean}
+							 */
+							const isSameTrigger = (a, b) =>
+								a.inputName === b.inputName &&
+								a.eventName === b.eventName &&
+								deepEqual(a.params, b.params) &&
+								a.fn === b.fn;
+
+							prevProp.triggers.forEach((prevTrigger) => {
+								if (prevTrigger.hot) return;
+
+								if (
+									!newProp.triggers.some((trigger) =>
+										isSameTrigger(trigger, prevTrigger),
+									)
+								) {
+									newProp.triggers.push(prevTrigger);
+								}
+							});
+						}
 
 						if (prevProp.params) {
 							// reconcile locked VectorInput from UI
@@ -724,7 +750,7 @@ class Sketch {
 		 * @typedef SketchPropJSON
 		 * @property {any} value
 		 * @property {Record<string, any>} params
-		 * @property {any[]} triggers
+		 * @property {import('../triggers/Trigger.js').Trigger[]} triggers
 		 * @property {any} __initialValue
 		 * @property {any} __currentValue
 		 */

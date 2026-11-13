@@ -2,7 +2,34 @@ import { Input } from './Input';
 
 export class Keyboard extends Input {
 	constructor() {
-		super({ name: 'Keyboard' });
+		super({
+			name: 'Keyboard',
+		});
+
+		window.addEventListener('keypress', (event) => {
+			this.runTriggers(event, {
+				eventName: 'onKeyPress',
+				params: {
+					key: [event.key],
+				},
+			});
+		});
+		window.addEventListener('keyup', (event) => {
+			this.runTriggers(event, {
+				eventName: 'onKeyUp',
+				params: {
+					key: [event.key],
+				},
+			});
+		});
+		window.addEventListener('keydown', (event) => {
+			this.runTriggers(event, {
+				eventName: 'onKeyDown',
+				params: {
+					key: [event.key],
+				},
+			});
+		});
 	}
 
 	/**

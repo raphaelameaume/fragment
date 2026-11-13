@@ -9,6 +9,7 @@
 	import ListInput from './fields/ListInput.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import ImageInput from './fields/ImageInput.svelte';
+	import ImportInput from './fields/ImportInput.svelte';
 	import IntervalInput from './fields/IntervalInput.svelte';
 	import PaletteInput from './fields/PaletteInput.svelte';
 	import GradientInput from './fields/GradientInput.svelte';
@@ -39,17 +40,50 @@
 </script>
 
 <script>
+	/**
+	 * @template T
+	 */
+
 	import FieldSection from './FieldSection.svelte';
 	import FieldTriggers from './FieldTriggers.svelte';
 	import { download } from '../utils/file.utils.js';
 	import { map } from '../utils/math.utils';
 	import frameDebounce from '../lib/helpers/frameDebounce.js';
 	import { inferFieldType } from '../utils/fields.utils.js';
-	import IconTriggers from '../components/IconTriggers.svelte';
 	import IconLocked from '../components/IconLocked.svelte';
-	import ImportInput from './fields/ImportInput.svelte';
+	import IconTriggers from '../components/IconTriggers.svelte';
 	import { deepEqual } from '../state/utils.svelte';
 
+	/**
+	 * @typedef {Object} FieldParams
+	 * @property {boolean} [triggerable]
+	 * @property {boolean} [controllable]
+	 * @property {number} [min]
+	 * @property {number} [max]
+	 * @property {number} [step]
+	 * @property {boolean} [locked]
+	 * @property {Record<string, {value: unknown, label?: string} | unknown>} [options]
+	 */
+
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} key
+	 * @property {T} value
+	 * @property {T} [initialValue]
+	 * @property {string|null} [context]
+	 * @property {FieldParams} [params]
+	 * @property {string|null} [type]
+	 * @property {boolean} [disabled]
+	 * @property {string|undefined} [displayName]
+	 * @property {number|null} [index]
+	 * @property {(value: T) => void} [onchange]
+	 * @property {(event: MouseEvent) => void} [onclick]
+	 * @property {boolean} [trackChanges]
+	 * @property {import('svelte').Snippet} [children]
+	 * @property {import('../triggers/Trigger.js').Trigger[]} [triggers]
+	 */
+
+	/** @type {Props} */
 	let {
 		key,
 		value,
@@ -60,28 +94,31 @@
 		disabled = false,
 		displayName = undefined,
 		index = null,
-		onchange,
-		onclick = () => {},
-		children,
+		onchange = undefined,
+		onclick = undefined,
+		children = undefined,
 		trackChanges = false,
 		triggers = $bindable([]),
 	} = $props();
 
-	let showTriggers = $state(false);
+	let showTriggers = $state(true);
 
+	/** @type {Record<string, ((event?: any) => void) | undefined>} */
 	const onTriggers = {
 		checkbox: () => {
-			value = !value;
+			value = /** @type {T} */ (/** @type {unknown} */ (!value));
 
-			onchange(value);
+			onchange?.(value);
 		},
 		/**
 		 *
 		 * @param {MouseEvent} event
 		 */
 		button: (event) => {
-			value(event);
-			onclick(event);
+			/** @type {(event: MouseEvent) => void} */ (
+				/** @type {unknown} */ (value)
+			)(event);
+			onclick?.(event);
 		},
 		/**
 		 *
@@ -89,38 +126,60 @@
 		 */
 		download: async (event) => {
 			try {
-				let [data, filename] = await value(event);
+				const fn =
+					/** @type {(event: MouseEvent) => Promise<[any, string]>} */ (
+						/** @type {unknown} */ (value)
+					);
+				const [data, filename] = await fn(event);
 
 				download(data, filename);
 			} catch (error) {
 				console.error(`Error while trying to download:`, error);
 			}
 		},
+		/**
+		 * @param {{ value?: number }} [event]
+		 */
 		number: (event = {}) => {
-			const isValueInRange = event.value >= 0 && event.value <= 1;
+			const { min, max } = params;
+			const eventValue = event.value;
+			const isValueInRange =
+				eventValue !== undefined && eventValue >= 0 && eventValue <= 1;
 
 			if (
 				isValueInRange &&
-				isFinite(params.min) &&
-				isFinite(params.max)
+				min !== undefined &&
+				isFinite(min) &&
+				max !== undefined &&
+				isFinite(max)
 			) {
-				let v = map(event.value, 0, 1, params.min, params.max);
+				let v = map(eventValue, 0, 1, min, max);
 				let step = params.step ? params.step : 1;
-				let value = Math.round(v * (1 / step)) / (1 / step);
+				const newValue = Math.round(v * (1 / step)) / (1 / step);
 
-				onchange(value);
+				onchange?.(
+					/** @type {T} */ (/** @type {unknown} */ (newValue)),
+				);
 			}
 		},
 	};
 
 	let fieldType = $derived(inferFieldType({ type, value, params, key }));
 	let fieldProps = $derived(composeFieldProps(params, disabled));
-	let onTrigger = $derived(frameDebounce(onTriggers[fieldType]));
-	let Component = $derived(fields[fieldType]);
+	let onTrigger = $derived(
+		frameDebounce(onTriggers[fieldType] ?? (() => {})),
+	);
+	let Component = $derived(
+		/** @type {import('svelte').Component<any> | null} */ (
+			fields[fieldType]
+		),
+	);
 	let triggerable = $derived(
 		params.triggerable !== false &&
 			((fieldType === fieldTypes.NUMBER &&
+				params.min !== undefined &&
 				isFinite(params.min) &&
+				params.max !== undefined &&
 				isFinite(params.max)) ||
 				fieldType === fieldTypes.BUTTON),
 	);
@@ -137,6 +196,10 @@
 		showTriggers = !showTriggers;
 	}
 
+	/**
+	 * @param {FieldParams} params
+	 * @param {boolean} disabled
+	 */
 	function composeFieldProps(params, disabled) {
 		const { triggerable, controllable, ...rest } = params;
 
@@ -149,7 +212,7 @@
 	}
 
 	function restoreInitialValue() {
-		onchange($state.snapshot(initialValue));
+		onchange?.(/** @type {T} */ ($state.snapshot(initialValue)));
 	}
 </script>
 
@@ -182,12 +245,14 @@
 						class="field__action field__action--lock"
 						onclick={() => (params.locked = !params.locked)}
 					>
-						<IconLocked locked={params.locked} />
+						<IconLocked locked={params.locked ?? false} />
 					</button>
 				{/if}
 			</div>
 		{/snippet}
-		<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
+		{#if Component}
+			<Component {value} {...fieldProps} {onchange} onclick={onTrigger} />
+		{/if}
 		{@render children?.()}
 	</FieldSection>
 	{#if changed}
@@ -199,16 +264,13 @@
 			<span class="visually-hidden">Restore initial value</span>
 		</button>
 	{/if}
-	{#if triggerable}
-		<FieldSection {key} visible={showTriggers} secondary>
-			<FieldTriggers
-				bind:triggers
-				{onTrigger}
-				{context}
-				triggerable={fieldType === fieldTypes.BUTTON}
-				controllable={fieldType === fieldTypes.NUMBER}
-			/>
-		</FieldSection>
+	{#if triggerable && showTriggers}
+		<FieldTriggers
+			bind:triggers
+			{onTrigger}
+			triggerable={fieldType === fieldTypes.BUTTON}
+			controllable={fieldType === fieldTypes.NUMBER}
+		/>
 	{/if}
 </div>
 
@@ -266,6 +328,10 @@
 		}
 	}
 
+	.field:has(:global(.field-triggers)) .field__changed {
+		max-height: calc(var(--fragment-input-height) + 4px + 6px);
+	}
+
 	:global(.field__input .field) {
 		padding-left: 0px !important;
 		padding-right: 0px !important;
@@ -318,7 +384,7 @@
 		transition: opacity 0.1s ease;
 	}
 
-	.field__action--triggers svg {
+	.field__action--triggers :global(svg) {
 		transform: rotate(90deg);
 	}
 

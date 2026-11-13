@@ -1,35 +1,73 @@
+import { wildcard } from './shared';
+
 let ID = 0;
 
-class Trigger {
+/**
+ * A generic callback used by a trigger.
+ * @typedef {(...args: any[]) => void} TriggerCallback
+ */
+
+/**
+ * @typedef {object} TriggerOptions
+ * @property {string} [inputName]
+ * @property {string} [eventName]
+ * @property {TriggerCallback} [fn]
+ * @property {string} [context]
+ * @property {Record<string, any>} [params]
+ * @property {boolean} [enabled]
+ * @property {boolean} [collapsed]
+ * @property {boolean} [hot]
+ */
+
+/**
+ * @typedef {object} TriggerJSON
+ * @property {string|undefined} inputName
+ * @property {string|undefined} eventName
+ * @property {boolean} enabled
+ * @property {boolean} collapsed
+ * @property {Record<string, any>|undefined} params
+ * @property {string} context
+ */
+
+export class Trigger {
 	/**
-	 *
-	 * @param {string} inputType
-	 * @param {string} eventName
-	 * @param {function} fn
-	 * @param {object} params
+	 * @param {TriggerOptions} [opts]
 	 */
 	constructor({
-		inputType,
+		inputName,
 		eventName,
 		fn,
-		context,
-		params = { key: [] },
-		destroy = () => {},
-		enabled = typeof inputType === 'string' &&
-			typeof eventName === 'string',
+		context = wildcard,
+		params = {},
+		enabled = true,
+		collapsed = false,
 		hot = true,
 	} = {}) {
+		/** @type {number} */
 		this.id = ID++;
-		this.inputType = inputType;
+		/** @type {string|undefined} */
+		this.inputName = inputName;
+		/** @type {string|undefined} */
 		this.eventName = eventName;
+		/** @type {Function|undefined} */
 		this.fn = fn;
+		/** @type {string} */
 		this.context = context;
+		/** @type {Record<string, any>|undefined} */
 		this.params = params;
+		/** @type {boolean} */
 		this.enabled = enabled;
+		/** @type {boolean} */
+		this.collapsed = collapsed;
+		/** @type {boolean} */
 		this.hot = hot;
-		this._destroy = destroy;
 	}
 
+	/**
+	 * Assign the callback that runs when the trigger fires.
+	 * @param {TriggerCallback|undefined} fn
+	 * @returns {void}
+	 */
 	assign(fn) {
 		this.fn = fn;
 	}
@@ -42,31 +80,34 @@ class Trigger {
 		this.enabled = false;
 	}
 
+	/**
+	 * Run the callback if the trigger is enabled.
+	 * @param {...any} args
+	 * @returns {void}
+	 */
 	run(...args) {
 		if (this.enabled) {
-			this.fn(...args);
+			this.fn?.(...args);
 		}
 	}
 
-	destroy() {
-		this._destroy();
-
-		this.inputType = null;
-		this.eventName = null;
-		this.fn = null;
-		this.params = null;
-		this.enabled = null;
-		this._destroy = null;
+	dispose() {
+		// remove reference
+		this.fn = undefined;
+		this.params = undefined;
 	}
 
+	/**
+	 * @returns {TriggerJSON}
+	 */
 	toJSON() {
 		return {
-			inputType: this.inputType,
+			inputName: this.inputName,
 			eventName: this.eventName,
 			enabled: this.enabled,
 			params: this.params,
+			context: this.context,
+			collapsed: this.collapsed,
 		};
 	}
 }
-
-export default Trigger;

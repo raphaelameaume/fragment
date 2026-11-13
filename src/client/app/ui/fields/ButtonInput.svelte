@@ -4,10 +4,10 @@
 		disabled = false,
 		showLabel = true,
 		title = '',
-		onclick,
-		onmouseenter,
-		onmouseleave,
-		children,
+		onclick = undefined,
+		onmouseenter = undefined,
+		onmouseleave = undefined,
+		children = undefined,
 	} = $props();
 </script>
 
