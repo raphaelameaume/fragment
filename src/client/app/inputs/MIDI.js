@@ -1,5 +1,5 @@
 import Trigger from '../triggers/Trigger';
-import Input from './Input';
+import { Input } from './Input';
 
 const commands = {
 	0x8: 'noteoff',
@@ -14,7 +14,7 @@ const LOCAL_STORAGE_KEY = 'fragment.midi.requested';
 class MIDI extends Input {
 	constructor() {
 		super({
-			type: 'MIDI',
+			name: 'MIDI',
 		});
 
 		this.access = null;
