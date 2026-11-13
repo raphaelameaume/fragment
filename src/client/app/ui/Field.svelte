@@ -62,7 +62,7 @@
 		index = null,
 		onchange,
 		onclick = () => {},
-		children,
+		children = undefined,
 		trackChanges = false,
 		triggers = $bindable([]),
 	} = $props();

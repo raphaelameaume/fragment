@@ -32,7 +32,6 @@
 </script>
 
 <script>
-	import { onMount } from 'svelte';
 	import IconCross from '../components/IconCross.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
@@ -41,17 +40,12 @@
 	import FieldTriggerMouse from './FieldTriggerMouse.svelte';
 	import FieldTriggerKeyboard from './FieldTriggerKeyboard.svelte';
 	import FieldTriggersMIDI from './FieldTriggersMIDI.svelte';
-	import Trigger from '../triggers/Trigger';
 
 	let {
 		trigger,
 		index = 0,
 		controllable = false,
 		triggerable = false,
-		context,
-		onTypeChange,
-		onchange = () => {},
-		onTrigger = () => {},
 		onDelete = () => {},
 		params = $bindable({}),
 	} = $props();
@@ -108,10 +102,6 @@
 	function handleClickDelete() {
 		onDelete(index);
 	}
-
-	function toggleTrigger(value) {
-		enabled = value;
-	}
 </script>
 
 <div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
@@ -144,6 +134,10 @@
 					eventName = undefined;
 					trigger.eventName = undefined;
 					trigger.inputType = value;
+
+					if (trigger.params && trigger.params.key) {
+						trigger.params.key = [];
+					}
 				}}
 			/>
 
@@ -154,15 +148,8 @@
 				<FieldTriggerKeyboard bind:trigger />
 			{/if}
 			{#if inputType === 'MIDI'}
-				<FieldTriggersMIDI bind:trigger {controllable} {triggerable} />
+				<FieldTriggersMIDI bind:trigger {controllable} />
 			{/if}
-			<!-- {#if trigger}
-				<Field
-					key="enabled"
-					value={trigger?.enabled}
-					onchange={toggleTrigger}
-				/>
-			{/if} -->
 		</FieldGroup>
 	</FieldInputRow>
 </div>

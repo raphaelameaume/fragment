@@ -15,7 +15,6 @@
 		if (index >= 0) {
 			triggers.splice(index, 1);
 		}
-		// triggers = triggers.filter((t, i) => i !== triggerIndex);
 	}
 
 	function handleClickAdd() {

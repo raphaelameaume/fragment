@@ -1,7 +1,7 @@
 <script>
 	import Field from './Field.svelte';
 
-	let { trigger } = $props();
+	let { trigger = $bindable() } = $props();
 
 	let eventName = $derived(trigger.eventName);
 

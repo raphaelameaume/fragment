@@ -1,7 +1,8 @@
 <script>
+	import { notes } from '@fragment/inputs/MIDI';
 	import Field from './Field.svelte';
 
-	let { controllable, trigger } = $props();
+	let { controllable, trigger = $bindable() } = $props();
 
 	let eventName = $derived(trigger.eventName);
 	let keys = $derived((trigger.params?.key ?? []).join(','));
@@ -70,16 +71,9 @@
 					value: undefined,
 					label: '*',
 				},
-				{ value: 'A' },
-				{ value: 'A#' },
-				{ value: 'B' },
-				{ value: 'C' },
-				{ value: 'C#' },
-				{ value: 'D' },
-				{ value: 'D#' },
-				{ value: 'E' },
-				{ value: 'F' },
-				{ value: 'G#' },
+				...notes.map((note) => ({
+					value: note,
+				})),
 			],
 		}}
 		onchange={(value) => {
