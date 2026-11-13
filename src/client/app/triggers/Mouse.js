@@ -1,8 +1,13 @@
 import Mouse from '../inputs/Mouse.js';
 
 /**
+ * Callback fired when the keyboard event occurs.
+ * @typedef {import('../triggers/Trigger.js').TriggerCallback} MouseTriggerCallback
+ */
+
+/**
  * Register a callback to run on canvas mousedown
- * @param {import('../triggers/Trigger.js').TriggerFn} fn
+ * @param {MouseTriggerCallback} fn
  */
 export const onMouseDown = (fn) => {
 	Mouse.createTrigger(fn, {
@@ -12,7 +17,7 @@ export const onMouseDown = (fn) => {
 
 /**
  * Register a callback to run on canvas mouseup
- * @param {import('../triggers/Trigger.js').TriggerFn} fn
+ * @param {MouseTriggerCallback} fn
  */
 export const onMouseUp = (fn) => {
 	Mouse.createTrigger(fn, {
@@ -22,7 +27,7 @@ export const onMouseUp = (fn) => {
 
 /**
  * Register a callback to run on canvas mousemove
- * @param {import('../triggers/Trigger.js').TriggerFn} fn
+ * @param {MouseTriggerCallback} fn
  */
 export const onMouseMove = (fn) => {
 	Mouse.createTrigger(fn, {
@@ -32,7 +37,7 @@ export const onMouseMove = (fn) => {
 
 /**
  * Register a callback to run on canvas click
- * @param {import('../triggers/Trigger.js').TriggerFn} fn
+ * @param {MouseTriggerCallback} fn
  */
 export const onClick = (fn) => {
 	Mouse.createTrigger(fn, {

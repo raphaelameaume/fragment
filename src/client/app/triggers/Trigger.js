@@ -4,14 +4,14 @@ let ID = 0;
 
 /**
  * A generic callback used by a trigger.
- * @typedef {(...args: any[]) => void} TriggerFn
+ * @typedef {(...args: any[]) => void} TriggerCallback
  */
 
 /**
  * @typedef {object} TriggerOptions
  * @property {string} [inputType]
  * @property {string} [eventName]
- * @property {TriggerFn} [fn]
+ * @property {TriggerCallback} [fn]
  * @property {string} [context]
  * @property {Record<string, any>} [params]
  * @property {boolean} [enabled]
@@ -64,7 +64,7 @@ export class Trigger {
 
 	/**
 	 * Assign the callback that runs when the trigger fires.
-	 * @param {TriggerFn|undefined} fn
+	 * @param {TriggerCallback|undefined} fn
 	 * @returns {void}
 	 */
 	assign(fn) {
