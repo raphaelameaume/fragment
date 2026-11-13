@@ -9,7 +9,7 @@ let ID = 0;
 
 /**
  * @typedef {object} TriggerOptions
- * @property {string} [inputType]
+ * @property {string} [inputName]
  * @property {string} [eventName]
  * @property {TriggerCallback} [fn]
  * @property {string} [context]
@@ -21,7 +21,7 @@ let ID = 0;
 
 /**
  * @typedef {object} TriggerJSON
- * @property {string|undefined} inputType
+ * @property {string|undefined} inputName
  * @property {string|undefined} eventName
  * @property {boolean} enabled
  * @property {Record<string, any>|undefined} params
@@ -33,7 +33,7 @@ export class Trigger {
 	 * @param {TriggerOptions} [opts]
 	 */
 	constructor({
-		inputType,
+		inputName,
 		eventName,
 		fn,
 		context = wildcard,
@@ -45,7 +45,7 @@ export class Trigger {
 		/** @type {number} */
 		this.id = ID++;
 		/** @type {string|undefined} */
-		this.inputType = inputType;
+		this.inputName = inputName;
 		/** @type {string|undefined} */
 		this.eventName = eventName;
 		/** @type {Function|undefined} */
@@ -101,7 +101,7 @@ export class Trigger {
 	 */
 	toJSON() {
 		return {
-			inputType: this.inputType,
+			inputName: this.inputName,
 			eventName: this.eventName,
 			enabled: this.enabled,
 			params: this.params,

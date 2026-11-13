@@ -24,7 +24,7 @@ export class Input {
 		{ eventName, context = getContext(), hot, enabled, ...params },
 	) {
 		const trigger = new Trigger({
-			inputType: this.name,
+			inputName: this.name,
 			eventName,
 			context,
 			hot,
@@ -70,17 +70,28 @@ export class Input {
 	runTriggers(event, { context, eventName, params = {} }) {
 		if (!this.enabled) return;
 
-		const triggers = this.triggers.filter(
-			(trigger) =>
-				trigger.eventName == eventName &&
-				(context
-					? trigger.context === context ||
-						trigger.context === wildcard
-					: true) &&
-				(params.key && trigger.params?.key?.length > 0
-					? trigger.params?.key.includes(params.key)
-					: true),
-		);
+		const keys = params.key ?? [];
+
+		const triggers = this.triggers.filter((trigger) => {
+			if (trigger.eventName !== eventName) return false;
+
+			if (
+				context &&
+				trigger.context !== context &&
+				trigger.context !== wildcard
+			) {
+				return false;
+			}
+
+			/** @type {string[]} */
+			const triggerKeys = trigger.params?.key ?? [];
+
+			// no keys registered = match every key
+			return (
+				triggerKeys.length === 0 ||
+				keys.some((k) => triggerKeys.includes(k))
+			);
+		});
 
 		triggers.forEach((trigger) => {
 			trigger.run(event);

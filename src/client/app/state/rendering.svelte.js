@@ -491,7 +491,7 @@ export class Render {
 
 			triggers.forEach((trigger) => {
 				Inputs.forEach((input) => {
-					if (trigger.inputType === input.type) {
+					if (trigger.inputName === input.name) {
 						input.add(trigger);
 					}
 				});
@@ -500,7 +500,7 @@ export class Render {
 			return () => {
 				triggers.forEach((trigger) => {
 					Inputs.forEach((input) => {
-						if (trigger.inputType === input.type) {
+						if (trigger.inputName === input.name) {
 							input.remove(trigger);
 						}
 					});

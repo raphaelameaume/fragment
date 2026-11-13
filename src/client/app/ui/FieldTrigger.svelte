@@ -78,14 +78,14 @@
 	]);
 
 	let enabled = $state(false);
-	let inputType = $derived(trigger.inputType);
+	let inputName = $derived(trigger.inputName);
 	let eventName = $derived(trigger.eventName);
 
 	let name = $derived.by(() => {
 		let name = 'Trigger';
 
-		if (trigger.inputType) {
-			name = trigger.inputType;
+		if (trigger.inputName) {
+			name = trigger.inputName;
 		}
 
 		if (eventName) {
@@ -104,7 +104,7 @@
 	}
 </script>
 
-<div class="field-trigger {inputType ? inputType.toLowerCase() : ''}">
+<div class="field-trigger {inputName ? inputName.toLowerCase() : ''}">
 	<FieldInputRow --grid-template-columns="var(--width-cols)">
 		<div class="delete">
 			<ButtonInput
@@ -125,15 +125,15 @@
 		>
 			<Field
 				key="input"
-				value={inputType}
+				value={inputName}
 				params={{
 					options: inputOptions,
 				}}
 				onchange={(value) => {
-					inputType = value;
+					inputName = value;
 					eventName = undefined;
 					trigger.eventName = undefined;
-					trigger.inputType = value;
+					trigger.inputName = value;
 
 					if (trigger.params && trigger.params.key) {
 						trigger.params.key = [];
@@ -141,13 +141,13 @@
 				}}
 			/>
 
-			{#if inputType === 'Mouse'}
+			{#if inputName === 'Mouse'}
 				<FieldTriggerMouse bind:trigger />
 			{/if}
-			{#if inputType === 'Keyboard'}
+			{#if inputName === 'Keyboard'}
 				<FieldTriggerKeyboard bind:trigger />
 			{/if}
-			{#if inputType === 'MIDI'}
+			{#if inputName === 'MIDI'}
 				<FieldTriggersMIDI bind:trigger {controllable} />
 			{/if}
 		</FieldGroup>

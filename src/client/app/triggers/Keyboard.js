@@ -1,4 +1,5 @@
 import Keyboard from '../inputs/Keyboard';
+import Trigger from '../triggers/Trigger.js';
 
 /**
  * Callback fired when the keyboard event occurs.
@@ -40,59 +41,59 @@ function createTrigger(eventName, ...args) {
 /**
  * @overload
  * @param {KeyboardTriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {KeyboardTriggerCallback} fn Handler called when one of the keys is pressed.
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 /**
  * @param {string|KeyboardTriggerCallback} key
  * @param {KeyboardTriggerCallback} [fn]
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 export const onKeyPress = (key, fn) => {
-	createTrigger('onKeyPress', key, fn);
+	return createTrigger('onKeyPress', key, fn);
 };
 
 /**
  * @overload
  * @param {KeyboardTriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {KeyboardTriggerCallback} fn Handler called when one of the keys is pressed down.
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 /**
  * @param {string|KeyboardTriggerCallback} key
  * @param {KeyboardTriggerCallback} [fn]
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 export const onKeyDown = (key, fn) => {
-	createTrigger('onKeyDown', key, fn);
+	return createTrigger('onKeyDown', key, fn);
 };
 
 /**
  * @overload
  * @param {KeyboardTriggerCallback} key Handler called for any key.
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 /**
  * @overload
  * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
  * @param {KeyboardTriggerCallback} fn Handler called when one of the keys is released.
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 /**
  * @param {string|KeyboardTriggerCallback} key
  * @param {KeyboardTriggerCallback} [fn]
- * @returns {void}
+ * @returns {Trigger|undefined}
  */
 export const onKeyUp = (key, fn) => {
-	createTrigger('onKeyUp', key, fn);
+	return createTrigger('onKeyUp', key, fn);
 };
