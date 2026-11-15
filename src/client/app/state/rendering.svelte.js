@@ -309,7 +309,7 @@ class Rendering {
 				targetRate,
 			) => {
 				// List of common refresh rates
-				const refreshRates = [60, 75, 120, 144, 165, 240, 360];
+				const refreshRates = [30, 60, 75, 120, 144, 165, 240, 360];
 
 				// Initialize the closest rate and the minimum difference
 				let closestRate = refreshRates[0];
@@ -328,6 +328,18 @@ class Rendering {
 
 				return closestRate;
 			};
+
+			const requestIdleCallback =
+				window.requestIdleCallback ||
+				((cb) =>
+					setTimeout(
+						() =>
+							cb({
+								didTimeout: false,
+								timeRemaining: () => 50,
+							}),
+						1,
+					));
 
 			const computeRefreshRate = /** @param {number} time **/ (time) => {
 				const deltaTime = time - lastTime;
