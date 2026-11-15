@@ -1,4 +1,13 @@
 <script>
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} name
+	 * @property {boolean} [collapsed]
+	 * @property {import('svelte').Snippet} [children]
+	 * @property {(value: boolean) => void|undefined} onchange
+	 */
+
+	/** @type {Props} */
 	let { name, collapsed = false, children, onchange = () => {} } = $props();
 
 	function handleClick() {

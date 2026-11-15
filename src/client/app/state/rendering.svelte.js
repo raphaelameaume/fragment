@@ -1,10 +1,4 @@
 import { PRESET_ORIENTATIONS, getDimensionsForPreset } from '../lib/presets';
-import {
-	checkForTriggersClick,
-	checkForTriggersDown,
-	checkForTriggersMove,
-	checkForTriggersUp,
-} from '../triggers/Mouse.js';
 import { map } from '../utils/math.utils.js';
 import { clearError, displayError } from './errors.svelte.js';
 import { exports } from './exports.svelte.js';
@@ -12,6 +6,9 @@ import { layout } from './layout.svelte.js';
 import { persist, hydrate } from './utils.svelte';
 import presets from '../lib/presets';
 import { client } from '../client.js';
+import Mouse from '../inputs/Mouse.js';
+import { Trigger } from '../triggers/Trigger.js';
+import { Inputs } from '../inputs/index.js';
 import {
 	defaultFilenamePattern,
 	getFilenameParams,
@@ -434,6 +431,95 @@ export class Render {
 			}
 		});
 
+		$effect(() => {
+			const { props } = this.sketch;
+
+			/** @type {Trigger[]} */
+			const triggers = [];
+
+			/**
+			 *
+			 * @param {import('./Sketch.svelte.js').SketchProp} prop
+			 * @param {string} key
+			 * @returns {((event?: { value: number }) => void) | undefined}
+			 */
+			const createOnTriggerCallback = (prop, key) => {
+				if (typeof prop.value === 'function') {
+					return () => {
+						prop.value();
+						this.sketch.version++;
+					};
+				} else if (typeof prop.value === 'number') {
+					const { params } = prop;
+
+					return (event) => {
+						if (!event) return;
+
+						const isValueInRange =
+							event.value >= 0 && event.value <= 1;
+						if (
+							isValueInRange &&
+							isFinite(params.min) &&
+							isFinite(params.max)
+						) {
+							let v = map(
+								event.value,
+								0,
+								1,
+								params.min,
+								params.max,
+							);
+							let step = params.step ? params.step : 1;
+							let value = Math.round(v * (1 / step)) / (1 / step);
+
+							this.sketch.updateProp(key, value);
+						}
+					};
+				}
+			};
+
+			Object.keys(props).forEach((key) => {
+				const prop = props[key];
+				const { triggers: propTriggers } = prop;
+
+				propTriggers.forEach((propTrigger) => {
+					const trigger = new Trigger({
+						...propTrigger,
+						fn: createOnTriggerCallback(prop, key),
+						enabled: propTrigger.enabled,
+					});
+
+					triggers.push(trigger);
+				});
+			});
+
+			triggers.forEach((trigger) => {
+				Inputs.forEach((input) => {
+					if (trigger.inputName === input.name) {
+						input.add(trigger);
+					}
+				});
+			});
+
+			return () => {
+				triggers.forEach((trigger) => {
+					Inputs.forEach((input) => {
+						if (trigger.inputName === input.name) {
+							input.remove(trigger);
+						}
+					});
+				});
+
+				Inputs.forEach((input) => {
+					const hotListeners = input.triggers.filter(
+						(trigger) => trigger.context === this.sketch.key,
+					);
+
+					hotListeners.forEach((trigger) => input.remove(trigger));
+				});
+			};
+		});
+
 		this.observer = new MutationObserver((mutationsList) => {
 			/**
 			 * @typedef {'width' | 'height'} DimensionKey
@@ -639,10 +725,10 @@ export class Render {
 		canvas = document.createElement('canvas'),
 		context,
 	}) {
-		canvas.onmousedown = (event) => checkForTriggersDown(event, context);
-		canvas.onmousemove = (event) => checkForTriggersMove(event, context);
-		canvas.onmouseup = (event) => checkForTriggersUp(event, context);
-		canvas.onclick = (event) => checkForTriggersClick(event, context);
+		canvas.onmousedown = (event) => Mouse.onMouseDown(event, context);
+		canvas.onmousemove = (event) => Mouse.onMouseMove(event, context);
+		canvas.onmouseup = (event) => Mouse.onMouseUp(event, context);
+		canvas.onclick = (event) => Mouse.onClick(event, context);
 
 		this.observer.observe(canvas, {
 			attributes: true,

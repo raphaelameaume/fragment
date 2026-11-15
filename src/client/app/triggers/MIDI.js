@@ -1,152 +1,154 @@
-import Trigger from './Trigger';
 import MIDI from '../inputs/MIDI.js';
-import { addToMapArray, removeFromMapArray } from '../utils';
-import { wildcard, getContext } from './shared';
-
-const noteons = new Map();
-const noteoffs = new Map();
-const numberons = new Map();
-const numberoffs = new Map();
-const controlchanges = new Map();
 
 /**
- * Remove listeners from a specific context
- * @param {string} context
+ * Callback fired when the keyboard event occurs.
+ * @typedef {import('../triggers/Trigger.js').TriggerCallback} MIDITriggerCallback
+ * @typedef {import('./Trigger.js').Trigger} MIDITrigger
  */
-export const removeHotListeners = (context) => {
-	function removeHotFrom(collection) {
-		for (let trigger of collection) {
-			const [key, triggers] = trigger;
 
-			collection.set(
-				key,
-				triggers.filter((trigger) => trigger.context !== context),
-			);
+/**
+ * @typedef {'onNoteOn'|'onNoteOff'|'onNumberOn'|'onNumberOff'|'onControlChange'} MIDITriggerEventName
+ */
+
+/**
+ * @typedef {{
+ *   key?: string|string[],
+ *   hot?: boolean,
+ *   enabled?: boolean,
+ *   context?: string,
+ * } & Record<string, any>} MIDITriggerOptions
+ */
+
+/**
+ * @param {string} eventName
+ * @param {...(string|MIDITriggerCallback|undefined)} args
+ * @returns {MIDITrigger}
+ */
+function createTrigger(eventName, ...args) {
+	/** @type {string[]} */
+	let key = [];
+	/** @type {MIDITriggerCallback|undefined} */
+	let fn;
+
+	if (typeof args[0] === 'string') {
+		key.push(...args[0].split(',').map((k) => k.trim()));
+
+		if (typeof args[1] === 'function') {
+			fn = args[1];
 		}
+	} else if (typeof args[0] === 'function') {
+		fn = args[0];
 	}
 
-	removeHotFrom(noteons);
-	removeHotFrom(noteoffs);
-	removeHotFrom(numberons);
-	removeHotFrom(numberoffs);
-	removeHotFrom(controlchanges);
+	if (!MIDI.enabled) {
+		MIDI.request();
+	}
+
+	return MIDI.createTrigger(fn, {
+		eventName,
+		enabled: true,
+		params: {
+			key,
+		},
+	});
+}
+
+/**
+ * @overload
+ * @param {MIDITriggerCallback} key Handler called for any key.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @param {string|MIDITriggerCallback} key
+ * @param {MIDITriggerCallback} [fn]
+ * @returns {MIDITrigger}
+ */
+export const onNoteOn = (key, fn) => {
+	return createTrigger('onNoteOn', key, fn);
 };
 
 /**
- * Check all registered listeners for a specific key
- * @param {Map} collection
- * @param {function} getKey
- * @returns {function} listener
+ * @overload
+ * @param {MIDITriggerCallback} key Handler called for any key.
+ * @returns {MIDITrigger}
  */
-function createEventListener(collection, getKey = (event) => event.key) {
-	return (event) => {
-		const key = getKey(event);
-		const { id } = event.srcElement;
-
-		const triggers = [
-			...(collection.has(key) ? collection.get(key) : []),
-			...(collection.has(wildcard) ? collection.get(wildcard) : []),
-		];
-
-		if (MIDI.enabled && id === MIDI.selectedInputID) {
-			triggers.forEach((trigger) => {
-				trigger.run(event);
-			});
-		}
-	};
-}
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @param {string|MIDITriggerCallback} key
+ * @param {MIDITriggerCallback} [fn]
+ * @returns {MIDITrigger}
+ */
+export const onNoteOff = (key, fn) => {
+	return createTrigger('onNoteOff', key, fn);
+};
 
 /**
- * Create a registering function for a specific event
- * @param {string} eventName
- * @param {Map} collection
- * @returns {function} createListener
+ * @overload
+ * @param {MIDITriggerCallback} key Handler called for any key.
+ * @returns {MIDITrigger}
  */
-function createTrigger(eventName, collection) {
-	return (key, fn, options = {}) => {
-		if (typeof key === 'function') {
-			if (typeof fn === 'object') {
-				options = {
-					...options,
-					...fn,
-				};
-			}
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @param {string|MIDITriggerCallback} key
+ * @param {MIDITriggerCallback} [fn]
+ * @returns {MIDITrigger}
+ */
+export const onNumberOn = (key, fn) => {
+	return createTrigger('onNumberOn', key, fn);
+};
 
-			fn = key;
-			key = '*';
+/**
+ * @overload
+ * @param {MIDITriggerCallback} key Handler called for any key.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @param {string|MIDITriggerCallback} key
+ * @param {MIDITriggerCallback} [fn]
+ * @returns {MIDITrigger}
+ */
+export const onNumberOff = (key, fn) => {
+	return createTrigger('onNumberOff', key, fn);
+};
 
-			if (options.key) {
-				key = options.key;
-			}
-		}
-
-		const { hot, enabled, ...params } = options;
-		let keys = Array.isArray(key)
-			? key
-			: [...`${key}`.split(',').map((k) => k.trim())];
-
-		if (
-			['onControlChange', 'onNumberOn', 'onNumberOff'].includes(eventName)
-		) {
-			keys = keys.map((k) => (!isNaN(Number(k)) ? Number(k) : k));
-		}
-
-		if (!MIDI.enabled) {
-			MIDI.request();
-		}
-
-		const context = getContext();
-
-		const trigger = new Trigger({
-			inputType: 'MIDI',
-			eventName,
-			fn,
-			params: { ...params, key: keys },
-			hot,
-			context,
-			enabled,
-			destroy: () => {
-				keys.forEach((key) => {
-					removeFromMapArray(
-						collection,
-						key,
-						(item) => item.id === trigger.id,
-					);
-				});
-			},
-		});
-
-		keys.forEach((k) => {
-			addToMapArray(collection, k, trigger);
-		});
-
-		return trigger;
-	};
-}
-
-MIDI.addEventListener(
-	'noteon',
-	createEventListener(noteons, (event) => event.note.name),
-);
-MIDI.addEventListener(
-	'noteoff',
-	createEventListener(noteoffs, (event) => event.note.name),
-);
-MIDI.addEventListener(
-	'noteon',
-	createEventListener(numberons, (event) => event.note.number),
-);
-MIDI.addEventListener(
-	'noteoff',
-	createEventListener(numberoffs, (event) => event.note.number),
-);
-MIDI.addEventListener(
-	'controlchange',
-	createEventListener(controlchanges, (event) => event.note.number),
-);
-
-export const onNoteOn = createTrigger('onNoteOn', noteons);
-export const onNoteOff = createTrigger('onNoteOff', noteoffs);
-export const onNumberOn = createTrigger('onNumberOn', numberons);
-export const onNumberOff = createTrigger('onNumberOff', numberoffs);
-export const onControlChange = createTrigger('onControlChange', controlchanges);
+/**
+ * @overload
+ * @param {MIDITriggerCallback} key Handler called for any key.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {MIDITriggerCallback} fn Handler called when one of the keys is pressed.
+ * @returns {MIDITrigger}
+ */
+/**
+ * @param {string|MIDITriggerCallback} key
+ * @param {MIDITriggerCallback} [fn]
+ * @returns {MIDITrigger}
+ */
+export const onControlChange = (key, fn) => {
+	return createTrigger('onControlChange', key, fn);
+};

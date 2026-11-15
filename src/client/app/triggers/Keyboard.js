@@ -1,104 +1,100 @@
-import Trigger from './Trigger';
 import Keyboard from '../inputs/Keyboard';
-import { wildcard, getContext } from './shared';
-import { addToMapArray, removeFromMapArray } from '../utils';
 
-const pressedKeys = new Map();
-const upKeys = new Map();
-const downKeys = new Map();
+/**
+ * Callback fired when the keyboard event occurs.
+ * @typedef {import('../triggers/Trigger.js').TriggerCallback} KeyboardTriggerCallback
+ * @typedef {import('../triggers/Trigger.js').Trigger} KeyboardTrigger
+ */
 
-export const removeHotListeners = (context) => {
-	function removeHotFrom(collection) {
-		for (let trigger of collection) {
-			const [key, triggers] = trigger;
+/**
+ * Creates a keyboard trigger. Accepts either `(fn)` to listen to all keys,
+ * or `(keys, fn)` where `keys` is a comma-separated list of keys.
+ *
+ * @param {string} eventName
+ * @param {...(string|KeyboardTriggerCallback|undefined)} args
+ * @returns {KeyboardTrigger}
+ */
+function createTrigger(eventName, ...args) {
+	/** @type {string[]} */
+	let key = [];
+	/** @type {KeyboardTriggerCallback|undefined} */
+	let fn;
 
-			collection.set(
-				key,
-				triggers.filter((trigger) => trigger.context !== context),
-			);
+	if (typeof args[0] === 'string') {
+		key.push(...args[0].split(',').map((k) => k.trim()));
+
+		if (typeof args[1] === 'function') {
+			fn = args[1];
 		}
+	} else if (typeof args[0] === 'function') {
+		fn = args[0];
 	}
 
-	removeHotFrom(pressedKeys);
-	removeHotFrom(upKeys);
-	removeHotFrom(downKeys);
+	return Keyboard.createTrigger(fn, {
+		eventName,
+		enabled: true,
+		params: {
+			key,
+		},
+	});
+}
+
+/**
+ * @overload
+ * @param {KeyboardTriggerCallback} key Handler called for any key.
+ * @returns {KeyboardTrigger}
+ */
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {KeyboardTriggerCallback} fn Handler called when one of the keys is pressed.
+ * @returns {KeyboardTrigger}
+ */
+/**
+ * @param {string|KeyboardTriggerCallback} key
+ * @param {KeyboardTriggerCallback} [fn]
+ * @returns {KeyboardTrigger}
+ */
+export const onKeyPress = (key, fn) => {
+	return createTrigger('onKeyPress', key, fn);
 };
 
-function createEventListener(collection) {
-	return (event) => {
-		const { key, target } = event;
+/**
+ * @overload
+ * @param {KeyboardTriggerCallback} key Handler called for any key.
+ * @returns {KeyboardTrigger}
+ */
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {KeyboardTriggerCallback} fn Handler called when one of the keys is pressed down.
+ * @returns {KeyboardTrigger}
+ */
+/**
+ * @param {string|KeyboardTriggerCallback} key
+ * @param {KeyboardTriggerCallback} [fn]
+ * @returns {KeyboardTrigger}
+ */
+export const onKeyDown = (key, fn) => {
+	return createTrigger('onKeyDown', key, fn);
+};
 
-		if (!target.classList.contains('input')) {
-			const triggers = [
-				...(collection.has(key) ? collection.get(key) : []),
-				...(collection.has(wildcard) ? collection.get(wildcard) : []),
-			];
-
-			triggers.forEach((trigger) => {
-				if (!Keyboard.enabled) return;
-
-				trigger.run(event);
-			});
-		}
-	};
-}
-
-function createTrigger(eventName, collection) {
-	return (key, fn, options = {}) => {
-		if (typeof key === 'function') {
-			if (typeof fn === 'object') {
-				options = {
-					...options,
-					...fn,
-				};
-			}
-
-			fn = key;
-			key = '*';
-
-			if (options.key) {
-				key = options.key;
-			}
-		}
-
-		const { hot, enabled, ...params } = options;
-		const context = getContext();
-
-		const keys = Array.isArray(key)
-			? key
-			: [...`${key}`.split(',').map((k) => (k !== ' ' ? k.trim() : k))];
-
-		const trigger = new Trigger({
-			inputType: 'Keyboard',
-			eventName,
-			fn,
-			context,
-			params: { ...params, key: keys },
-			hot,
-			enabled,
-			destroy: () => {
-				keys.forEach((key) => {
-					removeFromMapArray(
-						collection,
-						key,
-						(item) => item.id === trigger.id,
-					);
-				});
-			},
-		});
-
-		keys.forEach((key) => {
-			addToMapArray(collection, key, trigger);
-		});
-
-		return trigger;
-	};
-}
-
-window.addEventListener('keypress', createEventListener(pressedKeys));
-window.addEventListener('keyup', createEventListener(upKeys));
-window.addEventListener('keydown', createEventListener(downKeys));
-
-export const onKeyPress = createTrigger('onKeyPress', pressedKeys);
-export const onKeyDown = createTrigger('onKeyDown', downKeys);
-export const onKeyUp = createTrigger('onKeyUp', upKeys);
+/**
+ * @overload
+ * @param {KeyboardTriggerCallback} key Handler called for any key.
+ * @returns {KeyboardTrigger}
+ */
+/**
+ * @overload
+ * @param {string} key Comma-separated list of keys, e.g. `'a, b, Enter'`.
+ * @param {KeyboardTriggerCallback} fn Handler called when one of the keys is released.
+ * @returns {KeyboardTrigger}
+ */
+/**
+ * @param {string|KeyboardTriggerCallback} key
+ * @param {KeyboardTriggerCallback} [fn]
+ * @returns {KeyboardTrigger}
+ */
+export const onKeyUp = (key, fn) => {
+	return createTrigger('onKeyUp', key, fn);
+};

@@ -9,6 +9,15 @@
 	import { sketchesManager } from '../state/sketches.svelte';
 	import { parseFolder } from '../utils/fields.utils';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {number} [id]
+	 * @property {boolean} [headless]
+	 * @property {boolean} [output]
+	 * @property {{ sketchPropGroup?: string }} [params]
+	 */
+
+	/** @type {Props} */
 	let {
 		id = layout.getID(),
 		headless = false,
@@ -22,7 +31,9 @@
 
 	let sketchPropsGroups = $derived(sketch?.propsGroups ?? []);
 	let framerate = $derived(
-		isFinite(sketch.fps) ? sketch.fps : rendering.refreshRate,
+		sketch.fps !== undefined && isFinite(sketch.fps)
+			? sketch.fps
+			: rendering.refreshRate,
 	);
 
 	let sketchGroupOptions = $derived(
@@ -37,15 +48,18 @@
 			})),
 		].filter((group) => group !== undefined),
 	);
+
 	let sketchPropGroup = $derived(
-		sketchGroupOptions
-			.map((opt) => opt.value)
-			.includes(params.sketchPropGroup)
+		params.sketchPropGroup &&
+			sketchGroupOptions
+				.map((opt) => opt.value)
+				.includes(params.sketchPropGroup)
 			? params.sketchPropGroup
 			: sketchGroupOptions[0].value,
 	);
 
 	let sketchPropsTree = $derived.by(() => {
+		/** @type {(import("@fragment/state/Sketch.svelte.js").SketchPropFolder | { type: 'field', key: string })[]} */
 		const tree = [];
 
 		Object.keys(sketchProps).forEach((key) => {
@@ -70,7 +84,11 @@
 							tree.push(fieldgroup);
 						} else if (
 							root &&
-							!tree.some((fieldgroup) => fieldgroup.id === rootId)
+							!tree.some(
+								(fieldgroup) =>
+									fieldgroup.type === 'fieldgroup' &&
+									fieldgroup.id === rootId,
+							)
 						) {
 							tree.push(root);
 						}
@@ -117,7 +135,10 @@
 				value={framerate}
 				disabled
 				params={{
-					suffix: isFinite(sketch.fps) ? undefined : ' (native)',
+					suffix:
+						sketch.fps !== undefined && isFinite(sketch.fps)
+							? undefined
+							: ' (native)',
 				}}
 			/>
 			{#if sketch.duration && sketch.duration > 0 && output}
@@ -153,15 +174,20 @@
 							bind:params={sketchProps[key].params}
 							bind:triggers={prop.triggers}
 							trackChanges
-							onclick={(event) => {
+							onclick={() => {
 								sketch.version++;
-								// value(event, sketch.params);
 							}}
 							onchange={(v) => {
 								if (v?.currentTarget && v?.type === 'change') {
 									v = v.currentTarget.value;
 								}
 								sketch.updateProp(key, v);
+							}}
+							triggersCollapsed={sketchProps[key]
+								.triggersCollapsed}
+							onToggleTriggers={(triggersCollapsed) => {
+								sketchProps[key].triggersCollapsed =
+									triggersCollapsed;
 							}}
 						/>
 					{/if}

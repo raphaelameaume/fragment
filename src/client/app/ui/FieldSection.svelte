@@ -5,6 +5,7 @@
 		secondary = false,
 		interactive = false,
 		displayName = undefined,
+		triggerable = false,
 		disabled = false,
 		children,
 		infos = undefined,
@@ -18,6 +19,7 @@
 	class:secondary
 	class:disabled
 	class:nameless={displayName === null}
+	class:triggerable
 >
 	<div class="field__infos">
 		{#if displayName !== null}
@@ -47,6 +49,10 @@
 
 	.field__section.nameless {
 		grid-template-columns: 1fr;
+
+		&.triggerable {
+			grid-template-columns: 16px 1fr;
+		}
 	}
 
 	:global(body:not(.fragment-dragging))

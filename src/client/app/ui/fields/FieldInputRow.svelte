@@ -8,6 +8,7 @@
 
 <style>
 	.row {
+		position: relative;
 		display: grid;
 		width: 100%;
 		column-gap: var(--column-gap);

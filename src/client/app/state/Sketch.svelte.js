@@ -71,7 +71,8 @@ const noop = () => {};
  * @property {any} __initialValue
  * @property {any} __currentValue
  * @property {Record<string, any>} params
- * @property {any[]} triggers
+ * @property {import('../triggers/Trigger.js').Trigger[]} triggers
+ * @property {boolean} triggersCollapsed
  * @property {string|undefined} group
  * @property {string|undefined} type
  * @property {string|undefined} folder
@@ -235,7 +236,33 @@ class Sketch {
 							instanceProp.value = prevProp.value;
 						}
 
-						newProp.triggers = prevProp.triggers;
+						if (prevProp.triggers.length > 0) {
+							/**
+							 * Two triggers are considered the same if they share the same input,
+							 * event, keys and callback.
+							 *
+							 * @param {import('../triggers/Trigger.js').Trigger} a
+							 * @param {import('../triggers/Trigger.js').Trigger} b
+							 * @returns {boolean}
+							 */
+							const isSameTrigger = (a, b) =>
+								a.inputName === b.inputName &&
+								a.eventName === b.eventName &&
+								deepEqual(a.params, b.params) &&
+								a.fn === b.fn;
+
+							prevProp.triggers.forEach((prevTrigger) => {
+								if (prevTrigger.hot) return;
+
+								if (
+									!newProp.triggers.some((trigger) =>
+										isSameTrigger(trigger, prevTrigger),
+									)
+								) {
+									newProp.triggers.push(prevTrigger);
+								}
+							});
+						}
 
 						if (prevProp.params) {
 							// reconcile locked VectorInput from UI
@@ -243,6 +270,8 @@ class Sketch {
 								newProp.params.locked = prevProp.params.locked;
 							}
 						}
+
+						newProp.triggersCollapsed = prevProp.triggersCollapsed;
 					}
 				});
 			}
@@ -343,11 +372,11 @@ class Sketch {
 		let __hidden =
 			typeof instanceProp.hidden === 'function'
 				? instanceProp.hidden
-				: () => instanceProp.hidden;
+				: () => instanceProp.hidden ?? false;
 		let __disabled =
 			typeof instanceProp.disabled === 'function'
 				? instanceProp.disabled
-				: () => instanceProp.disabled;
+				: () => instanceProp.disabled ?? false;
 
 		let initialValue = deepClone(value);
 
@@ -363,6 +392,7 @@ class Sketch {
 			propsFoldersCollection.push(...propsFoldersCollectionCopy);
 		}
 
+		/** @type {SketchProp} */
 		let prop = {
 			value,
 			__initialValue: initialValue,
@@ -377,6 +407,7 @@ class Sketch {
 			group,
 			folder,
 			displayName,
+			triggersCollapsed: true,
 		};
 
 		target[key] = prop;
@@ -724,7 +755,8 @@ class Sketch {
 		 * @typedef SketchPropJSON
 		 * @property {any} value
 		 * @property {Record<string, any>} params
-		 * @property {any[]} triggers
+		 * @property {import('../triggers/Trigger.js').Trigger[]} triggers
+		 * @property {boolean} triggersCollapsed
 		 * @property {any} __initialValue
 		 * @property {any} __currentValue
 		 */
@@ -738,6 +770,7 @@ class Sketch {
 				value: isDataURL(prop.value) ? prop.__initialValue : prop.value,
 				params: prop.params,
 				triggers: prop.triggers,
+				triggersCollapsed: prop.triggersCollapsed,
 				__initialValue: prop.__initialValue,
 				__currentValue: prop.__currentValue,
 			};

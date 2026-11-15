@@ -1,57 +1,92 @@
 <script>
+	import { Trigger } from '../triggers/Trigger';
 	import FieldTrigger from './FieldTrigger.svelte';
 	import ButtonInput from './fields/ButtonInput.svelte';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {(Trigger|import('../triggers/Trigger.js').TriggerJSON)[]} triggers
+	 * @property {} [onTrigger]
+	 * @property {boolean} [triggerable]
+	 * @property {boolean} [controllable]
+	 */
+
+	/** @type {Props} */
 	let {
-		context,
+		triggers = $bindable([]),
 		onTrigger,
-		triggers = $bindable(),
 		triggerable = false,
 		controllable = false,
 	} = $props();
 
-	function onTriggerDelete(triggerIndex) {
-		triggers.splice(triggerIndex, 1);
-		// triggers = triggers.filter((t, i) => i !== triggerIndex);
+	/**
+	 * @param {number} index
+	 */
+	function onTriggerDelete(index) {
+		if (triggers[index]) {
+			triggers.splice(index, 1);
+		}
 	}
 
 	function handleClickAdd() {
-		triggers.push({
-			inputType: undefined,
-			eventName: undefined,
-			enabled: false,
-			params: {},
-		});
+		triggers.push(
+			// push TriggerJSON to have reactivity
+			new Trigger({
+				hot: false,
+				enabled: true,
+			}).toJSON(),
+		);
 	}
 </script>
 
 {#if onTrigger}
-	<ButtonInput label="add trigger" onclick={handleClickAdd} />
 	<div class="field-triggers">
-		{#each triggers as trigger, index}
-			<FieldTrigger
-				{index}
-				bind:triggers
-				inputType={trigger.inputType}
-				eventName={trigger.eventName}
-				bind:params={trigger.params}
-				enabled={trigger.enabled}
-				{onTrigger}
-				{context}
-				{controllable}
-				{triggerable}
-				onDelete={onTriggerDelete}
-			/>
-		{/each}
+		<header class="header">
+			<ButtonInput label="add trigger" onclick={handleClickAdd} />
+		</header>
+		<div class="triggers-list">
+			{#each triggers as _, index}
+				<FieldTrigger
+					bind:trigger={triggers[index]}
+					{index}
+					{controllable}
+					{triggerable}
+					onDelete={onTriggerDelete}
+				/>
+			{/each}
+		</div>
 	</div>
 {/if}
 
 <style>
 	.field-triggers {
+		--margin: 15px;
+		position: relative;
 		width: 100%;
+		padding: 0px 0px;
+		margin-top: var(--margin);
+		margin-bottom: var(--column-gap);
+		border-width: 1px 1px 0px 1px;
+		border-style: solid;
+		border-color: var(--fragment-spacing-color);
 	}
 
-	.field-triggers:not(:empty) {
-		margin-top: var(--column-gap);
+	.field-triggers:before {
+		content: '';
+
+		position: absolute;
+		left: 10px;
+		top: calc(var(--margin) * -1);
+
+		width: 1px;
+		height: var(--margin);
+
+		background-color: var(--fragment-spacing-color);
+	}
+
+	.header {
+		display: flex;
+		padding: var(--column-gap);
+		border-bottom: 1px solid var(--fragment-spacing-color);
 	}
 </style>
