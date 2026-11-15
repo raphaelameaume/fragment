@@ -102,8 +102,18 @@ const noop = () => {};
  */
 
 /**
+ * @typedef SketchBuildConfigGUI
+ * @property {number|string} [size]
+ * @property {boolean} [output]
+ * @property {'left'|'right'} [align]
+ * @property {boolean} [hidden]
+ * @property {boolean} [minimize]
+ * @property {'fixed'|'float'} [position]
+ */
+/**
  * @typedef {object} SketchBuildConfig
  * @property {string} [canvasSize]
+ * @property {boolean|SketchBuildConfigGUI} [gui]
  * @property {string} [resizing]
  * @property {[number, number]} [dimensions]
  * @property {number} [width]
