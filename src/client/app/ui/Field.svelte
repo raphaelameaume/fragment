@@ -57,6 +57,7 @@
 	 * @property {number} [min]
 	 * @property {number} [max]
 	 * @property {number} [step]
+	 * @property {string} [suffix]
 	 * @property {boolean} [locked]
 	 * @property {({value: unknown | undefined, label?: string, disabled?: boolean})[]|string[]} [options]
 	 */
