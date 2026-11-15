@@ -59,6 +59,6 @@
 			<LayoutBuildCustom {sketchKey} {buildConfig} {sketch} />
 		{/await}
 	{:else}
-		<LayoutBuild {sketchKey} {sketch} {buildConfig} />
+		<LayoutBuild {sketchKey} {buildConfig} />
 	{/if}
 {/if}

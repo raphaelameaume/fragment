@@ -3,6 +3,18 @@
 	import Params from '../modules/Params.svelte';
 	import { setContext } from 'svelte';
 
+	/**
+	 * @typedef Props
+	 * @property {number|string} [size] Number is a ratio (0-1) of the parent width, string is any CSS width
+	 * @property {'left'|'right'} [align]
+	 * @property {boolean} [output]
+	 * @property {boolean} [hidden]
+	 * @property {boolean} [minimize]
+	 */
+
+	/**
+	 * @type {Props}
+	 */
 	let {
 		size = '340px',
 		align = 'right',
@@ -11,7 +23,8 @@
 		minimize = false,
 	} = $props();
 
-	let visible = $state(!hidden);
+	let visible = $derived(!hidden);
+
 	let width = $derived(typeof size === 'number' ? `${size * 100}%` : size);
 	let current = $state({
 		minimized: minimize,
