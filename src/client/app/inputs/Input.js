@@ -1,14 +1,30 @@
 import { getContext, wildcard } from '../triggers/shared';
 import { Trigger } from '../triggers/Trigger';
 
+/**
+ * @typedef FragmentInputEvent
+ * @property {string} name
+ * @property {boolean} [triggerable]
+ * @property {boolean} [controllable]
+ */
+
 export class Input {
+	/**
+	 * @type {{ name: string, triggerable?: boolean, controllable?: boolean }[]}
+	 */
+	static EVENTS = [];
+
 	/**
 	 * @param {object} params
 	 * @param {string} params.name
+	 * @param {boolean} [params.enabled]
+	 * @param {FragmentInputEvent[]} [params.events]
 	 */
-	constructor({ name }) {
+	constructor({ name, enabled = true, events = [] }) {
 		this.name = name;
-		this.enabled = true;
+		this.enabled = enabled;
+		this.events = events;
+
 		/** @type {Trigger[]} */
 		this.triggers = [];
 	}

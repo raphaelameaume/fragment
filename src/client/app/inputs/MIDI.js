@@ -100,6 +100,16 @@ class MIDI extends Input {
 	constructor() {
 		super({
 			name: 'MIDI',
+			events: [
+				{ name: 'onNoteOn', triggerable: true },
+				{ name: 'onNoteOff', triggerable: true },
+				{ name: 'onNumberOn', triggerable: true },
+				{ name: 'onNumberOff', triggerable: true },
+				{
+					name: 'onControlChange',
+					controllable: true,
+				},
+			],
 		});
 
 		/** @type {MIDIAccess | null} */

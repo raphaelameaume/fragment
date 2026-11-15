@@ -1,6 +1,13 @@
 <script>
+	import Keyboard from '../inputs/Keyboard.js';
 	import Field from './Field.svelte';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('../triggers/Trigger.js').Trigger} trigger
+	 */
+
+	/** @type {Props} */
 	let { trigger = $bindable() } = $props();
 
 	let eventName = $derived(trigger.eventName);
@@ -11,21 +18,14 @@
 			label: '-',
 			disabled: true,
 		},
-		{
-			value: 'onKeyDown',
-		},
-		{
-			value: 'onKeyUp',
-		},
-		{
-			value: 'onKeyPress',
-		},
+		...Keyboard.events.map((e) => ({ value: e.name })),
 	];
 </script>
 
 <Field
 	key="event"
 	value={eventName}
+	disabled={trigger.hot}
 	params={{
 		options: eventOptions,
 	}}
@@ -38,13 +38,15 @@
 {#if eventName}
 	<Field
 		key="key"
+		disabled={trigger.hot}
 		value={keys}
 		onchange={(event) => {
-			trigger.hot = false;
-			trigger.params.key = event.currentTarget.value
-				.trim()
-				.split(',')
-				.map((v) => v.trim());
+			if (trigger.params?.key) {
+				trigger.params.key = event.currentTarget.value
+					.trim()
+					.split(',')
+					.map((v) => v.trim());
+			}
 		}}
 	/>
 {/if}

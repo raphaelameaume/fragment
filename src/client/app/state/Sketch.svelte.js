@@ -72,6 +72,7 @@ const noop = () => {};
  * @property {any} __currentValue
  * @property {Record<string, any>} params
  * @property {import('../triggers/Trigger.js').Trigger[]} triggers
+ * @property {boolean} triggersCollapsed
  * @property {string|undefined} group
  * @property {string|undefined} type
  * @property {string|undefined} folder
@@ -269,6 +270,8 @@ class Sketch {
 								newProp.params.locked = prevProp.params.locked;
 							}
 						}
+
+						newProp.triggersCollapsed = prevProp.triggersCollapsed;
 					}
 				});
 			}
@@ -369,11 +372,11 @@ class Sketch {
 		let __hidden =
 			typeof instanceProp.hidden === 'function'
 				? instanceProp.hidden
-				: () => instanceProp.hidden;
+				: () => instanceProp.hidden ?? false;
 		let __disabled =
 			typeof instanceProp.disabled === 'function'
 				? instanceProp.disabled
-				: () => instanceProp.disabled;
+				: () => instanceProp.disabled ?? false;
 
 		let initialValue = deepClone(value);
 
@@ -389,6 +392,7 @@ class Sketch {
 			propsFoldersCollection.push(...propsFoldersCollectionCopy);
 		}
 
+		/** @type {SketchProp} */
 		let prop = {
 			value,
 			__initialValue: initialValue,
@@ -403,6 +407,7 @@ class Sketch {
 			group,
 			folder,
 			displayName,
+			triggersCollapsed: true,
 		};
 
 		target[key] = prop;
@@ -751,6 +756,7 @@ class Sketch {
 		 * @property {any} value
 		 * @property {Record<string, any>} params
 		 * @property {import('../triggers/Trigger.js').Trigger[]} triggers
+		 * @property {boolean} triggersCollapsed
 		 * @property {any} __initialValue
 		 * @property {any} __currentValue
 		 */
@@ -764,6 +770,7 @@ class Sketch {
 				value: isDataURL(prop.value) ? prop.__initialValue : prop.value,
 				params: prop.params,
 				triggers: prop.triggers,
+				triggersCollapsed: prop.triggersCollapsed,
 				__initialValue: prop.__initialValue,
 				__currentValue: prop.__currentValue,
 			};

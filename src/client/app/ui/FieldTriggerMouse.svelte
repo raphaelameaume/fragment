@@ -1,6 +1,13 @@
 <script>
+	import Mouse from '../inputs/Mouse';
 	import Field from './Field.svelte';
 
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('../triggers/Trigger.js').Trigger} trigger
+	 */
+
+	/** @type {Props} */
 	let { trigger = $bindable() } = $props();
 
 	let eventName = $derived(trigger.eventName);
@@ -10,18 +17,7 @@
 			value: undefined,
 			label: '-',
 		},
-		{
-			value: 'onMouseDown',
-		},
-		{
-			value: 'onMouseUp',
-		},
-		{
-			value: 'onMouseMove',
-		},
-		{
-			value: 'onClick',
-		},
+		...Mouse.events.map((e) => ({ value: e.name })),
 	];
 </script>
 

@@ -1,38 +1,6 @@
-<script context="module">
-	const inputs = {
-		Mouse: {
-			events: [
-				{ name: 'onMouseDown', triggerable: true, controllable: false },
-				{ name: 'onMouseUp', triggerable: true, controllable: false },
-				{ name: 'onMouseMove', triggerable: true, controllable: false },
-				{ name: 'onClick', triggerable: true, controllable: false },
-			],
-		},
-		Keyboard: {
-			events: [
-				{ name: 'onKeyDown', triggerable: true, controllable: false },
-				{ name: 'onKeyPress', triggerable: true, controllable: false },
-				{ name: 'onKeyUp', triggerable: true, controllable: false },
-			],
-		},
-		MIDI: {
-			events: [
-				{ name: 'onNoteOn', triggerable: true, controllable: false },
-				{ name: 'onNoteOff', triggerable: true, controllable: false },
-				{ name: 'onNumberOn', triggerable: true, controllable: false },
-				{ name: 'onNumberOff', triggerable: true, controllable: false },
-				{
-					name: 'onControlChange',
-					triggerable: false,
-					controllable: true,
-				},
-			],
-		},
-	};
-</script>
-
 <script>
 	import IconCross from '../components/IconCross.svelte';
+	import { Inputs } from '../inputs/index.js';
 	import ButtonInput from './fields/ButtonInput.svelte';
 	import FieldInputRow from './fields/FieldInputRow.svelte';
 	import FieldGroup from './FieldGroup.svelte';
@@ -51,6 +19,11 @@
 	 * @property {(value: number) => void|undefined} onDelete
 	 */
 
+	/**
+	 * Callback fired when the keyboard event occurs.
+	 * @typedef {import('../inputs/Input.js').FragmentInputEvent} FragmentInputEvent
+	 */
+
 	/** @type {Props} */
 	let {
 		trigger = $bindable(),
@@ -61,24 +34,31 @@
 		params = $bindable({}),
 	} = $props();
 
-	let validInputs = $derived.by(() =>
-		[...Object.keys(inputs)].reduce((all, inputName) => {
-			const input = inputs[inputName];
-			const { disabled, events } = input;
+	/**
+	 * @type {Record<string, { events: FragmentInputEvent[], disabled: boolean}>}
+	 */
+	let validInputs = $derived.by(() => {
+		/**
+		 * @type {Record<string, { events: FragmentInputEvent[], disabled: boolean}>}
+		 */
+		const initial = {};
+
+		return Inputs.reduce((all, input) => {
+			const { name, events, enabled } = input;
 			const filteredEvents = events.filter((event) => {
 				return (
-					event.triggerable === triggerable &&
-					event.controllable === controllable
+					(event.triggerable ?? false) === triggerable &&
+					(event.controllable ?? false) === controllable
 				);
 			});
 
 			if (filteredEvents.length > 0) {
-				all[inputName] = { events: filteredEvents, disabled };
+				all[name] = { events: filteredEvents, disabled: !enabled };
 			}
 
 			return all;
-		}, {}),
-	);
+		}, initial);
+	});
 
 	let inputOptions = $derived([
 		{ label: 'Select input', value: undefined, disabled: true },
@@ -141,6 +121,7 @@
 			<Field
 				key="input"
 				value={inputName}
+				disabled={trigger.hot}
 				params={{
 					options: inputOptions,
 				}}
@@ -165,7 +146,7 @@
 			{#if inputName === 'MIDI'}
 				<FieldTriggersMIDI bind:trigger {controllable} />
 			{/if}
-			{#if inputName && eventName}
+			{#if inputName && eventName && !trigger.hot}
 				<Field
 					key="enabled"
 					value={enabled}

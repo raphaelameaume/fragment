@@ -40,10 +40,6 @@
 </script>
 
 <script>
-	/**
-	 * @template T
-	 */
-
 	import FieldSection from './FieldSection.svelte';
 	import FieldTriggers from './FieldTriggers.svelte';
 	import { download } from '../utils/file.utils.js';
@@ -62,10 +58,11 @@
 	 * @property {number} [max]
 	 * @property {number} [step]
 	 * @property {boolean} [locked]
-	 * @property {Record<string, {value: unknown, label?: string} | unknown>} [options]
+	 * @property {({value: unknown | undefined, label?: string, disabled?: boolean})[]|string[]} [options]
 	 */
 
 	/**
+	 * @template T
 	 * @typedef {Object} Props
 	 * @property {string} key
 	 * @property {T} value
@@ -81,9 +78,14 @@
 	 * @property {boolean} [trackChanges]
 	 * @property {import('svelte').Snippet} [children]
 	 * @property {import('../triggers/Trigger.js').Trigger[]} [triggers]
+	 * @property {boolean} [triggersCollapsed]
+	 * @property {(triggersCollapsed: boolean) => void} [onToggleTriggers]
 	 */
 
-	/** @type {Props} */
+	/**
+	 * @template T
+	 * @type {Props<T>}
+	 */
 	let {
 		key,
 		value,
@@ -98,10 +100,10 @@
 		onclick = undefined,
 		children = undefined,
 		trackChanges = false,
+		triggersCollapsed = true,
 		triggers = $bindable([]),
+		onToggleTriggers,
 	} = $props();
-
-	let showTriggers = $state(true);
 
 	/** @type {Record<string, ((event?: any) => void) | undefined>} */
 	const onTriggers = {
@@ -193,7 +195,8 @@
 	function toggleTriggers(event) {
 		event.preventDefault();
 
-		showTriggers = !showTriggers;
+		triggersCollapsed = !triggersCollapsed;
+		onToggleTriggers?.(triggersCollapsed);
 	}
 
 	/**
@@ -264,7 +267,7 @@
 			<span class="visually-hidden">Restore initial value</span>
 		</button>
 	{/if}
-	{#if triggerable && showTriggers}
+	{#if triggerable && !triggersCollapsed}
 		<FieldTriggers
 			bind:triggers
 			{onTrigger}

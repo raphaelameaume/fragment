@@ -1,8 +1,15 @@
 <script>
-	import { notes } from '@fragment/inputs/MIDI';
+	import MIDI, { notes } from '@fragment/inputs/MIDI';
 	import Field from './Field.svelte';
 
-	let { controllable, trigger = $bindable() } = $props();
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('../triggers/Trigger.js').Trigger} trigger
+	 * @property {boolean} controllable
+	 */
+
+	/** @type {Props} */
+	let { trigger = $bindable(), controllable } = $props();
 
 	let eventName = $derived(trigger.eventName);
 	let keys = $derived((trigger.params?.key ?? []).join(','));
@@ -14,10 +21,11 @@
 						label: '-',
 						disabled: true,
 					},
-					{
-						value: 'onControlChange',
-						label: 'onControlChange',
-					},
+					...MIDI.events
+						.filter((e) => e.controllable)
+						.map((event) => ({
+							value: event.name,
+						})),
 				]
 			: [
 					{
@@ -25,18 +33,11 @@
 						label: '-',
 						disabled: true,
 					},
-					{
-						value: 'onNoteOn',
-					},
-					{
-						value: 'onNoteOff',
-					},
-					{
-						value: 'onNumberOn',
-					},
-					{
-						value: 'onNumberOff',
-					},
+					...MIDI.events
+						.filter((e) => e.triggerable)
+						.map((event) => ({
+							value: event.name,
+						})),
 				],
 	);
 </script>
@@ -44,6 +45,7 @@
 <Field
 	key="event"
 	value={eventName}
+	disabled={trigger.hot}
 	params={{
 		options: eventOptions,
 	}}
@@ -65,6 +67,7 @@
 	<Field
 		key="note"
 		value={keys}
+		disabled={trigger.hot}
 		params={{
 			options: [
 				{
@@ -89,6 +92,7 @@
 	<Field
 		key="number"
 		value={keys}
+		disabled={trigger.hot}
 		onchange={(event) => {
 			trigger.params.key = event.currentTarget.value
 				.trim()

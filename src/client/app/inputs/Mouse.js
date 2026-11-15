@@ -4,6 +4,12 @@ export class Mouse extends Input {
 	constructor() {
 		super({
 			name: 'Mouse',
+			events: [
+				{ name: 'onMouseDown', triggerable: true },
+				{ name: 'onMouseUp', triggerable: true },
+				{ name: 'onMouseMove', triggerable: true },
+				{ name: 'onClick', triggerable: true },
+			],
 		});
 	}
 

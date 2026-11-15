@@ -163,6 +163,12 @@
 								}
 								sketch.updateProp(key, v);
 							}}
+							triggersCollapsed={sketchProps[key]
+								.triggersCollapsed}
+							onToggleTriggers={(triggersCollapsed) => {
+								sketchProps[key].triggersCollapsed =
+									triggersCollapsed;
+							}}
 						/>
 					{/if}
 				{/if}
