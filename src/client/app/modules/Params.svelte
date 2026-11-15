@@ -33,7 +33,7 @@
 	let framerate = $derived(
 		sketch.fps !== undefined && isFinite(sketch.fps)
 			? sketch.fps
-			: rendering.refreshRate,
+			: (rendering.refreshRate ?? 'Estimating refresh rate...'),
 	);
 
 	let sketchGroupOptions = $derived(
@@ -135,10 +135,7 @@
 				value={framerate}
 				disabled
 				params={{
-					suffix:
-						sketch.fps !== undefined && isFinite(sketch.fps)
-							? undefined
-							: ' (native)',
+					suffix: framerate === undefined ? undefined : ' (native)',
 				}}
 			/>
 			{#if sketch.duration && sketch.duration > 0 && output}
