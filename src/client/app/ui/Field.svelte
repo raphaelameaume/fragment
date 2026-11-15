@@ -230,6 +230,7 @@
 		{displayName}
 		interactive={triggerable}
 		onclick={toggleTriggers}
+		{triggerable}
 		{disabled}
 	>
 		{#snippet infos()}
