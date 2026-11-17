@@ -255,11 +255,26 @@ class Sketch {
 							 * @param {import('../triggers/Trigger.js').Trigger} b
 							 * @returns {boolean}
 							 */
-							const isSameTrigger = (a, b) =>
-								a.inputName === b.inputName &&
-								a.eventName === b.eventName &&
-								deepEqual(a.params, b.params) &&
-								a.fn === b.fn;
+							const isSameTrigger = (a, b) => {
+								const isInputNameEqual =
+									a.inputName === b.inputName;
+								const isEventNameEqual =
+									a.eventName === b.eventName;
+								const areParamsEqual =
+									a.params?.key?.length ===
+										b.params?.key?.length &&
+									a.params?.key?.every((k) =>
+										b.params?.key?.includes(k),
+									);
+								const isFunctionEqual = a.fn === b.fn;
+
+								return (
+									isInputNameEqual &&
+									isEventNameEqual &&
+									areParamsEqual &&
+									isFunctionEqual
+								);
+							};
 
 							prevProp.triggers.forEach((prevTrigger) => {
 								if (prevTrigger.hot) return;
@@ -590,16 +605,13 @@ class Sketch {
 					this.propsFolders,
 					this.propsGroups,
 				);
-			} else {
+			} else if (instanceProp) {
 				// sync value
 				if (
 					!isFunction(instanceProp.value) &&
 					!deepEqual(instanceProp.value, prop.__currentValue)
 				) {
 					this.updateProp(key, instanceProp.value);
-					prop.__initialValue = deepClone(
-						$state.snapshot(prop.value),
-					);
 				}
 
 				// sync displayName

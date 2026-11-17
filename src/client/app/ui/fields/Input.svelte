@@ -1,4 +1,20 @@
 <script>
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [label]
+	 * @property {string} [value]
+	 * @property {boolean} [disabled]
+	 * @property {import('svelte/elements').FormEventHandler<HTMLInputElement>} [oninput]
+	 * @property {import('svelte/elements').ChangeEventHandler<HTMLInputElement>} [onchange]
+	 * @property {import('svelte/elements').KeyboardEventHandler<HTMLInputElement>} [onkeydown]
+	 * @property {import('svelte/elements').FocusEventHandler<HTMLInputElement>} [onfocus]
+	 * @property {import('svelte/elements').FocusEventHandler<HTMLInputElement>} [onblur]
+	 * @property {HTMLInputElement | null} [node]
+	 */
+
+	/**
+	 * @type {Props}
+	 */
 	let {
 		label,
 		value = $bindable(),
@@ -22,6 +38,15 @@
 			event.currentTarget.blur();
 		}
 	}
+
+	/**
+	 * @param {KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement; }} event
+	 */
+	function onKeyDown(event) {
+		event.stopPropagation();
+
+		onkeydown?.(event);
+	}
 </script>
 
 <div class="input-container" class:disabled>
@@ -34,7 +59,7 @@
 		bind:value
 		{oninput}
 		{onchange}
-		{onkeydown}
+		onkeydown={onKeyDown}
 		{onfocus}
 		{onblur}
 		onkeypress={onKeyPress}

@@ -1,19 +1,18 @@
 <script>
 	import { onDestroy } from 'svelte';
-	import { onKeyPress, onKeyDown, onKeyUp } from '../triggers/Keyboard.js';
+	import { onKeyDown, onKeyUp } from '../triggers/Keyboard.js';
 
 	/**
 	 * @typedef {Object} Props
 	 * @property {string} key
-	 * @property {'press'|'down'|'up'} [type]
+	 * @property {'down'|'up'} [type]
 	 * @property {import('../triggers/Keyboard.js').KeyboardTriggerCallback} onTrigger
 	 */
 
 	/** @type {Props} */
-	let { key, type = 'press', onTrigger } = $props();
+	let { key, type = 'down', onTrigger } = $props();
 
 	const triggers = {
-		press: onKeyPress,
 		down: onKeyDown,
 		up: onKeyUp,
 	};

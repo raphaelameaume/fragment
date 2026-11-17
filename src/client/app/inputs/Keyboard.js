@@ -6,19 +6,10 @@ export class Keyboard extends Input {
 			name: 'Keyboard',
 			events: [
 				{ name: 'onKeyDown', triggerable: true },
-				{ name: 'onKeyPress', triggerable: true },
 				{ name: 'onKeyUp', triggerable: true },
 			],
 		});
 
-		window.addEventListener('keypress', (event) => {
-			this.runTriggers(event, {
-				eventName: 'onKeyPress',
-				params: {
-					key: [event.key],
-				},
-			});
-		});
 		window.addEventListener('keyup', (event) => {
 			this.runTriggers(event, {
 				eventName: 'onKeyUp',
