@@ -41,12 +41,14 @@
 		disabled={trigger.hot}
 		value={keys}
 		onchange={(event) => {
-			if (trigger.params?.key) {
-				trigger.params.key = event.currentTarget.value
-					.trim()
-					.split(',')
-					.map((v) => v.trim());
+			if (!trigger.params?.key) {
+				trigger.params = { key: [] };
 			}
+
+			trigger.params.key = event.currentTarget.value
+				.trim()
+				.split(',')
+				.map((v) => v.trim());
 		}}
 	/>
 {/if}

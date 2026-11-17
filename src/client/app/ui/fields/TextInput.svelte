@@ -5,15 +5,13 @@
 		value = $bindable(),
 		label = '',
 		disabled = false,
-		context = null,
-		key = '',
 		onchange,
-		oninput
+		oninput,
 	} = $props();
 </script>
 
 <div class="text-input">
-	<Input {context} {key} bind:value {label} {disabled} {onchange} {oninput} />
+	<Input bind:value {label} {disabled} {onchange} {oninput} />
 </div>
 
 <style>

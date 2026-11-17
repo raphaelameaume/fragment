@@ -64,33 +64,6 @@ export let init = () => {
 
 ## Keyboard
 
-### `onKeyPress`
-- Type: `(key?: (string|string[]), listener: (event:KeyboardEvent) => void) => void`
-
-Register a `keypress` listener for `key` on `window`.
-
-```js
-import { onKeyPress } from "@fragment/triggers";
-
-export let init = () => {
-	onKeyPress(() => {
-		console.log("called for every keypress");
-	});
-
-	onKeyPress('a', () => {
-		console.log("called when 'a' is pressed");
-	});
-
-	onKeyPress('A', () => {
-		console.log("called when 'A' is pressed");
-	});
-
-	onKeyPress(['a', 'A'], () => {
-		console.log("called when 'a' or 'A' is pressed");
-	});
-};
-```
-
 ### `onKeyDown`
 - Type: `(key?: (string|string[]), listener: (event:KeyboardEvent) => void) => void`
 

@@ -94,6 +94,10 @@
 		value={keys}
 		disabled={trigger.hot}
 		onchange={(event) => {
+			if (!trigger.params?.key) {
+				trigger.params = { key: [] };
+			}
+
 			trigger.params.key = event.currentTarget.value
 				.trim()
 				.split(',')

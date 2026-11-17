@@ -6,10 +6,6 @@ declare module '@fragment/triggers' {
 	function onMouseMove(listener: (event: MouseEvent) => void): void;
 
 	// Keyboard
-	function onKeyPress(
-		key?: string | string[],
-		listener: (event: KeyboardEvent) => void,
-	): void;
 	function onKeyDown(
 		key?: string | string[],
 		listener: (event: KeyboardEvent) => void,

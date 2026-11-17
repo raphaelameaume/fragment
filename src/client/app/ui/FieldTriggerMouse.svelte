@@ -24,6 +24,7 @@
 <Field
 	key="event"
 	value={eventName}
+	disabled={trigger.hot}
 	params={{
 		options: eventOptions,
 	}}
