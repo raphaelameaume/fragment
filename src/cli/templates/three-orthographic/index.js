@@ -7,6 +7,8 @@ let camera;
 /** @type {THREE.Vector2} */
 let resolution = new THREE.Vector2();
 
+export const props = {};
+
 /**
  * @param {object} params
  * @param {HTMLCanvasElement} params.canvas

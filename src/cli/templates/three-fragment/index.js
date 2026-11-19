@@ -9,6 +9,8 @@ let camera;
 /** @type {THREE.Vector2} */
 let resolution = new THREE.Vector2();
 
+export const props = {};
+
 let uniforms = {
 	uResolution: { value: resolution },
 	uTime: { value: 0 },
