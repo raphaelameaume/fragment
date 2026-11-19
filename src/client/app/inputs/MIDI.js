@@ -119,7 +119,7 @@ class MIDI extends Input {
 		this.pendingAccess = null;
 
 		/** @type {boolean} */
-		this.enabled = false;
+		this.enabled = true;
 
 		/** @type {Map<string, MIDIListener[]>} */
 		this.listeners = new Map();
